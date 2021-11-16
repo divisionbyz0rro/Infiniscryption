@@ -54,10 +54,6 @@ You'll observe that a lot of these things I'm talking about directly relate to t
 
 I'm still undecided on whether or not to keep the existing puzzles in place. It might be annoying to have to both solve the puzzle *and* have the required currency to upgrade. It's trivial to have the puzzles solve themselves at the start of the game.
 
-## Additional Regions
-
-I'd like to add additional regions to the game, but there's 
-
 # Project Architecture
 The mod is implemented as a series of plugins. Each of these plugins has an 'Active' flag that will allow you to activate or deactivate individual components of this mod, in case you only want to use certain features. If the mod is deactivated, it will skip patching the game when it starts up.
 
