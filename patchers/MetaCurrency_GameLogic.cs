@@ -18,31 +18,16 @@ namespace Infiniscryption.Patchers
         // There are two metacurrencies: excess teeth and quills
         // Excess teeth are teeth that are leftover when you die
 
-        public static int ExcessTeeth = 0;
-        
-        public static int Quills = 0;
-
-        [HarmonyPatch(typeof(SaveManager), "LoadFromFile")]
-        [HarmonyPostfix]
-        public static void LoadSavedMetaCurrency()
+        public static int ExcessTeeth
         {
-            // Load the current state of the metacurrency
-            string teeth = SaveGameHelper.GetValue("Metacurrency.Teeth");
-            if (teeth != default(string))
-                ExcessTeeth = int.Parse(teeth);
-            
-            string quills = SaveGameHelper.GetValue("Metacurrency.Quills");
-            if (quills != default(string))
-                Quills = int.Parse(quills);
+            get { return SaveGameHelper.GetInt("MetaCurrency.Teeth", 100); }
+            set { SaveGameHelper.SetValue("MetaCurrency.Teeth", value.ToString()); }
         }
 
-        [HarmonyPatch(typeof(SaveManager), "SaveToFile")]
-        [HarmonyPrefix]
-        public static void SaveStarterDecks()
+        public static int Quills
         {
-            // Save the current state of the starter decks
-            SaveGameHelper.SetValue("Metacurrency.Teeth", ExcessTeeth.ToString());
-            SaveGameHelper.SetValue("Metacurrency.Quills", Quills.ToString());
+            get { return SaveGameHelper.GetInt("MetaCurrency.Quills", 100); }
+            set { SaveGameHelper.SetValue("MetaCurrency.Quills", value.ToString()); }
         }
     }
 }

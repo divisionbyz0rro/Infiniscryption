@@ -29,17 +29,29 @@ namespace Infiniscryption
             }
         }
 
-        public List<string> DeckSpecs
+        public string[] DeckSpecs
         {
             get
             {
-                List<string> retval = new List<string>();
-                retval.Add(Config.Bind("InfiniscryptionStarterDecks", "Deck1", "Wolf,WolfCub,Coyote,Bullfrog", new BepInEx.Configuration.ConfigDescription("This defines Starter Deck 1 - comma separated. The first card will be the one shown to the player to select.")).Value);
-                retval.Add(Config.Bind("InfiniscryptionStarterDecks", "Deck2", "Sparrow,Kingfisher,RavenEgg,Snapper", new BepInEx.Configuration.ConfigDescription("This defines Starter Deck 2 - comma separated. The first card will be the one shown to the player to select.")).Value);
-                retval.Add(Config.Bind("InfiniscryptionStarterDecks", "Deck3", "Elk,ElkCub,Pronghorn,Porcupine", new BepInEx.Configuration.ConfigDescription("This defines Starter Deck 3 - comma separated. The first card will be the one shown to the player to select.")).Value);
-                return retval;
+                return new string[] {
+                    Config.Bind("InfiniscryptionStarterDecks", "Deck1", "Wolf,WolfCub,Coyote,Bullfrog", new BepInEx.Configuration.ConfigDescription("This defines Starter Deck 1 - comma separated. The first card will be the one shown to the player to select.")).Value,
+                    Config.Bind("InfiniscryptionStarterDecks", "Deck2", "Sparrow,Bat,RavenEgg,Snapper", new BepInEx.Configuration.ConfigDescription("This defines Starter Deck 2 - comma separated. The first card will be the one shown to the player to select.")).Value,
+                    Config.Bind("InfiniscryptionStarterDecks", "Deck3", "Elk,ElkCub,Pronghorn,Porcupine", new BepInEx.Configuration.ConfigDescription("This defines Starter Deck 3 - comma separated. The first card will be the one shown to the player to select.")).Value
+                };
             }
 		}
+
+        public string[] DeckEvolutions
+        {
+            get
+            {
+                return new string[] {
+                    Config.Bind("InfiniscryptionStarterDecks", "Deck1Evolution", "1=Wolf_Talking,3+2H&+WhackAMoleS,2=Alpha&+-1O,0+TailOnHitS,3+SharpS,2+-1O&+1H,0+DrawRabbitS,1+FlyingS", new BepInEx.Configuration.ConfigDescription("This defines Starter Deck 1 - comma separated. The first card will be the one shown to the player to select.")).Value,
+                    Config.Bind("InfiniscryptionStarterDecks", "Deck2Evolution", "3=Stoat_Talking&+1H&+QuadrupleBonesS,1+-1O,0+BeesOnHitS,2+SharpS,3+DeathtouchS,0+SplitStrikeS,2+PreventAttackS,1+UnkillableS", new BepInEx.Configuration.ConfigDescription("This defines Starter Deck 2 - comma separated. The first card will be the one shown to the player to select.")).Value,
+                    Config.Bind("InfiniscryptionStarterDecks", "Deck3Evolution", "3=Stinkbug_Talking&+1H,0+1A,2+SharpS,1+SubmergeS,3+SharpS&+RandomAbilityS,1+DrawAnt,0+1A&+2H&+StrafePushS,2+1A", new BepInEx.Configuration.ConfigDescription("This defines Starter Deck 3 - comma separated. The first card will be the one shown to the player to select.")).Value
+                };
+            }
+        }
 
         internal static ManualLogSource Log;
 

@@ -68,7 +68,7 @@ namespace Infiniscryption.Helpers
             };
         }
 
-        public static DialogueEvent CloneDialogueEvent(DialogueEvent dialogueEvent, string newId)
+        public static DialogueEvent CloneDialogueEvent(DialogueEvent dialogueEvent, string newId, bool includeRepeat=false)
         {
             DialogueEvent clonedEvent = new DialogueEvent {
                 id = newId,
@@ -83,14 +83,17 @@ namespace Infiniscryption.Helpers
                 clonedEvent.mainLines.lines.Add(CloneLine(line));
             }
 
-            foreach (var lineSet in dialogueEvent.repeatLines)
+            if (includeRepeat)
             {
-                DialogueEvent.LineSet newSet = new DialogueEvent.LineSet();
-                foreach (var line in lineSet.lines)
+                foreach (var lineSet in dialogueEvent.repeatLines)
                 {
-                    newSet.lines.Add(CloneLine(line));
+                    DialogueEvent.LineSet newSet = new DialogueEvent.LineSet();
+                    foreach (var line in lineSet.lines)
+                    {
+                        newSet.lines.Add(CloneLine(line));
+                    }
+                    clonedEvent.repeatLines.Add(newSet);
                 }
-                clonedEvent.repeatLines.Add(newSet);
             }
 
             foreach (var speaker in dialogueEvent.speakers)

@@ -23,6 +23,9 @@
     <Reference Include="Sirenix.Serialization" Private="false">
       <HintPath>.\lib\Sirenix.Serialization.dll</HintPath>
     </Reference>
+    <Reference Include="Sirenix.OdinInspector" Private="false">
+      <HintPath>.\lib\Sirenix.OdinInspector.Attributes.dll</HintPath>
+    </Reference>
   </ItemGroup>
   
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">

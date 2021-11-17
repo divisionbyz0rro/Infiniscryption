@@ -37,7 +37,7 @@ namespace Infiniscryption
                 Harmony harmony = new Harmony(PluginGuid);
                 harmony.PatchAll(typeof(MetaCurrencyPatches));
 
-                InfiniscryptionStarterDecksPlugin.Log = base.Logger;
+                InfiniscryptionMetaCurrencyPlugin.Log = base.Logger;
 
                 // And we're loaded
                 Logger.LogInfo($"Plugin {PluginName} is loaded!");
