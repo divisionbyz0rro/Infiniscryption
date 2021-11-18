@@ -7,6 +7,16 @@ namespace Infiniscryption.Helpers
     {
         private const string SaveKey = "Infiniscryption";
 
+        public static bool GetBool(string key)
+        {
+            string value = GetValue(key);
+
+            if (value == default(string))
+                return false;
+
+            return bool.Parse(GetValue(key));
+        }
+
         public static int GetInt(string key, int fallback=default(int))
         {
             string value = GetValue(key);
