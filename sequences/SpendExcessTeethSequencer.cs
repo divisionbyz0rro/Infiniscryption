@@ -8,6 +8,7 @@ using Pixelplacement;
 using UnityEngine;
 using HarmonyLib;
 using Sirenix.OdinInspector;
+using TMPro;
 
 namespace Infiniscryption.Sequences
 {
@@ -223,7 +224,7 @@ namespace Infiniscryption.Sequences
 		}
 
 		// Token: 0x06000C01 RID: 3073 RVA: 0x0002BFA8 File Offset: 0x0002A1A8
-		private void AddPricetagToCard(SelectableCard card, int priceIndex, float tweenDelay)
+		private void AddPricetagToCard(SelectableCard card, int price, float tweenDelay)
 		{
 			GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(this.pricetagPrefab);
 			gameObject.transform.SetParent(card.transform);
@@ -231,6 +232,22 @@ namespace Infiniscryption.Sequences
 			gameObject.transform.localEulerAngles = new Vector3(-90f, -90f, 90f);
 			gameObject.name = "pricetag";
 			gameObject.GetComponentInChildren<Renderer>().material.mainTexture = this.pricetagTextures[0];
+
+			// Now we need to add the price to the tag as a text mesh
+			// Okay, I can't actually add it apparently? It gets really, really angry.
+			GameObject priceLabel = new GameObject();
+			priceLabel.name = "pricelabel";
+			priceLabel.transform.SetParent(gameObject.transform);
+			TextMeshPro textMesh = priceLabel.AddComponent<TextMeshPro>();
+			textMesh.autoSizeTextContainer = true;
+			textMesh.text = price.ToString();
+			textMesh.fontSize = 5;
+			textMesh.transform.rotation = Quaternion.LookRotation(-Vector3.up, Vector3.up);
+			textMesh.transform.localPosition = new Vector3(0f, 0.05f, -0.7f);
+			textMesh.alignment = TextAlignmentOptions.Center;
+			textMesh.font = this.pricetagFont;
+			textMesh.color = new Color(0.4196f, 0.2275f, 0.1725f);
+
 			Tween.LocalRotation(gameObject.transform, new Vector3(-80f + UnityEngine.Random.value * -20f, -90f, 90f), 0.25f, tweenDelay, Tween.EaseOut, Tween.LoopType.None, null, null, true);
 		}
 
@@ -253,6 +270,11 @@ namespace Infiniscryption.Sequences
 				transform.parent = null;
 				Tween.Position(transform, transform.position + Vector3.forward + Vector3.up * 2f, 0.2f, 0f, Tween.EaseIn, Tween.LoopType.None, null, null, true);
 				Tween.Rotate(transform, new Vector3(45f, 0f, 0f), Space.World, 0.2f, 0f, Tween.EaseIn, Tween.LoopType.None, null, null, true);
+				
+				Transform labelTransform = transform.transform.Find("pricelabel");
+				if (labelTransform != null)
+					UnityEngine.Object.Destroy(labelTransform.gameObject);
+
                 UnityEngine.Object.Destroy(transform.gameObject, 0.4f);
 			}
 			upgrade.SetEnabled(false);
@@ -480,6 +502,8 @@ namespace Infiniscryption.Sequences
                 return _pricetagTextures;
             }
         }
+
+		private TMP_FontAsset pricetagFont = Resources.Load<TMP_FontAsset>("fonts/3d scene fonts/garbageschrift");
 
 		private readonly Vector3 UPGRADES_ANCHOR = new Vector3(-0.6f, 5.01f, -0.55f);
 
