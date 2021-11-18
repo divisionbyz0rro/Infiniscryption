@@ -10,6 +10,8 @@ using System;
 using Infiniscryption;
 using Infiniscryption.Helpers;
 using Infiniscryption.Sequences;
+using TMPro;
+using UnityEngine.UI;
 
 namespace Infiniscryption.Patchers
 {
@@ -38,6 +40,13 @@ namespace Infiniscryption.Patchers
             // If starter decks are inactive, let the skull behave as normal
             if (new InfiniscryptionStarterDecksPlugin().Active)
             {
+                // Destroy the teeth displayer if it's active
+                if (_skullTeethContainer != null)
+                {
+                    GameObject.Destroy(_skullTeethContainer);
+                    _skullTeethContainer = null;
+                }
+
                 // Let's see what happens when you click a tooth now!
                 Singleton<GameFlowManager>.Instance.TransitionToGameState(GameState.SpecialCardSequence, SpendExcessTeethNodeData.Instance);
                 return false;
@@ -63,6 +72,55 @@ namespace Infiniscryption.Patchers
 				return false; // This prevents the rest of the thing from running.
 			}
             return true; // This makes the rest of the thing run
+        }
+
+        private static GameObject _skullTeethContainer;
+        [HarmonyPatch(typeof(ZoomInteractable), "SetZoomed")]
+        [HarmonyPostfix]
+        public static void DisplayAvailableTeeth(ref ZoomInteractable __instance)
+        {
+            // This fires whenever you zoom into anything. What we're looking
+            // for is to see if you've zoomed into the skull. If so, display
+            // the amount of teeth you can spend.
+            if (new InfiniscryptionStarterDecksPlugin().Active)
+            {
+                InfiniscryptionMetaCurrencyPlugin.Log.LogInfo($"In 'Zoomed'");
+                FreeTeethSkull[] skullChild = __instance.gameObject.GetComponentsInChildren<FreeTeethSkull>();
+                if (skullChild != null && skullChild.Length > 0)
+                {
+                    InfiniscryptionMetaCurrencyPlugin.Log.LogInfo($"Instance is {__instance} with name {__instance.name}");    
+
+                    if (__instance.Zoomed && _skullTeethContainer == null)
+                    {
+                        _skullTeethContainer = new GameObject();
+                        _skullTeethContainer.transform.SetPositionAndRotation(
+                            __instance.gameObject.transform.position,
+                            __instance.gameObject.transform.rotation
+                        );
+                        
+                        TextMeshPro text = _skullTeethContainer.gameObject.AddComponent<TextMeshPro>();
+                        text.fontSize = 5;
+                        text.autoSizeTextContainer = true;
+                        text.color = new Color(0.533f, 0.4118f, 0.3255f, 0.8f);
+
+
+                        text.font = Resources.Load<TMP_FontAsset>("fonts/3d scene fonts/garbageschrift");
+                        text.alignment = TextAlignmentOptions.Center;
+
+                        text.transform.position += new Vector3(0.2f, 1.6f, -0.7f);
+                        text.transform.rotation = Quaternion.LookRotation(new Vector3(-1f, -0.8f, 1f), Vector3.up);
+
+                        text.text = ExcessTeeth.ToString();
+                    }
+                    if (!__instance.Zoomed && _skullTeethContainer != null)
+                    {
+                        GameObject.Destroy(_skullTeethContainer);
+                        _skullTeethContainer = null;
+                    }
+                } else {
+                    InfiniscryptionMetaCurrencyPlugin.Log.LogInfo($"Was not skull");
+                }
+            }
         }
     }
 }
