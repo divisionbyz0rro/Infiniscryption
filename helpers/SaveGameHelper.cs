@@ -70,7 +70,8 @@ namespace Infiniscryption.Helpers
             }
         }
 
-        [HarmonyPatch(typeof(SaveFile), "NewPart1Run")]
+        /*
+        [HarmonyPatch(typeof(SaveFile), "CreateNewSaveFile")]
         [HarmonyPrefix]
         public static void ClearAllKeys()
         {
@@ -87,5 +88,6 @@ namespace Infiniscryption.Helpers
                 }
             }
         }
+        */
     }
 }

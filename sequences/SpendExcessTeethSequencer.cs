@@ -235,6 +235,7 @@ namespace Infiniscryption.Sequences
 
 			// Now we need to add the price to the tag as a text mesh
 			// Okay, I can't actually add it apparently? It gets really, really angry.
+			// So instead it's a new gameobject, connected as a transform
 			GameObject priceLabel = new GameObject();
 			priceLabel.name = "pricelabel";
 			priceLabel.transform.SetParent(gameObject.transform);

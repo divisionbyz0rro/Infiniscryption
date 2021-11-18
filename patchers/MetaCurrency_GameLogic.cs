@@ -20,13 +20,13 @@ namespace Infiniscryption.Patchers
 
         public static int ExcessTeeth
         {
-            get { return SaveGameHelper.GetInt("MetaCurrency.Teeth", 100); }
+            get { return SaveGameHelper.GetInt("MetaCurrency.Teeth", 0); }
             set { SaveGameHelper.SetValue("MetaCurrency.Teeth", value.ToString()); }
         }
 
         public static int Quills
         {
-            get { return SaveGameHelper.GetInt("MetaCurrency.Quills", 100); }
+            get { return SaveGameHelper.GetInt("MetaCurrency.Quills", 0); }
             set { SaveGameHelper.SetValue("MetaCurrency.Quills", value.ToString()); }
         }
     }
