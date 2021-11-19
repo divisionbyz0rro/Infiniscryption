@@ -49,9 +49,9 @@
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="xcopy /Y $(TargetPath) $(ProjectDir)\Compiled" />
     <Exec Command='xcopy /Y $(TargetPath) "C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins"' />
-    <Exec Command='xcopy /Y $(TargetPath) $(ProjectDir)\..\Packages\StarterDecks' />
-    <Exec Command='xcopy /Y $(ProjectDir)\README.md $(ProjectDir)\..\Packages\StarterDecks' />
-    <Exec Command='xcopy /Y $(ProjectDir)\icon.png $(ProjectDir)\..\Packages\StarterDecks' />
-    <Exec Command='xcopy /Y $(ProjectDir)\manifest.json $(ProjectDir)\..\Packages\StarterDecks' />
+    <Exec Command='xcopy /Y $(TargetPath) $(ProjectDir)\package' />
+    <Exec Command='xcopy /Y $(ProjectDir)\README.md $(ProjectDir)\package' />
+    <Exec Command='xcopy /Y $(ProjectDir)\icon.png $(ProjectDir)\package' />
+    <Exec Command='xcopy /Y $(ProjectDir)\manifest.json $(ProjectDir)\package' />
   </Target>
 </Project>
