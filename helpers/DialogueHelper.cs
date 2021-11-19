@@ -17,10 +17,29 @@ namespace Infiniscryption.Helpers
         public static void AddOrModifySimpleDialogEvent(string eventId, string line, string template = "NewRunDealtDeckDefault")
         {
             string[] lines = { line };
-            AddOrModifySimpleDialogEvent(eventId, lines, template);
+            AddOrModifySimpleDialogEvent(eventId, lines, null, template);
         }
 
-        public static void AddOrModifySimpleDialogEvent(string eventId, string[] lines, string template = "NewRunDealtDeckDefault")
+        private static void SyncLineCollection(List<DialogueEvent.Line> curLines, string[] newLines)
+        {
+            // Delete unnecessary lines
+            while (curLines.Count > newLines.Length)
+                curLines.RemoveAt(curLines.Count - 1);
+
+            // Modify all existing lines of dialogue in place
+            for (int i = 0; i < curLines.Count; i++)
+                curLines[i].text = newLines[i];
+
+            // Clone the first line, modify it, and add to the end for any additional lines
+            for (int i = curLines.Count; i < newLines.Length; i++)
+            {
+                DialogueEvent.Line newLine = CloneLine(curLines[0]);
+                newLine.text = newLines[i];
+                curLines.Add(newLine);
+            }
+        }
+
+        public static void AddOrModifySimpleDialogEvent(string eventId, string[] lines, string[][] repeatLines=null, string template = "NewRunDealtDeckDefault")
         {
             // Get the event from the database
             bool addEvent = false;
@@ -36,18 +55,24 @@ namespace Infiniscryption.Helpers
                 {
                     dialogue.mainLines.lines.RemoveAt(lines.Length);
                 }
-            }
+            } 
 
-            // Modify all existing lines of dialogue in place
-            for (int i = 0; i < dialogue.mainLines.lines.Count; i++)
-                dialogue.mainLines.lines[i].text = lines[i];
+            // Sync the main lines
+            SyncLineCollection(dialogue.mainLines.lines, lines);
 
-            // Clone the first line, modify it, and add to the end for any additional lines
-            for (int i = dialogue.mainLines.lines.Count; i < lines.Length; i++)
+            // Sync the repeat lines
+            if (repeatLines == null)
             {
-                DialogueEvent.Line newLine = CloneLine(dialogue.mainLines.lines[0]);
-                newLine.text = lines[i];
-                dialogue.mainLines.lines.Add(newLine);
+                dialogue.repeatLines.Clear();
+            } else {
+
+                // Delete unnecessary
+                while (dialogue.repeatLines.Count > repeatLines.Length)
+                    dialogue.repeatLines.RemoveAt(dialogue.repeatLines.Count - 1);
+
+                // Modify all existing lines of dialogue in place
+                for (int i = 0; i < dialogue.repeatLines.Count; i++)
+                    SyncLineCollection(dialogue.repeatLines[i].lines, repeatLines[i]);
             }
 
             if (addEvent)
@@ -68,7 +93,7 @@ namespace Infiniscryption.Helpers
             };
         }
 
-        public static DialogueEvent CloneDialogueEvent(DialogueEvent dialogueEvent, string newId)
+        public static DialogueEvent CloneDialogueEvent(DialogueEvent dialogueEvent, string newId, bool includeRepeat=false)
         {
             DialogueEvent clonedEvent = new DialogueEvent {
                 id = newId,
@@ -83,14 +108,17 @@ namespace Infiniscryption.Helpers
                 clonedEvent.mainLines.lines.Add(CloneLine(line));
             }
 
-            foreach (var lineSet in dialogueEvent.repeatLines)
+            if (includeRepeat)
             {
-                DialogueEvent.LineSet newSet = new DialogueEvent.LineSet();
-                foreach (var line in lineSet.lines)
+                foreach (var lineSet in dialogueEvent.repeatLines)
                 {
-                    newSet.lines.Add(CloneLine(line));
+                    DialogueEvent.LineSet newSet = new DialogueEvent.LineSet();
+                    foreach (var line in lineSet.lines)
+                    {
+                        newSet.lines.Add(CloneLine(line));
+                    }
+                    clonedEvent.repeatLines.Add(newSet);
                 }
-                clonedEvent.repeatLines.Add(newSet);
             }
 
             foreach (var speaker in dialogueEvent.speakers)

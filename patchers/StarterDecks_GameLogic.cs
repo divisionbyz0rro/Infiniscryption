@@ -7,8 +7,11 @@ using HarmonyLib;
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using System.Linq;
 using Infiniscryption;
 using Infiniscryption.Helpers;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 
 namespace Infiniscryption.Patchers
 {
@@ -37,29 +40,69 @@ namespace Infiniscryption.Patchers
         // They either come from the save file, or they come from configuration
         // By putting them in the save file, this lets us modify them through the
         // course of a save (i.e., letting players level up their starter decks)
-
-        private static List<String> _starterDecks;
-        public static List<String> StarterDecks
+        public static List<string> StarterDecks
         {
-            get { return _starterDecks ?? new InfiniscryptionStarterDecksPlugin().DeckSpecs; }
+            get 
+            {
+                string starterDecks = SaveGameHelper.GetValue("StarterDecks");
+
+                if (starterDecks == default(string))
+                {
+                    string[] retval = InfiniscryptionStarterDecksPlugin.DeckSpecs;
+                    SaveGameHelper.SetValue("StarterDecks", string.Join("|", retval));
+                    return retval.ToList();
+                }
+
+                return starterDecks.Split('|').ToList();
+            }
         }
 
-        [HarmonyPatch(typeof(SaveManager), "LoadFromFile")]
-        [HarmonyPostfix]
-        public static void LoadSavedStarterDecks()
+        public static List<string> StarterDeckEvolutions
         {
-            // Load the current state of the starter decks
-            string deckSpec = SaveGameHelper.GetValue("StarterDecks");
-            if (deckSpec != default(string))
-                _starterDecks = new List<String>(deckSpec.Split('|'));
+            get 
+            {
+                string starterDecks = SaveGameHelper.GetValue("StarterDeckEvolutions");
+
+                if (starterDecks == default(string))
+                {
+                    string[] retval = InfiniscryptionStarterDecksPlugin.DeckEvolutions;
+                    SaveGameHelper.SetValue("StarterDeckEvolutions", string.Join("|", retval));
+                    return retval.ToList();
+                }
+
+                return starterDecks.Split('|').ToList();
+            }
         }
 
-        [HarmonyPatch(typeof(SaveManager), "SaveToFile")]
+        public static List<int> DeckEvolutionProgress
+        {
+            get 
+            {
+                string evolutions = SaveGameHelper.GetValue("StarterDeckProgress");
+
+                if (evolutions == default(string))
+                {
+                    int[] retval = new int[InfiniscryptionStarterDecksPlugin.DeckSpecs.Length];
+                    SaveGameHelper.SetValue("StarterDeckProgress", string.Join("|", retval));
+                    return retval.ToList();
+                }
+
+                return evolutions.Split('|').Select(str => int.Parse(str)).ToList();
+            }
+        }
+
+        public static void UpdateDeckEvolutionProgress(int deckId, int newLevel)
+        {
+            List<int> curProgress = DeckEvolutionProgress;
+            curProgress[deckId] = newLevel;
+            SaveGameHelper.SetValue("StarterDeckProgress", string.Join("|", curProgress));
+        }
+
+        [HarmonyPatch(typeof(DeckInfo), "AddCard")]
         [HarmonyPrefix]
-        public static void SaveStarterDecks()
+        public static void LogNewCard(CardInfo card)
         {
-            // Save the current state of the starter decks
-            SaveGameHelper.SetValue("StarterDecks", String.Join("|", StarterDecks));
+            InfiniscryptionStarterDecksPlugin.Log.LogInfo($"Adding card {card.name} with {card.Mods.Count} mods");
         }
             
         [HarmonyPatch(typeof(PaperGameMap), "TryInitializeMapData")]
@@ -73,27 +116,27 @@ namespace Infiniscryption.Patchers
             // Be a good citizen - if you haven't completed the tutorial, this should have no effect:
             if (StoryEventsData.EventCompleted(StoryEvent.TutorialRunCompleted))
             {
-                InfiniscryptionStarterDecksPlugin.Log.LogInfo($"In map initialization");
-                PredefinedNodes nodes = ScriptableObject.CreateInstance<PredefinedNodes>();
-                nodes.nodeRows.Add(new List<NodeData>() { new NodeData() });
-
-                CardChoicesNodeData tribeNode = new CardChoicesNodeData();
-                tribeNode.choicesType = CardChoicesType.Tribe;
-                tribeNode.overrideChoices = new List<CardChoice>();
-
-                // Set up the decks from configuration
-                foreach (string deckSpec in StarterDecks)
+                if (RunState.Run.map == null) // Only do this when the map is empty
                 {
-                    string leader = deckSpec.Split(',')[0];
-                    tribeNode.overrideChoices.Add(
-                        new CardChoice{
-                            CardInfo = CardLoader.GetCardByName(leader)
-                        }
-                    );
-                }
+                    InfiniscryptionStarterDecksPlugin.Log.LogInfo($"In map initialization");
+                    PredefinedNodes nodes = ScriptableObject.CreateInstance<PredefinedNodes>();
+                    nodes.nodeRows.Add(new List<NodeData>() { new NodeData() });
 
-                nodes.nodeRows.Add(new List<NodeData>() { tribeNode });
-                __instance.PredefinedNodes = nodes;
+                    CardChoicesNodeData tribeNode = new CardChoicesNodeData();
+                    tribeNode.choicesType = CardChoicesType.Tribe;
+                    tribeNode.overrideChoices = new List<CardChoice>();
+
+                    // Set up the decks from configuration
+                    for (int i = 0; i < StarterDecks.Count; i++)
+                    {
+                        List<CardInfo> deck = CardManagementHelper.EvolveDeck(i);
+                        InfiniscryptionStarterDecksPlugin.Log.LogInfo($"Adding choice {i}: {deck[0].name} with {deck[0].Mods.Count} mods");
+                        tribeNode.overrideChoices.Add(new CardChoice{CardInfo = deck[0]});
+                    }
+
+                    nodes.nodeRows.Add(new List<NodeData>() { tribeNode });
+                    __instance.PredefinedNodes = nodes;
+                }
             }
         }
 
@@ -108,20 +151,21 @@ namespace Infiniscryption.Patchers
             InfiniscryptionStarterDecksPlugin.Log.LogInfo($"In starter deck initializer");
 
             // We don't have to do a tutorial check because your deck has multiple cards in it already
-            // during the tutorial. 
-            DeckInfo deck = SaveManager.SaveFile.CurrentDeck;
+            // during te tutorial. 
+            DeckInfo deck = RunState.Run.playerDeck;
             if (deck.Cards.Count == 1)
             {
                 // We need to add the necessary cards
                 // Set up the decks from configuration
-                foreach (string deckSpec in StarterDecks)
+                for (int i = 0; i < StarterDecks.Count; i++)
                 {
-                    string[] specList = deckSpec.Split(',');
-                    if (deck.Cards[0].name == specList[0])
+                    List<CardInfo> evolvedDeck = CardManagementHelper.EvolveDeck(StarterDecks[i], StarterDeckEvolutions[i], DeckEvolutionProgress[i]);
+                    if (deck.Cards[0].name == evolvedDeck[0].name)
                     {
-                        deck.AddCard(CardLoader.GetCardByName(specList[1]));
-                        deck.AddCard(CardLoader.GetCardByName(specList[2]));
-                        deck.AddCard(CardLoader.GetCardByName(specList[3]));
+                        deck.AddCard(evolvedDeck[1]);
+                        deck.AddCard(evolvedDeck[2]);
+                        deck.AddCard(evolvedDeck[3]);
+                        
                         break;
                     }
                 }

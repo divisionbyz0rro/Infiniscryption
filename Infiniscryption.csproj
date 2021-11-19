@@ -23,6 +23,15 @@
     <Reference Include="Sirenix.Serialization" Private="false">
       <HintPath>.\lib\Sirenix.Serialization.dll</HintPath>
     </Reference>
+    <Reference Include="Sirenix.OdinInspector" Private="false">
+      <HintPath>.\lib\Sirenix.OdinInspector.Attributes.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro" Private="false">
+      <HintPath>.\lib\Unity.TextMeshPro.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI" Private="false">
+      <HintPath>.\lib\UnityEngine.UI.dll</HintPath>
+    </Reference>
   </ItemGroup>
   
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
@@ -35,5 +44,6 @@
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="xcopy /Y $(TargetPath) $(ProjectDir)\Compiled" />
+    <Exec Command='xcopy /Y $(TargetPath) "C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins"' />
   </Target>
 </Project>

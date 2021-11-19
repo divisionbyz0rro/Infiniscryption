@@ -36,10 +36,10 @@ Difficulty modifiers I'm considering:
 - **Handicap**: Start each round -1 tooth.
 - **Give Up Upgrades**: Turn off things like the clover, the bees, etc.
 
-## Meta-Currency (Planned)
+## Meta-Currency (In Progress)
 As with every rogue-like, there has to be some sort of meta-currency that can be spent for permanent upgrades. Currently, I'm hoping to implement two meta-currencies:
 
-- **Leftover Teeth:** Store any leftover teeth at the end of the run.
+- **Leftover Teeth:** Store any leftover teeth at the end of the run. I'm aware that the Oroboros breaks this to a degree. I'll worry about that later.
 - **Quills:** Use the quills that Leshy offers whenever he concedes as a second meta-currency.
 
 I'm also considering adding additional currencies tied to boss battles, very much the way that Hades works (as in, something you collect for beating a boss, but only the first time you beat it at a given difficulty level).
