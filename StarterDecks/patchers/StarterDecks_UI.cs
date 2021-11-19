@@ -8,7 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using Infiniscryption.StarterDecks;
-using Infiniscryption.StarterDecks.Helpers;
+using Infiniscryption.Core.Helpers;
 
 namespace Infiniscryption.StarterDecks.Patchers
 {

@@ -8,7 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
-namespace Infiniscryption.StarterDecks.Helpers
+namespace Infiniscryption.Core.Helpers
 {
     public static class DialogueHelper
     {
@@ -104,9 +104,7 @@ namespace Infiniscryption.StarterDecks.Helpers
             };
 
             foreach (var line in dialogueEvent.mainLines.lines)
-            {
                 clonedEvent.mainLines.lines.Add(CloneLine(line));
-            }
 
             if (includeRepeat)
             {
@@ -122,9 +120,7 @@ namespace Infiniscryption.StarterDecks.Helpers
             }
 
             foreach (var speaker in dialogueEvent.speakers)
-            {
                 clonedEvent.speakers.Add(speaker);
-            }
 
             return clonedEvent;
         }
