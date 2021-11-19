@@ -82,9 +82,37 @@ namespace Infiniscryption.Helpers
             );
         }
 
+        public static string GetEvolutionCommand(string[] commands, int step)
+        {
+            // This gets the next evolution.
+            // If it's in the list? Awesome. We do what the list says.
+            // If it's past the list? We follow this pattern:
+            //
+            // +1 health to each card (1-4)
+            // +1 power to each card (1-4)
+            // 'Random' sigil to each card (1-4)
+            // Then rotate between +1 health and +1 power.
+            if (step < commands.Length)
+                return commands[step];
+
+            // Get the card index
+            int cardIndex = (step - commands.Length) % 4;
+            int rotationIndex = (step - commands.Length) / 4;
+
+            if (rotationIndex == 2)
+                return $"{cardIndex}+RandomAbilityS";
+            if (rotationIndex == 0 || (rotationIndex > 2 && (rotationIndex - 2) % 2 == 0))
+                return $"{cardIndex}+1H";
+            if (rotationIndex == 1 || (rotationIndex > 2 && (rotationIndex - 2) % 2 == 1))
+                return $"{cardIndex}+1A";
+
+            // We shouldn't ever get here? But just in case:
+            return $"1+1A";
+        }
+
         public static List<CardInfo> EvolveDeck(string starterDeck, string evolutions, int stepsToEvolve)
         {
-            InfiniscryptionCorePlugin.Log.LogInfo($"Asked to get the current evolution for {starterDeck}, with evolution path {evolutions} and at step {stepsToEvolve}");
+            InfiniscryptionStarterDecksPlugin.Log.LogInfo($"Asked to get the current evolution for {starterDeck}, with evolution path {evolutions} and at step {stepsToEvolve}");
 
             // Start by getting the starter deck.
             // We clone cards that we get off of the card info 
@@ -96,7 +124,7 @@ namespace Infiniscryption.Helpers
             string[] allEvolutions = evolutions.Split(',');
             for (int i = 0; i < stepsToEvolve; i++)
             {
-                string curEvolution = allEvolutions[i];
+                string curEvolution = GetEvolutionCommand(allEvolutions, i);
 
                 // The first character is the card to change
                 int cardIdx = int.Parse(curEvolution[0].ToString());
@@ -122,16 +150,13 @@ namespace Infiniscryption.Helpers
 
         public static CardInfo GetNextEvolution(string starterDeck, string evolutions, int stepsToEvolve)
         {
-            InfiniscryptionCorePlugin.Log.LogInfo($"Asked to get the next evolution for {starterDeck}, with evolution path {evolutions} and at step {stepsToEvolve}");
+            InfiniscryptionStarterDecksPlugin.Log.LogInfo($"Asked to get the next evolution for {starterDeck}, with evolution path {evolutions} and at step {stepsToEvolve}");
 
             List<CardInfo> evolvedDeck = EvolveDeck(starterDeck, evolutions, stepsToEvolve);
 
             // Can only do this if there's an evolution left
             string[] allEvolutions = evolutions.Split(',');
-            if (stepsToEvolve >= allEvolutions.Length)
-                return null;
-
-            string curEvolution = allEvolutions[stepsToEvolve];
+            string curEvolution = GetEvolutionCommand(allEvolutions, stepsToEvolve);
 
             // The first character is the card to change
             int cardIdx = int.Parse(curEvolution[0].ToString());

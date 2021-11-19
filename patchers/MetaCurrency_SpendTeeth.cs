@@ -36,22 +36,16 @@ namespace Infiniscryption.Patchers
         [HarmonyPrefix]
         public static bool GoToCustomTraderWhenToothClicked()
         {
-            // We only interrupt the tooth clicking if starter decks are actually active.
-            // If starter decks are inactive, let the skull behave as normal
-            if (new InfiniscryptionStarterDecksPlugin().Active)
+            // Destroy the teeth displayer if it's active
+            if (_skullTeethContainer != null)
             {
-                // Destroy the teeth displayer if it's active
-                if (_skullTeethContainer != null)
-                {
-                    GameObject.Destroy(_skullTeethContainer);
-                    _skullTeethContainer = null;
-                }
-
-                // Let's see what happens when you click a tooth now!
-                Singleton<GameFlowManager>.Instance.TransitionToGameState(GameState.SpecialCardSequence, SpendExcessTeethNodeData.Instance);
-                return false;
+                GameObject.Destroy(_skullTeethContainer);
+                _skullTeethContainer = null;
             }
-            return true;
+
+            // Let's see what happens when you click a tooth now!
+            Singleton<GameFlowManager>.Instance.TransitionToGameState(GameState.SpecialCardSequence, SpendExcessTeethNodeData.Instance);
+            return false;
         }
 
         [HarmonyPatch(typeof(SpecialNodeHandler), "StartSpecialNodeSequence")]
@@ -63,11 +57,11 @@ namespace Infiniscryption.Patchers
 			{
                 if (__instance.gameObject.GetComponent<SpendExcessTeethSequencer>() == null)
                 {
-                    InfiniscryptionMetaCurrencyPlugin.Log.LogInfo($"Attaching teeth shop sequencer to parent");
+                    InfiniscryptionStarterDecksPlugin.Log.LogInfo($"Attaching teeth shop sequencer to parent");
                     __instance.gameObject.AddComponent<SpendExcessTeethSequencer>();
                 }
 
-                InfiniscryptionMetaCurrencyPlugin.Log.LogInfo($"Starting the shop");
+                InfiniscryptionStarterDecksPlugin.Log.LogInfo($"Starting the shop");
 				__instance.StartCoroutine(__instance.gameObject.GetComponent<SpendExcessTeethSequencer>().SpendExcessTeeth());
 				return false; // This prevents the rest of the thing from running.
 			}
@@ -82,44 +76,41 @@ namespace Infiniscryption.Patchers
             // This fires whenever you zoom into anything. What we're looking
             // for is to see if you've zoomed into the skull. If so, display
             // the amount of teeth you can spend.
-            if (new InfiniscryptionStarterDecksPlugin().Active)
+            InfiniscryptionStarterDecksPlugin.Log.LogInfo($"In 'Zoomed'");
+            FreeTeethSkull[] skullChild = __instance.gameObject.GetComponentsInChildren<FreeTeethSkull>();
+            if (skullChild != null && skullChild.Length > 0)
             {
-                InfiniscryptionMetaCurrencyPlugin.Log.LogInfo($"In 'Zoomed'");
-                FreeTeethSkull[] skullChild = __instance.gameObject.GetComponentsInChildren<FreeTeethSkull>();
-                if (skullChild != null && skullChild.Length > 0)
+                InfiniscryptionStarterDecksPlugin.Log.LogInfo($"Instance is {__instance} with name {__instance.name}");    
+
+                if (__instance.Zoomed && _skullTeethContainer == null)
                 {
-                    InfiniscryptionMetaCurrencyPlugin.Log.LogInfo($"Instance is {__instance} with name {__instance.name}");    
-
-                    if (__instance.Zoomed && _skullTeethContainer == null)
-                    {
-                        _skullTeethContainer = new GameObject();
-                        _skullTeethContainer.transform.SetPositionAndRotation(
-                            __instance.gameObject.transform.position,
-                            __instance.gameObject.transform.rotation
-                        );
-                        
-                        TextMeshPro text = _skullTeethContainer.gameObject.AddComponent<TextMeshPro>();
-                        text.fontSize = 5;
-                        text.autoSizeTextContainer = true;
-                        text.color = new Color(0.533f, 0.4118f, 0.3255f, 0.8f);
+                    _skullTeethContainer = new GameObject();
+                    _skullTeethContainer.transform.SetPositionAndRotation(
+                        __instance.gameObject.transform.position,
+                        __instance.gameObject.transform.rotation
+                    );
+                    
+                    TextMeshPro text = _skullTeethContainer.gameObject.AddComponent<TextMeshPro>();
+                    text.fontSize = 5;
+                    text.autoSizeTextContainer = true;
+                    text.color = new Color(0.533f, 0.4118f, 0.3255f, 0.8f);
 
 
-                        text.font = Resources.Load<TMP_FontAsset>("fonts/3d scene fonts/garbageschrift");
-                        text.alignment = TextAlignmentOptions.Center;
+                    text.font = Resources.Load<TMP_FontAsset>("fonts/3d scene fonts/garbageschrift");
+                    text.alignment = TextAlignmentOptions.Center;
 
-                        text.transform.position += new Vector3(0.2f, 1.6f, -0.7f);
-                        text.transform.rotation = Quaternion.LookRotation(new Vector3(-1f, -0.8f, 1f), Vector3.up);
+                    text.transform.position += new Vector3(0.2f, 1.6f, -0.7f);
+                    text.transform.rotation = Quaternion.LookRotation(new Vector3(-1f, -0.8f, 1f), Vector3.up);
 
-                        text.text = ExcessTeeth.ToString();
-                    }
-                    if (!__instance.Zoomed && _skullTeethContainer != null)
-                    {
-                        GameObject.Destroy(_skullTeethContainer);
-                        _skullTeethContainer = null;
-                    }
-                } else {
-                    InfiniscryptionMetaCurrencyPlugin.Log.LogInfo($"Was not skull");
+                    text.text = ExcessTeeth.ToString();
                 }
+                if (!__instance.Zoomed && _skullTeethContainer != null)
+                {
+                    GameObject.Destroy(_skullTeethContainer);
+                    _skullTeethContainer = null;
+                }
+            } else {
+                InfiniscryptionStarterDecksPlugin.Log.LogInfo($"Was not skull");
             }
         }
     }

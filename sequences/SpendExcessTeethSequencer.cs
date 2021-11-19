@@ -25,25 +25,7 @@ namespace Infiniscryption.Sequences
 
         // Yes, in fact, I did copy the code from BuyPeltsSequencer, then (heavily?) modify it.
         // I'm not good enough to do this on my own from scratch!
-
-        // This is the singleton instance of this thing we should always be using
         
-        /*
-        private static SpendExcessTeethSequencer _instance;
-        public static SpendExcessTeethSequencer Instance
-        {
-            get
-            {
-                // This enusres that the singleton instance doesn't get created
-                // until the first time we need it.
-                if (_instance == null)
-                    Instantiate();
-
-                return _instance;
-            }
-        }
-        */
-
         private static Traverse _parentContainer;
         private static T GetCopiedField<T>(string fieldName) where T : class
         {
@@ -53,6 +35,8 @@ namespace Infiniscryption.Sequences
             return _parentContainer.Field(fieldName).GetValue() as T;
         }
 
+		private List<List<SelectableCard>> dealtDecks;
+
 		public IEnumerator SpendExcessTeeth()
 		{
 			Singleton<ViewManager>.Instance.SwitchToView(View.Default, false, true);
@@ -61,7 +45,7 @@ namespace Infiniscryption.Sequences
             LeshyAnimationController.Instance.PutOnMask(LeshyAnimationController.Mask.Trader, true);
             yield return new WaitForSeconds(1.5f);
 
-            InfiniscryptionMetaCurrencyPlugin.Log.LogInfo($"Leshy is ready to sell upgrades");
+            InfiniscryptionStarterDecksPlugin.Log.LogInfo($"Leshy is ready to sell upgrades");
 
             // Tell the player that they can spend their ancestor's teeth here
 			yield return Singleton<TextDisplayer>.Instance.PlayDialogueEvent("AlertSpendTeeth", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
@@ -75,7 +59,18 @@ namespace Infiniscryption.Sequences
 			Singleton<ViewManager>.Instance.SwitchToView(View.TradingTopDown, false, false);
 			yield return new WaitForSeconds(0.3f);
 
-            InfiniscryptionMetaCurrencyPlugin.Log.LogInfo($"Setting up cards");
+			InfiniscryptionStarterDecksPlugin.Log.LogInfo($"Showing existing decks...");
+			// There are three decks, four cards each.
+			// We'll deal them out as three groups of four.
+			// Each group of four will be a 2x2.
+			// We'll deal each deck at a time
+			dealtDecks = new List<List<SelectableCard>>();
+			for (int i = 0; i < DeckConstructionPatches.StarterDecks.Count; i++)
+			{
+				DealDeck(i);
+			}
+
+            InfiniscryptionStarterDecksPlugin.Log.LogInfo($"Setting up cards");
             
             // Set up the selectable cards
 			this.upgradesForSale = new List<SelectableCard>{null,null,null};
@@ -94,44 +89,36 @@ namespace Infiniscryption.Sequences
 			Singleton<ViewManager>.Instance.Controller.LockState = ViewLockState.Unlocked;
             Singleton<ViewManager>.Instance.Controller.SwitchToControlMode(ViewController.ControlMode.Trading, false);
 
-			bool tradingCompleted = false;
-			this.purchasedPile.SetEnabled(true);
 			this.EnableWeightInteraction();
 			
-            // This sets up the pile of purchased cards and waits until the user clicks it (indicating that they're done)
-			CardPile cardPile2 = this.purchasedPile;
-			cardPile2.CursorSelectEnded = (Action<MainInputInteractable>)Delegate.Combine(cardPile2.CursorSelectEnded, new Action<MainInputInteractable>(delegate(MainInputInteractable i)
-			{
-				tradingCompleted = true;
-			}));
-			yield return new WaitUntil(() => tradingCompleted);
-
+            // Wait until you back away from the table
+			yield return new WaitUntil(() => ViewManager.Instance.CurrentView != View.TradingTopDown);
 
 			Singleton<ViewManager>.Instance.SwitchToView(View.TradingTopDown, false, true);
 			this.DisableWeightInteraction();
-			this.purchasedPile.SetEnabled(false);
-			this.purchasedPile.ClearDelegates();
-
-            // Shuffle the selected cards for fun
-			for (int i = this.purchasedUpgrades.Count - 1; i >= 0; i--)
-			{
-				this.purchasedUpgrades[i].Anim.PlayQuickRiffleSound();
-				this.purchasedUpgrades[i].SetFaceDown(true, false);
-				yield return new WaitForSeconds(0.05f);
-				this.deckPile.MoveCardToPile(this.purchasedUpgrades[i], false, 0f, 0.7f);
-				this.deckPile.AddToPile(this.purchasedUpgrades[i].transform);
-				yield return new WaitForSeconds(0.05f);
-			}
 
             bool playOuttroText = this.purchasedUpgrades.Count > 0;
 
 			this.purchasedUpgrades.Clear();
+
+			// Destroy the purchaseable cards
 			foreach (SelectableCard selectableCard in this.upgradesForSale)
 			{
 				int num2 = this.upgradesForSale.IndexOf(selectableCard);
 				Tween.LocalPosition(selectableCard.transform, selectableCard.transform.localPosition + Vector3.forward * 3f, 0.2f, 0.05f * (float)num2, Tween.EaseIn, Tween.LoopType.None, null, null, true);
 				selectableCard.SetEnabled(false);
 				UnityEngine.Object.Destroy(selectableCard.gameObject, 0.35f);
+			}
+
+			// Move all the dealt cards to a pile where they'll be destroyed later. 
+			foreach (var deck in this.dealtDecks)
+			{
+				foreach (SelectableCard selectableCard in deck)
+				{
+					selectableCard.Anim.PlayQuickRiffleSound();
+					this.deckPile.MoveCardToPile(selectableCard, false, 0f, 0.7f);
+					this.deckPile.AddToPile(selectableCard.transform);
+				}
 			}
 
 			this.upgradesForSale.Clear();
@@ -145,7 +132,7 @@ namespace Infiniscryption.Sequences
 			    yield return Singleton<TextDisplayer>.Instance.PlayDialogueEvent("UpgradedStarterDecks", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
 			yield return LeshyAnimationController.Instance.TakeOffMask();
 
-			yield return new WaitForSeconds(0.25f);
+			yield return new WaitForSeconds(1.5f);
 			yield return this.StartCoroutine(this.deckPile.DestroyCards(0.5f));
 
 			// Reset the first map node
@@ -158,101 +145,153 @@ namespace Infiniscryption.Sequences
 			{
                 // And we go back to 3D! Hopefully we're still pointing at the skull!
 				Singleton<GameFlowManager>.Instance.TransitionToGameState(GameState.FirstPerson3D, null);
+				OpponentAnimationController.Instance.SetExplorationMode(true);
 			}
+
+			SaveManager.SaveToFile(false);
+
 			yield break;
         }
+
+		private void DealDeck(int index, float tweenDelay = 0f)
+		{
+			InfiniscryptionStarterDecksPlugin.Log.LogInfo($"Dealing deck {index}");
+
+			// Create a new cardpile
+			List<SelectableCard> deckPiles = new List<SelectableCard>();
+
+			// Get the decklist
+			List<CardInfo> decklist = CardManagementHelper.EvolveDeck(index);
+
+			for (int j = 0; j < 4; j++)
+			{
+				InfiniscryptionStarterDecksPlugin.Log.LogInfo($"Dealing deck {index} card {j} {decklist[j].name}");
+
+				// Okay, let's initialize a new cardpile through duplication
+				GameObject newCard = UnityEngine.Object.Instantiate<GameObject>(this.selectableCardPrefab, this.transform);
+				SelectableCard component = newCard.GetComponent<SelectableCard>();
+				component.gameObject.SetActive(true);
+				component.SetInfo(decklist[j]);
+				component.SetEnabled(false);
+
+				// Figure out where it goes
+				Vector3 vector = this.DECK_ANCHOR + this.DECK_SPACING * (float)index + this.DECK_INTERNAL_SPACING[j];
+				newCard.transform.localPosition = vector + Vector3.forward * 3f;
+
+				// Please work
+				newCard.transform.localScale = Vector3.Scale(newCard.transform.localScale, new Vector3(0.8f, 0.8f, 1f));
+
+				// Activate
+				Tween.LocalPosition(newCard.transform, vector, 0.2f, tweenDelay, Tween.EaseOut, Tween.LoopType.None, null, null, true);
+				Tween.Rotate(newCard.transform, new Vector3(0f, 0f, -2f + UnityEngine.Random.value * 4f), Space.Self, 0.25f, tweenDelay, Tween.EaseOut, Tween.LoopType.None, null, null, true);
+				CustomCoroutine.WaitThenExecute(tweenDelay, new Action(component.Anim.PlayRiffleSound), false);
+
+				deckPiles.Add(component);
+			}
+			dealtDecks.Add(deckPiles);
+		}
 
 		// This creates a selectable upgrade card on the game mat
 		private void CreateUpgradeCard(int index, float tweenDelay = 0f)
 		{
-            InfiniscryptionMetaCurrencyPlugin.Log.LogInfo($"Starting 'CreateUpgradeCard' and creating from prefab");
+            InfiniscryptionStarterDecksPlugin.Log.LogInfo($"Starting 'CreateUpgradeCard' and creating from prefab");
 
-			GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(this.selectableCardPrefab, this.transform);
-			SelectableCard component = gameObject.GetComponent<SelectableCard>();
+			GameObject newUpgradeCard = UnityEngine.Object.Instantiate<GameObject>(this.selectableCardPrefab, this.transform);
+			SelectableCard component = newUpgradeCard.GetComponent<SelectableCard>();
 			component.gameObject.SetActive(true);
 
-            InfiniscryptionMetaCurrencyPlugin.Log.LogInfo($"Getting upgrade card {index} for deck {DeckConstructionPatches.StarterDecks[index]} with evolution {DeckConstructionPatches.StarterDeckEvolutions[index]} at stage {DeckConstructionPatches.DeckEvolutionProgress[index]}");
+            InfiniscryptionStarterDecksPlugin.Log.LogInfo($"Getting upgrade card {index} for deck {DeckConstructionPatches.StarterDecks[index]} with evolution {DeckConstructionPatches.StarterDeckEvolutions[index]} at stage {DeckConstructionPatches.DeckEvolutionProgress[index]}");
 
             // The card that you can buy is the next upgrade in the sequence
 			CardInfo cardByName = CardManagementHelper.GetNextEvolution(index);
 
-            InfiniscryptionMetaCurrencyPlugin.Log.LogInfo($"The upgrade card name is {cardByName.name}");
+            InfiniscryptionStarterDecksPlugin.Log.LogInfo($"The upgrade card name is {cardByName.name}");
 
 			component.SetInfo(cardByName);
             
             // The price is 10 + 5 * deck evolution progess
             // TODO: Put this somewhere else!
-            int price = 10 + DeckConstructionPatches.DeckEvolutionProgress[index] * 5;
+            int price = (DeckConstructionPatches.DeckEvolutionProgress[index] + 1) * InfiniscryptionStarterDecksPlugin.CostPerLevel;
 
-            InfiniscryptionMetaCurrencyPlugin.Log.LogInfo($"The price of the card name is {price}");
+            InfiniscryptionStarterDecksPlugin.Log.LogInfo($"The price of the card name is {price}");
 			if (price > 0)
 			{
 				this.AddPricetagToCard(component, price, tweenDelay);
 			}
 
-            InfiniscryptionMetaCurrencyPlugin.Log.LogInfo($"The price tag has been added");
+            InfiniscryptionStarterDecksPlugin.Log.LogInfo($"The price tag has been added");
 
 			Vector3 vector = this.UPGRADES_ANCHOR + this.UPGRADE_SPACING * (float)index;
-			gameObject.transform.localPosition = vector + Vector3.forward * 3f;
-			Tween.LocalPosition(gameObject.transform, vector, 0.2f, tweenDelay, Tween.EaseOut, Tween.LoopType.None, null, null, true);
-			Tween.Rotate(gameObject.transform, new Vector3(0f, 0f, -2f + UnityEngine.Random.value * 4f), Space.Self, 0.25f, tweenDelay, Tween.EaseOut, Tween.LoopType.None, null, null, true);
+			newUpgradeCard.transform.localPosition = vector + Vector3.forward * 3f;
+			newUpgradeCard.transform.localScale = Vector3.Scale(newUpgradeCard.transform.localScale, new Vector3(0.8f, 0.8f, 1f));
+
+			Tween.LocalPosition(newUpgradeCard.transform, vector, 0.2f, tweenDelay, Tween.EaseOut, Tween.LoopType.None, null, null, true);
+			Tween.Rotate(newUpgradeCard.transform, new Vector3(0f, 0f, -2f + UnityEngine.Random.value * 4f), Space.Self, 0.25f, tweenDelay, Tween.EaseOut, Tween.LoopType.None, null, null, true);
 			CustomCoroutine.WaitThenExecute(tweenDelay, new Action(component.Anim.PlayRiffleSound), false);
 
-            InfiniscryptionMetaCurrencyPlugin.Log.LogInfo($"The card is on the table");
+            InfiniscryptionStarterDecksPlugin.Log.LogInfo($"The card is on the table");
+
+			// We need to know which of the other cards to replace with this guy
+			// To do that, we look at the next evolution instruction that hasn't been applied yet
+			// The first character is an integer of the card that gets replaced next
+			// Add 4 * index because this is the index'th deck to be dealt on the table.
+			int evo = DeckConstructionPatches.DeckEvolutionProgress[index];
+			string[] evoCommands = DeckConstructionPatches.StarterDeckEvolutions[index].Split(',');
+			string cmd = CardManagementHelper.GetEvolutionCommand(evoCommands, evo);
+			int nextEvoIdx = int.Parse(cmd[0].ToString());
 
 			component.CursorSelectStarted = (Action<MainInputInteractable>)Delegate.Combine(component.CursorSelectStarted, new Action<MainInputInteractable>(delegate(MainInputInteractable c)
 			{
-				this.TryBuyUpgrade(c as SelectableCard);
+				this.TryBuyUpgrade(c as SelectableCard, index, nextEvoIdx);
 			}));
 
-            /* currencybowl
 			component.CursorEntered = (Action<MainInputInteractable>)Delegate.Combine(component.CursorEntered, new Action<MainInputInteractable>(delegate(MainInputInteractable c)
 			{
-				this.ShowWeightsHighlighted(price);
+				this.OnHoverUpgrade(index, nextEvoIdx, price);
 			}));
 
 			component.CursorExited = (Action<MainInputInteractable>)Delegate.Combine(component.CursorExited, new Action<MainInputInteractable>(delegate(MainInputInteractable c)
 			{
-				this.StopWeightsHighlighted();
+				this.OnLeaveUpgrade(index, nextEvoIdx);
 			}));
-            */
 
 			this.upgradesForSale[index] = component;
             this.upgradePrices[index] = price;
 
-            InfiniscryptionMetaCurrencyPlugin.Log.LogInfo($"Done");
+            InfiniscryptionStarterDecksPlugin.Log.LogInfo($"Done");
 		}
 
 		// Token: 0x06000C01 RID: 3073 RVA: 0x0002BFA8 File Offset: 0x0002A1A8
 		private void AddPricetagToCard(SelectableCard card, int price, float tweenDelay)
 		{
-			GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(this.pricetagPrefab);
-			gameObject.transform.SetParent(card.transform);
-			gameObject.transform.localPosition = new Vector3(-0.6f, 1.4f, -0.03f);
-			gameObject.transform.localEulerAngles = new Vector3(-90f, -90f, 90f);
-			gameObject.name = "pricetag";
-			gameObject.GetComponentInChildren<Renderer>().material.mainTexture = this.pricetagTextures[0];
+			GameObject priceTag = UnityEngine.Object.Instantiate<GameObject>(this.pricetagPrefab);
+			priceTag.transform.SetParent(card.transform);
+			priceTag.transform.localPosition = new Vector3(-0.6f, 1.4f, -0.03f);
+			priceTag.transform.localEulerAngles = new Vector3(-90f, -90f, 90f);
+			priceTag.transform.localScale = Vector3.Scale(priceTag.transform.localScale, new Vector3(0.8f, 0.8f, 1f));
+			priceTag.name = "pricetag";
+			priceTag.GetComponentInChildren<Renderer>().material.mainTexture = this.pricetagTextures[0];
 
 			// Now we need to add the price to the tag as a text mesh
 			// Okay, I can't actually add it apparently? It gets really, really angry.
 			// So instead it's a new gameobject, connected as a transform
 			GameObject priceLabel = new GameObject();
 			priceLabel.name = "pricelabel";
-			priceLabel.transform.SetParent(gameObject.transform);
+			priceLabel.transform.SetParent(priceTag.transform);
 			TextMeshPro textMesh = priceLabel.AddComponent<TextMeshPro>();
 			textMesh.autoSizeTextContainer = true;
 			textMesh.text = price.ToString();
-			textMesh.fontSize = 5;
+			textMesh.fontSize = 3;
 			textMesh.transform.rotation = Quaternion.LookRotation(-Vector3.up, Vector3.up);
-			textMesh.transform.localPosition = new Vector3(0f, 0.05f, -0.7f);
+			textMesh.transform.localPosition = new Vector3(0.1f, 0.05f, -0.7f);
 			textMesh.alignment = TextAlignmentOptions.Center;
 			textMesh.font = this.pricetagFont;
-			textMesh.color = new Color(0.4196f, 0.2275f, 0.1725f);
+			textMesh.color = Color.black;// new Color(0.4196f, 0.2275f, 0.1725f);
 
-			Tween.LocalRotation(gameObject.transform, new Vector3(-80f + UnityEngine.Random.value * -20f, -90f, 90f), 0.25f, tweenDelay, Tween.EaseOut, Tween.LoopType.None, null, null, true);
+			Tween.LocalRotation(priceTag.transform, new Vector3(-80f + UnityEngine.Random.value * -20f, -90f, 90f), 0.25f, tweenDelay, Tween.EaseOut, Tween.LoopType.None, null, null, true);
 		}
 
-		private void GainUpgrade(SelectableCard upgrade)
+		private void GainUpgrade(SelectableCard upgrade, int deck, int cardSlot, float tweenDelay = 0f)
 		{
             // This handles what happens when you have enough teeth to buy an upgrade
 
@@ -265,6 +304,8 @@ namespace Infiniscryption.Sequences
             DeckConstructionPatches.UpdateDeckEvolutionProgress(idx, DeckConstructionPatches.DeckEvolutionProgress[idx] + 1);
 
 			this.CreateUpgradeCard(idx, 0.25f);
+
+			// Get rid of the price tag
 			Transform transform = upgrade.transform.Find("pricetag");
 			if (transform != null)
 			{
@@ -278,14 +319,34 @@ namespace Infiniscryption.Sequences
 
                 UnityEngine.Object.Destroy(transform.gameObject, 0.4f);
 			}
-			upgrade.SetEnabled(false);
+			
 			upgrade.Anim.PlayRiffleSound();
-			this.purchasedPile.MoveCardToPile(upgrade, false, 0f, 0.7f);
-			this.purchasedPile.AddToPile(upgrade.transform);
+
+			// We're going to find the card this replaces, get rid of that card
+			SelectableCard cardToReplace = dealtDecks[deck][cardSlot];
+			cardToReplace.SetFaceDown(true);
+			Vector3 leaveTablePosition = cardToReplace.gameObject.transform.localPosition + new Vector3(0f, 4f, 0f);
+			Tween.LocalPosition(cardToReplace.gameObject.transform, leaveTablePosition, 0.2f, tweenDelay, Tween.EaseOut, Tween.LoopType.None, null, null, true);
+
+			CustomCoroutine.WaitThenExecute(1f, new Action(() => UnityEngine.GameObject.Destroy(cardToReplace.gameObject)), false);
+
+			// Move the new card to the old spot.
+			Vector3 vector = this.DECK_ANCHOR + this.DECK_SPACING * (float)deck + this.DECK_INTERNAL_SPACING[cardSlot];
+
+			Tween.LocalPosition(upgrade.gameObject.transform, vector, 0.2f, tweenDelay, Tween.EaseOut, Tween.LoopType.None, null, null, true);
+			Tween.Rotate(upgrade.gameObject.transform, new Vector3(0f, 0f, -2f + UnityEngine.Random.value * 4f), Space.Self, 0.25f, tweenDelay, Tween.EaseOut, Tween.LoopType.None, null, null, true);
+			CustomCoroutine.WaitThenExecute(tweenDelay, new Action(upgrade.Anim.PlayRiffleSound), false);
+
+			upgrade.SetEnabled(false);
+			dealtDecks[deck][cardSlot] = upgrade;
+
+			//upgrade.SetEnabled(false);
+			//this.purchasedPile.MoveCardToPile(upgrade, false, 0f, 0.7f);
+			//this.purchasedPile.AddToPile(upgrade.transform);
 		}
 
 		// Token: 0x06000C03 RID: 3075 RVA: 0x0002C1A4 File Offset: 0x0002A3A4
-		private void TryBuyUpgrade(SelectableCard upgrade)
+		private void TryBuyUpgrade(SelectableCard upgrade, int deck, int cardSlot)
 		{
 			int idx = this.upgradesForSale.IndexOf(upgrade);
 			int price = this.upgradePrices[idx];
@@ -303,7 +364,7 @@ namespace Infiniscryption.Sequences
 					UnityEngine.Object.Destroy(rigidbody.gameObject, 0.5f);
 				}
                 */
-				this.GainUpgrade(upgrade);
+				this.GainUpgrade(upgrade, deck, cardSlot);
 				MetaCurrencyPatches.ExcessTeeth -= price;
 				return;
 			}
@@ -362,9 +423,24 @@ namespace Infiniscryption.Sequences
 			this.DisableWeightInteraction();
 		}
 
-		// Token: 0x06000C07 RID: 3079 RVA: 0x0002C4B0 File Offset: 0x0002A6B0
-		private void ShowWeightsHighlighted(int amount)
+		private void HighlightCard(int deck, int card, bool up=true, float tweenDelay = 0f)
 		{
+			SelectableCard replaceCard = this.dealtDecks[deck][card];
+			GameObject moveObj = replaceCard.gameObject;
+
+			Vector3 expectedPos = this.DECK_ANCHOR + this.DECK_SPACING * (float)deck + this.DECK_INTERNAL_SPACING[card];
+
+			Vector3 vector = up ? expectedPos + new Vector3(0f, 0.2f, 0f) : expectedPos;
+			Tween.LocalPosition(moveObj.transform, vector, 0.2f, tweenDelay, Tween.EaseOut, Tween.LoopType.None, null, null, true);
+			Tween.Rotate(moveObj.transform, new Vector3(0f, 0f, -2f + UnityEngine.Random.value * 4f), Space.Self, 0.25f, tweenDelay, Tween.EaseOut, Tween.LoopType.None, null, null, true);
+			CustomCoroutine.WaitThenExecute(tweenDelay, new Action(replaceCard.Anim.PlayRiffleSound), false);
+		}
+
+		// Token: 0x06000C07 RID: 3079 RVA: 0x0002C4B0 File Offset: 0x0002A6B0
+		private void OnHoverUpgrade(int deck, int card, int amount)
+		{
+			HighlightCard(deck, card, true);
+
             /*
 			if (Singleton<CurrencyBowl>.Instance.ActiveWeights.Count >= amount)
 			{
@@ -382,8 +458,10 @@ namespace Infiniscryption.Sequences
 		}
 
 		// Token: 0x06000C08 RID: 3080 RVA: 0x0002C563 File Offset: 0x0002A763
-		private void StopWeightsHighlighted()
+		private void OnLeaveUpgrade(int deck, int card)
 		{
+			HighlightCard(deck, card, false);
+
             /*
 			Singleton<CurrencyBowl>.Instance.ActiveWeights.ForEach(delegate(Rigidbody x)
 			{
@@ -428,18 +506,6 @@ namespace Infiniscryption.Sequences
                     _deckPile = GetCopiedField<CardPile>("deckPile");
 
                 return _deckPile;
-            }
-        }
-
-        private CardPile _purchasedPile;
-		private CardPile purchasedPile
-        {
-            get 
-            {
-                if (_purchasedPile == null)
-                    _purchasedPile = GetCopiedField<CardPile>("purchasedPile");
-
-                return _purchasedPile;
             }
         }
 
@@ -506,9 +572,23 @@ namespace Infiniscryption.Sequences
 
 		private TMP_FontAsset pricetagFont = Resources.Load<TMP_FontAsset>("fonts/3d scene fonts/garbageschrift");
 
-		private readonly Vector3 UPGRADES_ANCHOR = new Vector3(-0.6f, 5.01f, -0.55f);
+		private readonly Vector3 SCALE_FACTOR = new Vector3(0.8f, 0.8f, 1f);
 
-		private readonly Vector3 UPGRADE_SPACING = new Vector3(1.6f, 0f, 0f);
+		private readonly Vector3 UPGRADES_ANCHOR = new Vector3(-2.5f, 5.01f, -0.12f);
+
+		private readonly Vector3 UPGRADE_SPACING = new Vector3(0f, 0f, -1.7f);
+
+		private readonly Vector3 DECK_ANCHOR = new Vector3(-0.4f, 5.01f, -0.12f);
+
+		private readonly Vector3 DECK_SPACING = new Vector3(0f, 0f, -1.7f);
+
+		private readonly Vector3[] DECK_INTERNAL_SPACING = new Vector3[]
+		{
+			new Vector3(0f, 0f, 0f),
+			new Vector3(1.2f, 0f, 0f),
+			new Vector3(2.4f, 0f, 0f),
+			new Vector3(3.6f, 0f, 0f)
+		};
 
 		private List<SelectableCard> upgradesForSale;
 

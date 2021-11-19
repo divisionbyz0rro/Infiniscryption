@@ -44,7 +44,7 @@ namespace Infiniscryption.Patchers
             // Go ahead and update the excess teeth
             if (RunState.Run.playerLives <= 0)
             {
-                ExcessTeeth += RunState.Run.currency + 5;
+                ExcessTeeth += RunState.Run.currency + InfiniscryptionStarterDecksPlugin.CostPerLevel;
             }
 
             while (sequenceEvent.MoveNext())

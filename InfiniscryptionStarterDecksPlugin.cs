@@ -21,7 +21,7 @@ namespace Infiniscryption
 		private const string PluginName = "Infiniscryption Starter Decks";
 		private const string PluginVersion = "1.0";
 
-        public bool Active
+        private bool Active
         {
             get
             {
@@ -29,7 +29,7 @@ namespace Infiniscryption
             }
         }
 
-        public string[] DeckSpecs
+        private string[] _deckSpecsConfig
         {
             get
             {
@@ -40,8 +40,9 @@ namespace Infiniscryption
                 };
             }
 		}
+        public static string[] DeckSpecs;
 
-        public string[] DeckEvolutions
+        private string[] _deckEvolutionsConfig
         {
             get
             {
@@ -52,6 +53,13 @@ namespace Infiniscryption
                 };
             }
         }
+        public static string[] DeckEvolutions;
+
+        private int _costPerLevelConfig
+        {
+            get { return Config.Bind("InfiniscryptionStarterDecks", "UpgradeCostPerLevel", 4, new BepInEx.Configuration.ConfigDescription("The amount of excess teeth you have to spend per level of upgrade.")).Value; }
+        }
+        public static int CostPerLevel;
 
         internal static ManualLogSource Log;
 
@@ -59,8 +67,14 @@ namespace Infiniscryption
         {
             if (this.Active)
             {
+                DeckEvolutions = _deckEvolutionsConfig;
+                DeckSpecs = _deckSpecsConfig;
+                CostPerLevel = _costPerLevelConfig;
+
                 Harmony harmony = new Harmony(PluginGuid);
                 harmony.PatchAll(typeof(DeckConstructionPatches));
+                harmony.PatchAll(typeof(MetaCurrencyPatches));
+                harmony.PatchAll(typeof(SaveGameHelper));
 
                 InfiniscryptionStarterDecksPlugin.Log = base.Logger;
 

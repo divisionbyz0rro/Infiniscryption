@@ -48,7 +48,7 @@ namespace Infiniscryption.Patchers
 
                 if (starterDecks == default(string))
                 {
-                    string[] retval = (new InfiniscryptionStarterDecksPlugin()).DeckSpecs;
+                    string[] retval = InfiniscryptionStarterDecksPlugin.DeckSpecs;
                     SaveGameHelper.SetValue("StarterDecks", string.Join("|", retval));
                     return retval.ToList();
                 }
@@ -65,7 +65,7 @@ namespace Infiniscryption.Patchers
 
                 if (starterDecks == default(string))
                 {
-                    string[] retval = (new InfiniscryptionStarterDecksPlugin()).DeckEvolutions;
+                    string[] retval = InfiniscryptionStarterDecksPlugin.DeckEvolutions;
                     SaveGameHelper.SetValue("StarterDeckEvolutions", string.Join("|", retval));
                     return retval.ToList();
                 }
@@ -82,7 +82,7 @@ namespace Infiniscryption.Patchers
 
                 if (evolutions == default(string))
                 {
-                    int[] retval = new int[(new InfiniscryptionStarterDecksPlugin()).DeckSpecs.Length];
+                    int[] retval = new int[InfiniscryptionStarterDecksPlugin.DeckSpecs.Length];
                     SaveGameHelper.SetValue("StarterDeckProgress", string.Join("|", retval));
                     return retval.ToList();
                 }
