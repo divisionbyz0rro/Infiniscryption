@@ -1,0 +1,9 @@
+{
+    "name": "Increasing_Difficulty_Tweaks",
+    "version_number": "1.0.0",
+    "website_url": "https://github.com/divisionbyz0rro/Infiniscryption",
+    "description": "Toggleable difficulty modifiers (like the Hades Pact of Punishment) to improve replayability.",
+    "dependencies": [
+        "BepInEx-BepInExPack_Inscryption-5.4.1701"
+    ]
+}
