@@ -83,7 +83,7 @@ namespace Infiniscryption.StarterDecks.Patchers
 
                 if (evolutions == default(string))
                 {
-                    int[] retval = new int[InfiniscryptionStarterDecksPlugin.DeckSpecs.Length];
+                    int[] retval = new int[] { 0, 0, 0 };
                     SaveGameHelper.SetValue("StarterDeckProgress", string.Join("|", retval));
                     return retval.ToList();
                 }
