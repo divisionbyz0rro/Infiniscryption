@@ -29,6 +29,7 @@ namespace Infiniscryption.DifficultyMod
             Harmony harmony = new Harmony(PluginGuid);
 
             DifficultyManager.Register<BackpackLimiter>(harmony, Config, DifficultyManager.BindsTo.Configuration);
+            DifficultyManager.Register<CampfireHarder>(harmony, Config, DifficultyManager.BindsTo.Configuration);
 
             DifficultyManager.Register<OneCandleMax>(harmony, Config, DifficultyManager.BindsTo.RunSetting);
 

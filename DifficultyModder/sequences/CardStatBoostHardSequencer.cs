@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System;
 using TMPro;
 using UnityEngine.UI;
+using Infiniscryption.Core.Helpers;
 
 namespace Infiniscryption.DifficultyMod.Sequences
 {
@@ -72,6 +73,7 @@ namespace Infiniscryption.DifficultyMod.Sequences
 			this.selectionSlot.gameObject.SetActive(true);
 			this.selectionSlot.RevealAndEnable();
 			this.selectionSlot.ClearDelegates();
+
 			SelectCardFromDeckSlot selectCardFromDeckSlot = this.selectionSlot;
 			selectCardFromDeckSlot.CursorSelectStarted = (Action<MainInputInteractable>)Delegate.Combine(selectCardFromDeckSlot.CursorSelectStarted, new Action<MainInputInteractable>(this.OnSlotSelected));
 			if (UnityEngine.Random.value < 0.25f && VideoCameraRig.Instance != null)
@@ -87,6 +89,8 @@ namespace Infiniscryption.DifficultyMod.Sequences
 			});
 			InteractionCursor.Instance.SetEnabled(false);
 			yield return new WaitForSeconds(0.25f);
+
+			// Okay, all the visual setup is done
 			yield return this.pile.SpawnCards(RunState.DeckList.Count, 0.5f);
 			TableRuleBook.Instance.SetOnBoard(true);
 			InteractionCursor.Instance.SetEnabled(true);
@@ -101,26 +105,57 @@ namespace Infiniscryption.DifficultyMod.Sequences
 					this.GetTranslatedStatText(this.attackMod)
 				}, null);
 			}
+
+			// We're forcing the confirm stone to be active and enabled.
+			// You should be able to quit without doing anything.
+			this.confirmStone.Enter();
+
 			yield return this.confirmStone.WaitUntilConfirmation();
 			CardInfo destroyedCard = null;
 			bool finishedBuffing = false;
 			int numBuffsGiven = 0;
-			while (!finishedBuffing && destroyedCard == null)
+
+			if (this.selectionSlot.Card == null)
 			{
-				int num = numBuffsGiven;
-				numBuffsGiven = num + 1;
-				this.selectionSlot.Disable();
-				RuleBookController.Instance.SetShown(false, true);
-				yield return new WaitForSeconds(0.25f);
-				AudioController.Instance.PlaySound3D("card_blessing", MixerGroup.TableObjectsSFX, this.selectionSlot.transform.position, 1f, 0f, null, null, null, null, false);
-				this.selectionSlot.Card.Anim.PlayTransformAnimation();
-				this.ApplyModToCard(this.selectionSlot.Card.Info);
-				yield return new WaitForSeconds(0.15f);
-				this.selectionSlot.Card.SetInfo(this.selectionSlot.Card.Info);
-				this.selectionSlot.Card.SetInteractionEnabled(false);
-				yield return new WaitForSeconds(0.75f);
-				if (SaveManager.SaveFile.pastRuns.Count >= 4)
+				// THey've chosen to do nothing!s
+				yield return TextDisplayer.Instance.PlayDialogueEvent("StartLeavingWithoutBoosting", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
+				ViewManager.Instance.SwitchToView(View.Default, false, false);
+				yield return TextDisplayer.Instance.PlayDialogueEvent("LeftWithoutBoosting", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
+			}
+			else
+			{
+				while (!finishedBuffing && destroyedCard == null)
 				{
+					// Change it so there is a chance of failure on the first go
+					// No freebies anymore.
+					// Well, there will be guaranteed success on the very first one.
+					// After that, the base chance goes up.
+					if (!RunState.Run.survivorsDead)
+					{
+						float target = 1f - (float)numBuffsGiven * 0.225f - RunStateHelper.GetFloat("SurvivorBaseChance");
+						if (SeededRandom.Value(SaveManager.SaveFile.GetCurrentRandomSeed()) > target)
+						{
+							destroyedCard = this.selectionSlot.Card.Info;
+							this.selectionSlot.Card.Anim.PlayDeathAnimation(true);
+							RunState.Run.playerDeck.RemoveCard(this.selectionSlot.Card.Info);
+							yield return new WaitForSeconds(1f);
+							break; // Break out of the while loop.
+						}
+					}
+
+					int num = numBuffsGiven;
+					numBuffsGiven = num + 1;
+					this.selectionSlot.Disable();
+					RuleBookController.Instance.SetShown(false, true);
+					yield return new WaitForSeconds(0.25f);
+					AudioController.Instance.PlaySound3D("card_blessing", MixerGroup.TableObjectsSFX, this.selectionSlot.transform.position, 1f, 0f, null, null, null, null, false);
+					this.selectionSlot.Card.Anim.PlayTransformAnimation();
+					this.ApplyModToCard(this.selectionSlot.Card.Info);
+					yield return new WaitForSeconds(0.15f);
+					this.selectionSlot.Card.SetInfo(this.selectionSlot.Card.Info);
+					this.selectionSlot.Card.SetInteractionEnabled(false);
+					yield return new WaitForSeconds(0.75f);
+
 					if (numBuffsGiven == 4)
 					{
 						break;
@@ -143,7 +178,7 @@ namespace Infiniscryption.DifficultyMod.Sequences
 						}
 					}
 					
-                    bool cancelledByClickingCard = false;
+					bool cancelledByClickingCard = false;
 					this.retrieveCardInteractable.gameObject.SetActive(true);
 					this.retrieveCardInteractable.CursorSelectEnded = null;
 					GenericMainInputInteractable genericMainInputInteractable = this.retrieveCardInteractable;
@@ -158,28 +193,10 @@ namespace Infiniscryption.DifficultyMod.Sequences
 					this.retrieveCardInteractable.gameObject.SetActive(false);
 					this.confirmStone.Disable();
 					yield return new WaitForSeconds(0.1f);
-					if (this.confirmStone.SelectionConfirmed)
-					{
-						if (!RunState.Run.survivorsDead)
-						{
-							float num2 = 1f - (float)numBuffsGiven * 0.225f;
-							if (SeededRandom.Value(SaveManager.SaveFile.GetCurrentRandomSeed()) > num2)
-							{
-								destroyedCard = this.selectionSlot.Card.Info;
-								this.selectionSlot.Card.Anim.PlayDeathAnimation(true);
-								RunState.Run.playerDeck.RemoveCard(this.selectionSlot.Card.Info);
-								yield return new WaitForSeconds(1f);
-							}
-						}
-					}
-					else
+					if (!this.confirmStone.SelectionConfirmed)
 					{
 						finishedBuffing = true;
 					}
-				}
-				else
-				{
-					finishedBuffing = true;
 				}
 			}
 			if (destroyedCard != null)
@@ -190,8 +207,98 @@ namespace Infiniscryption.DifficultyMod.Sequences
 				}, null);
 				yield return new WaitForSeconds(0.1f);
 				this.selectionSlot.DestroyCard();
+
+				if (!destroyedCard.HasTrait(Trait.KillsSurvivors))
+				{
+
+					// Here's where things get worse for you.
+					// Unless you killed them
+					yield return TextDisplayer.Instance.PlayDialogueEvent("StillHungry", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
+					bool punished = false;
+
+					// First, they try to eat a card.
+					foreach (Item consumable in ItemsManager.Instance.Consumables)
+					{
+						// Is this a card bottle item?
+						if (consumable is CardBottleItem)
+						{
+							// Check to see what's in it:
+							CardInfo bottleCard = Traverse.Create(consumable as CardBottleItem).Field("cardInfo").GetValue<CardInfo>();
+							if (bottleCard.Sacrificable)
+							{
+								View currentView = ViewManager.Instance.CurrentView;
+								ViewManager.Instance.SwitchToView(View.Consumables);
+								(consumable as ConsumableItem).PlayShakeAnimation();
+								yield return TextDisplayer.Instance.PlayDialogueEvent("EatConsumable", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
+								ItemsManager.Instance.DestroyItem((consumable as ConsumableItem).Data.name);
+								punished = true;
+								ViewManager.Instance.SwitchToView(currentView);
+								break;
+							}
+						}
+					}
+
+					// Next, they try to take your pliers (if you have any)
+					if (!punished)
+					{
+						foreach (Item consumable in ItemsManager.Instance.Consumables)
+						{
+							// Is this a card bottle item?
+							if (consumable is PliersItem)
+							{
+								View currentView = ViewManager.Instance.CurrentView;
+								ViewManager.Instance.SwitchToView(View.Consumables);
+								(consumable as ConsumableItem).PlayShakeAnimation();
+								yield return TextDisplayer.Instance.PlayDialogueEvent("UseWeapon", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
+								ViewManager.Instance.SwitchToView(View.Default);
+								yield return PliersHelper();
+								ItemsManager.Instance.DestroyItem((consumable as ConsumableItem).Data.name);
+								punished = true;
+								ViewManager.Instance.SwitchToView(currentView);
+								break;
+							}
+						}
+					}
+
+					// Next, they try to take your knife (if you have any)
+					if (!punished)
+					{
+						foreach (Item consumable in ItemsManager.Instance.Consumables)
+						{
+							// Is this a card bottle item?
+							if (consumable is SpecialDaggerItem)
+							{
+								View currentView = ViewManager.Instance.CurrentView;
+								ViewManager.Instance.SwitchToView(View.Consumables);
+								(consumable as ConsumableItem).PlayShakeAnimation();
+								yield return TextDisplayer.Instance.PlayDialogueEvent("UseWeapon", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
+								ViewManager.Instance.SwitchToView(View.Default);
+								yield return (consumable as SpecialDaggerItem).ActivateSequence();
+								ItemsManager.Instance.DestroyItem((consumable as ConsumableItem).Data.name);
+								punished = true;
+								ViewManager.Instance.SwitchToView(currentView);
+								break;
+							}
+						}
+					}
+
+					// Okay, they can't take your bottle, pliers, or dagger.
+					// Did you get away with it?
+					// Looks like it. 
+					// But the base chance won't go back down to 0.
+					if (!punished)
+					{
+						yield return TextDisplayer.Instance.PlayDialogueEvent("NothingTheyWant", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
+						RunStateHelper.SetValue("SurvivorBaseChance", "0.15");
+					}
+					else
+					{
+						yield return TextDisplayer.Instance.PlayDialogueEvent("RunScared", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
+						RunStateHelper.SetValue("SurvivorBaseChance", "0.0");
+					}
+				}
 			}
-			else
+			else if (this.selectionSlot.Card != null)
 			{
 				if (!RunState.Run.survivorsDead)
 				{
@@ -201,8 +308,12 @@ namespace Infiniscryption.DifficultyMod.Sequences
 						this.selectionSlot.Card.Info.DisplayedNameLocalized
 					}, null);
 				}
+
 				yield return new WaitForSeconds(0.1f);
 				this.selectionSlot.FlyOffCard();
+
+				// The survivor base chance goes up by 10%
+				RunStateHelper.SetValue("SurvivorBaseChance", (RunStateHelper.GetFloat("SurvivorBaseChance") + 0.1f).ToString());
 			}
 			ViewManager.Instance.SwitchToView(View.Default, false, false);
 			yield return new WaitForSeconds(0.25f);
@@ -226,22 +337,9 @@ namespace Infiniscryption.DifficultyMod.Sequences
 				ExplorableAreaManager.Instance.HandLight.intensity = 0f;
 				ExplorableAreaManager.Instance.HandLight.gameObject.SetActive(true);
 			}, false);
-			if (destroyedCard != null)
+			if (destroyedCard != null && destroyedCard.HasTrait(Trait.KillsSurvivors))
 			{
-				if (RunState.Run.consumables.Count < 3)
-				{
-					yield return new WaitForSeconds(0.4f);
-					ViewManager.Instance.SwitchToView(View.Consumables, false, false);
-					yield return new WaitForSeconds(0.2f);
-					RunState.Run.consumables.Add("PiggyBank");
-					ItemsManager.Instance.UpdateItems(false);
-					yield return new WaitForSeconds(0.5f);
-					yield return TextDisplayer.Instance.PlayDialogueEvent("StatBoostCardEatenBones", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
-				}
-				if (destroyedCard.HasTrait(Trait.KillsSurvivors))
-				{
-					RunState.Run.survivorsDead = true;
-				}
+				RunState.Run.survivorsDead = true;
 			}
 			ProgressionData.SetMechanicLearned(MechanicsConcept.CardStatBoost);
 			if (GameFlowManager.Instance != null)
@@ -265,11 +363,31 @@ namespace Infiniscryption.DifficultyMod.Sequences
 			this.selectionSlot.SetShown(true, false);
 			this.selectionSlot.ShowState(HighlightedInteractable.State.Interactable, false, 0.15f);
 			ViewManager.Instance.SwitchToView(View.Default, false, true);
-			if (this.selectionSlot.Card != null)
-			{
-				this.confirmStone.Enter();
-			}
+			this.confirmStone.Enter();
 		}
+
+		private static IEnumerator PliersHelper()
+        {
+            // This all comes from the pliers
+            // I'm not completing reusing the method because it does things I don't want it to do.
+            UIManager.Instance.Effects.GetEffect<EyelidMaskEffect>().SetIntensity(0.5f, 0.75f);
+            yield return new WaitForSeconds(0.5f);
+            FirstPersonController.Instance.AnimController.PlayOneShotAnimation("PliersAnimation", null);
+            AudioController.Instance.PlaySound2D("whoosh2", MixerGroup.None, 1f, 0.4f, null, null, null, null, false);
+            yield return new WaitForSeconds(0.35f);
+            AudioController.Instance.PlaySound2D("consumable_pliers_use", MixerGroup.None, 1f, 0f, null, null, null, null, false);
+            yield return new WaitForSeconds(0.75f);
+            AudioController.Instance.FadeBGMMixerParam("BGMLowpassFreq", 50f, 0.1f);
+            UIManager.Instance.Effects.GetEffect<EyelidMaskEffect>().SetIntensity(0f, 0.025f);
+            CameraEffects.Instance.Shake(0.1f, 0.5f);
+            UIManager.Instance.Effects.GetEffect<ScreenColorEffect>().SetColor(GameColors.Instance.red);
+            UIManager.Instance.Effects.GetEffect<ScreenColorEffect>().SetIntensity(1f, 50f);
+            CameraEffects.Instance.TweenBlur(4f, 0.03f);
+            yield return new WaitForSeconds(0.03f);
+            UIManager.Instance.Effects.GetEffect<ScreenColorEffect>().SetIntensity(0f, 0.2f);
+            CameraEffects.Instance.TweenBlur(0f, 4f);
+            yield return new WaitForSeconds(1f);
+        }
 
 		private List<CardInfo> GetValidCards()
 		{
