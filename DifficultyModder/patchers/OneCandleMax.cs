@@ -11,27 +11,17 @@ using TMPro;
 using Infiniscryption.Core.Helpers;
 using UnityEngine.UI;
 using Infiniscryption.DifficultyMod.Sequences;
+using Infiniscryption.DifficultyMod.Helpers;
 
 namespace Infiniscryption.DifficultyMod.Patchers
 {
-    public static class OneCandleMax
+    public class OneCandleMax : DifficultyModBase
     {
-        static OneCandleMax()
-        {
-            ToggleableDifficultyManager.Register(ResetState);
-        }
-
-        // This is a toggleable difficulty setting that forces the maximum number
-        // of candles to one, regardless of how many you've unlocked
-        public static bool Active 
-        {
-            get { return SaveGameHelper.GetBool("Difficulty.OneCandle"); }
-            set { SaveGameHelper.SetValue("Difficulty.OneCandle", value.ToString()); }
-        }
+        internal override string Description => "Sets the maximum number of lives to 1";
 
         // Resets the game state based on this value
         // This gets called when the user steps away from the UI before the run starts
-        public static void ResetState()
+        public override void Reset()
         {
             RunState.Run.maxPlayerLives = Active ? 1 : StoryEventsData.EventCompleted(StoryEvent.CandleArmFound) ? 3 : 2;
             RunState.Run.playerLives = RunState.Run.maxPlayerLives;
@@ -43,7 +33,7 @@ namespace Infiniscryption.DifficultyMod.Patchers
         {
             // If not active, just return everything as-is
             // We aren't doing anything special here.
-            if (!Active)
+            if (!DifficultyManager.IsActive<OneCandleMax>())
             {
                 while (sequenceEvent.MoveNext())
                     yield return sequenceEvent.Current;

@@ -9,22 +9,19 @@ using System.Collections.Generic;
 using System;
 using TMPro;
 using UnityEngine.UI;
+using Infiniscryption.DifficultyMod.Helpers;
 
 namespace Infiniscryption.DifficultyMod.Patchers
 {
-    public static class BackpackLimiter
+    public class BackpackLimiter : DifficultyModBase
     {
         // The purpose of this difficulty mod is to force backpack events to only give you a single 
         // consumable.
-
-        public static bool Active(ConfigFile config)
-        {
-            return config.Bind("InfiniscryptionDifficultyMod", "BackpackLimiter", true, new BepInEx.Configuration.ConfigDescription("Limits backpack events to only a single gained consumable.")).Value;
-        }
-
         private static string CONSUMABLE_VOID = "EmptyVoidOfNothingness";
 
         private static bool SuppressItems = false;
+
+        internal override string Description => "Limits the amount of consumables gained from backpack events to one";
 
         [HarmonyPatch(typeof(ItemsManager), "UpdateItems")]
         [HarmonyPrefix]
@@ -37,6 +34,14 @@ namespace Infiniscryption.DifficultyMod.Patchers
         [HarmonyPostfix]
         public static IEnumerator AfterGainConsumables(IEnumerator sequenceEvent)
         {
+            if (!DifficultyManager.IsActive<BackpackLimiter>())
+            {
+                while (sequenceEvent.MoveNext())
+                    yield return sequenceEvent.Current;
+
+                yield break;
+            }
+            
             // Fill the backpack with junk
             while (RunState.Run.consumables.Count < 2)
             {
@@ -64,6 +69,12 @@ namespace Infiniscryption.DifficultyMod.Patchers
             }
 
             ItemsManager.Instance.UpdateItems(false);
+        }
+
+        public override void Reset()
+        {
+            // We don't have to do anything during a run.
+            // So this stays empty
         }
     }
 }

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System;
 using Infiniscryption.DifficultyMod.Patchers;
 using Infiniscryption.DifficultyMod.Sequences;
+using Infiniscryption.DifficultyMod.Helpers;
 
 namespace Infiniscryption.DifficultyMod
 {
@@ -27,15 +28,12 @@ namespace Infiniscryption.DifficultyMod
             Log = base.Logger;
             Harmony harmony = new Harmony(PluginGuid);
 
-            if (BackpackLimiter.Active(Config))
-            {
-                harmony.PatchAll(typeof(BackpackLimiter));
-            }
+            DifficultyManager.Register<BackpackLimiter>(harmony, Config, DifficultyManager.BindsTo.Configuration);
+
+            DifficultyManager.Register<OneCandleMax>(harmony, Config, DifficultyManager.BindsTo.RunSetting);
 
             // Patch all of the toggleable difficulty mods
-            harmony.PatchAll(typeof(ToggleableDifficultyManager));
-            
-            harmony.PatchAll(typeof(OneCandleMax));
+            harmony.PatchAll(typeof(DifficultyManager));
 
             Logger.LogInfo($"Plugin {PluginName} is loaded!");
         }
