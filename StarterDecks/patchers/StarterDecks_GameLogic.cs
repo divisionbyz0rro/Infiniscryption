@@ -98,16 +98,10 @@ namespace Infiniscryption.StarterDecks.Patchers
             curProgress[deckId] = newLevel;
             SaveGameHelper.SetValue("StarterDeckProgress", string.Join("|", curProgress));
         }
-
-        [HarmonyPatch(typeof(DeckInfo), "AddCard")]
-        [HarmonyPrefix]
-        public static void LogNewCard(CardInfo card)
-        {
-            InfiniscryptionStarterDecksPlugin.Log.LogInfo($"Adding card {card.name} with {card.Mods.Count} mods");
-        }
             
         [HarmonyPatch(typeof(PaperGameMap), "TryInitializeMapData")]
         [HarmonyPrefix]
+        [HarmonyBefore(new string[] { "cyantist.inscryption.extendedmap" })]
         public static void StartWithTribeSelection(ref PaperGameMap __instance)
         {
             // This patch ensures that the first node of the map is always
