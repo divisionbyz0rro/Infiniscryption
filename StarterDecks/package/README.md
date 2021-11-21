@@ -14,6 +14,8 @@ As with most mods, you need [BepInEx](https://inscryption.thunderstore.io/packag
 
 Because this modifies your starter deck, it conflicts with the (excellent) [Drafting Mod](https://inscryption.thunderstore.io/package/PortaMods/DraftingMod/).
 
+Version 1.0.0 is incompatible with the [Extended Maps Mod](https://inscryption.thunderstore.io/package/Cyantist/ExtendedMaps/). Versions 1.0.1 and above have no conflicts.
+
 ## Starter Decks
 
 There are three starter decks to choose from:
@@ -28,6 +30,13 @@ Yes, this means that if you collect enough teeth you'll have a deck of 1-cost on
 
 ## Technical Stuff
 This is technical implementation details you probably don't care about.
+
+<details>
+<summary>Changelog</summary>
+
+1.0.1
+- Fixed unexpected incompatibility with the [Extended Maps Mod](https://inscryption.thunderstore.io/package/Cyantist/ExtendedMaps/).
+</details>
 
 <details>
 <summary>Configuration</summary>
