@@ -50,7 +50,8 @@
     <Exec Command="xcopy /Y $(TargetPath) $(ProjectDir)\Compiled" />
     <Exec Command='xcopy /Y $(TargetPath) "C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins"' />
     <Exec Command='xcopy /Y $(ProjectDir)\assets\*.png "C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins\Infiniscryption\assets"' />
-    <Exec Command='xcopy /Y $(TargetPath) $(ProjectDir)\package' />
+    <Exec Command='xcopy /Y $(TargetPath) $(ProjectDir)\package\BepInEx\plugins' />
+    <Exec Command='xcopy /Y $(ProjectDir)\assets\*.png $(ProjectDir)\package\BepInEx\plugins\Infiniscryption\assets' />
     <Exec Command='xcopy /Y $(ProjectDir)\README.md $(ProjectDir)\package' />
     <Exec Command='xcopy /Y $(ProjectDir)\icon.png $(ProjectDir)\package' />
     <Exec Command='xcopy /Y $(ProjectDir)\manifest.json $(ProjectDir)\package' />

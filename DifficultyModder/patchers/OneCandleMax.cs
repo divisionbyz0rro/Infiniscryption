@@ -17,7 +17,7 @@ namespace Infiniscryption.Curses.Patchers
 {
     public class OneCandleMax : CurseBase
     {
-        public override string Description => "This curse limits the player to only a single candle flame for the duration of their run";
+        public override string Description => "Limits you to only a single candle flame for the duration of your run";
         public override string Title => "The Lone Candle";
         
         Texture2D _iconTexture = AssetHelper.LoadTexture("candle_icon");

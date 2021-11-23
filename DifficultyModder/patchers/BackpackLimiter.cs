@@ -22,7 +22,7 @@ namespace Infiniscryption.Curses.Patchers
 
         private static bool SuppressItems = false;
 
-        public override string Description => "The player can only pick up one item from each backpack event, regardless of how many they currently have.";
+        public override string Description => "You can only pick up one item from each backpack event, regardless of how many you currently have.";
         public override string Title => "The Empty Backpack";
 
         Texture2D _iconTexture = AssetHelper.LoadTexture("backpack_icon");
