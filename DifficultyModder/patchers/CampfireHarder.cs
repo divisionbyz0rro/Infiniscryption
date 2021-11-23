@@ -9,15 +9,21 @@ using System.Collections.Generic;
 using System;
 using TMPro;
 using UnityEngine.UI;
-using Infiniscryption.DifficultyMod.Helpers;
-using Infiniscryption.DifficultyMod.Sequences;
+using Infiniscryption.Curses.Helpers;
+using Infiniscryption.Curses.Sequences;
 using Infiniscryption.Core.Helpers;
 
-namespace Infiniscryption.DifficultyMod.Patchers
+namespace Infiniscryption.Curses.Patchers
 {
-    public class CampfireHarder : DifficultyModBase
+    public class CampfireHarder : CurseBase
     {
-        internal override string Description => "Makes the campfire events a little less of a freebie.";
+        public override string Description => "The survivors at campfires will be stronger and cause more damage to you when you fail.";
+        public override string Title => "The Strong Survivors";
+        
+        Texture2D _iconTexture = AssetHelper.LoadTexture("campfire_icon");
+        public override Texture2D IconTexture => _iconTexture;
+
+        public CampfireHarder(string id, GetActiveDelegate getActive, SetActiveDelegate setActive) : base(id, getActive, setActive) {}
 
         public override void Reset()
         {
@@ -66,17 +72,17 @@ namespace Infiniscryption.DifficultyMod.Patchers
         public static bool SendToUpgradeShop(ref SpecialNodeHandler __instance, SpecialNodeData nodeData)
         {
             // This sends the player to the upgrade shop if the triggering node is SpendExcessTeeth
-            if (DifficultyManager.IsActive<CampfireHarder>())
+            if (CurseManager.IsActive<CampfireHarder>())
             {
                 if (nodeData is CardStatBoostNodeData)
                 {
                     if (__instance.gameObject.GetComponent<CardStatBoostHardSequencer>() == null)
                     {
-                        InfiniscryptionDifficultyModPlugin.Log.LogInfo($"Attaching harder card stat boost sequencer to parent");
+                        InfiniscryptionCursePlugin.Log.LogInfo($"Attaching harder card stat boost sequencer to parent");
                         __instance.gameObject.AddComponent<CardStatBoostHardSequencer>();
                     }
 
-                    InfiniscryptionDifficultyModPlugin.Log.LogInfo($"Starting the shop");
+                    InfiniscryptionCursePlugin.Log.LogInfo($"Starting the shop");
                     __instance.StartCoroutine(__instance.gameObject.GetComponent<CardStatBoostHardSequencer>().StatBoostSequence());
                     return false; // This prevents the rest of the thing from running.
                 }

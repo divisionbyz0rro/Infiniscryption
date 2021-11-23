@@ -25,6 +25,7 @@ namespace Infiniscryption.Core
         {
             Harmony harmony = new Harmony(PluginGuid);
             harmony.PatchAll(typeof(SaveGameHelper));
+            AssetHelper.Info = this.Info;
 
             Log = base.Logger;
 

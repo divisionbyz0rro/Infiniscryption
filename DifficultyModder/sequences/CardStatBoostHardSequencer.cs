@@ -11,7 +11,7 @@ using TMPro;
 using UnityEngine.UI;
 using Infiniscryption.Core.Helpers;
 
-namespace Infiniscryption.DifficultyMod.Sequences
+namespace Infiniscryption.Curses.Sequences
 {
 	public class CardStatBoostHardSequencer : ManagedBehaviour
 	{

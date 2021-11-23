@@ -10,14 +10,21 @@ using System;
 using TMPro;
 using Infiniscryption.Core.Helpers;
 using UnityEngine.UI;
-using Infiniscryption.DifficultyMod.Sequences;
-using Infiniscryption.DifficultyMod.Helpers;
+using Infiniscryption.Curses.Sequences;
+using Infiniscryption.Curses.Helpers;
 
-namespace Infiniscryption.DifficultyMod.Patchers
+namespace Infiniscryption.Curses.Patchers
 {
-    public class OneCandleMax : DifficultyModBase
+    public class OneCandleMax : CurseBase
     {
-        internal override string Description => "Sets the maximum number of lives to 1";
+        public override string Description => "This curse limits the player to only a single candle flame for the duration of their run";
+        public override string Title => "The Lone Candle";
+        
+        Texture2D _iconTexture = AssetHelper.LoadTexture("candle_icon");
+        public override Texture2D IconTexture => _iconTexture;
+
+        public OneCandleMax(string id, GetActiveDelegate getActive, SetActiveDelegate setActive) : base(id, getActive, setActive) {}
+
 
         // Resets the game state based on this value
         // This gets called when the user steps away from the UI before the run starts
@@ -25,6 +32,9 @@ namespace Infiniscryption.DifficultyMod.Patchers
         {
             RunState.Run.maxPlayerLives = Active ? 1 : StoryEventsData.EventCompleted(StoryEvent.CandleArmFound) ? 3 : 2;
             RunState.Run.playerLives = RunState.Run.maxPlayerLives;
+
+            if (CandleHolder.Instance != null)
+                CandleHolder.Instance.UpdateArmsAndFlames();
         }
 
         [HarmonyPatch(typeof(Part1BossOpponent), "BossDefeatedSequence")]
@@ -33,7 +43,7 @@ namespace Infiniscryption.DifficultyMod.Patchers
         {
             // If not active, just return everything as-is
             // We aren't doing anything special here.
-            if (!DifficultyManager.IsActive<OneCandleMax>())
+            if (!CurseManager.IsActive<OneCandleMax>())
             {
                 while (sequenceEvent.MoveNext())
                     yield return sequenceEvent.Current;

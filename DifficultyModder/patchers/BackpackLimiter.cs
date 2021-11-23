@@ -9,11 +9,12 @@ using System.Collections.Generic;
 using System;
 using TMPro;
 using UnityEngine.UI;
-using Infiniscryption.DifficultyMod.Helpers;
+using Infiniscryption.Curses.Helpers;
+using Infiniscryption.Core.Helpers;
 
-namespace Infiniscryption.DifficultyMod.Patchers
+namespace Infiniscryption.Curses.Patchers
 {
-    public class BackpackLimiter : DifficultyModBase
+    public class BackpackLimiter : CurseBase
     {
         // The purpose of this difficulty mod is to force backpack events to only give you a single 
         // consumable.
@@ -21,7 +22,13 @@ namespace Infiniscryption.DifficultyMod.Patchers
 
         private static bool SuppressItems = false;
 
-        internal override string Description => "Limits the amount of consumables gained from backpack events to one";
+        public override string Description => "The player can only pick up one item from each backpack event, regardless of how many they currently have.";
+        public override string Title => "The Empty Backpack";
+
+        Texture2D _iconTexture = AssetHelper.LoadTexture("backpack_icon");
+        public override Texture2D IconTexture => _iconTexture;
+
+        public BackpackLimiter(string id, GetActiveDelegate getActive, SetActiveDelegate setActive) : base(id, getActive, setActive) {}
 
         [HarmonyPatch(typeof(ItemsManager), "UpdateItems")]
         [HarmonyPrefix]
@@ -34,7 +41,7 @@ namespace Infiniscryption.DifficultyMod.Patchers
         [HarmonyPostfix]
         public static IEnumerator AfterGainConsumables(IEnumerator sequenceEvent)
         {
-            if (!DifficultyManager.IsActive<BackpackLimiter>())
+            if (!CurseManager.IsActive<BackpackLimiter>())
             {
                 while (sequenceEvent.MoveNext())
                     yield return sequenceEvent.Current;
@@ -45,7 +52,7 @@ namespace Infiniscryption.DifficultyMod.Patchers
             // Fill the backpack with junk
             while (RunState.Run.consumables.Count < 2)
             {
-                InfiniscryptionDifficultyModPlugin.Log.LogInfo("Adding empty to prevent too many backpack items");
+                InfiniscryptionCursePlugin.Log.LogInfo("Adding empty to prevent too many backpack items");
                 RunState.Run.consumables.Add(CONSUMABLE_VOID);
             }
 
@@ -64,7 +71,7 @@ namespace Infiniscryption.DifficultyMod.Patchers
             // Remove the junk from the backpack
             while (RunState.Run.consumables.Contains(CONSUMABLE_VOID))
             {
-                InfiniscryptionDifficultyModPlugin.Log.LogInfo("Removing empty to prevent too many backpack items");
+                InfiniscryptionCursePlugin.Log.LogInfo("Removing empty to prevent too many backpack items");
                 RunState.Run.consumables.Remove(CONSUMABLE_VOID);
             }
 

@@ -7,17 +7,17 @@ using HarmonyLib;
 using System.Collections;
 using System.Collections.Generic;
 using System;
-using Infiniscryption.DifficultyMod.Patchers;
-using Infiniscryption.DifficultyMod.Sequences;
-using Infiniscryption.DifficultyMod.Helpers;
+using Infiniscryption.Curses.Patchers;
+using Infiniscryption.Curses.Sequences;
+using Infiniscryption.Curses.Helpers;
 
-namespace Infiniscryption.DifficultyMod
+namespace Infiniscryption.Curses
 {
     [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
-    public class InfiniscryptionDifficultyModPlugin : BaseUnityPlugin
+    public class InfiniscryptionCursePlugin : BaseUnityPlugin
     {
 
-        private const string PluginGuid = "zorro.inscryption.infiniscryption.difficultymodder";
+        private const string PluginGuid = "zorro.inscryption.infiniscryption.curses";
 		private const string PluginName = "Infiniscryption Difficulty Modder";
 		private const string PluginVersion = "1.0";
 
@@ -28,13 +28,14 @@ namespace Infiniscryption.DifficultyMod
             Log = base.Logger;
             Harmony harmony = new Harmony(PluginGuid);
 
-            DifficultyManager.Register<BackpackLimiter>(harmony, Config, DifficultyManager.BindsTo.Configuration);
-            DifficultyManager.Register<CampfireHarder>(harmony, Config, DifficultyManager.BindsTo.Configuration);
+            CurseManager.Register<BackpackLimiter>(harmony, Config, CurseManager.BindsTo.RunSetting);
+            CurseManager.Register<CampfireHarder>(harmony, Config, CurseManager.BindsTo.RunSetting);
 
-            DifficultyManager.Register<OneCandleMax>(harmony, Config, DifficultyManager.BindsTo.RunSetting);
+            CurseManager.Register<OneCandleMax>(harmony, Config, CurseManager.BindsTo.RunSetting);
 
             // Patch all of the toggleable difficulty mods
-            harmony.PatchAll(typeof(DifficultyManager));
+            harmony.PatchAll(typeof(CardExtensions));
+            harmony.PatchAll(typeof(CurseManager));
 
             Logger.LogInfo($"Plugin {PluginName} is loaded!");
         }
