@@ -8,19 +8,19 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
-namespace Infiniscryption.StarterDecks.Helpers
+namespace Infiniscryption.Core.Helpers
 {
     public static class DialogueHelper
     {
         // Helper functions for dialogue
 
-        public static void AddOrModifySimpleDialogEvent(string eventId, string line, string template = "NewRunDealtDeckDefault")
+        public static void AddOrModifySimpleDialogEvent(string eventId, string line, TextDisplayer.LetterAnimation? animation = null, Emotion? emotion = null)
         {
             string[] lines = { line };
-            AddOrModifySimpleDialogEvent(eventId, lines, null, template);
+            AddOrModifySimpleDialogEvent(eventId, lines, null, animation, emotion);
         }
 
-        private static void SyncLineCollection(List<DialogueEvent.Line> curLines, string[] newLines)
+        private static void SyncLineCollection(List<DialogueEvent.Line> curLines, string[] newLines, TextDisplayer.LetterAnimation? animation, Emotion? emotion)
         {
             // Delete unnecessary lines
             while (curLines.Count > newLines.Length)
@@ -35,11 +35,18 @@ namespace Infiniscryption.StarterDecks.Helpers
             {
                 DialogueEvent.Line newLine = CloneLine(curLines[0]);
                 newLine.text = newLines[i];
+
+                if (animation.HasValue)
+                    newLine.letterAnimation = animation.Value;
+
+                if (emotion.HasValue)
+                    newLine.emotion = emotion.Value;
+
                 curLines.Add(newLine);
             }
         }
 
-        public static void AddOrModifySimpleDialogEvent(string eventId, string[] lines, string[][] repeatLines=null, string template = "NewRunDealtDeckDefault")
+        public static void AddOrModifySimpleDialogEvent(string eventId, string[] lines, string[][] repeatLines=null, TextDisplayer.LetterAnimation? animation=null, Emotion? emotion=null, string template = "NewRunDealtDeckDefault")
         {
             // Get the event from the database
             bool addEvent = false;
@@ -58,7 +65,7 @@ namespace Infiniscryption.StarterDecks.Helpers
             } 
 
             // Sync the main lines
-            SyncLineCollection(dialogue.mainLines.lines, lines);
+            SyncLineCollection(dialogue.mainLines.lines, lines, animation, emotion);
 
             // Sync the repeat lines
             if (repeatLines == null)
@@ -72,7 +79,7 @@ namespace Infiniscryption.StarterDecks.Helpers
 
                 // Modify all existing lines of dialogue in place
                 for (int i = 0; i < dialogue.repeatLines.Count; i++)
-                    SyncLineCollection(dialogue.repeatLines[i].lines, repeatLines[i]);
+                    SyncLineCollection(dialogue.repeatLines[i].lines, repeatLines[i], animation, emotion);
             }
 
             if (addEvent)
@@ -104,9 +111,7 @@ namespace Infiniscryption.StarterDecks.Helpers
             };
 
             foreach (var line in dialogueEvent.mainLines.lines)
-            {
                 clonedEvent.mainLines.lines.Add(CloneLine(line));
-            }
 
             if (includeRepeat)
             {
@@ -122,9 +127,7 @@ namespace Infiniscryption.StarterDecks.Helpers
             }
 
             foreach (var speaker in dialogueEvent.speakers)
-            {
                 clonedEvent.speakers.Add(speaker);
-            }
 
             return clonedEvent;
         }
