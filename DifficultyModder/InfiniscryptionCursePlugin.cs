@@ -10,6 +10,7 @@ using System;
 using Infiniscryption.Curses.Patchers;
 using Infiniscryption.Curses.Sequences;
 using Infiniscryption.Curses.Helpers;
+using Infiniscryption.Core.Helpers;
 
 namespace Infiniscryption.Curses
 {
@@ -18,8 +19,8 @@ namespace Infiniscryption.Curses
     {
 
         private const string PluginGuid = "zorro.inscryption.infiniscryption.curses";
-		private const string PluginName = "Infiniscryption Difficulty Modder";
-		private const string PluginVersion = "1.0";
+		private const string PluginName = "Infiniscryption Curses";
+		private const string PluginVersion = "0.1";
 
         internal static ManualLogSource Log;
 
@@ -36,6 +37,9 @@ namespace Infiniscryption.Curses
             // Patch all of the toggleable difficulty mods
             harmony.PatchAll(typeof(CardExtensions));
             harmony.PatchAll(typeof(CurseManager));
+
+            // Initialize the RunStateHelper
+            RunStateHelper.Initialize(harmony);
 
             Logger.LogInfo($"Plugin {PluginName} is loaded!");
         }

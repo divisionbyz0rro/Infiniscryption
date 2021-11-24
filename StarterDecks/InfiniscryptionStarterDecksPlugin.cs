@@ -19,7 +19,7 @@ namespace Infiniscryption.StarterDecks
 
         private const string PluginGuid = "zorro.inscryption.infiniscryption.starterdecks";
 		private const string PluginName = "Infiniscryption Starter Decks";
-		private const string PluginVersion = "1.0";
+		private const string PluginVersion = "1.0.2";
 
         private bool Active
         {

@@ -2,18 +2,21 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>Infiniscryption.DifficultyModifiers</AssemblyName>
-    <Description>Infinite Inscryption</Description>
-    <Version>1.0</Version>
+    <AssemblyName>Infiniscryption.Curses</AssemblyName>
+    <Description>Infinite Inscryption - Curses</Description>
+    <Version>1.0.2</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>9.0</LangVersion>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
-    <PackageReference Include="BepInEx.Core" Version="5.*" />
-    <PackageReference Include="BepInEx.PluginInfoProps" Version="1.*" />
-    <PackageReference Include="UnityEngine.Modules" Version="2019.4.24" IncludeAssets="compile" />
+    <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" GeneratePathProperty="true" IncludeAssets="none"/>
+    <PackageReference Include="BepInEx.Core" Version="5.*" GeneratePathProperty="true" IncludeAssets="none"/>
+    <PackageReference Include="BepInEx.PluginInfoProps" Version="1.*" GeneratePathProperty="true" IncludeAssets="none"/>
+    <PackageReference Include="ILRepack" Version="2.0.18" GeneratePathProperty="true" IncludeAssets="none"/>
+    <PackageReference Include="UnityEngine.Modules" Version="2019.4.24" IncludeAssets="compile" GeneratePathProperty="true"/>
   </ItemGroup>
 
   <ItemGroup>
@@ -47,13 +50,13 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy /Y $(TargetPath) $(ProjectDir)\Compiled" />
-    <Exec Command='xcopy /Y $(TargetPath) "C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins"' />
-    <Exec Command='xcopy /Y $(ProjectDir)\assets\*.png "C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins\Infiniscryption\assets"' />
-    <Exec Command='xcopy /Y $(TargetPath) $(ProjectDir)\package\BepInEx\plugins' />
-    <Exec Command='xcopy /Y $(ProjectDir)\assets\*.png $(ProjectDir)\package\BepInEx\plugins\Infiniscryption\assets' />
-    <Exec Command='xcopy /Y $(ProjectDir)\README.md $(ProjectDir)\package' />
-    <Exec Command='xcopy /Y $(ProjectDir)\icon.png $(ProjectDir)\package' />
-    <Exec Command='xcopy /Y $(ProjectDir)\manifest.json $(ProjectDir)\package' />
+    <Exec Command="$(PkgILRepack)\tools\ILRepack /out:$(ProjectDir)\Compiled\Infiniscryption.Curses.dll $(TargetPath) $(ProjectDir)../Core/Compiled/Infiniscryption.Core.dll /lib:$(TargetDir)" />
+    <Exec Command="xcopy /Y $(ProjectDir)\Compiled\Infiniscryption.Curses.dll &quot;C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins&quot;" />
+    <Exec Command="xcopy /Y $(ProjectDir)\assets\*.png &quot;C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins\Infiniscryption\assets&quot;" />
+    <Exec Command="xcopy /Y $(ProjectDir)\Compiled\Infiniscryption.Curses.dll $(ProjectDir)\package\BepInEx\plugins" />
+    <Exec Command="xcopy /Y $(ProjectDir)\assets\*.png $(ProjectDir)\package\BepInEx\plugins\Infiniscryption\assets" />
+    <Exec Command="xcopy /Y $(ProjectDir)\README.md $(ProjectDir)\package" />
+    <Exec Command="xcopy /Y $(ProjectDir)\icon.png $(ProjectDir)\package" />
+    <Exec Command="xcopy /Y $(ProjectDir)\manifest.json $(ProjectDir)\package" />
   </Target>
 </Project>

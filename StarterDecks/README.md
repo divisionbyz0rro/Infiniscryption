@@ -10,6 +10,12 @@ Additionally, any teeth leftover at the end of a run are saved by Leshy, as well
 
 As with most mods, you need [BepInEx](https://inscryption.thunderstore.io/package/BepInEx/BepInExPack_Inscryption/) installed. There are no other requirements.
 
+## Installation
+
+The zip file should be structured in the same way as your Inscryption root directory. Just drop the 'BepInEx' folder into your Inscryption directory and you're golden.
+
+If you've installed a previous version of this mod, you will need to delete Infiniscryption.Core.dll from the BepInEx/plugins directory.
+
 ## Conflicts
 
 Because this modifies your starter deck, it conflicts with the (excellent) [Drafting Mod](https://inscryption.thunderstore.io/package/PortaMods/DraftingMod/).
@@ -33,6 +39,10 @@ This is technical implementation details you probably don't care about.
 
 <details>
 <summary>Changelog</summary>
+
+1.0.2
+- Nonfunctional change. Repackaged to include Core.dll inside StarterDecks.dll and simplify installation.
+- If upgrading from 1.0.1 or lower, Infiniscryption.Core.dll needs to be deleted moving forward.
 
 1.0.1
 - Fixed unexpected incompatibility with the [Extended Maps Mod](https://inscryption.thunderstore.io/package/Cyantist/ExtendedMaps/).
