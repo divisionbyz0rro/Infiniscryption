@@ -10,7 +10,14 @@ As with most mods, you need [BepInEx](https://inscryption.thunderstore.io/packag
 
 The zip file should be structured in the same way as your Inscryption root directory. Just drop the 'BepInEx' folder into your Inscryption directory and you're golden.
 
-If you've installed any of my other mods, you may be told that there is a conflict for 'Infiniscryption.Core.dll'.
+## Changelog
+
+<details>
+<summary>Changelog</summary>
+
+0.1.1
+- Updated asset loader to (hopefully) fix issues with Thunderstore mod manager.
+</details>
 
 ## What is a Curse?
 

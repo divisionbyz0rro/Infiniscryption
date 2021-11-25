@@ -10,6 +10,15 @@ As with most mods, you need [BepInEx](https://inscryption.thunderstore.io/packag
 
 The zip file should be structured in the same way as your Inscryption root directory. Just drop the 'BepInEx' folder into your Inscryption directory and you're golden.
 
+## Changelog
+
+<details>
+<summary>Changelog</summary>
+
+0.1.1
+- Updated asset loader to (hopefully) fix issues with Thunderstore mod manager.
+</details>
+
 ## What is a Curse?
 
 A 'Curse' is a difficulty modification that changes the way the game plays. Each curse you take on increases the overall difficulty of your run. They are completely optional, but they clearly make you more of a badass for accepting them.
