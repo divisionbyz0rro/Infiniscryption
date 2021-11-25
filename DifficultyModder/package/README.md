@@ -10,8 +10,6 @@ As with most mods, you need [BepInEx](https://inscryption.thunderstore.io/packag
 
 The zip file should be structured in the same way as your Inscryption root directory. Just drop the 'BepInEx' folder into your Inscryption directory and you're golden.
 
-If you've installed any of my other mods, you may be told that there is a conflict for 'Infiniscryption.Core.dll'.
-
 ## What is a Curse?
 
 A 'Curse' is a difficulty modification that changes the way the game plays. Each curse you take on increases the overall difficulty of your run. They are completely optional, but they clearly make you more of a badass for accepting them.
