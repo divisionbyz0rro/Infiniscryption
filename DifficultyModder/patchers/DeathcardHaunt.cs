@@ -71,16 +71,24 @@ namespace Infiniscryption.Curses.Patchers
                 ResetHaunt();
         }
 
-        private static ConditionalWeakTable<CardInfo, String> deathcardAnimationPlayTable = new ConditionalWeakTable<CardInfo, String>();
-        private static void MarkAsHauntedCard(CardInfo card)
+        public class IntWrapper 
         {
-            deathcardAnimationPlayTable.Add(card, "DUMMY");
+            public int Value { get; set; }
         }
 
-        private static bool IsHauntedCard(CardInfo card)
+        private static ConditionalWeakTable<CardInfo, IntWrapper> deathcardAnimationPlayTable = new ConditionalWeakTable<CardInfo, IntWrapper>();
+        private static void MarkAsHauntedCard(CardInfo card, int slot)
         {
-            string dummy;
-            return deathcardAnimationPlayTable.TryGetValue(card, out dummy);
+            deathcardAnimationPlayTable.Add(card, new IntWrapper { Value = slot });
+        }
+
+        private static int GetHauntedCardSlot(CardInfo card)
+        {
+            IntWrapper dummy;
+            if (deathcardAnimationPlayTable.TryGetValue(card, out dummy))
+                return dummy.Value;
+            else
+                return -1;
         }
 
         public static CardInfo GetRandomDeathcard()
@@ -90,7 +98,6 @@ namespace Infiniscryption.Curses.Patchers
             List<CardModificationInfo> modList = SaveManager.SaveFile.GetChoosableDeathcardMods();
             CardModificationInfo mod = modList[SeededRandom.Range(0, modList.Count, seed)];
             CardInfo deathcard = CardLoader.CreateDeathCard(mod);
-            MarkAsHauntedCard(deathcard);
 
             return deathcard;
         }
@@ -150,11 +157,39 @@ namespace Infiniscryption.Curses.Patchers
 
             // Replace the weakest card in the ideal turn with the deathcard
             tp[idealTurn][weakestIndex] = deathcard;
+            MarkAsHauntedCard(deathcard, weakestIndex);
 
             // And we're done! The weakest card in the ideal turn now has a deathcard insted.
             InfiniscryptionCursePlugin.Log.LogInfo($"Added a deathcard in turn {idealTurn} in slot {weakestIndex}");
         }
 
+        [HarmonyPatch(typeof(DialogueDataUtil), "ReadDialogueData")]
+        [HarmonyPostfix]
+        public static void DeathcardDialogue()
+        {
+            // Here, we replace dialogue from Leshy based on the starter decks plugin being installed
+            // And add new dialogue
+            DialogueHelper.AddOrModifySimpleDialogEvent("DeathcardArrives", new string[] {
+                "you feel a chill in the air",
+                "the hair stands up on the back of your neck",
+                "[c:bR][v:0][c:] has arrived"
+            });
+
+            DialogueHelper.AddOrModifySimpleDialogEvent("DeathcardZoom", new string[] {
+                "[c:O]\"I have been looking for you\"[c:] said the apparition",
+                "[c:O]\"And now you must die!\"[c:]"
+            });
+        }
+
+        private static PlayableCard _lastCreatedCard;
+
+        [HarmonyPatch(typeof(Opponent), "CreateCard")]
+        [HarmonyPostfix]
+        public static void SaveLastCreatedCard(ref PlayableCard __result)
+        {
+            _lastCreatedCard = __result;
+        }
+        
         [HarmonyPatch(typeof(Opponent), "QueueCard")]
         [HarmonyPostfix]
         public static IEnumerator PlayDeathcardIntro(IEnumerator sequenceEvent, CardInfo cardInfo)
@@ -166,16 +201,38 @@ namespace Infiniscryption.Curses.Patchers
             sequenceEvent.MoveNext();
 
             // Now we check for our custom card
-            if (IsHauntedCard(cardInfo))
+            int customSlot = GetHauntedCardSlot(cardInfo);
+            if (customSlot >= 0)
             {
                 InfiniscryptionCursePlugin.Log.LogInfo("Playing animation");
                 View oldView = ViewManager.Instance.CurrentView;
-                ViewManager.Instance.SwitchToView(View.BossCloseup);
+                ViewManager.Instance.SwitchToView(View.P03Face);
+                yield return TextDisplayer.Instance.PlayDialogueEvent("DeathcardArrives", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, new string[] {
+                    cardInfo.DisplayedNameLocalized
+                }, null);
+                yield return new WaitForSeconds(0.25f);
+
+                // Figure out where we want the camera to be.
+                ViewInfo targetPos = ViewManager.GetViewInfo(View.OpponentQueue);
+                Vector3 translationOffset = (targetPos.camPosition + SLOT_OFFSETS[customSlot]) - ViewManager.GetViewInfo(ViewManager.Instance.CurrentView).camPosition;
+                Vector3 rotationOffset = targetPos.camRotation - ViewManager.GetViewInfo(ViewManager.Instance.CurrentView).camRotation;
+
+                ViewManager.Instance.OffsetPosition(translationOffset, 0.16f);
+                ViewManager.Instance.OffsetRotation(rotationOffset, 0.16f);
+
+                yield return TextDisplayer.Instance.PlayDialogueEvent("DeathcardZoom", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
+
                 yield return new WaitForSeconds(0.5f);
                 ViewManager.Instance.SwitchToView(oldView);
-            } else {
-                InfiniscryptionCursePlugin.Log.LogInfo("This was not my card");
             }
         }
+
+        private static Vector3[] SLOT_OFFSETS = new Vector3[]
+        {
+            new Vector3(-1.5f, -1f, 1.5f),
+            new Vector3(-0.5f, -1f, 1.5f),
+            new Vector3(0.5f, -1f, 1.5f),
+            new Vector3(1.5f, -1f, 1.5f)
+        };
     }
 }
