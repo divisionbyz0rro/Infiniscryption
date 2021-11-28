@@ -189,16 +189,6 @@ namespace Infiniscryption.Curses.Sequences
 				this.FlipCard(c as SelectableCard, index);
 			}));
 
-			component.CursorEntered = (Action<MainInputInteractable>)Delegate.Combine(component.CursorEntered, new Action<MainInputInteractable>(delegate(MainInputInteractable c)
-			{
-				//this.OnHoverUpgrade(index, nextEvoIdx, price);
-			}));
-
-			component.CursorExited = (Action<MainInputInteractable>)Delegate.Combine(component.CursorExited, new Action<MainInputInteractable>(delegate(MainInputInteractable c)
-			{
-				//this.OnLeaveUpgrade(index, nextEvoIdx);
-			}));
-
             availableCurses.Add(component);
 
             InfiniscryptionCursePlugin.Log.LogInfo($"Done");

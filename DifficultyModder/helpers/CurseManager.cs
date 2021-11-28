@@ -250,8 +250,10 @@ namespace Infiniscryption.Curses.Helpers
             // Be a good citizen - if you haven't completed the tutorial, this should have no effect:
             if (StoryEventsData.EventCompleted(StoryEvent.TutorialRunCompleted))
             {
+                InfiniscryptionCursePlugin.Log.LogInfo($"Testing to add curse node");
                 if (RunState.Run.map == null) // Only do this when the map is empty
                 {
+                    InfiniscryptionCursePlugin.Log.LogInfo($"Map is null - adding curse node");
                     // Let's start by seeing if we have predefined nodes already
                     // It's unfortunately private
                     Traverse paperMapTraverse = Traverse.Create(__instance);
