@@ -33,10 +33,23 @@ namespace Infiniscryption.Curses.Sequences
 			Singleton<ViewManager>.Instance.SwitchToView(View.Default, false, true);
 			yield return new WaitForSeconds(0.15f);
 
-            Color origColor = ExplorableAreaManager.Instance.HangingLight.color;
-            float origColorTemperature = ExplorableAreaManager.Instance.HangingLight.colorTemperature;
+            // Set the mood
+            TableVisualEffectsManager.Instance.ChangeTableColors(
+                GameColors.Instance.brightRed,        // main light color
+                GameColors.Instance.darkRed,      // card light color
+                GameColors.Instance.glowRed,    // interactables color
+                GameColors.Instance.brownOrange,                        // slot default color
+                GameColors.Instance.brownOrange,    // slot interactable color
+                GameColors.Instance.brownOrange,    // slot highlighted color
+                GameColors.Instance.brownOrange,           // queue slot default color
+                GameColors.Instance.brownOrange,           // queue slot interactable color
+                GameColors.Instance.brownOrange);     // queue slot highlighted color
 
-            ExplorableAreaManager.Instance.HangingLight.color = Color.red;
+            // Spawn some trees
+            this._forestScenery = GameObject.Instantiate<GameObject>(ResourceBank.Get<GameObject>("Prefabs/Environment/TableEffects/ForestTableEffects"));
+            yield return new WaitForSeconds(0.5f);
+            AudioController.Instance.PlaySound2D("prospector_trees_enter", MixerGroup.TableObjectsSFX, 0.2f, 0f, null, null, null, null, false);
+            yield return new WaitForSeconds(0.25f);            
 
             LeshyAnimationController.Instance.PutOnMask(LeshyAnimationController.Mask.Woodcarver, true);
             yield return new WaitForSeconds(1.5f);
@@ -45,27 +58,11 @@ namespace Infiniscryption.Curses.Sequences
 
 			yield return Singleton<TextDisplayer>.Instance.PlayDialogueEvent("CurseIntroIntro", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
 
-            Singleton<ViewManager>.Instance.SwitchToView(View.BossCloseup, false, false);
-			AudioController.Instance.PlaySound2D("boss_skull_appear", MixerGroup.TableObjectsSFX, 1f, 0f, null, null, null, null, false);
-			yield return new WaitForSeconds(0.1f);
-            yield return Singleton<TextDisplayer>.Instance.PlayDialogueEvent("HallOfCurses", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
-            Singleton<ViewManager>.Instance.SwitchToView(View.Default, false, false);
+            LeshyAnimationController.Instance.LeftArm.PlayAnimation("doctor_hand_intro");
 
-            if (!CurseManager.HasSeenCurseSelectBefore)
-            {
-                yield return Singleton<TextDisplayer>.Instance.PlayDialogueEvent("WhatAreCurses", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
-                CurseManager.HasSeenCurseSelectBefore = true;
-            }
+            yield return Singleton<TextDisplayer>.Instance.PlayDialogueEvent("SummonCurses", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
 
-            yield return new WaitForSeconds(0.5f);
-
-            // Look at the view list
-			Singleton<ViewManager>.Instance.SwitchToView(View.TradingTopDown, false, false);
-			yield return new WaitForSeconds(0.3f);
-
-            TableRuleBook.Instance.SetOnBoard(true);
-
-			InfiniscryptionCursePlugin.Log.LogInfo($"Showing curses...");
+            InfiniscryptionCursePlugin.Log.LogInfo($"Showing curses...");
 			
             // We will deal out the boons in rows of four.
             // But we have to choose where the cards go based on how many there are.
@@ -78,35 +75,70 @@ namespace Infiniscryption.Curses.Sequences
 				yield return new WaitForSeconds(0.1f);
 			}
 
+            // Generate the confirmstone button
+            this._confirmStoneButton = GameObject.Instantiate<GameObject>(ResourceBank.Get<GameObject>("Prefabs/SpecialNodeSequences/ConfirmStoneButton"));
+            this._confirmStoneButton.transform.localPosition += new Vector3(3f, 0f, -1f);
+
+            foreach (Component comp in _confirmStoneButton.GetComponentsInChildren<Component>())
+            {
+                if (comp is MeshRenderer && comp.name == "Quad")
+                    (comp as MeshRenderer).material.mainTexture = AssetHelper.LoadTexture("confirm_curse_button");
+            }
+
+            ConfirmStoneButton btn = _confirmStoneButton.GetComponentInChildren<ConfirmStoneButton>();
+            btn.HighlightCursorType = CursorType.Slap;
+            btn.SetColors(
+                new Color(0.007843138f, 0.03921569f, 0.06666667f), // default color
+                GameColors.Instance.darkRed, // interactable color
+                GameColors.Instance.glowRed // hover color
+            );
+            btn.SetButtonInteractable();
+
+            yield return new WaitForSeconds(0.25f);
+
+
+            // Look at the view list
+			Singleton<ViewManager>.Instance.SwitchToView(View.TradingTopDown, false, false);
+			yield return new WaitForSeconds(0.3f);
+
+            TableRuleBook.Instance.SetOnBoard(true);
+
             yield return Singleton<TextDisplayer>.Instance.PlayDialogueEvent("HowToSelect", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
+
+            if (!CurseManager.HasSeenCurseSelectBefore)
+            {
+                yield return Singleton<TextDisplayer>.Instance.PlayDialogueEvent("WhatAreCurses", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
+                CurseManager.HasSeenCurseSelectBefore = true;
+            }
 
 			Singleton<ViewManager>.Instance.Controller.LockState = ViewLockState.Unlocked;
             Singleton<ViewManager>.Instance.Controller.SwitchToControlMode(ViewController.ControlMode.Trading, false);
 			
-            // Wait until you back away from the table
-			yield return new WaitUntil(() => ViewManager.Instance.CurrentView != View.TradingTopDown);
+            // Wait until you click the button
+			yield return btn.WaitUntilConfirmation();
 
-			Singleton<ViewManager>.Instance.SwitchToView(View.TradingTopDown, false, true);
+			Singleton<ViewManager>.Instance.SwitchToView(View.Default, false, true);
 
 			// Destroy the purchaseable cards
 			foreach (SelectableCard selectableCard in this.availableCurses)
 			{
 				int num2 = this.availableCurses.IndexOf(selectableCard);
-				Tween.LocalPosition(selectableCard.transform, selectableCard.transform.localPosition + Vector3.forward * 3f, 0.2f, 0.05f * (float)num2, Tween.EaseIn, Tween.LoopType.None, null, null, true);
+				Tween.LocalPosition(selectableCard.transform, selectableCard.transform.localPosition + Vector3.forward * 6f, 0.2f, 0.05f * (float)num2, Tween.EaseIn, Tween.LoopType.None, null, null, true);
 				selectableCard.SetEnabled(false);
 				UnityEngine.Object.Destroy(selectableCard.gameObject, 0.35f);
 			}
-
-			//yield return this.StartCoroutine(Singleton<CurrencyBowl>.Instance.CleanUpFromTableAndExit());
 
 			Singleton<ViewManager>.Instance.SwitchToView(View.Default, false, false);
 			yield return new WaitForSeconds(0.1f);
             yield return Singleton<TextDisplayer>.Instance.PlayDialogueEvent("CursesSelect", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
 			yield return LeshyAnimationController.Instance.TakeOffMask();
             
-            ExplorableAreaManager.Instance.HangingLight.color = origColor;
+            TableVisualEffectsManager.Instance.ResetTableColors();
 
             TableRuleBook.Instance.SetOnBoard(false);
+
+            GameObject.Destroy(this._forestScenery);
+            GameObject.Destroy(this._confirmStoneButton);
 
             yield return new WaitForSeconds(1f);
 			Singleton<ViewManager>.Instance.Controller.LockState = ViewLockState.Unlocked;
@@ -161,21 +193,19 @@ namespace Infiniscryption.Curses.Sequences
                 TempDecals = { installedCurses[index].CurseBackground }
             };
             InfiniscryptionCursePlugin.Log.LogInfo($"Adding curse{installedCurses[index].Title} to info; curse is Active? {installedCurses[index].Active}");
-            curseCard.SetCurse(installedCurses[index]);
+            curseCard.SetCurse(installedCurses[index]);     
 
             InfiniscryptionCursePlugin.Log.LogInfo($"Adding info to card");
-			component.SetInfo(curseCard);            
-
-            component.SetBackTexture(installedCurses[index].CurseCardBack);
+			component.SetInfo(curseCard);     
 
             // We need to flip the card over
             component.SetFaceDown(!installedCurses[index].Active, true);
             FixRotations(component);
 
-            InfiniscryptionCursePlugin.Log.LogInfo($"Calculating card location");
+            InfiniscryptionCursePlugin.Log.LogInfo($"Calculating card location");  
 
 			Vector3 vector = GetLocationForCard(index);
-			newUpgradeCard.transform.localPosition = vector + Vector3.forward * 3f;
+			newUpgradeCard.transform.localPosition = vector + Vector3.forward * 6f;
 			newUpgradeCard.transform.localScale = Vector3.Scale(newUpgradeCard.transform.localScale, new Vector3(0.8f, 0.8f, 1f));
 
 			Tween.LocalPosition(newUpgradeCard.transform, vector, 0.2f, tweenDelay, Tween.EaseOut, Tween.LoopType.None, null, null, true);
@@ -213,7 +243,13 @@ namespace Infiniscryption.Curses.Sequences
         
         private void FixRotations(SelectableCard card)
         {
+            if (card.FaceDown)
+            {
+                card.StatsLayer.Renderer.materials[1].SetTexture("_MainTex", card.Info.GetCurse().CurseCardBack);
+            }
+
             card.SetLocalRotation(card.FaceDown ? 3f : -3f, 20f, false);
+
 	        card.Anim.PlayRiffleSound();
         }
 
@@ -228,15 +264,16 @@ namespace Infiniscryption.Curses.Sequences
                 return _selectableCardPrefab;
             }
         }
-
-		private TMP_FontAsset pricetagFont = Resources.Load<TMP_FontAsset>("fonts/3d scene fonts/garbageschrift");
-
 		private readonly Vector3 SCALE_FACTOR = new Vector3(1f, 1f, 1f);
 
-        private readonly Vector3 BASE_ANCHOR = new Vector3(-2.5f, 5.01f, -0.12f);
+        private readonly Vector3 BASE_ANCHOR = new Vector3(-2.8f, 5.01f, -0.12f);
 
         private readonly Vector3 ROW_OFFSET = new Vector3(0f, 0f, -1.6f);
 
         private readonly Vector3 COL_OFFSET = new Vector3(1.6f, 0f, 0f);
+
+        private GameObject _forestScenery;
+
+        private GameObject _confirmStoneButton;
     }
 }

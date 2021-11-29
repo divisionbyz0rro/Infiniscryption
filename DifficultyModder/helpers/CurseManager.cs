@@ -206,15 +206,23 @@ namespace Infiniscryption.Curses.Helpers
         {
             // Here, we replace dialogue from Leshy based on the starter decks plugin being installed
             // And add new dialogue
-            DialogueHelper.AddOrModifySimpleDialogEvent("CurseIntroIntro", "this horrific place is known as");
-            DialogueHelper.AddOrModifySimpleDialogEvent("HallOfCurses", "the hall of curses!", TextDisplayer.LetterAnimation.WavyJitter, Emotion.Surprise);
-            DialogueHelper.AddOrModifySimpleDialogEvent("WhatAreCurses", new string[] {
-                "this place gives you the chance test your skill",
-                "by increasing the difficulty of the challenges you will face"
+            DialogueHelper.AddOrModifySimpleDialogEvent("CurseIntroIntro", new string []
+            {
+                "your journey begins as you enter a dark and foreboding forest",
+                "suddenly, an old woman appears before you"
             });
-            DialogueHelper.AddOrModifySimpleDialogEvent("HowToSelect", "each curse you leave face up will be activated");
-            DialogueHelper.AddOrModifySimpleDialogEvent("CursesSelect", "consider yourself cursed!", TextDisplayer.LetterAnimation.WavyJitter, Emotion.Laughter);
-            DialogueHelper.AddOrModifySimpleDialogEvent("CursesNone", "coward");
+
+            DialogueHelper.AddOrModifySimpleDialogEvent("SummonCurses", new string []
+            {
+                "she opens her hand and summons forth [c:bR]curse cards[c:]"
+            });
+
+            DialogueHelper.AddOrModifySimpleDialogEvent("WhatAreCurses", new string[] {
+                "curses increase the [c:bR]difficulty[c:] of your run",
+                "do not make this decision lightly"
+            });
+            DialogueHelper.AddOrModifySimpleDialogEvent("HowToSelect", "each [c:bR]curse card[c:] you leave face up will be active until your run concludes");
+            DialogueHelper.AddOrModifySimpleDialogEvent("CursesSelect", "the woman silently picks up her cards and walks alway", TextDisplayer.LetterAnimation.WavyJitter, Emotion.Laughter);
         }
 
         [HarmonyPatch(typeof(SpecialNodeHandler), "StartSpecialNodeSequence")]
