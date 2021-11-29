@@ -193,7 +193,7 @@ namespace Infiniscryption.Curses.Sequences
                 TempDecals = { installedCurses[index].CurseBackground }
             };
             InfiniscryptionCursePlugin.Log.LogInfo($"Adding curse{installedCurses[index].Title} to info; curse is Active? {installedCurses[index].Active}");
-            curseCard.SetCurse(installedCurses[index]);     
+            CardExtensions.SetCurse(curseCard, installedCurses[index]);     
 
             InfiniscryptionCursePlugin.Log.LogInfo($"Adding info to card");
 			component.SetInfo(curseCard);     
@@ -245,7 +245,7 @@ namespace Infiniscryption.Curses.Sequences
         {
             if (card.FaceDown)
             {
-                card.StatsLayer.Renderer.materials[1].SetTexture("_MainTex", card.Info.GetCurse().CurseCardBack);
+                card.StatsLayer.Renderer.materials[1].SetTexture("_MainTex", CardExtensions.GetCurse(card.Info).CurseCardBack);
             }
 
             card.SetLocalRotation(card.FaceDown ? 3f : -3f, 20f, false);

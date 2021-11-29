@@ -24,26 +24,30 @@ namespace Infiniscryption.Curses.Helpers
         private static ConditionalWeakTable<CardAbilityIcons, CurseIconInteractable> _cardCurses = new ConditionalWeakTable<CardAbilityIcons, CurseIconInteractable>();
 
         // Extension method to add curses to card info
-        public static void SetCurse(this CardInfo cardInfo, CurseBase curse)
+        public static void SetCurse(CardInfo cardInfo, CurseBase curse)
         {
             _cardInfoCurses.Add(cardInfo, curse);
         }
 
-        public static CurseBase GetCurse(this CardInfo cardInfo)
+        public static CurseBase GetCurse(CardInfo cardInfo)
         {
             CurseBase retval;
+            InfiniscryptionCursePlugin.Log.LogInfo($"Asked to get a curse for {cardInfo}");
+
+            if (cardInfo == null)
+                return null;
             if (!_cardInfoCurses.TryGetValue(cardInfo, out retval))
                 return null;
             return retval;
         }
 
         // Extension method to add curse icons to cards
-        public static void SetCurseIcon(this CardAbilityIcons card, CurseIconInteractable curseIcon)
+        public static void SetCurseIcon(CardAbilityIcons card, CurseIconInteractable curseIcon)
         {
             _cardCurses.Add(card, curseIcon);
         }
 
-        public static CurseIconInteractable GetCurseIcon(this CardAbilityIcons cardInfo)
+        public static CurseIconInteractable GetCurseIcon(CardAbilityIcons cardInfo)
         {
             CurseIconInteractable retval;
             if (!_cardCurses.TryGetValue(cardInfo, out retval))
@@ -51,7 +55,7 @@ namespace Infiniscryption.Curses.Helpers
             return retval;
         }
 
-        public static void SetBackTexture (this SelectableCard card, Texture texture)
+        public static void SetBackTexture (SelectableCard card, Texture texture)
         {
             Traverse cardTraverse = Traverse.Create(card);
             cardTraverse.Field("flippedBackTexture").SetValue(texture);
@@ -61,7 +65,7 @@ namespace Infiniscryption.Curses.Helpers
         [HarmonyPostfix]
         public static void CurseIteractable(bool interactionEnabled, ref CardAbilityIcons __instance)
         {
-            CurseIconInteractable interactable = __instance.GetCurseIcon();
+            CurseIconInteractable interactable = GetCurseIcon(__instance);
             if (interactable != null)
                 interactable.SetEnabled(interactionEnabled && interactable.CurseAssigned);
         }
@@ -70,9 +74,9 @@ namespace Infiniscryption.Curses.Helpers
         [HarmonyPostfix]
         public static void DisplayCurseIcon(CardInfo cardInfo, ref CardAbilityIcons __instance)
         {
-            CurseIconInteractable interactable = __instance.GetCurseIcon();
+            CurseIconInteractable interactable = GetCurseIcon(__instance);
             if (interactable != null)
-                interactable.AssignCurse(cardInfo.GetCurse());
+                interactable.AssignCurse(GetCurse(cardInfo));
         }
 
         public static GameObject BoonIconPrefab = Resources.Load<GameObject>("prefabs/cards/cardsurfaceinteraction/boonicon");
@@ -81,32 +85,36 @@ namespace Infiniscryption.Curses.Helpers
         [HarmonyPrefix]
         public static void CreateCurseIconInteractable(CardInfo info, ref Card __instance)
         {
-            if (__instance.AbilityIcons.GetCurseIcon() == null)
+            if (info != null && GetCurse(info) != null && __instance != null && __instance.AbilityIcons != null)
             {
-                Traverse abilityIconTraver = Traverse.Create(__instance.AbilityIcons);
-                BoonIconInteractable boonInteractable = abilityIconTraver.Field("boonIcon").GetValue<BoonIconInteractable>();
-                
-                GameObject curseIcon = GameObject.Instantiate(BoonIconPrefab);
-                curseIcon.name = "CurseIcon";
-                curseIcon.transform.SetParent(boonInteractable.gameObject.transform.parent);
+                if (GetCurseIcon(__instance.AbilityIcons) == null)
+                {
+                    InfiniscryptionCursePlugin.Log.LogInfo("I'm in here");
+                    Traverse abilityIconTraver = Traverse.Create(__instance.AbilityIcons);
+                    BoonIconInteractable boonInteractable = abilityIconTraver.Field("boonIcon").GetValue<BoonIconInteractable>();
+                    
+                    GameObject curseIcon = GameObject.Instantiate(BoonIconPrefab);
+                    curseIcon.name = "CurseIcon";
+                    curseIcon.transform.SetParent(boonInteractable.gameObject.transform.parent);
 
-                CurseIconInteractable interactable = curseIcon.AddComponent<CurseIconInteractable>();
-                __instance.AbilityIcons.SetCurseIcon(interactable);
-                curseIcon.transform.localPosition = boonInteractable.gameObject.transform.localPosition;
-                curseIcon.transform.localRotation = boonInteractable.gameObject.transform.localRotation;
-                curseIcon.transform.localScale = boonInteractable.gameObject.transform.localScale;
+                    CurseIconInteractable interactable = curseIcon.AddComponent<CurseIconInteractable>();
+                    SetCurseIcon(__instance.AbilityIcons, interactable);
+                    curseIcon.transform.localPosition = boonInteractable.gameObject.transform.localPosition;
+                    curseIcon.transform.localRotation = boonInteractable.gameObject.transform.localRotation;
+                    curseIcon.transform.localScale = boonInteractable.gameObject.transform.localScale;
 
-                Component.Destroy(curseIcon.GetComponent<BoonIconInteractable>()); // The new curse icon doesn't need a boon icon component
+                    Component.Destroy(curseIcon.GetComponent<BoonIconInteractable>()); // The new curse icon doesn't need a boon icon component
+                }
+
+                GetCurseIcon(__instance.AbilityIcons).AssignCurse(GetCurse(info));
             }
-
-            __instance.AbilityIcons.GetCurseIcon().AssignCurse(info.GetCurse());
         }
 
         [HarmonyPatch(typeof(Card), "SetFaceDown")]
         [HarmonyPostfix]
         public static void HideCurseIconOnFacedown(bool faceDown, ref Card __instance)
         {
-            CurseIconInteractable icon = __instance.AbilityIcons.GetCurseIcon();
+            CurseIconInteractable icon = GetCurseIcon(__instance.AbilityIcons);
             if (icon != null)
             {
                 icon.gameObject.SetActive(!faceDown);
