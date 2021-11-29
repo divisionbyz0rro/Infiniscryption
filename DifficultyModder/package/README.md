@@ -2,6 +2,8 @@
 
 This mod is currently in an alpha release. It shouldn't crash your game, but it might not work 100% of the time. I'm still testing.
 
+This mod adds difficulty modifiers (curses) to your runs. Some are simple, like reducing the items you get from events on the map. Others are complex, such as randomly adding deathcards to encounters (like the bounty hunters from Act 3).
+
 ## Requirements
 
 As with most mods, you need [BepInEx](https://inscryption.thunderstore.io/package/BepInEx/BepInExPack_Inscryption/) installed. There are no other requirements.
@@ -15,6 +17,11 @@ The zip file should be structured in the same way as your Inscryption root direc
 <details>
 <summary>Changelog</summary>
 
+0.2.0
+- Added the 'Curse of Haunted Pasts'
+- Significantly improved the curse selection event
+- Fixed a bug in the curse selection event where card backs were not displaying correctly.
+
 0.1.1
 - Updated asset loader to (hopefully) fix issues with Thunderstore mod manager.
 </details>
@@ -25,6 +32,11 @@ A 'Curse' is a difficulty modification that changes the way the game plays. Each
 
 [![Quick video demo](https://img.youtube.com/vi/R1tFfTIx7kQ/0.jpg)](https://www.youtube.com/watch?v=R1tFfTIx7kQ)
 
+### Curse of Haunted Pasts
+Remember the bounty hunters from Act 3? Well, they're back, but flavorfully appropriate.
+
+The game will track a 'haunt level' as you progress and win more battles. The higher the haunt level, the higher the chance that a random deathcard from the deathcard pool will be selected and inserted into battles that you fight.
+
 ### Curse of the Empty Backpack
 Backpack encounters now only gain you a single consumable, even if you have none.
 
@@ -33,7 +45,9 @@ This forces the player to only have a single candle flame available for the run.
 You can't gain more from winning boss battles, and you also won't get smoke at boss battles.
 
 ### Curse of the Strong Survivors
-Campfire events are harder. If you've successfully upgraded a card previously, there's even a chance of failure on the first try. And failure costs you more than just a bad card.
+Campfire events are harder. If you've successfully upgraded a card previously, there's even a chance of failure on the first try. And failure costs you more than just a card.
+
+However, you can also leave a campfire event without doing anything if you wish.
 
 ## What if I want to program my own Curse?
 

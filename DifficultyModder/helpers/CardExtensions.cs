@@ -101,5 +101,16 @@ namespace Infiniscryption.Curses.Helpers
 
             __instance.AbilityIcons.GetCurseIcon().AssignCurse(info.GetCurse());
         }
+
+        [HarmonyPatch(typeof(Card), "SetFaceDown")]
+        [HarmonyPostfix]
+        public static void HideCurseIconOnFacedown(bool faceDown, ref Card __instance)
+        {
+            CurseIconInteractable icon = __instance.AbilityIcons.GetCurseIcon();
+            if (icon != null)
+            {
+                icon.gameObject.SetActive(!faceDown);
+            }
+        }
     }
 }

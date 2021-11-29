@@ -34,6 +34,8 @@ namespace Infiniscryption.Curses
 
             CurseManager.Register<OneCandleMax>(harmony, Config, CurseManager.BindsTo.RunSetting);
 
+            CurseManager.Register<DeathcardHaunt>(harmony, Config, CurseManager.BindsTo.RunSetting);
+
             // Patch all of the toggleable difficulty mods
             harmony.PatchAll(typeof(CardExtensions));
             harmony.PatchAll(typeof(CurseManager));
