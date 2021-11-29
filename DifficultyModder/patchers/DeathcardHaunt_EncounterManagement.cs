@@ -105,7 +105,7 @@ namespace Infiniscryption.Curses.Patchers
 
             // Let's make sure the deathcard shows up in the first four turns of the game
             // But not on the very first turn
-            List<List<CardInfo>> tp = __result.opponentTurnPlan.GetRange(1, 3);
+            List<List<CardInfo>> tp = __result.opponentTurnPlan;
 
             // Okay, time to add a deathcard!
             // First, we need to create one
@@ -122,6 +122,15 @@ namespace Infiniscryption.Curses.Patchers
             // Then insert the deathcard at the turn where its power level most closely matches
             List<double> differences = tp.Select(cards => Math.Abs(deathcard.PowerLevel - TurnAverage(cards))).ToList();
             int idealTurn = Enumerable.Range(0, differences.Count).Aggregate((a, b) => (differences[a] < differences[b] ? a : b));
+            if (idealTurn > 2)
+            {
+                if (tp[2].Count > 0)
+                    idealTurn = 2;
+                else if (tp[1].Count > 0)
+                    idealTurn = 1;
+                else
+                    idealTurn = 0;
+            }
 
             // This turn has an average power level that closest matches the deathcard.
             // Now let's put it in. We'll replace the weakest card with the deathcard

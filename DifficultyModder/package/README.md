@@ -17,6 +17,10 @@ The zip file should be structured in the same way as your Inscryption root direc
 <details>
 <summary>Changelog</summary>
 
+0.2.1
+- Fixed occasional crash when adding deathcards to battle plan
+- Fixed random icons appearing on procedurally generated cards.
+
 0.2.0
 - Added the 'Curse of Haunted Pasts'
 - Significantly improved the curse selection event
