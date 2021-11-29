@@ -222,7 +222,7 @@ namespace Infiniscryption.Curses.Helpers
                 "do not make this decision lightly"
             });
             DialogueHelper.AddOrModifySimpleDialogEvent("HowToSelect", "each [c:bR]curse card[c:] you leave face up will be active until your run concludes");
-            DialogueHelper.AddOrModifySimpleDialogEvent("CursesSelect", "the woman silently picks up her cards and walks alway", TextDisplayer.LetterAnimation.WavyJitter, Emotion.Laughter);
+            DialogueHelper.AddOrModifySimpleDialogEvent("CursesSelect", "the woman silently picks up her cards and walks away", TextDisplayer.LetterAnimation.WavyJitter, Emotion.Laughter);
         }
 
         [HarmonyPatch(typeof(SpecialNodeHandler), "StartSpecialNodeSequence")]
