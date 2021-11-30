@@ -37,6 +37,22 @@ namespace Infiniscryption.Curses.Patchers
                 CandleHolder.Instance.UpdateArmsAndFlames();
         }
 
+        [HarmonyPatch(typeof(CandleHolder), "ReplenishFlamesSequence")]
+        [HarmonyPostfix]
+        public static IEnumerator PreventReplenishFlamesSequence(IEnumerator sequenceEvent)
+        {
+            if (!CurseManager.IsActive<OneCandleMax>())
+            {
+                while (sequenceEvent.MoveNext())
+                    yield return sequenceEvent.Current;
+            } else {
+                // Well guess what! There's no need to do anything. You're either dead
+                // in which case we are never replenishing flames, or you've survived
+                // in which case we are never replenishing flames.
+                yield break;
+            }
+        }
+
         [HarmonyPatch(typeof(Part1BossOpponent), "BossDefeatedSequence")]
         [HarmonyPostfix]
         public static IEnumerator BossCandleRenewSequence(IEnumerator sequenceEvent)
