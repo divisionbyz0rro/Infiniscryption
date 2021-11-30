@@ -1,0 +1,9 @@
+{
+    "name": "Curses",
+    "version_number": "0.2.1",
+    "website_url": "https://github.com/divisionbyz0rro/Infiniscryption",
+    "description": "Now with extra spookiness! For those looking for a greater challenge: take on curses (difficulty modifiers) to increase the difficulty of your runs and improve replayability.",
+    "dependencies": [
+        "BepInEx-BepInExPack_Inscryption-5.4.1701"
+    ]
+}
