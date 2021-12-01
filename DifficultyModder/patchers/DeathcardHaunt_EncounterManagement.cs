@@ -66,8 +66,14 @@ namespace Infiniscryption.Curses.Patchers
                 ResetHaunt();
 
             // Always clear the audio state
+            if (_pausedState != null)
+            {
+                AudioController.Instance.StopAllLoops();
+                AudioHelper.ResumeAllLoops(_pausedState);
+                _pausedState = null;
+            }
+
             _sawDeathcard = false;
-            _pausedState = null;
             _deathcardOnBoard = null;
         }
 
@@ -261,6 +267,7 @@ namespace Infiniscryption.Curses.Patchers
             {
                 AudioController.Instance.StopAllLoops();
                 AudioHelper.ResumeAllLoops(_pausedState);
+                _pausedState = null;
             }
 
             IncreaseHaunt(-1); // Killing a deathcard decreases the haunt
