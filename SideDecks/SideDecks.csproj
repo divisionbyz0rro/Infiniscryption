@@ -24,6 +24,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="API" Private="false">
+      <HintPath>..\lib\API.dll</HintPath>
+    </Reference>
+    <Reference Include="HealthForAnts" Private="false">
+      <HintPath>..\lib\HealthForAnts.dll</HintPath>
+    </Reference>
     <Reference Include="Assembly-CSharp" Private="false">
       <HintPath>..\lib\Assembly-CSharp.dll</HintPath>
     </Reference>

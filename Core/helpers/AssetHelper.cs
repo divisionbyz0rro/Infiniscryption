@@ -22,6 +22,7 @@ namespace Infiniscryption.Core.Helpers
             string manualPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Infiniscryption", "assets", $"{texture}.png");
             byte[] imgBytes = File.ReadAllBytes(manualPath);
             retval.LoadImage(imgBytes);
+            retval.name = $"Infiniscryption_{texture}";
             return retval;
         }
 

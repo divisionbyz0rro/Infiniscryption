@@ -13,6 +13,8 @@ using Infiniscryption.SideDecks.Patchers;
 namespace Infiniscryption.SideDecks
 {
     [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
+    [BepInDependency("cyantist.inscryption.api")]
+    [BepInDependency("julianperge.inscryption.cards.healthForAnts")]
     public class InfiniscryptionSideDecksPlugin : BaseUnityPlugin
     {
 
@@ -27,7 +29,11 @@ namespace Infiniscryption.SideDecks
             Log = base.Logger;
             Harmony harmony = new Harmony(PluginGuid);
 
+            CustomCards.RegisterCustomCards(harmony);
             harmony.PatchAll(typeof(SideDeckPatcher));
+
+            RunStateHelper.Initialize(harmony);
+            CustomNodeHelper.Initialize(harmony);
 
             Logger.LogInfo($"Plugin {PluginName} is loaded!");
         }
