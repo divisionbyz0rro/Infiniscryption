@@ -36,6 +36,10 @@ namespace Infiniscryption.Curses
 
             CurseManager.Register<DeathcardHaunt>(harmony, Config, CurseManager.BindsTo.RunSetting);
 
+            CurseManager.Register<LooseTeeth>(harmony, Config, CurseManager.BindsTo.RunSetting);
+
+            CurseManager.Register<RandomSigils>(harmony, Config, CurseManager.BindsTo.RunSetting);
+
             // Patch all of the toggleable difficulty mods
             harmony.PatchAll(typeof(CardExtensions));
             harmony.PatchAll(typeof(CurseManager));
