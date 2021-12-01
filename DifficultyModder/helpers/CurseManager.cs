@@ -247,7 +247,11 @@ namespace Infiniscryption.Curses.Helpers
 
         [HarmonyPatch(typeof(PaperGameMap), "TryInitializeMapData")]
         [HarmonyPrefix]
-        [HarmonyAfter(new string[] { "porta.inscryption.traderstart", "zorro.inscryption.infiniscryption.starterdecks" })]
+        [HarmonyAfter(new string[] { 
+            "porta.inscryption.traderstart", 
+            "zorro.inscryption.infiniscryption.starterdecks", 
+            "zorro.inscryption.infiniscryption.sidedecks" }
+        )]
         [HarmonyBefore(new string[] { "cyantist.inscryption.extendedmap" })]
         public static void StartWithCurseSelection(ref PaperGameMap __instance)
         {
@@ -268,8 +272,11 @@ namespace Infiniscryption.Curses.Helpers
                     PredefinedNodes predefinedNodes = paperMapTraverse.Method("get_PredefinedNodes").GetValue<PredefinedNodes>();
                     if (predefinedNodes != null)
                     {
-                        InfiniscryptionCursePlugin.Log.LogInfo($"Inserting the curse node at start");
-                        predefinedNodes.nodeRows.Insert(1, new List<NodeData>() { new CurseNodeData() });
+                        InfiniscryptionCursePlugin.Log.LogInfo($"Inserting the curse node at the end");
+                        predefinedNodes.nodeRows.Add(new List<NodeData>() { new CurseNodeData() });
+
+                        // In a lot of installations, this will be the third node on the map
+                        // And that's kind of a problem. It means the user will be able to get 
                     } else {
                         InfiniscryptionCursePlugin.Log.LogInfo($"Adding the curse node to start");
                         PredefinedNodes nodes = ScriptableObject.CreateInstance<PredefinedNodes>();
@@ -278,38 +285,6 @@ namespace Infiniscryption.Curses.Helpers
                         __instance.PredefinedNodes = nodes;
                     }
                 }
-            }
-        }
-
-        [HarmonyPatch(typeof(MapDataReader), "GetPrefabPath")]
-        [HarmonyPostfix]
-        public static void TrimPrefabPath(ref string __result)
-        {
-            // So, for some reason, the map data reader doesn't just
-            // straight up read the property of the map node.
-            // It passes through here first.
-            // That's convenient! We will trim our extra instructions off here
-            // Then we'll read that information off later
-            if (__result.Contains('@'))
-                __result = __result.Substring(0, __result.IndexOf('@')); // Get rid of everything after the @
-        }
-
-        [HarmonyPatch(typeof(MapDataReader), "SpawnAndPlaceElement")]
-        [HarmonyPostfix]
-        public static void TransformMapNode(ref GameObject __result, MapElementData data)
-        {
-            // First, let's see if we need to do anything
-            if (data.PrefabPath.Contains('@'))
-            {   
-                string spriteCode = data.PrefabPath.Substring(data.PrefabPath.IndexOf('@') + 1);
-
-                // Replace the sprite
-                AnimatingSprite sprite = __result.GetComponentInChildren<AnimatingSprite>();
-
-                for (int i = 0; i < sprite.textureFrames.Count; i++)
-                    sprite.textureFrames[i] = AssetHelper.LoadTexture($"{spriteCode}_{i+1}");
-
-                sprite.IterateFrame();
             }
         }
     }
