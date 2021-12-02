@@ -40,6 +40,9 @@ This is technical implementation details you probably don't care about.
 <details>
 <summary>Changelog</summary>
 
+1.1
+- UE change to the shop. You now confirm purchases by pushing a button instead of walking away from the table.
+
 1.0.2
 - Nonfunctional change. Repackaged to include Core.dll inside StarterDecks.dll and simplify installation.
 - If upgrading from 1.0.1 or lower, Infiniscryption.Core.dll needs to be deleted moving forward.
