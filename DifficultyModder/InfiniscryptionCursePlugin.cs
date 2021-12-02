@@ -46,6 +46,7 @@ namespace Infiniscryption.Curses
 
             // Initialize the RunStateHelper
             RunStateHelper.Initialize(harmony);
+            CustomNodeHelper.Initialize(harmony);
 
             Logger.LogInfo($"Plugin {PluginName} is loaded!");
         }

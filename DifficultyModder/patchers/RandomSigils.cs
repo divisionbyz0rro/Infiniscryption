@@ -20,7 +20,7 @@ namespace Infiniscryption.Curses.Patchers
     {
         public override string Description => "Opposing creatures will gain random abilities";
 
-        public override string Title => "Chaotic Opposition";
+        public override string Title => "Chaos";
 
         Texture2D _iconTexture = AssetHelper.LoadTexture("random_ability_icon");
 
@@ -33,35 +33,45 @@ namespace Infiniscryption.Curses.Patchers
             // We do nothing here
         }
 
-        [HarmonyPatch(typeof(EncounterBuilder), "Build")]
+        [HarmonyPatch(typeof(EncounterBuilder), "BuildOpponentTurnPlan")]
         [HarmonyPostfix]
-        public static void AddSigilsToCards(ref EncounterData __result)
+        public static void AddSigilsToCards(ref List<List<CardInfo>> __result)
         {
             int seed = SaveManager.SaveFile.GetCurrentRandomSeed() + 10;
             if (CurseManager.IsActive<RandomSigils>())
             {
-                foreach (List<CardInfo> turn in __result.opponentTurnPlan)
+                foreach (List<CardInfo> turn in __result)
                 {
                     for (int i = 0; i < turn.Count; i++)
                     {
-                        CardInfo card = turn[i];
+                        // Some cards get skipped
 
-                        int abilityPowerLevel = card.Abilities.Select(ab => AbilitiesUtil.GetInfo(ab).powerLevel).Sum();
-                        if (abilityPowerLevel <= 1)
-                        {
-                            card = turn[i] = card.Clone() as CardInfo;
+                        // We won't add sigils to the pack mule from the first boss
+                        if (turn[i].SpecialAbilities.Where(tr => tr == SpecialTriggeredAbility.PackMule).Count() > 0)
+                            continue;
 
-                            List<Ability> possibles = AbilitiesUtil.GetAbilities(false, true, 1, 10, SaveManager.SaveFile.IsPart1 ? AbilityMetaCategory.Part1Modular : AbilityMetaCategory.Part3Modular);
-                            possibles = possibles.Where(ab => !card.Abilities.Contains(ab)).ToList();
+                        // We won't add sigils to deathcards
+                        if (turn[i].Mods.Where(mod => mod.deathCardInfo != null).Count() > 0)
+                            continue;
 
-                            if (possibles.Count == 0)
-                                continue;
+                        // We won't add sigils to giant cards
+                        // Right now this is just the moon, but it could be anything.
+                        if (turn[i].HasTrait(Trait.Giant))
+                            continue;
 
-                            CardModificationInfo mod = new CardModificationInfo(possibles[SeededRandom.Range(0, possibles.Count, seed)]);
+                        CardInfo card = turn[i] = turn[i].Clone() as CardInfo;
 
-                            seed += 1;
-                            card.Mods.Add(mod);
-                        }
+                        List<Ability> possibles = AbilitiesUtil.GetAbilities(false, true, 1, 10, SaveManager.SaveFile.IsPart1 ? AbilityMetaCategory.Part1Modular : AbilityMetaCategory.Part3Modular);
+                        possibles = possibles.Where(ab => !card.Abilities.Contains(ab)).ToList();
+
+                        if (possibles.Count == 0)
+                            continue;
+
+                        CardModificationInfo mod = new CardModificationInfo(possibles[SeededRandom.Range(0, possibles.Count, seed)]);
+                        mod.fromCardMerge = true;
+
+                        seed += 1;
+                        card.Mods.Add(mod);
                     }
                 }
             }

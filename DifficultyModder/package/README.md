@@ -1,6 +1,6 @@
 # Curses
 
-This mod is currently in an alpha release. It shouldn't crash your game, but it might not work 100% of the time. I'm still testing.
+This mod is currently in an alpha release. It shouldn't crash your game, but it might not work 100% of the time. I'm still testing. Catch me on the discord @divisionbyzorro
 
 This mod adds difficulty modifiers (curses) to your runs. Some are simple, like reducing the items you get from events on the map. Others are complex, such as randomly adding deathcards to encounters (like the bounty hunters from Act 3).
 
@@ -17,6 +17,12 @@ The zip file should be structured in the same way as your Inscryption root direc
 <details>
 <summary>Changelog</summary>
 
+0.3.0
+- Added 'Curse of Loose Teeth' and 'Curse of Chaos'
+- Fixed defect where audio would sometimes not properly resume after deathcards appear in battle
+- Improved how 'Curse of the Lone Candle' interacts with boss sequences.
+- Curse selection now happens after drafting/starter deck selection and after side deck selection
+
 0.2.1
 - Fixed occasional crash when adding deathcards to battle plan
 - Fixed random icons appearing on procedurally generated cards.
@@ -28,6 +34,9 @@ The zip file should be structured in the same way as your Inscryption root direc
 
 0.1.1
 - Updated asset loader to (hopefully) fix issues with Thunderstore mod manager.
+
+0.1.0
+- Initial version. Includes 'Curse of the Empty Backpack,' 'Curse of the Lone Candle', ' and 'Curse of the Empty Backpack'
 </details>
 
 ## What is a Curse?
@@ -41,6 +50,9 @@ Remember the bounty hunters from Act 3? Well, they're back, but flavorfully appr
 
 The game will track a 'haunt level' as you progress and win more battles. The higher the haunt level, the higher the chance that a random deathcard from the deathcard pool will be selected and inserted into battles that you fight.
 
+### Curse of Loose Teeth
+You will take one damage at the start of every game.
+
 ### Curse of the Empty Backpack
 Backpack encounters now only gain you a single consumable, even if you have none.
 
@@ -50,6 +62,9 @@ You can't gain more from winning boss battles, and you also won't get smoke at b
 
 ### Curse of the Strong Survivors
 Campfire events are harder. If you've successfully upgraded a card previously, there's even a chance of failure on the first try. And failure costs you more than just a card.
+
+### Curse of Chaos
+Opposing creatures will gain random abilities. This will not apply to every creature - only to those 
 
 However, you can also leave a campfire event without doing anything if you wish.
 
