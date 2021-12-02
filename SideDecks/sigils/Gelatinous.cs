@@ -45,7 +45,10 @@ namespace Infiniscryption.SideDecks.Sigils
         [HarmonyPostfix]
         public static IEnumerator StopAddingBonesIfGelatinous(IEnumerator sequenceResult, CardSlot slot)
         {
-            if (slot.Card.gameObject.GetComponent<Gelatinous>() != null)
+            if (slot != null 
+                && slot.Card != null 
+                && slot.Card.gameObject != null 
+                && slot.Card.gameObject.GetComponent<Gelatinous>() != null)
             {
                 yield break;
             }

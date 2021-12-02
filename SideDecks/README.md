@@ -56,6 +56,9 @@ Open the BepInEx config file for this mod (zorro.inscryption.infiniscryption.sid
 <details>
 <summary>Changelog</summary>
 
+1.1.1
+- Fixed defect in Gelatinous ability that causes it to crash the game when bones are added to the pool from any source other than a card dying.
+
 1.1
 - Added hooks to allow additional cards to be added to the starter card pool.
 
