@@ -26,15 +26,15 @@ namespace Infiniscryption.SideDecks.Patchers
             INF_One_Eyed_Goat = 5
         }
 
-        public static SideDecks SelectedSideDeck
+        public static string SelectedSideDeck
         {
             get 
             { 
                 string sideDeck = RunStateHelper.GetValue("SideDeck.SelectedDeck");
                 if (String.IsNullOrEmpty(sideDeck))
-                    return SideDecks.Squirrel;
+                    return SideDecks.Squirrel.ToString();
 
-                return (SideDecks)Enum.Parse(typeof(SideDecks), sideDeck); 
+                return sideDeck; 
             }
             set { RunStateHelper.SetValue("SideDeck.SelectedDeck", value.ToString()); }
         }
@@ -44,9 +44,9 @@ namespace Infiniscryption.SideDecks.Patchers
         public static bool ReplaceSideDeck(ref List<CardInfo> __result)
         {
             __result = new List<CardInfo>();
-            SideDecks selectedDeck = SelectedSideDeck;
+            string selectedDeck = SelectedSideDeck;
             for (int i = 0; i < SIDE_DECK_SIZE; i++)
-                __result.Add(CardLoader.GetCardByName(selectedDeck.ToString()));
+                __result.Add(CardLoader.GetCardByName(selectedDeck));
 
             return false;
         }
@@ -87,10 +87,10 @@ namespace Infiniscryption.SideDecks.Patchers
                     PredefinedNodes predefinedNodes = paperMapTraverse.Method("get_PredefinedNodes").GetValue<PredefinedNodes>();
                     if (predefinedNodes != null)
                     {
-                        InfiniscryptionSideDecksPlugin.Log.LogInfo($"Inserting the curse node at the end");
+                        InfiniscryptionSideDecksPlugin.Log.LogInfo($"Inserting the sidedeck node at the end");
                         predefinedNodes.nodeRows.Add(new List<NodeData>() { new SideDeckSelectNodeData() });
                     } else {
-                        InfiniscryptionSideDecksPlugin.Log.LogInfo($"Adding the curse node to start");
+                        InfiniscryptionSideDecksPlugin.Log.LogInfo($"Adding the sidedeck node to start");
                         PredefinedNodes nodes = ScriptableObject.CreateInstance<PredefinedNodes>();
                         nodes.nodeRows.Add(new List<NodeData>() { new NodeData() });
                         nodes.nodeRows.Add(new List<NodeData>() { new SideDeckSelectNodeData() });

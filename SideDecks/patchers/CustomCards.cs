@@ -15,6 +15,8 @@ namespace Infiniscryption.SideDecks.Patchers
 {
     public static class CustomCards
     {
+        public static Trait SIDE_DECK_MARKER = (Trait)5103;
+
         private static void RegisterCustomAbilities(Harmony harmony)
         {
             // This is the 'Gelatinous' ability
@@ -30,7 +32,7 @@ namespace Infiniscryption.SideDecks.Patchers
 
             // Modify the squirrel
             List<Ability> squirrelAbs = new List<Ability>() { Ability.Reach };
-            new CustomCard("Squirrel") { abilities = squirrelAbs };
+            new CustomCard("Squirrel") { abilities = squirrelAbs, traits = new List<Trait>() { SIDE_DECK_MARKER }};
 
             // Create the Bee
             NewCard.Add(
@@ -43,7 +45,8 @@ namespace Infiniscryption.SideDecks.Patchers
                 "For when you need just one point of damage",
                 defaultTex: Resources.Load<Texture2D>("art/cards/portraits/portrait_bee"),
                 tribes: new List<Tribe>() { Tribe.Insect },
-                abilities: new List<Ability>() { Ability.Flying, Ability.Brittle }
+                abilities: new List<Ability>() { Ability.Flying, Ability.Brittle },
+                traits: new List<Trait>() { SIDE_DECK_MARKER }
             );
 
             // Create the Ant
@@ -58,7 +61,7 @@ namespace Infiniscryption.SideDecks.Patchers
                 "It's not much, but it's an ant.",
                 defaultTex: AssetHelper.LoadTexture("worker_ant"),
                 tribes: new List<Tribe>() { Tribe.Insect },
-                traits: new List<Trait>() { Trait.Ant },
+                traits: new List<Trait>() { Trait.Ant, SIDE_DECK_MARKER },
                 specialStatIcon: antHealthAbility.statIconInfo.iconType,
                 specialAbilitiesIdsParam: new List<SpecialAbilityIdentifier>() { antHealthAbility.id }
             );
@@ -74,7 +77,8 @@ namespace Infiniscryption.SideDecks.Patchers
                 "This energetic little puppy will dig up a fresh bone every turn",
                 defaultTex: AssetHelper.LoadTexture("digging_dog"),
                 tribes: new List<Tribe>() { Tribe.Canine },
-                abilities: new List<Ability>() { Ability.Strafe, Ability.BoneDigger }
+                abilities: new List<Ability>() { Ability.Strafe, Ability.BoneDigger },
+                traits: new List<Trait>() { SIDE_DECK_MARKER }
             );
 
             // Create the Squid Tail
@@ -107,10 +111,11 @@ namespace Infiniscryption.SideDecks.Patchers
                 tailId: new TailIdentifier(
                     SideDeckPatcher.SideDecks.INF_Spare_Tentacle.ToString() + "_Tail",
                     AssetHelper.LoadTexture("squid_grunt_taillost")
-                )
+                ),
+                traits: new List<Trait>() { SIDE_DECK_MARKER }
             );
 
-            // Create the Puppy
+            // Create the Goat
             NewCard.Add(
                 SideDeckPatcher.SideDecks.INF_One_Eyed_Goat.ToString(),
                 "One-Eyed Goat",
@@ -120,7 +125,8 @@ namespace Infiniscryption.SideDecks.Patchers
                 CardTemple.Nature,
                 "This goat generates additional blood...for a price",
                 defaultTex: AssetHelper.LoadTexture("portrait_goat_double"),
-                abilityIdsParam: new List<AbilityIdentifier>() { DoubleTeeth.Identifier, DoubleBlood.Identifier }
+                abilityIdsParam: new List<AbilityIdentifier>() { DoubleTeeth.Identifier, DoubleBlood.Identifier },
+                traits: new List<Trait>() { SIDE_DECK_MARKER }
             );
         }
     }
