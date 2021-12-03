@@ -21,6 +21,7 @@ namespace Infiniscryption.Core.Helpers
             public string clipName;
             public float position;
             public bool isPlaying;
+            public float volume;
         }
 
         public static List<AudioState> PauseAllLoops()
@@ -48,7 +49,8 @@ namespace Infiniscryption.Core.Helpers
                     sourceNum = i,
                     position = source.isPlaying ? source.time / source.clip.length : 0f,
                     clipName = source.clip.name,
-                    isPlaying = source.isPlaying
+                    isPlaying = source.isPlaying,
+                    volume = source.volume
                 });
             }
 
@@ -65,7 +67,7 @@ namespace Infiniscryption.Core.Helpers
                     AudioController.Instance.SetLoopAndPlay(states[i].clipName, i, true, true);
                     AudioController.Instance.SetLoopVolumeImmediate(0f, i);
                     AudioController.Instance.SetLoopTimeNormalized(states[i].position, i);
-                    AudioController.Instance.FadeInLoop(1f, 0.7f, new int[] { i });
+                    AudioController.Instance.FadeInLoop(1f, states[i].volume, new int[] { i });
                 } else {
                     AudioController.Instance.StopLoop(i);
                 }
