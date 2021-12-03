@@ -14,6 +14,7 @@ namespace Infiniscryption.StarterDecks
 {
     [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
     [BepInIncompatibility("porta.inscryption.traderstart")] // Both plugins replace the starting deck
+    [BepInIncompatibility("MADH.inscryption.DeckbuilderMod")]
     public class InfiniscryptionStarterDecksPlugin : BaseUnityPlugin
     {
 
