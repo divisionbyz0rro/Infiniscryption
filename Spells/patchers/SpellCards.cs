@@ -33,6 +33,22 @@ namespace Infiniscryption.Spells.Patchers
                 specialAbilitiesIdsParam: new List<SpecialAbilityIdentifier>() { GlobalSpellAbility.Instance.id },
                 abilityIdsParam: new List<AbilityIdentifier>() { DrawTwoCards.Identifier }
             );
+
+            NewCard.Add(
+                "Anger_of_the_Gods",
+                "Anger of the Gods",
+                0, 0,
+                new List<CardMetaCategory>() { CardMetaCategory.ChoiceNode, CardMetaCategory.TraderOffer, CardMetaCategory.Rare },
+                CardComplexity.Advanced,
+                CardTemple.Nature,
+                "For when nothing else will do the trick",
+                bloodCost: 1,
+                hideAttackAndHealth: true,
+                defaultTex: AssetHelper.LoadTexture("anger_of_all"),
+                specialStatIcon: GlobalSpellAbility.Instance.statIconInfo.iconType,
+                specialAbilitiesIdsParam: new List<SpecialAbilityIdentifier>() { GlobalSpellAbility.Instance.id },
+                abilityIdsParam: new List<AbilityIdentifier>() { DestroyAllCardsOnDeath.Identifier }
+            );
         }
     }
 }

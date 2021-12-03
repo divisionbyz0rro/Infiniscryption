@@ -40,6 +40,7 @@ namespace Infiniscryption.Spells
 
             GlobalSpellAbility.Register(harmony);
             DrawTwoCards.Register();
+            DestroyAllCardsOnDeath.Register();
 
             if (AddCards)
             {

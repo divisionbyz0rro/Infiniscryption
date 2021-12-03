@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using APIPlugin;
 using DiskCardGame;
 using Infiniscryption.Core.Helpers;
+using Infiniscryption.Spells;
 
 namespace DiskCardGame
 {
@@ -28,8 +29,8 @@ namespace DiskCardGame
 
             NewAbility ability = new NewAbility(
                 info,
-                typeof(DrawTwoCards),
-                AssetHelper.LoadTexture("ability_drawtwocardsondeath"),
+                typeof(DestroyAllCardsOnDeath),
+                AssetHelper.LoadTexture("ability_nuke"),
                 Identifier
             );
 
@@ -45,23 +46,33 @@ namespace DiskCardGame
 		// Token: 0x0600135C RID: 4956 RVA: 0x000438AD File Offset: 0x00041AAD
 		public override IEnumerator OnDie(bool wasSacrifice, PlayableCard killer)
 		{
+            InfiniscryptionSpellsPlugin.Log.LogInfo($"On cataclysm death");
 			yield return base.PreSuccessfulTriggerSequence();
-			ViewManager.Instance.SwitchToView(View.Default);
+			ViewManager.Instance.SwitchToView(View.Board);
 
-            // Now we draw the top card from each deck
-            if (CardDrawPiles.Instance is CardDrawPiles3D)
+            // Kill EVERYTHING
+            foreach (var slot in BoardManager.Instance.OpponentSlotsCopy)
             {
-                CardDrawPiles3D cardPiles = CardDrawPiles.Instance as CardDrawPiles3D;
-                yield return cardPiles.DrawCardFromDeck();
-                yield return cardPiles.DrawFromSidePile();
-            } 
-            else 
+                if (slot.Card != null)
+                {
+                    InfiniscryptionSpellsPlugin.Log.LogInfo($"Killing {slot.Card.name}");
+                    yield return slot.Card.Die(true, null, true);
+                }
+            }
+
+            foreach (var slot in BoardManager.Instance.PlayerSlotsCopy)
             {
-                yield return CardDrawPiles.Instance.DrawCardFromDeck();
-                yield return CardDrawPiles.Instance.DrawCardFromDeck();
+                if (slot.Card != null)
+                {
+                    InfiniscryptionSpellsPlugin.Log.LogInfo($"Killing {slot.Card.name}");
+                    yield return slot.Card.Die(true, null, true);
+                }
             }
 
 			yield return base.LearnAbility(0.5f);
+
+            ViewManager.Instance.SwitchToView(View.Default);
+
 			yield break;
 		}
 	}

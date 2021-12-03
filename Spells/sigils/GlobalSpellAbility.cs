@@ -231,6 +231,8 @@ namespace Infiniscryption.Spells.Sigils
                         Traverse boardTraverse = Traverse.Create(BoardManager.Instance);
                         boardTraverse.Field("playerCardsPlayedThisRound").GetValue<List<CardInfo>>().Add(card.Info);
                     }
+
+                    InteractionCursor.Instance.ClearForcedCursorType();
                 }
 			}
 			if (!cardWasPlayed)
