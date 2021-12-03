@@ -17,6 +17,9 @@ The zip file should be structured in the same way as your Inscryption root direc
 <details>
 <summary>Changelog</summary>
 
+0.3.1
+- Fixed defect where unpaused audio would sometimes come back too loud.
+
 0.3.0
 - Added 'Curse of Loose Teeth' and 'Curse of Chaos'
 - Fixed defect where audio would sometimes not properly resume after deathcards appear in battle
