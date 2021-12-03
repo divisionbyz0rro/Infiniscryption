@@ -24,6 +24,14 @@ namespace Infiniscryption.Spells
 
         internal static ManualLogSource Log;
 
+        private bool AddCards
+        {
+            get
+            {
+                return Config.Bind("InfiniscryptionSpells", "AddCards", false, new BepInEx.Configuration.ConfigDescription("If true, this will add the sample cards to the card pool.")).Value;
+            }
+        }
+
         private void Awake()
         {
             Log = base.Logger;
@@ -31,7 +39,12 @@ namespace Infiniscryption.Spells
             Harmony harmony = new Harmony(PluginGuid);
 
             GlobalSpellAbility.Register(harmony);
-            SpellCards.RegisterCustomCards();
+            DrawTwoCards.Register();
+
+            if (AddCards)
+            {
+                SpellCards.RegisterCustomCards();
+            }
 
             Logger.LogInfo($"Plugin {PluginName} is loaded!");
         }

@@ -17,8 +17,7 @@ namespace Infiniscryption.Spells.Patchers
     {
         internal static void RegisterCustomCards()
         {
-
-            // Create the Bee
+            // Create the Kettle
             NewCard.Add(
                 "Kettle_of_Avarice",
                 "Kettle of Avarice",
@@ -28,10 +27,11 @@ namespace Infiniscryption.Spells.Patchers
                 CardTemple.Nature,
                 "It allows you to draw two more cards",
                 bloodCost: 1,
+                hideAttackAndHealth: true,
                 defaultTex: AssetHelper.LoadTexture("kettle_of_avarice"),
                 specialStatIcon: GlobalSpellAbility.Instance.statIconInfo.iconType,
-                abilities: new List<Ability> { Ability.DrawRandomCardOnDeath, Ability.DrawCopyOnDeath },
-                specialAbilitiesIdsParam: new List<SpecialAbilityIdentifier>() { GlobalSpellAbility.Instance.id }
+                specialAbilitiesIdsParam: new List<SpecialAbilityIdentifier>() { GlobalSpellAbility.Instance.id },
+                abilityIdsParam: new List<AbilityIdentifier>() { DrawTwoCards.Identifier }
             );
         }
     }

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System;
 using Infiniscryption.Core.Helpers;
 using APIPlugin;
+using System.Linq;
 
 namespace Infiniscryption.Spells.Sigils
 {
@@ -24,6 +25,22 @@ namespace Infiniscryption.Spells.Sigils
         private static SpecialStatIcon _icon;
         protected override SpecialStatIcon IconType => _icon;
 
+        private static SpecialAbilityIdentifier _id;
+        public static SpecialAbilityIdentifier ID
+        {
+            get
+            {
+                if (_id == null)
+                {
+                    _id = SpecialAbilityIdentifier.GetID(
+                            "zorro.infiniscryption.sigils.globalspell",
+                            "Spell (Global)"
+                    );
+                }
+                return _id;
+            }
+        }
+
         public static NewSpecialAbility Instance;
         public static void Register(Harmony harmony)
         {
@@ -33,24 +50,83 @@ namespace Infiniscryption.Spells.Sigils
                 info.appliesToAttack = true;
                 info.appliesToHealth = true;
                 info.rulebookName = "Spell (Global)";
-                info.rulebookDescription = "This card has an immediate effect when played and does not resolve on board.";
+                info.rulebookDescription = "This card is not a creature, does not need an empty space on the board, and dies immediately when played.";
                 info.iconGraphic = AssetHelper.LoadTexture("global_spell_stat_icon");
 
-                SpecialAbilityIdentifier spellId = SpecialAbilityIdentifier.GetID(
-                    "zorro.infiniscryption.sigils.globalspell",
-                    info.rulebookName
-                );
-
-                Instance = new NewSpecialAbility(typeof(GlobalSpellAbility), spellId, info);
+                Instance = new NewSpecialAbility(typeof(GlobalSpellAbility), ID, info);
                 _icon = Instance.statIconInfo.iconType;
 
                 harmony.PatchAll(typeof(GlobalSpellAbility)); // Take care of all the other fancy stuff we have to do
             }
         }
 
+        // No stats for these cards!
         protected override int[] GetStatValues()
         {
             return new int[] { 0, 0 };
+        }
+
+        public class SpellBackgroundAppearance : CardAppearanceBehaviour
+        {
+            private static Texture _emptySpell = AssetHelper.LoadTexture("card_empty_spell");
+            public override void ApplyAppearance()
+            {
+                base.Card.RenderInfo.baseTextureOverride = _emptySpell;
+            }
+        }
+
+        public class RareSpellBackgroundAppearance : CardAppearanceBehaviour
+        {
+            private static Texture _emptySpell = AssetHelper.LoadTexture("card_empty_spell_rare");
+            public override void ApplyAppearance()
+            {
+                base.Card.RenderInfo.baseTextureOverride = _emptySpell;
+            }
+        }
+
+        // This patch makes the card back have nostats despite having a staticon
+        [HarmonyPatch(typeof(Card), "ApplyAppearanceBehaviours")]
+        [HarmonyPostfix]
+        public static void SpellBackground(ref Card __instance)
+        {
+            if (__instance.Info.SpecialAbilities.Any(ab => (int)ab == (int)Instance.id.id))
+            {
+                if (__instance.Info.metaCategories.Any(cat => cat == CardMetaCategory.Rare))
+                    __instance.gameObject.AddComponent<RareSpellBackgroundAppearance>().ApplyAppearance();
+                else
+                    __instance.gameObject.AddComponent<SpellBackgroundAppearance>().ApplyAppearance();
+            }
+        }
+
+        // This patch takes care of making sure that the staticon appears
+        private static void PatchGlobals()
+        {
+            Traverse trav = Traverse.Create<ScriptableObjectLoader<CardInfo>>();
+            List<CardInfo> allCards = trav.Field("allData").GetValue<List<CardInfo>>();
+            foreach (CardInfo card in allCards)
+            {
+                if (card.SpecialAbilities.Any(ab => (int)ab == (int)Instance.id.id))
+                {
+                    // This has the global spell ability.
+                    // Let's check its icon info
+                    Traverse cardTrav = Traverse.Create(card);
+                    cardTrav.Field("specialStatIcon").SetValue(_icon);
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(LoadingScreenManager), "LoadGameData")]
+        [HarmonyPostfix]
+        public static void AttachStatIconsToGlobalSpells()
+        {
+            PatchGlobals();
+        }
+
+        [HarmonyPatch(typeof(ChapterSelectMenu), "OnChapterConfirmed")]
+        [HarmonyPostfix]
+        public static void AttachStatIconsToGlobalSpellsOnChapter()
+        {
+            PatchGlobals();
         }
 
         // First: we don't need room on board
@@ -174,4 +250,3 @@ namespace Infiniscryption.Spells.Sigils
         }
     }
 }
-
