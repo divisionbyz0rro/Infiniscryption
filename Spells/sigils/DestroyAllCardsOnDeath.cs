@@ -6,7 +6,7 @@ using DiskCardGame;
 using Infiniscryption.Core.Helpers;
 using Infiniscryption.Spells;
 
-namespace DiskCardGame
+namespace Infiniscryption.Spells.Sigils
 {
 	// Token: 0x02000324 RID: 804
 	public class DestroyAllCardsOnDeath : AbilityBehaviour

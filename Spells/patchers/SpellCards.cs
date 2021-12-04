@@ -49,6 +49,38 @@ namespace Infiniscryption.Spells.Patchers
                 specialAbilitiesIdsParam: new List<SpecialAbilityIdentifier>() { GlobalSpellAbility.Instance.id },
                 abilityIdsParam: new List<AbilityIdentifier>() { DestroyAllCardsOnDeath.Identifier }
             );
+
+            NewCard.Add(
+                "Lightning",
+                "Lightning",
+                2, 0,
+                new List<CardMetaCategory>() { CardMetaCategory.ChoiceNode, CardMetaCategory.TraderOffer },
+                CardComplexity.Advanced,
+                CardTemple.Nature,
+                "A perfectly serviceable amount of damage",
+                bloodCost: 1,
+                hideAttackAndHealth: true,
+                defaultTex: AssetHelper.LoadTexture("lightning_bolt"),
+                specialStatIcon: TargetedSpellAbility.Instance.statIconInfo.iconType,
+                specialAbilitiesIdsParam: new List<SpecialAbilityIdentifier>() { TargetedSpellAbility.Instance.id },
+                abilityIdsParam: new List<AbilityIdentifier>() { DirectDamage.Identifier, DirectDamage.Identifier }
+            );
+
+            NewCard.Add(
+                "Backpack",
+                "Trip to the Store",
+                0, 0,
+                new List<CardMetaCategory>() { CardMetaCategory.ChoiceNode, CardMetaCategory.TraderOffer, CardMetaCategory.Rare },
+                CardComplexity.Advanced,
+                CardTemple.Nature,
+                "Send one of your creatures on a trip to the store. Who knows what they will come back with",
+                bloodCost: 1,
+                hideAttackAndHealth: true,
+                defaultTex: AssetHelper.LoadTexture("backpack"),
+                specialStatIcon: GlobalSpellAbility.Instance.statIconInfo.iconType,
+                specialAbilitiesIdsParam: new List<SpecialAbilityIdentifier>() { GlobalSpellAbility.Instance.id },
+                abilities: new List<Ability>() { Ability.RandomConsumable }
+            );
         }
     }
 }

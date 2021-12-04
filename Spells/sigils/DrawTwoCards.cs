@@ -5,7 +5,7 @@ using APIPlugin;
 using DiskCardGame;
 using Infiniscryption.Core.Helpers;
 
-namespace DiskCardGame
+namespace Infiniscryption.Spells.Sigils
 {
 	// Token: 0x02000324 RID: 804
 	public class DrawTwoCards : AbilityBehaviour
@@ -23,6 +23,7 @@ namespace DiskCardGame
                 "Draw Twice",
                 "Draw the top card of your main deck and side deck when this card dies."
             );
+            info.canStack = true;
 
             Identifier = AbilityIdentifier.GetAbilityIdentifier("zorro.infiniscryption.sigils.drawtwocards", "Draw Twice");
 

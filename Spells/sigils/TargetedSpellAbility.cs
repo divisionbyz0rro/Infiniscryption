@@ -13,7 +13,7 @@ using System.Linq;
 
 namespace Infiniscryption.Spells.Sigils
 {
-    public class GlobalSpellAbility :  VariableStatBehaviour
+    public class TargetedSpellAbility :  VariableStatBehaviour
     {
         // Why is this a stat behavior when these cards have no stats?
         // Simple. I want to cover over the health and attack icons.
@@ -33,8 +33,8 @@ namespace Infiniscryption.Spells.Sigils
                 if (_id == null)
                 {
                     _id = SpecialAbilityIdentifier.GetID(
-                            "zorro.infiniscryption.sigils.globalspell",
-                            "Spell (Global)"
+                            "zorro.infiniscryption.sigils.targetedspell",
+                            "Spell (Targeted)"
                     );
                 }
                 return _id;
@@ -49,11 +49,11 @@ namespace Infiniscryption.Spells.Sigils
                 StatIconInfo info = ScriptableObject.CreateInstance<StatIconInfo>();
                 info.appliesToAttack = true;
                 info.appliesToHealth = true;
-                info.rulebookName = "Spell (Global)";
-                info.rulebookDescription = "This card is not a creature, does not need an empty space on the board, and dies immediately when played.";
-                info.iconGraphic = AssetHelper.LoadTexture("global_spell_stat_icon");
+                info.rulebookName = "Spell (Targeted)";
+                info.rulebookDescription = "This card is not a creature and dies immediately when played. When played, it will target and affect a single chosen space on the board.";
+                info.iconGraphic = AssetHelper.LoadTexture("targeted_spell_stat_icon");
 
-                Instance = new NewSpecialAbility(typeof(GlobalSpellAbility), ID, info);
+                Instance = new NewSpecialAbility(typeof(TargetedSpellAbility), ID, info);
                 _icon = Instance.statIconInfo.iconType;
             }
         }
