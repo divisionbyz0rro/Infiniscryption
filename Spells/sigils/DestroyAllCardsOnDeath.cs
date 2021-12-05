@@ -16,7 +16,13 @@ namespace Infiniscryption.Spells.Sigils
 		public override Ability Ability => _ability;
         private static Ability _ability;
         
-        public static AbilityIdentifier Identifier { get; private set; }
+        public static AbilityIdentifier Identifier 
+        { 
+            get
+            {
+                return AbilityIdentifier.GetAbilityIdentifier("zorro.infiniscryption.sigils.cataclysm", "Cataclysm");
+            }
+        }
 
         public static void Register()
         {
@@ -24,8 +30,6 @@ namespace Infiniscryption.Spells.Sigils
                 "Cataclysm",
                 "Destroys every other creature on board when this card dies."
             );
-
-            Identifier = AbilityIdentifier.GetAbilityIdentifier("zorro.infiniscryption.sigils.cataclysm", "Cataclysm");
 
             NewAbility ability = new NewAbility(
                 info,
@@ -46,28 +50,17 @@ namespace Infiniscryption.Spells.Sigils
 		// Token: 0x0600135C RID: 4956 RVA: 0x000438AD File Offset: 0x00041AAD
 		public override IEnumerator OnDie(bool wasSacrifice, PlayableCard killer)
 		{
-            InfiniscryptionSpellsPlugin.Log.LogInfo($"On cataclysm death");
 			yield return base.PreSuccessfulTriggerSequence();
 			ViewManager.Instance.SwitchToView(View.Board);
 
             // Kill EVERYTHING
             foreach (var slot in BoardManager.Instance.OpponentSlotsCopy)
-            {
                 if (slot.Card != null)
-                {
-                    InfiniscryptionSpellsPlugin.Log.LogInfo($"Killing {slot.Card.name}");
                     yield return slot.Card.Die(true, null, true);
-                }
-            }
 
             foreach (var slot in BoardManager.Instance.PlayerSlotsCopy)
-            {
                 if (slot.Card != null)
-                {
-                    InfiniscryptionSpellsPlugin.Log.LogInfo($"Killing {slot.Card.name}");
                     yield return slot.Card.Die(true, null, true);
-                }
-            }
 
 			yield return base.LearnAbility(0.5f);
 

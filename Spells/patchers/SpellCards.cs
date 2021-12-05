@@ -53,7 +53,7 @@ namespace Infiniscryption.Spells.Patchers
             NewCard.Add(
                 "Lightning",
                 "Lightning",
-                2, 0,
+                0, 0,
                 new List<CardMetaCategory>() { CardMetaCategory.ChoiceNode, CardMetaCategory.TraderOffer },
                 CardComplexity.Advanced,
                 CardTemple.Nature,
@@ -80,6 +80,37 @@ namespace Infiniscryption.Spells.Patchers
                 specialStatIcon: GlobalSpellAbility.Instance.statIconInfo.iconType,
                 specialAbilitiesIdsParam: new List<SpecialAbilityIdentifier>() { GlobalSpellAbility.Instance.id },
                 abilities: new List<Ability>() { Ability.RandomConsumable }
+            );
+
+            NewCard.Add(
+                "Rot_Healing",
+                "Rot Healing",
+                0, 0,
+                new List<CardMetaCategory>() { CardMetaCategory.ChoiceNode, CardMetaCategory.TraderOffer },
+                CardComplexity.Advanced,
+                CardTemple.Nature,
+                "Restores just a little bit of health",
+                bonesCost: 1,
+                hideAttackAndHealth: true,
+                defaultTex: AssetHelper.LoadTexture("plague_doctor"),
+                specialStatIcon: TargetedSpellAbility.Instance.statIconInfo.iconType,
+                specialAbilitiesIdsParam: new List<SpecialAbilityIdentifier>() { TargetedSpellAbility.Instance.id },
+                abilityIdsParam: new List<AbilityIdentifier>() { DirectHeal.Identifier, DirectHeal.Identifier }
+            );
+
+            NewCard.Add(
+                "Dammed_up",
+                "Dammed Up",
+                0, 0,
+                new List<CardMetaCategory>() { CardMetaCategory.ChoiceNode, CardMetaCategory.TraderOffer },
+                CardComplexity.Advanced,
+                CardTemple.Nature,
+                "So many dams...",
+                hideAttackAndHealth: true,
+                defaultTex: Resources.Load<Texture2D>("art/cards/portraits/portrait_beaver"),
+                specialStatIcon: TargetedSpellAbility.Instance.statIconInfo.iconType,
+                specialAbilitiesIdsParam: new List<SpecialAbilityIdentifier>() { TargetedSpellAbility.Instance.id },
+                abilities: new List<Ability>() { Ability.AllStrike, Ability.CreateDams }
             );
         }
     }

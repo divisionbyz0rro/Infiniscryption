@@ -8,11 +8,8 @@ using UnityEngine;
 
 namespace Infiniscryption.Spells.Sigils
 {
-	// Token: 0x02000324 RID: 804
-	public class DirectDamage : AbilityBehaviour
+	public class AttackBuff : AbilityBehaviour
 	{
-		// Token: 0x17000268 RID: 616
-		// (get) Token: 0x06001358 RID: 4952 RVA: 0x000438A9 File Offset: 0x00041AA9
 		public override Ability Ability => _ability;
         private static Ability _ability;
         
@@ -20,51 +17,48 @@ namespace Infiniscryption.Spells.Sigils
         { 
             get
             {
-                return AbilityIdentifier.GetAbilityIdentifier("zorro.infiniscryption.sigils.directdamage", "Direct Damage");
+                return AbilityIdentifier.GetAbilityIdentifier("zorro.infiniscryption.sigils.attackup", "Attack Up");
             }
         }
 
         public static void Register()
         {
             AbilityInfo info = AbilityInfoUtils.CreateInfoWithDefaultSettings(
-                "Direct Damage",
-                "When this card attacks a slot, it deals 1 extra damage to that slot."
+                "Attack Up",
+                "When this card is targeted at a friendly card, it increases that card's attack by 1 for the rest of the battle."
             );
             info.canStack = true;
-            info.powerLevel = 1;            
             info.passive = false;
 
             NewAbility ability = new NewAbility(
                 info,
-                typeof(DirectDamage),
-                AssetHelper.LoadTexture("ability_damage"),
+                typeof(AttackBuff),
+                AssetHelper.LoadTexture("ability_attack_up"),
                 Identifier
             );
 
-            DirectDamage._ability = ability.ability;
+            AttackBuff._ability = ability.ability;
         }
 
-        
-
-		// Token: 0x0600135B RID: 4955 RVA: 0x0000F57E File Offset: 0x0000D77E
 		public override bool RespondsToSlotTargetedForAttack(CardSlot slot, PlayableCard attacker)
 		{
 			if (slot.Card == null)
                 return false;
 
             if (slot.IsPlayerSlot)
-                return false;
+                return true;
 
-            return true;
+            return false;
 		}
 
-		// Token: 0x0600135C RID: 4956 RVA: 0x000438AD File Offset: 0x00041AAD
 		public override IEnumerator OnSlotTargetedForAttack(CardSlot slot, PlayableCard attacker)
 		{
 			if (slot.Card != null)
-                yield return slot.Card.TakeDamage(1, attacker);
+                slot.Card.AddTemporaryMod(new CardModificationInfo(1, 0));
 
             yield return base.LearnAbility(0.5f);
+
+            yield break;
 		}
 	}
 }

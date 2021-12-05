@@ -15,7 +15,13 @@ namespace Infiniscryption.Spells.Sigils
 		public override Ability Ability => _ability;
         private static Ability _ability;
         
-        public static AbilityIdentifier Identifier { get; private set; }
+        public static AbilityIdentifier Identifier 
+        { 
+            get
+            {
+                return AbilityIdentifier.GetAbilityIdentifier("zorro.infiniscryption.sigils.drawtwocards", "Draw Twice");
+            }
+        }
 
         public static void Register()
         {
@@ -24,8 +30,6 @@ namespace Infiniscryption.Spells.Sigils
                 "Draw the top card of your main deck and side deck when this card dies."
             );
             info.canStack = true;
-
-            Identifier = AbilityIdentifier.GetAbilityIdentifier("zorro.infiniscryption.sigils.drawtwocards", "Draw Twice");
 
             NewAbility ability = new NewAbility(
                 info,
