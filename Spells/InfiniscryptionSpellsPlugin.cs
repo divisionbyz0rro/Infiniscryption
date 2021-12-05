@@ -39,12 +39,14 @@ namespace Infiniscryption.Spells
             Harmony harmony = new Harmony(PluginGuid);
 
             harmony.PatchAll(typeof(SpellBehavior));
+            harmony.PatchAll(typeof(StackableSigilDefectFix));
 
             TargetedSpellAbility.Register();
             GlobalSpellAbility.Register();
             DrawTwoCards.Register();
             DestroyAllCardsOnDeath.Register();
             DirectDamage.Register();
+            DirectHeal.Register();
 
             if (AddCards)
             {
