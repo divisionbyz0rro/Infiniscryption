@@ -2,8 +2,8 @@
 
 This mod contains special abilities that allow you to create a new type of card called a 'spell.' Spells are cards that
 
-a) Do not need a space on board to resolve
-b) Die immediately when played.
+- Do not need a space on board to resolve
+- Die immediately when played.
 
 In other words, these are cards you play entirely because they have an immediate effect.
 
@@ -12,6 +12,7 @@ There are also some additional sigils in this pack that might be useful for you 
 There are two types of spells:
 
 **Targeted Spells:** These have an effect on one specific space on the board. Use this type if you want to use sigils like 'Direct Damage' (included in this pack) or something like the Beaver's dam creation ability.
+
 **Global Spells:** These have an immediate, global effect when played. If you attach a sigil that expects to be in a specific slot on board, there may be unexpected behavior. For example, the Beaver's dam ability will more than likely give Leshy a free dam.
 
 ## Credits
@@ -28,13 +29,12 @@ This will add the following cards:
 - **Anger of the Gods**: 1 blood, destroys all creatures on board (Rare).
 - **Lightning**: 1 blood, deals 2 damage to a card slot.
 - **Trip to the Store**: 1 blood, generates a random consumable.
+- **Rot Healing**: 1 bone, heals for two
+- **Irritate**: 2 bones, does one damage but increases attack by one
+- **Go Fetch**: Free to cast, generates 4 bones when cast
+- **Compost**: 3 bones, draws two cards.
 
 These cards are not meant to be balanced, but rather to demonstrate how the mod works (hence why they are not added by default).
-
-## Future enhancements:
-
-1. More sigils: More sigils that cover common use cases will be added to the pack to help you develop spell cards.
-2. Spell starter pack: A separate mod that adds a starter pack of spells.
 
 ## Requirements
 
@@ -70,7 +70,7 @@ So far we have the following:
 - **Direct Damage** (GUID: "zorro.infiniscryption.sigils.directdamage"): Deals one damage to the targeted card slot. This ability stacks, so if you put two on a card, it will deal two damage. This only targets opponent cards.
 - **Direct Healing** (GUID: "zorro.infiniscryption.sigils.directheal"): Heals the targeted card for one. This can overheal. This ability stacks. This only targets player cards.
 - **Attack Up** (GUID: "zorro.infiniscryption.sigils.attackup"): Increases the targeted card's attack by one for the rest of the batle. This only targets player cards.
-- **Attack Up** (GUID: "zorro.infiniscryption.sigils.attackdown"): Decreases the targeted card's attack by one for the rest of the batle. This only targets opponent cards.
+- **Attack Down** (GUID: "zorro.infiniscryption.sigils.attackdown"): Decreases the targeted card's attack by one for the rest of the batle. This only targets opponent cards.
 
 ## Split, Tri, and All Strike
 These sigils do **nothing** for global spells, but behave as you would expect for targeted spells. Be careful when putting Split Strike on a targeted spell, as it will behave exactly as expected, which is not necessarily intuitive. Rather than affecting the targeted space, it will affect the spaces on either side.
@@ -194,6 +194,11 @@ As of this release, the API has a defect that will not allow custom sigils to st
 
 <details>
 <summary>Changelog</summary>
+1.2.1
+- Fixed defect with Attack Up and Attack Down where they were not properly attaching to cards.
+- Fixed defect where sometimes creatures could not be played after casting targeted spells.
+- Added more example cards to the pool.
+
 1.2
 - Added targeting logic for targeting spells. They will now only allow you to select valid targets.
 - Added support for split strike, tri strike, and all strike

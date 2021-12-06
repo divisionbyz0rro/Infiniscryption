@@ -281,18 +281,17 @@ namespace Infiniscryption.Spells.Patchers
 				List<CardSlot> validSlots = BoardManager.Instance.PlayerSlotsCopy.FindAll((CardSlot x) => x.Card != null);
 				yield return BoardManager.Instance.ChooseSacrificesForCard(validSlots, card);
 			}
+
+            // All card slots
+            List<CardSlot> allSlots = BoardManager.Instance.OpponentSlotsCopy.Concat(BoardManager.Instance.PlayerSlotsCopy).ToList();
+
 			if (!BoardManager.Instance.CancelledSacrifice)
 			{
                 cardWasPlayed = true;
                 card.Anim.SetSelectedToPlay(false);
 
                 if (card.Info.IsTargetedSpell())
-                {
-                    // This card needs a slot
-                    // Let's go find a slot
-                    // We'll use the existing choose slot function
-                    List<CardSlot> allSlots = BoardManager.Instance.OpponentSlotsCopy.Concat(BoardManager.Instance.PlayerSlotsCopy).ToList();
-                    
+                {                   
                     // I'm not allowing the user to cancel.
                     // I can't. The sacrifice method already sacrificed the cards. They're already gone.
                     // I can't back out anymore.
@@ -308,11 +307,13 @@ namespace Infiniscryption.Spells.Patchers
                         {
                             slot.SetEnabled(true);
                             slot.ShowState(HighlightedInteractable.State.Interactable, false, 0.15f);
+                            slot.Chooseable = true;
                         } 
                         else
                         {
                             slot.SetEnabled(false);
 				            slot.ShowState(HighlightedInteractable.State.NonInteractable, false, 0.15f);
+                            slot.Chooseable = false;
                         }
                     }
 
@@ -419,6 +420,14 @@ namespace Infiniscryption.Spells.Patchers
 			{
 				x.SetEnabled(true);
 			});
+
+            // Enable every slot
+            foreach (CardSlot slot in allSlots)
+            {
+                slot.SetEnabled(true);
+                slot.ShowState(HighlightedInteractable.State.Interactable, false, 0.15f);
+                slot.Chooseable = false;
+            }
 
 			yield break;
         }
