@@ -47,6 +47,9 @@ namespace Infiniscryption.Spells
             DestroyAllCardsOnDeath.Register();
             DirectDamage.Register();
             DirectHeal.Register();
+            AttackBuff.Register();
+            AttackNerf.Register();
+            
 
             if (AddCards)
             {
