@@ -63,14 +63,19 @@ namespace Infiniscryption.Curses.Patchers
                 }
             }
             else // Losing a battle resets the haunt
+            {
                 ResetHaunt();
+            }
 
             // Always clear the audio state
             if (_pausedState != null)
             {
+                InfiniscryptionCursePlugin.Log.LogInfo($"Resuming audio");
                 AudioController.Instance.StopAllLoops();
                 AudioHelper.ResumeAllLoops(_pausedState);
                 _pausedState = null;
+            } else {
+                InfiniscryptionCursePlugin.Log.LogInfo($"No audio info to resume");
             }
 
             _sawDeathcard = false;
@@ -264,10 +269,13 @@ namespace Infiniscryption.Curses.Patchers
             yield return TextDisplayer.Instance.PlayDialogueEvent("DeathcardDies", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
             
             if (_pausedState != null)
-            {
+            {   
+                InfiniscryptionCursePlugin.Log.LogInfo($"Resuming audio");
                 AudioController.Instance.StopAllLoops();
                 AudioHelper.ResumeAllLoops(_pausedState);
                 _pausedState = null;
+            } else {
+                InfiniscryptionCursePlugin.Log.LogInfo($"No audio info to resume");
             }
 
             IncreaseHaunt(-1); // Killing a deathcard decreases the haunt

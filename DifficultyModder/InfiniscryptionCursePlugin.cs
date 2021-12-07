@@ -40,6 +40,8 @@ namespace Infiniscryption.Curses
 
             CurseManager.Register<RandomSigils>(harmony, Config, CurseManager.BindsTo.RunSetting);
 
+            CurseManager.Register<CloverLimiter>(harmony, Config, CurseManager.BindsTo.RunSetting);
+
             // Patch all of the toggleable difficulty mods
             harmony.PatchAll(typeof(CardExtensions));
             harmony.PatchAll(typeof(CurseManager));

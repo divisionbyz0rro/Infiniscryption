@@ -18,6 +18,13 @@ namespace Infiniscryption.Curses.Patchers
 {
     public class RandomSigils : CurseBase
     {
+        private static Ability[] EXCLUDED_SIGILS = new Ability[]
+        {
+            Ability.TriStrike,
+            Ability.SplitStrike,
+            Ability.AllStrike
+        };
+
         public override string Description => "Opposing creatures will gain random abilities";
 
         public override string Title => "Chaos";
@@ -61,8 +68,8 @@ namespace Infiniscryption.Curses.Patchers
 
                         CardInfo card = turn[i] = turn[i].Clone() as CardInfo;
 
-                        List<Ability> possibles = AbilitiesUtil.GetAbilities(false, true, 1, 10, SaveManager.SaveFile.IsPart1 ? AbilityMetaCategory.Part1Modular : AbilityMetaCategory.Part3Modular);
-                        possibles = possibles.Where(ab => !card.Abilities.Contains(ab)).ToList();
+                        List<Ability> possibles = AbilitiesUtil.GetAbilities(false, true, 1, 10, SaveManager.SaveFile.IsPart1 ? AbilityMetaCategory.Part1Modular : AbilityMetaCategory.Part3Modular);                        
+                        possibles = possibles.Where(ab => !card.Abilities.Contains(ab) && !EXCLUDED_SIGILS.Contains(ab)).ToList();
 
                         if (possibles.Count == 0)
                             continue;
