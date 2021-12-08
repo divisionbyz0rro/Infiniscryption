@@ -4,8 +4,9 @@ using DiskCardGame;
 using HarmonyLib;
 using System.Reflection;
 using System.Collections.Generic;
+using Infiniscryption.StackableSigils;
 
-namespace Infiniscryption.Spells.Patchers
+namespace Infiniscryption.StackableSigils.Patchers
 {
     public static class StackableSigilDefectFix
     {
@@ -20,7 +21,7 @@ namespace Infiniscryption.Spells.Patchers
                     Assembly apiAssembly = Assembly.GetAssembly(typeof(APIPlugin.NewAbility));
                     Version apiVersion = apiAssembly.GetName().Version;
 
-                    InfiniscryptionSpellsPlugin.Log.LogInfo($"I see API version {apiVersion}");
+                    InfiniscryptionStackableSigilsPlugin.Log.LogInfo($"I see API version {apiVersion}");
 
                     _shouldPatch = (apiVersion.Major < 1) ||
                                    (apiVersion.Major == 1 && (apiVersion.Minor < 12 ||
@@ -52,7 +53,7 @@ namespace Infiniscryption.Spells.Patchers
             if (!(AbilitiesUtil.GetInfo(ability).canStack && !AbilitiesUtil.GetInfo(ability).passive))
                 return true;
 
-            InfiniscryptionSpellsPlugin.Log.LogDebug($"API Defect Fix for stackable ability {ability}");
+            InfiniscryptionStackableSigilsPlugin.Log.LogDebug($"API Defect Fix for stackable ability {ability}");
 
             NewAbility newAbility = NewAbility.abilities.Find(x => x.ability == ability);
             Type type = newAbility.abilityBehaviour;
