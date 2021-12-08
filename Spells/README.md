@@ -194,6 +194,12 @@ As of this release, the API has a defect that will not allow custom sigils to st
 
 <details>
 <summary>Changelog</summary>
+1.2.3
+- Bad manifest.json. My bad. :(
+
+1.2.2
+- Updated to be dependent on the Stackable Sigils mod. This makes spell creation with modular sigils far more user friendly.
+
 1.2.1
 - Fixed defect with Attack Up and Attack Down where they were not properly attaching to cards.
 - Fixed defect where sometimes creatures could not be played after casting targeted spells.
