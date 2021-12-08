@@ -15,6 +15,7 @@ namespace Infiniscryption.Spells
 {
     [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
     [BepInDependency("cyantist.inscryption.api")]
+    [BepInDependency("zorro.inscryption.infiniscryption.stackablesigils")]
     public class InfiniscryptionSpellsPlugin : BaseUnityPlugin
     {
 
@@ -39,7 +40,6 @@ namespace Infiniscryption.Spells
             Harmony harmony = new Harmony(PluginGuid);
 
             harmony.PatchAll(typeof(SpellBehavior));
-            harmony.PatchAll(typeof(StackableSigilDefectFix));
 
             TargetedSpellAbility.Register();
             GlobalSpellAbility.Register();
