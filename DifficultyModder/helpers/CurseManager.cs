@@ -51,7 +51,12 @@ namespace Infiniscryption.Curses.Helpers
             }
 
             T instance = (T)Activator.CreateInstance(typeof(T), new object[] { typeof(T).Name, getActive, setActive} );
+
+            // Patch everything!
             harmony.PatchAll(typeof(T));
+            foreach (Type patchType in typeof(T).GetNestedTypes())
+                harmony.PatchAll(patchType);
+
             CurseMods.Add(instance.ID, instance);
         }
 

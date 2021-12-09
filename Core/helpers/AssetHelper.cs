@@ -26,10 +26,10 @@ namespace Infiniscryption.Core.Helpers
             return retval;
         }
 
-        public static void LoadAudioClip(string clipname, ManualLogSource log = null)
+        public static void LoadAudioClip(string clipname, ManualLogSource log = null, string group = "Loops")
         {
             Traverse audioController = Traverse.Create(AudioController.Instance);
-            List<AudioClip> clips = audioController.Field("Loops").GetValue<List<AudioClip>>();
+            List<AudioClip> clips = audioController.Field(group).GetValue<List<AudioClip>>();
 
             if (clips.Find(clip => clip.name.Equals(clipname)) != null)
                 return;

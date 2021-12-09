@@ -30,6 +30,7 @@ namespace Infiniscryption.Curses
             Harmony harmony = new Harmony(PluginGuid);
 
             CurseManager.Register<BackpackLimiter>(harmony, Config, CurseManager.BindsTo.RunSetting);
+
             CurseManager.Register<CampfireHarder>(harmony, Config, CurseManager.BindsTo.RunSetting);
 
             CurseManager.Register<OneCandleMax>(harmony, Config, CurseManager.BindsTo.RunSetting);
@@ -41,6 +42,9 @@ namespace Infiniscryption.Curses
             CurseManager.Register<RandomSigils>(harmony, Config, CurseManager.BindsTo.RunSetting);
 
             CurseManager.Register<CloverLimiter>(harmony, Config, CurseManager.BindsTo.RunSetting);
+
+            CurseManager.Register<HarderBosses>(harmony, Config, CurseManager.BindsTo.RunSetting);
+            HarderBosses.RegisterCustomCards(harmony);
 
             // Patch all of the toggleable difficulty mods
             harmony.PatchAll(typeof(CardExtensions));
@@ -54,3 +58,4 @@ namespace Infiniscryption.Curses
         }
     }
 }
+
