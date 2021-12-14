@@ -47,7 +47,7 @@ namespace Infiniscryption.Curses.Cards
             NewAbility ability = new NewAbility(
                 info,
                 typeof(Bitten),
-                AssetHelper.LoadTexture("ability_attack_up"),
+                Resources.Load<Texture2D>("art/cards/abilityicons/ability_deathtouch"),
                 Identifier
             );
 

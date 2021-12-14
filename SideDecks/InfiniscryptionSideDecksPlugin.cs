@@ -44,7 +44,7 @@ namespace Infiniscryption.SideDecks
             harmony.PatchAll(typeof(SideDeckPatcher));
 
             RunStateHelper.Initialize(harmony);
-            CustomNodeHelper.Initialize(harmony);
+            CustomNodeHelper.Initialize(harmony, Log);
 
             Logger.LogInfo($"Plugin {PluginName} is loaded!");
         }

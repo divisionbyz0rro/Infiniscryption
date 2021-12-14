@@ -88,36 +88,16 @@ namespace Infiniscryption.SideDecks.Patchers
                     if (predefinedNodes != null)
                     {
                         InfiniscryptionSideDecksPlugin.Log.LogInfo($"Inserting the sidedeck node at the end");
-                        predefinedNodes.nodeRows.Add(new List<NodeData>() { new SideDeckSelectNodeData() });
+                        predefinedNodes.nodeRows.Add(new List<NodeData>() { CustomNodeHelper.GetNodeData<SideDeckSelectionSequencer>("animated_sidedeck") });
                     } else {
                         InfiniscryptionSideDecksPlugin.Log.LogInfo($"Adding the sidedeck node to start");
                         PredefinedNodes nodes = ScriptableObject.CreateInstance<PredefinedNodes>();
                         nodes.nodeRows.Add(new List<NodeData>() { new NodeData() });
-                        nodes.nodeRows.Add(new List<NodeData>() { new SideDeckSelectNodeData() });
+                        nodes.nodeRows.Add(new List<NodeData>() { CustomNodeHelper.GetNodeData<SideDeckSelectionSequencer>("animated_sidedeck") });
                         __instance.PredefinedNodes = nodes;
                     }
                 }
             }
-        }
-
-        [HarmonyPatch(typeof(SpecialNodeHandler), "StartSpecialNodeSequence")]
-        [HarmonyPrefix]
-        public static bool SendToSideDeckSelect(ref SpecialNodeHandler __instance, SpecialNodeData nodeData)
-        {
-            // This sends the player to the upgrade shop if the triggering node is SpendExcessTeeth
-            if (nodeData is SideDeckSelectNodeData)
-			{
-                if (__instance.gameObject.GetComponent<SideDeckSelectionSequencer>() == null)
-                {
-                    InfiniscryptionSideDecksPlugin.Log.LogInfo($"Attaching side deck select sequencer to parent");
-                    __instance.gameObject.AddComponent<SideDeckSelectionSequencer>();
-                }
-
-                InfiniscryptionSideDecksPlugin.Log.LogInfo($"Starting the side deck selector");
-				__instance.StartCoroutine(__instance.gameObject.GetComponent<SideDeckSelectionSequencer>().CardSelectionSequence(nodeData));
-				return false; // This prevents the rest of the thing from running.
-			}
-            return true; // This makes the rest of the thing run
         }
 
         [HarmonyPatch(typeof(RunState), "Initialize")]

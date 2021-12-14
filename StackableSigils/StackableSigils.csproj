@@ -55,14 +55,23 @@
     <Folder Include="Compiled\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="$(ProjectDir)\assets\*.png" />
+    <EmbeddedResource Include="$(ProjectDir)\assets\*.wav" />
+  </ItemGroup>
+
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="$(PkgILRepack)\tools\ILRepack /out:$(ProjectDir)\Compiled\Infiniscryption.StackableSigils.dll $(TargetPath) $(ProjectDir)../Core/Compiled/Infiniscryption.Core.dll /lib:$(TargetDir)" />
     <Exec Command="xcopy /Y $(ProjectDir)\Compiled\Infiniscryption.StackableSigils.dll &quot;C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins&quot;" />
+    <!--
     <Exec Command="xcopy /Y $(ProjectDir)\assets\*.png &quot;C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins\Infiniscryption\assets&quot;" />
     <Exec Command="xcopy /Y $(ProjectDir)\assets\*.wav &quot;C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins\Infiniscryption\assets&quot;" />
-    <Exec Command="xcopy /Y $(ProjectDir)\Compiled\Infiniscryption.StackableSigils.dll $(ProjectDir)\package\BepInEx\plugins" />
+    -->
+    <Exec Command="xcopy /Y $(ProjectDir)\Compiled\Infiniscryption.StackableSigils.dll $(ProjectDir)\package" />
+    <!--
     <Exec Command="xcopy /Y $(ProjectDir)\assets\*.png $(ProjectDir)\package\BepInEx\plugins\Infiniscryption\assets" />
     <Exec Command="xcopy /Y $(ProjectDir)\assets\*.wav $(ProjectDir)\package\BepInEx\plugins\Infiniscryption\assets" />
+    -->
     <Exec Command="xcopy /Y $(ProjectDir)\README.md $(ProjectDir)\package" />
     <Exec Command="xcopy /Y $(ProjectDir)\icon.png $(ProjectDir)\package" />
     <Exec Command="xcopy /Y $(ProjectDir)\manifest.json $(ProjectDir)\package" />

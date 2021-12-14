@@ -230,26 +230,6 @@ namespace Infiniscryption.Curses.Helpers
             DialogueHelper.AddOrModifySimpleDialogEvent("CursesSelect", "the woman silently picks up her cards and walks away", TextDisplayer.LetterAnimation.WavyJitter, Emotion.Laughter);
         }
 
-        [HarmonyPatch(typeof(SpecialNodeHandler), "StartSpecialNodeSequence")]
-        [HarmonyPrefix]
-        public static bool SendToHallOfCurses(ref SpecialNodeHandler __instance, SpecialNodeData nodeData)
-        {
-            // This sends the player to the upgrade shop if the triggering node is SpendExcessTeeth
-            if (nodeData is CurseNodeData)
-			{
-                if (__instance.gameObject.GetComponent<CurseNodeSequencer>() == null)
-                {
-                    InfiniscryptionCursePlugin.Log.LogInfo($"Attaching hall of curses sequencer to parent");
-                    __instance.gameObject.AddComponent<CurseNodeSequencer>();
-                }
-
-                InfiniscryptionCursePlugin.Log.LogInfo($"Starting the hall of curses");
-				__instance.StartCoroutine(__instance.gameObject.GetComponent<CurseNodeSequencer>().PlayCurseShop());
-				return false; // This prevents the rest of the thing from running.
-			}
-            return true; // This makes the rest of the thing run
-        }
-
         [HarmonyPatch(typeof(PaperGameMap), "TryInitializeMapData")]
         [HarmonyPrefix]
         [HarmonyAfter(new string[] { 
@@ -278,7 +258,7 @@ namespace Infiniscryption.Curses.Helpers
                     if (predefinedNodes != null)
                     {
                         InfiniscryptionCursePlugin.Log.LogInfo($"Inserting the curse node at the end");
-                        predefinedNodes.nodeRows.Add(new List<NodeData>() { new CurseNodeData() });
+                        predefinedNodes.nodeRows.Add(new List<NodeData>() { CustomNodeHelper.GetNodeData<CurseNodeSequencer>("animated_cursenode") });
 
                         // In a lot of installations, this will be the third node on the map
                         // And that's kind of a problem. It means the user will be able to get 
@@ -286,7 +266,7 @@ namespace Infiniscryption.Curses.Helpers
                         InfiniscryptionCursePlugin.Log.LogInfo($"Adding the curse node to start");
                         PredefinedNodes nodes = ScriptableObject.CreateInstance<PredefinedNodes>();
                         nodes.nodeRows.Add(new List<NodeData>() { new NodeData() });
-                        nodes.nodeRows.Add(new List<NodeData>() { new CurseNodeData() });
+                        nodes.nodeRows.Add(new List<NodeData>() { CustomNodeHelper.GetNodeData<CurseNodeSequencer>("animated_cursenode") });
                         __instance.PredefinedNodes = nodes;
                     }
                 }
