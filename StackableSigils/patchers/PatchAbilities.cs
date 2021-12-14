@@ -112,7 +112,7 @@ namespace Infiniscryption.Spells.Patchers
                 ProgressionData.SetAbilityLearned(Ability.BuffEnemy);
                 ProgressionData.SetAbilityLearned(Ability.BuffNeighbours);
 
-                if ((SaveManager.SaveFile.IsPart2 || SaveManager.SaveFile.IsPart3) && ConduitCircuitManager.Instance != null)
+                if (ConduitCircuitManager.Instance != null) // No need to check save file location
                 {
                     ProgressionData.SetAbilityLearned(Ability.CellBuffSelf);
                     ProgressionData.SetAbilityLearned(Ability.BuffGems);
