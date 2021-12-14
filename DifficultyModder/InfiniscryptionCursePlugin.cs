@@ -15,6 +15,8 @@ using Infiniscryption.Core.Helpers;
 namespace Infiniscryption.Curses
 {
     [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
+    [BepInDependency("cyantist.inscryption.api")]
+    [BepInDependency("zorro.inscryption.infiniscryption.spells")]
     public class InfiniscryptionCursePlugin : BaseUnityPlugin
     {
 

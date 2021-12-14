@@ -42,13 +42,20 @@ namespace Infiniscryption.Curses.Sequences
             yield return this.ClearQueue();
             yield return this.ClearBoard();
 
+            // Get rid of all gold on the board
+            foreach (CardSlot slot in BoardManager.Instance.PlayerSlotsCopy)
+                if (slot.Card != null && slot.Card.Info.name == "GoldNugget")
+                    slot.Card.ExitBoard(0.4f, Vector3.zero);
+
             // We aren't going to use an encounter blueprint for this
             this.Blueprint = null;
             this.ReplaceAndAppendTurnPlan(new List<List<CardInfo>>()); // There are no cards in the plan!
 
             foreach (CardSlot slot in BoardManager.Instance.OpponentSlotsCopy)
             {
-                yield return BoardManager.Instance.CreateCardInSlot(CardLoader.GetCardByName("Boulder"), slot);
+                CardInfo bigBoulder = CardLoader.GetCardByName("Boulder");
+                bigBoulder.Mods.Add(new CardModificationInfo(Ability.Reach));
+                yield return BoardManager.Instance.CreateCardInSlot(bigBoulder, slot);
                 yield return new WaitForSeconds(0.15f);
             }
 

@@ -20,9 +20,9 @@ namespace Infiniscryption.Curses.Patchers
     public class HarderBosses : CurseBase
     {
         public override string Description => $"Each of the bosses has another phase that you must fight through.";
-        public override string Title => "Revenge";
+        public override string Title => "The Boss' Revenge";
 
-        Texture2D _iconTexture = AssetHelper.LoadTexture("clover_icon");
+        Texture2D _iconTexture = AssetHelper.LoadTexture("harder_bosses_icon");
         public override Texture2D IconTexture => _iconTexture;
 
         public HarderBosses(string id, GetActiveDelegate getActive, SetActiveDelegate setActive) : base(id, getActive, setActive) {}
@@ -37,6 +37,9 @@ namespace Infiniscryption.Curses.Patchers
         {
             // Prospector custom cards
             Dynamite.RegisterCardAndAbilities(harmony);
+            Digester.RegisterCardAndAbilities(harmony);
+            Bitten.RegisterCardAndAbilities(harmony);
+            Bow.RegisterCardAndAbilities(harmony);
         }
 
         // Helper for opponents
@@ -73,6 +76,61 @@ namespace Infiniscryption.Curses.Patchers
                 }
             });
 
+            DialogueHelper.AddOrModifySimpleDialogEvent("AnglerExtraCandle", new string[] {
+                "You want more fish?"
+            }, new string[][] {
+                new string[] {
+                    "We get extra fish."
+                },
+                new string[] {
+                    "Many fish this time."
+                }
+            });
+
+            DialogueHelper.AddOrModifySimpleDialogEvent("TrapperTraderExtraCandle", new string[] {
+                "I'm afraid our encounter today will take a little more time"
+            }, new string[][] {
+                new string[] {
+                    "It looks like you and I have extra business to attend to"
+                }
+            });
+
+            DialogueHelper.AddOrModifySimpleDialogEvent("CardIsSleep", new string[] {
+                "He swalled it whole..."
+            });
+
+            DialogueHelper.AddOrModifySimpleDialogEvent("CardAtePoison", new string[] {
+                "Eating that was a bad idea..."
+            });
+
+            DialogueHelper.AddOrModifySimpleDialogEvent("CardAteSharp", new string[] {
+                "That's a little uncomfortable..."
+            });
+
+            DialogueHelper.AddOrModifySimpleDialogEvent("DigestedCardDeadForever", new string[] {
+                "Your [c:bR][v:0][c:] has been fully digested. You will never see it again."
+            });
+
+            DialogueHelper.AddOrModifySimpleDialogEvent("DigestingCard", new string[] {
+                "Your [c:bR][v:0][c:] is being slowly digested. It has [c:bR][v:1][c:] health left."
+            });
+
+            DialogueHelper.AddOrModifySimpleDialogEvent("TrapperTraderPhaseThree", new string[] {
+                "I have yet another trade to propose",
+                "This time, let us trade our whole decks"
+            });
+
+            DialogueHelper.AddOrModifySimpleDialogEvent("HungryAgain", new string[] {
+                "He's hungry again"
+            }, new string[][] {
+                new string[] {
+                    "Time for more morsels"
+                },
+                new string[] {
+                    "Back on the hunt"
+                }
+            });
+
             DialogueHelper.AddOrModifySimpleDialogEvent("CatchDynamite", new string[] {
                 "Think fast!"
             }, new string[][] {
@@ -97,10 +155,26 @@ namespace Infiniscryption.Curses.Patchers
                 }
             });
 
+            DialogueHelper.AddOrModifySimpleDialogEvent("AnglerPhaseThree", new string[] {
+                "Fish not big enough. Get bigger fish.",
+            }, new string[][] {
+                new string[] {
+                    "Little fish bad. Big fish better."
+                },
+                new string[] {
+                    "Need better fish."
+                }
+            });
+
+            DialogueHelper.AddOrModifySimpleDialogEvent("ProspectorWolfSpawn", new string[] {
+                "That thar wolf looks mighty curious about that [c:bR]empty lane[c:]",
+            });
+
             // This is also a good time to load audio
             try
             {
                 AssetHelper.LoadAudioClip(Dynamite.EXPLOSION_SOUND, group: "SFX");
+                AssetHelper.LoadAudioClip(Digester.GULP_SOUND, group: "SFX");
             } catch (Exception e)
             {
                 InfiniscryptionCursePlugin.Log.LogError(e);
@@ -122,15 +196,32 @@ namespace Infiniscryption.Curses.Patchers
             if (CurseManager.IsActive<HarderBosses>())
             {
                 if (specialBattleId == BossBattleSequencer.GetSequencerIdForBoss(Opponent.Type.ProspectorBoss))
+                {
                     AddBossSequencer<ProspectorBossHardSequencer>(__instance);
+                    return false;
+                }
 
-                return false;
+                if (specialBattleId == BossBattleSequencer.GetSequencerIdForBoss(Opponent.Type.AnglerBoss))
+                {
+                    AddBossSequencer<AnglerBossHardSequencer>(__instance);
+                    return false;
+                }
+
+                if (specialBattleId == BossBattleSequencer.GetSequencerIdForBoss(Opponent.Type.TrapperTraderBoss))
+                {
+                    AddBossSequencer<TrapperTraderBossHardSequencer>(__instance);
+                    return false;
+                }
             }
 
             return true;
         }
 
-        private static Opponent.Type[] SUPPORTED_OPPONENTS = new Opponent.Type[] { Opponent.Type.ProspectorBoss };
+        private static Opponent.Type[] SUPPORTED_OPPONENTS = new Opponent.Type[] { 
+            Opponent.Type.ProspectorBoss,
+            Opponent.Type.AnglerBoss,
+            Opponent.Type.TrapperTraderBoss
+        };
 
         [HarmonyPatch(typeof(Opponent), "SpawnOpponent")]
         [HarmonyPrefix]
@@ -150,6 +241,14 @@ namespace Infiniscryption.Curses.Patchers
 			{
 			    case Opponent.Type.ProspectorBoss:
 				    opponent = gameObject.AddComponent<ProspectorBossHardOpponent>();
+				    break;
+
+                case Opponent.Type.AnglerBoss:
+				    opponent = gameObject.AddComponent<AnglerBossHardOpponent>();
+				    break;
+
+                case Opponent.Type.TrapperTraderBoss:
+				    opponent = gameObject.AddComponent<TrapperTraderBossHardOpponent>();
 				    break;
 			
 			    default:

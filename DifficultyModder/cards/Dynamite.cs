@@ -38,6 +38,7 @@ namespace Infiniscryption.Curses.Cards
                 "Booby Trap",
                 "If this is in your hand at the beginning of your turn, it explodes. If it is on the board at the beginning of your opponent's turn, it explodes. Either way, it explodes."
             );
+            info.powerLevel = -2;
 
             NewAbility ability = new NewAbility(
                 info,

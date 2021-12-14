@@ -17,6 +17,10 @@ The zip file should be structured in the same way as your Inscryption root direc
 <details>
 <summary>Changelog</summary>
 
+0.4.0
+- Added the Curse of the Wilting Clover
+- Added the Curse of Boss' Reveng
+
 0.3.1
 - Fixed defect where unpaused audio would sometimes come back too loud.
 

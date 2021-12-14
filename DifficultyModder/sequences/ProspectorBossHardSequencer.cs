@@ -40,5 +40,34 @@ namespace Infiniscryption.Curses.Sequences
             yield return new WaitForSeconds(0.33f);
             ViewManager.Instance.Controller.LockState = ViewLockState.Unlocked;
         }
+
+        private List<CardSlot> EmptyLanes()
+        {
+            return BoardManager.Instance.OpponentSlotsCopy.Where(s => s.Card == null && s.opposingSlot.Card == null).ToList();
+        }
+
+        public override bool RespondsToTurnEnd(bool playerTurnEnd)
+        {
+            // If there is an empty lane, queue a wolf for it.
+            // The goal here is to ensure that the player doesn't just cheese the battle
+            // by putting all the dynamite on board every time.
+            return !playerTurnEnd && EmptyLanes().Count > 0 && TurnManager.Instance.Opponent.NumLives == 1;
+        }
+
+        public override IEnumerator OnTurnEnd(bool playerTurnEnd)
+        {
+            List<CardSlot> wolfSlots = EmptyLanes();
+            if (playerTurnEnd || wolfSlots.Count == 0 || TurnManager.Instance.Opponent.NumLives > 1)
+                yield break;
+
+            foreach (CardSlot slot in wolfSlots)
+            {
+                yield return TurnManager.Instance.Opponent.QueueCard(CardLoader.GetCardByName("Wolf"), slot);
+                if (DialogueEventsData.GetEventRepeatCount("ProspectorWolfSpawn") == 0)
+                    yield return TextDisplayer.Instance.PlayDialogueEvent("ProspectorWolfSpawn", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
+            }
+
+            yield break;
+        }
     }
 }

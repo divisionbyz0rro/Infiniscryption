@@ -18,7 +18,7 @@ namespace Infiniscryption.Curses.Patchers
     {
         private const int MAX_CLOVER_USES = 4;
 
-        public override string Description => $"You can only use the clover {MAX_CLOVER_USES} per rune.";
+        public override string Description => $"You can only use the clover {MAX_CLOVER_USES} times per run.";
         public override string Title => "The Wilting Clover";
 
         Texture2D _iconTexture = AssetHelper.LoadTexture("clover_icon");
