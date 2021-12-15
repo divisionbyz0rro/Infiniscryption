@@ -12,6 +12,10 @@ This mod comes with six different starter decks to select from:
 
 There's also a hook to allow you or others to add more sidedeck cards to the pool; see below.
 
+## Kaycee's Mod is imminent...
+
+Because Kaycee's Mod (the free expansion for Inscryption) is imminent, no more development will be done on any of my mods until that expansion hits. I will fix breaking bugs, however.
+
 ## Requirements
 
 As with most mods, you need [BepInEx](https://inscryption.thunderstore.io/package/BepInEx/BepInExPack_Inscryption/) installed. 

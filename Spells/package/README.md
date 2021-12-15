@@ -15,6 +15,10 @@ There are two types of spells:
 
 **Global Spells:** These have an immediate, global effect when played. If you attach a sigil that expects to be in a specific slot on board, there may be unexpected behavior. For example, the Beaver's dam ability will more than likely give Leshy a free dam.
 
+## Kaycee's Mod is imminent...
+
+Because Kaycee's Mod (the free expansion for Inscryption) is imminent, no more development will be done on any of my mods until that expansion hits. I will fix breaking bugs, however.
+
 ## Credits
 
 This mod would not be possible without signifcant contributions from @Kopie in the Inscryption Modding discord channel.
@@ -194,6 +198,9 @@ As of this release, the API has a defect that will not allow custom sigils to st
 
 <details>
 <summary>Changelog</summary>
+1.2.4
+- Added the fishhook sigil
+
 1.2.3
 - Bad manifest.json. My bad. :(
 

@@ -4,6 +4,10 @@ This mod is currently in an alpha release. It shouldn't crash your game, but it 
 
 This mod adds difficulty modifiers (curses) to your runs. Some are simple, like reducing the items you get from events on the map. Others are complex, such as randomly adding deathcards to encounters (like the bounty hunters from Act 3).
 
+## Kaycee's Mod is imminent...
+
+Because Kaycee's Mod (the free expansion for Inscryption) is imminent, no more development will be done on any of my mods until that expansion hits. I will fix breaking bugs, however.
+
 ## Requirements
 
 As with most mods, you need [BepInEx](https://inscryption.thunderstore.io/package/BepInEx/BepInExPack_Inscryption/) installed. There are no other requirements.
@@ -56,6 +60,12 @@ A 'Curse' is a difficulty modification that changes the way the game plays. Each
 Remember the bounty hunters from Act 3? Well, they're back, but flavorfully appropriate.
 
 The game will track a 'haunt level' as you progress and win more battles. The higher the haunt level, the higher the chance that a random deathcard from the deathcard pool will be selected and inserted into battles that you fight.
+
+### Curse of Boss' Revenge
+Each of the game's first three bosses have an extra phase you have to battle through.
+
+### Curse of the Wilting Clover
+You can use the clover a maximum number of four times each run.
 
 ### Curse of Loose Teeth
 You will take one damage at the start of every game.

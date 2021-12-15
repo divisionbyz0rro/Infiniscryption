@@ -24,6 +24,10 @@ This mod also makes a number of vanilla sigils stackable where they previously w
 - Sharp
 - Tutor
 
+## Kaycee's Mod is imminent...
+
+Because Kaycee's Mod (the free expansion for Inscryption) is imminent, no more development will be done on any of my mods until that expansion hits. I will fix breaking bugs, however.
+
 ## How does this mod work?
 
 This works by visually searching the ability icon, pixel by pixel, for the number 1. If the mod finds that exact pixel pattern, it will replace it with the correct value. If it cannot find that pixel pattern, it will look for an open space in the sigil where the number will fit. If that doesn't work, it will put the number in the lower-right corner, covering up whatever is already there.
@@ -34,6 +38,9 @@ If you want to make the icon for your sigil compatible with the automatic visual
 
 <details>
 <summary>Changelog</summary>
+
+1.0.3
+- Repackaged DLL 
 
 1.0.2
 - Fixed defect in totem battle
