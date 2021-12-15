@@ -53,7 +53,7 @@ namespace Infiniscryption.SideDecks.Patchers
             var antHealthAbility = HealthForAnts.HarmonyInit.antHealthSpecialAbility;
             NewCard.Add(
                 SideDeckPatcher.SideDecks.INF_Ant_Worker.ToString(),
-                "Worker Ant",
+                "Ant Drone",
                 0, 0,
                 new List<CardMetaCategory>() { },
                 CardComplexity.Vanilla,
@@ -85,7 +85,7 @@ namespace Infiniscryption.SideDecks.Patchers
             NewCard.Add(
                 SideDeckPatcher.SideDecks.INF_Spare_Tentacle.ToString() + "_Tail",
                 "Tentacle",
-                0, 1,
+                0, 2,
                 new List<CardMetaCategory>() { },
                 CardComplexity.Vanilla,
                 CardTemple.Nature,
@@ -99,7 +99,7 @@ namespace Infiniscryption.SideDecks.Patchers
             NewCard.Add(
                 SideDeckPatcher.SideDecks.INF_Spare_Tentacle.ToString(),
                 "Spare Tentacle",
-                0, 1,
+                0, 2,
                 new List<CardMetaCategory>() { },
                 CardComplexity.Vanilla,
                 CardTemple.Nature,

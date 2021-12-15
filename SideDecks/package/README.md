@@ -12,6 +12,10 @@ This mod comes with six different starter decks to select from:
 
 There's also a hook to allow you or others to add more sidedeck cards to the pool; see below.
 
+## Kaycee's Mod is imminent...
+
+Because Kaycee's Mod (the free expansion for Inscryption) is imminent, no more development will be done on any of my mods until that expansion hits. I will fix breaking bugs, however.
+
 ## Requirements
 
 As with most mods, you need [BepInEx](https://inscryption.thunderstore.io/package/BepInEx/BepInExPack_Inscryption/) installed. 
@@ -55,6 +59,10 @@ Open the BepInEx config file for this mod (zorro.inscryption.infiniscryption.sid
 
 <details>
 <summary>Changelog</summary>
+
+1.2
+- Changed the name of the ant sidedeck creature
+- Made the tentacle creature into an 0/2 to make it actually playable
 
 1.1.1
 - Fixed defect in Gelatinous ability that causes it to crash the game when bones are added to the pool from any source other than a card dying.

@@ -9,10 +9,11 @@ using HarmonyLib;
 using Sirenix.OdinInspector;
 using TMPro;
 using Infiniscryption.Curses.Helpers;
+using Infiniscryption.Core.Components;
 
 namespace Infiniscryption.Curses.Sequences
 {
-    public class CurseNodeSequencer : ManagedBehaviour
+    public class CurseNodeSequencer : ManagedBehaviour, ICustomNodeSequence
 	{
 		// This is the selection screen for which boons are turned on and which views are turned off
         
@@ -253,7 +254,12 @@ namespace Infiniscryption.Curses.Sequences
 	        card.Anim.PlayRiffleSound();
         }
 
-		private GameObject _selectableCardPrefab;
+        public IEnumerator ExecuteCustomSequence(GenericCustomNodeData nodeData)
+        {
+            yield return this.PlayCurseShop();
+        }
+
+        private GameObject _selectableCardPrefab;
 		private GameObject selectableCardPrefab
         {
             get 

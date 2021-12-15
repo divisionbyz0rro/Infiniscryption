@@ -8,10 +8,11 @@ using UnityEngine;
 using HarmonyLib;
 using Infiniscryption.SideDecks.Patchers;
 using System.Linq;
+using Infiniscryption.Core.Components;
 
 namespace Infiniscryption.SideDecks.Sequences
 {
-    public class SideDeckSelectionSequencer : CardChoicesSequencer
+    public class SideDeckSelectionSequencer : CardChoicesSequencer, ICustomNodeSequence
 	{        
         private static Traverse _parentContainer;
         private static T GetCopiedField<T>(string fieldName) where T : class
@@ -219,6 +220,11 @@ namespace Infiniscryption.SideDecks.Sequences
 			}
 			this.selectableCards.Clear();
 		}
+
+        public IEnumerator ExecuteCustomSequence(GenericCustomNodeData nodeData)
+        {
+            yield return CardSelectionSequence(nodeData);
+        }
 
         private readonly Vector3 BASE_ANCHOR = new Vector3(-2.2f, 5.01f, -0.12f);
 

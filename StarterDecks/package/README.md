@@ -6,6 +6,10 @@ This Act I mod allows you to select from three different theme decks at the star
 
 Additionally, any teeth leftover at the end of a run are saved by Leshy, as well as some extra bonus teeth. You can then spend those teeth to upgrade the quality of the starter decks. Upgrades are accessed by clicking the teeth in the skull in the cabin. Instead of giving away free teeth, it now takes you to a cusom upgrade store.
 
+## Kaycee's Mod is imminent...
+
+Because Kaycee's Mod (the free expansion for Inscryption) is imminent, no more development will be done on any of my mods until that expansion hits. I will fix breaking bugs, however.
+
 ## Requirements
 
 As with most mods, you need [BepInEx](https://inscryption.thunderstore.io/package/BepInEx/BepInExPack_Inscryption/) installed. There are no other requirements.
@@ -39,6 +43,9 @@ This is technical implementation details you probably don't care about.
 
 <details>
 <summary>Changelog</summary>
+
+1.1.1
+- Nonfunctional change; repackaged the DLL.
 
 1.1
 - UE change to the shop. You now confirm purchases by pushing a button instead of walking away from the table.

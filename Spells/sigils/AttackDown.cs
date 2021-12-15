@@ -29,6 +29,7 @@ namespace Infiniscryption.Spells.Sigils
             );
             info.canStack = true;
             info.passive = false;
+            info.metaCategories = new List<AbilityMetaCategory>() { AbilityMetaCategory.Part1Rulebook };
 
             NewAbility ability = new NewAbility(
                 info,

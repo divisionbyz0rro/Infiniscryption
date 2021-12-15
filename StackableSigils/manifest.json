@@ -1,6 +1,6 @@
 {
     "name": "Visually_Stackable_Sigils",
-    "version_number": "1.0.2",
+    "version_number": "1.0.3",
     "website_url": "https://github.com/divisionbyz0rro/Infiniscryption",
     "description": "Makes stackable sigils display as a single icon with a number, and makes many of the game's vanilla sigils stackable where they previously were not.",
     "dependencies": [

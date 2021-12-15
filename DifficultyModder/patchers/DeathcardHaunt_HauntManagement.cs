@@ -21,7 +21,7 @@ namespace Infiniscryption.Curses.Patchers
     {
         // This part manages the haunt level
 
-        private const int MAX_HAUNT_LEVEL = 14;
+        private const int MAX_HAUNT_LEVEL = 11;
 
         private static int HauntLevel
         {

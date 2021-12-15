@@ -49,6 +49,7 @@ namespace Infiniscryption.Spells
             DirectHeal.Register();
             AttackBuff.Register();
             AttackNerf.Register();
+            Fishhook.Register();
             
 
             if (AddCards)

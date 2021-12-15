@@ -15,6 +15,8 @@ using Infiniscryption.Core.Helpers;
 namespace Infiniscryption.Curses
 {
     [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
+    [BepInDependency("cyantist.inscryption.api")]
+    [BepInDependency("zorro.inscryption.infiniscryption.spells")]
     public class InfiniscryptionCursePlugin : BaseUnityPlugin
     {
 
@@ -30,6 +32,7 @@ namespace Infiniscryption.Curses
             Harmony harmony = new Harmony(PluginGuid);
 
             CurseManager.Register<BackpackLimiter>(harmony, Config, CurseManager.BindsTo.RunSetting);
+
             CurseManager.Register<CampfireHarder>(harmony, Config, CurseManager.BindsTo.RunSetting);
 
             CurseManager.Register<OneCandleMax>(harmony, Config, CurseManager.BindsTo.RunSetting);
@@ -40,15 +43,21 @@ namespace Infiniscryption.Curses
 
             CurseManager.Register<RandomSigils>(harmony, Config, CurseManager.BindsTo.RunSetting);
 
+            CurseManager.Register<CloverLimiter>(harmony, Config, CurseManager.BindsTo.RunSetting);
+
+            CurseManager.Register<HarderBosses>(harmony, Config, CurseManager.BindsTo.RunSetting);
+            HarderBosses.RegisterCustomCards(harmony);
+
             // Patch all of the toggleable difficulty mods
             harmony.PatchAll(typeof(CardExtensions));
             harmony.PatchAll(typeof(CurseManager));
 
             // Initialize the RunStateHelper
             RunStateHelper.Initialize(harmony);
-            CustomNodeHelper.Initialize(harmony);
+            CustomNodeHelper.Initialize(harmony, Log);
 
             Logger.LogInfo($"Plugin {PluginName} is loaded!");
         }
     }
 }
+

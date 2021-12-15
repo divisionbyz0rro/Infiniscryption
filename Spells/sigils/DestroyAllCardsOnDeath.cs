@@ -30,6 +30,7 @@ namespace Infiniscryption.Spells.Sigils
                 "Cataclysm",
                 "Destroys every other creature on board when this card dies."
             );
+            info.powerLevel = 6;
 
             NewAbility ability = new NewAbility(
                 info,
