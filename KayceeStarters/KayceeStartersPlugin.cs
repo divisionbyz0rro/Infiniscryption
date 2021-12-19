@@ -11,6 +11,7 @@ using Infiniscryption.Core.Helpers;
 using Infiniscryption.KayceeStarters.Cards;
 using Infiniscryption.KayceeStarters.UserInterface;
 using Infiniscryption.KayceeStarters.Patchers;
+using InscryptionAPI.AscensionScreens;
 
 namespace Infiniscryption.KayceeStarters
 {
@@ -34,9 +35,12 @@ namespace Infiniscryption.KayceeStarters
 
             CustomCards.RegisterCustomCards(harmony);
 
-            harmony.PatchAll(typeof(AscensionScreenPatchers));
-            harmony.PatchAll(typeof(SideDeckPatcher));
+            harmony.PatchAll(typeof(KayceesDeckboxPatcher));
             harmony.PatchAll(typeof(SideDeckSelectorScreen));
+            harmony.PatchAll(typeof(NumberOfPeltsSelectionScreen));
+
+            AscensionScreenController.RegisterScreen<SideDeckSelectorScreen>();
+            AscensionScreenController.RegisterScreen<NumberOfPeltsSelectionScreen>();
 
             RunStateHelper.Initialize(harmony);
             CustomNodeHelper.Initialize(harmony, Log);

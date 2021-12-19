@@ -44,6 +44,9 @@ namespace Infiniscryption.KayceeStarters.Cards
 
             // Modify the squirrel
             new CustomCard("Squirrel") { traits = new List<Trait>() { SIDE_DECK_MARKER }};
+            new CustomCard("AquaSquirrel") { pixelTex = AssetHelper.LoadTexture("pixelportrait_aquasquirrel") };
+            new CustomCard("PeltHare") { pixelTex = AssetHelper.LoadTexture("pixelportrait_pelthare") };
+            new CustomCard("PeltWolf") { pixelTex = AssetHelper.LoadTexture("pixelportrait_peltwolf") };
 
             // Create the Better Squirrel
             NewCard.Add(
