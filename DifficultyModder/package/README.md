@@ -21,6 +21,9 @@ The zip file should be structured in the same way as your Inscryption root direc
 <details>
 <summary>Changelog</summary>
 
+0.4.1
+- Fixed defect with multiple attacks and mega sharks
+
 0.4.0
 - Added the Curse of the Wilting Clover
 - Added the Curse of Boss' Reveng
