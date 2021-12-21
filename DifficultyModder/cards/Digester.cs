@@ -288,8 +288,8 @@ namespace Infiniscryption.Curses.Cards
         {
             // We fired last, so we can assume this is the final state (i.e., WhackAMole has already happened)
             
-            // There must be a defending card
-            if (slot.Card == null)
+            // There must be a defending card and attacking card
+            if (slot.Card == null || attacker == null)
                 yield break;
 
             PlayableCard defender = slot.Card;
