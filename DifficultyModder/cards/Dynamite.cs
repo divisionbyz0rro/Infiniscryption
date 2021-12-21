@@ -6,10 +6,6 @@ using DiskCardGame;
 using HarmonyLib;
 using System.Collections;
 using System.Collections.Generic;
-using System;
-using TMPro;
-using UnityEngine.UI;
-using Infiniscryption.Curses.Helpers;
 using Infiniscryption.Core.Helpers;
 using APIPlugin;
 using System.Linq;
@@ -27,7 +23,7 @@ namespace Infiniscryption.Curses.Cards
         { 
             get
             {
-                return AbilityIdentifier.GetAbilityIdentifier("zorro.infiniscryption.sigils.dynamite", "Booby Trap");
+                return AbilityIdentifier.GetID("zorro.infiniscryption.sigils.dynamite", "Booby Trap");
             }
         }
 
@@ -62,6 +58,9 @@ namespace Infiniscryption.Curses.Cards
                 emissionTex: AssetHelper.LoadTexture("dynamite_emission"),
                 abilityIdsParam: new List<AbilityIdentifier>() { Dynamite.Identifier }
             );
+
+            System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(Dynamite).TypeHandle);
+            System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(DynamiteAppearance).TypeHandle);
 
             // Patch this class
             harmony.PatchAll(typeof(Dynamite));

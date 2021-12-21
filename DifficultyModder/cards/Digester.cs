@@ -6,11 +6,6 @@ using DiskCardGame;
 using HarmonyLib;
 using System.Collections;
 using System.Collections.Generic;
-using System;
-using TMPro;
-using UnityEngine.UI;
-using Infiniscryption.Curses.Helpers;
-using Infiniscryption.Core.Helpers;
 using APIPlugin;
 using System.Linq;
 
@@ -89,6 +84,11 @@ namespace Infiniscryption.Curses.Cards
                 abilities: new List<Ability>() { Ability.Reach, Ability.WhackAMole },
                 specialAbilitiesIdsParam: new List<SpecialAbilityIdentifier>() { Digester.Identifier }
             );
+
+            System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(Digester).TypeHandle);
+            System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(Bitten).TypeHandle);
+            System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(BittenCardAppearance).TypeHandle);
+            System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(MegaSharkAppearance).TypeHandle);
 
             // Add another emission
             NewCard.emissions.Add(MegaSharkAppearance.SHARK_CLOSED_PORTRAIT_SPRITE.name, MegaSharkAppearance.SHARK_CLOSED_EMISSION_SPRITE);
@@ -353,7 +353,7 @@ namespace Infiniscryption.Curses.Cards
                 ViewManager.Instance.SwitchToView(View.Hand);
 
                 PlayableCard spawnedCard = CardSpawner.SpawnPlayableCard(digestedCard);
-                yield return PlayerHand.Instance.AddCardToHand(spawnedCard);
+                yield return PlayerHand.Instance.AddCardToHand(spawnedCard, Vector3.zero, 0f);
                 PlayerHand.Instance.OnCardInspected(spawnedCard);
                 PlayerHand.Instance.InspectingLocked = true;
 

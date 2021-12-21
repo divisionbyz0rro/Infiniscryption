@@ -9,15 +9,13 @@ using System.Collections.Generic;
 using System;
 using TMPro;
 using UnityEngine.UI;
-using Infiniscryption.Curses.Helpers;
-using Infiniscryption.Curses.Sequences;
 using Infiniscryption.Core.Helpers;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace Infiniscryption.Curses.Patchers
 {
-    public partial class DeathcardHaunt : CurseBase
+    public static partial class DeathcardHaunt
     {
         // This part manages the haunt level
 
@@ -94,7 +92,7 @@ namespace Infiniscryption.Curses.Patchers
         [HarmonyPostfix]
         public static void AttachAnimationToPlayerMarker(ref PlayerMarker __instance)
         {
-            if (CurseManager.IsActive<DeathcardHaunt>())
+            if (AscensionSaveData.Data.ChallengeIsActive(ID))
             {
                 // We need to create an animated sprite game object and lay it underneath the player's feet
                 if (_orbitingFace == null)
@@ -123,6 +121,12 @@ namespace Infiniscryption.Curses.Patchers
 
             int hauntLevel = HauntLevel;
             InfiniscryptionCursePlugin.Log.LogInfo($"Setting orbit for haunt level {hauntLevel}");
+
+            if (!_orbitingFace[2].activeSelf && hauntLevel >= 8 ||
+                !_orbitingFace[1].activeSelf && hauntLevel >= 5 ||
+                !_orbitingFace[0].activeSelf && hauntLevel >= 2)
+                ChallengeActivationUI.TryShowActivation(ID);
+                
             _orbitingFace[2].SetActive(hauntLevel >= 8);
             _orbitingFace[1].SetActive(hauntLevel >= 5);
             _orbitingFace[0].SetActive(hauntLevel >= 2);
@@ -133,7 +137,7 @@ namespace Infiniscryption.Curses.Patchers
         public static void SetActiveOrbiters(ref AnimatedGameMapMarker __instance)
         {
             InfiniscryptionCursePlugin.Log.LogInfo("Showing map marker");
-            if (CurseManager.IsActive<DeathcardHaunt>() && __instance is PlayerMarker)
+            if (AscensionSaveData.Data.ChallengeIsActive(ID) && __instance is PlayerMarker)
             {
                 InfiniscryptionCursePlugin.Log.LogInfo("Is player marker");
                 if (_orbitingFace != null)
@@ -174,7 +178,7 @@ namespace Infiniscryption.Curses.Patchers
             while (sequenceResult.MoveNext())
                 yield return sequenceResult.Current;
 
-            if (CurseManager.IsActive<DeathcardHaunt>() && !HasExplainedHaunt && HauntLevel >= 2)
+            if (AscensionSaveData.Data.ChallengeIsActive(ID) && !HasExplainedHaunt && HauntLevel >= 2)
             {
                 yield return TextDisplayer.Instance.PlayDialogueEvent("HauntedExplanation", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
                 HasExplainedHaunt = true;

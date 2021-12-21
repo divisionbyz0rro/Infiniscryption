@@ -39,8 +39,8 @@ namespace Infiniscryption.KayceeStarters
             harmony.PatchAll(typeof(SideDeckSelectorScreen));
             harmony.PatchAll(typeof(NumberOfPeltsSelectionScreen));
 
-            AscensionScreenController.RegisterScreen<SideDeckSelectorScreen>();
-            AscensionScreenController.RegisterScreen<NumberOfPeltsSelectionScreen>();
+            AscensionScreenManager.RegisterScreen<SideDeckSelectorScreen>();
+            AscensionScreenManager.RegisterScreen<NumberOfPeltsSelectionScreen>();
 
             RunStateHelper.Initialize(harmony);
             CustomNodeHelper.Initialize(harmony, Log);

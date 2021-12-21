@@ -144,7 +144,7 @@ namespace Infiniscryption.KayceeStarters.UserInterface
             this.rightButton.gameObject.SetActive(this.cards.Count < this.sideDeckCards.Count);
         }
 
-        public override void OnEnable()
+        protected override void OnEnable()
         {
             base.OnEnable();
 

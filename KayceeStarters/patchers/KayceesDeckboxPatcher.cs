@@ -7,6 +7,7 @@ using HarmonyLib;
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using System.Linq;
 using Infiniscryption.Core.Helpers;
 using Infiniscryption.KayceeStarters.Cards;
 using Infiniscryption.KayceeStarters.UserInterface;
@@ -67,6 +68,14 @@ namespace Infiniscryption.KayceeStarters.Patchers
                     __instance.currentRun.playerDeck.AddCard(card);
                 }
             }
+        }
+
+        [HarmonyPatch(typeof(MapGenerator), "ForceFirstNodeTraderForAscension")]
+        [HarmonyPostfix]
+        public static void OverrideTraderBehavior(ref bool __result, int rowIndex)
+        {
+            __result = SaveFile.IsAscension && rowIndex == 1 && RunState.Run.regionTier == 0 && 
+                       AscensionSaveData.Data.currentRun.playerDeck.Cards.Where(c => c.name.ToLowerInvariant().Contains("pelt")).Count() > 0;
         }
     }
 }

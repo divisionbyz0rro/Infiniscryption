@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System;
 using TMPro;
 using UnityEngine.UI;
-using Infiniscryption.Curses.Helpers;
 using Infiniscryption.Curses.Sequences;
 using Infiniscryption.Core.Helpers;
 using System.Linq;
@@ -17,7 +16,7 @@ using System.Runtime.CompilerServices;
 
 namespace Infiniscryption.Curses.Patchers
 {
-    public partial class DeathcardHaunt : CurseBase
+    public static partial class DeathcardHaunt
     {
         // This part of the class manages the creation of deathcards
 

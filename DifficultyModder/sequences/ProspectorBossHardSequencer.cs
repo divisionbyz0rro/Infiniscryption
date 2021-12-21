@@ -28,7 +28,7 @@ namespace Infiniscryption.Curses.Sequences
             ViewManager.Instance.SwitchToView(View.Hand);
 
             PlayableCard dynamite = CardSpawner.SpawnPlayableCard(CardLoader.GetCardByName("Prospector_Dynamite"));
-            yield return PlayerHand.Instance.AddCardToHand(dynamite);
+            yield return PlayerHand.Instance.AddCardToHand(dynamite, Vector3.zero, 0f);
             PlayerHand.Instance.OnCardInspected(dynamite);
             PlayerHand.Instance.InspectingLocked = true;
 

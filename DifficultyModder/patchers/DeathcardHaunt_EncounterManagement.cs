@@ -9,28 +9,31 @@ using System.Collections.Generic;
 using System;
 using TMPro;
 using UnityEngine.UI;
-using Infiniscryption.Curses.Helpers;
 using Infiniscryption.Curses.Sequences;
 using Infiniscryption.Core.Helpers;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using InscryptionAPI.Challenges;
 
 namespace Infiniscryption.Curses.Patchers
 {
-    public partial class DeathcardHaunt : CurseBase
+    public static partial class DeathcardHaunt
     {
-        public DeathcardHaunt(string id, GetActiveDelegate getActive, SetActiveDelegate setActive) : base(id, getActive, setActive) { }
+        public static AscensionChallenge ID {get; private set;}
 
-        public override string Description => "You will be haunted by those who came before you and their essences will oppose you in battle. Your haunt level will increase the more you win.";
-
-        public override string Title => "Haunted Pasts";
-
-        private Texture2D _iconTexture = AssetHelper.LoadTexture("deathcard_icon");
-        public override Texture2D IconTexture => _iconTexture;
-
-        public override void Reset()
+        public static void Register(Harmony harmony)
         {
-            // We don't need to do anything because the only meaningful variable is stored as a runstate variable.
+            ID = ChallengeManager.Add
+            (
+                InfiniscryptionCursePlugin.PluginGuid,
+                "Haunted Past",
+                "Deathcards will sometimes attack you in battle",
+                5,
+                AssetHelper.LoadTexture("challenge_deathcards"),
+                AssetHelper.LoadTexture("ascensionicon_activated_deathcards")
+            );
+
+            harmony.PatchAll(typeof(DeathcardHaunt));
         }
 
         private const string DEATHCARD_INTRO_CLIP = "wind_blowing_loop";
@@ -41,7 +44,7 @@ namespace Infiniscryption.Curses.Patchers
                 return false; // You can't get it at haunt level 1. You gotta get to 2 to start.
 
             float randomValue = SeededRandom.Value(SaveManager.SaveFile.GetCurrentRandomSeed());
-            return (randomValue < (float)HauntLevel / (float)MAX_HAUNT_LEVEL) && CurseManager.IsActive<DeathcardHaunt>();
+            return (randomValue < (float)HauntLevel / (float)MAX_HAUNT_LEVEL) && AscensionSaveData.Data.ChallengeIsActive(ID);
         }
 
         // This handles haunt level management at the cleanup phase of a fight.
@@ -99,7 +102,7 @@ namespace Infiniscryption.Curses.Patchers
         [HarmonyPostfix]
         public static void AddDeathcardToEncounter(ref EncounterData __result, CardBattleNodeData nodeData)
         {
-            if (!CurseManager.IsActive<DeathcardHaunt>())
+            if (!AscensionSaveData.Data.ChallengeIsActive(ID))
                 return;
 
             // We don't do this to boss battles
@@ -243,6 +246,8 @@ namespace Infiniscryption.Curses.Patchers
                 _pausedState = AudioHelper.PauseAllLoops();
                 AudioController.Instance.SetLoopAndPlay(DEATHCARD_INTRO_CLIP);
 
+                ChallengeActivationUI.TryShowActivation(ID);
+
                 yield return TextDisplayer.Instance.PlayDialogueEvent("DeathcardArrives", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, new string[] {
                     cardInfo.DisplayedNameLocalized
                 }, null);
@@ -285,7 +290,7 @@ namespace Infiniscryption.Curses.Patchers
         [HarmonyPostfix]
         public static IEnumerator DeathcardWonSequence(IEnumerator sequenceResult)
         {
-            if (_deathcardOnBoard == null || !CurseManager.IsActive<DeathcardHaunt>())
+            if (_deathcardOnBoard == null || !AscensionSaveData.Data.ChallengeIsActive(ID))
             {
                 while(sequenceResult.MoveNext())
                     yield return sequenceResult.Current;

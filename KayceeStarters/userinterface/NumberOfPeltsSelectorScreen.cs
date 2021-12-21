@@ -42,7 +42,8 @@ namespace Infiniscryption.KayceeStarters.UserInterface
 
         private static List<CardInfo> GetDefaultDeck()
         {
-            StarterDeckInfo starterDeck = AscensionMenuScreens.Instance.starterDeckSelectScreen.GetComponent<AscensionChooseStarterDeckScreen>().SelectedInfo;
+            GameObject screen = Traverse.Create(AscensionMenuScreens.Instance).Field("starterDeckSelectScreen").GetValue<GameObject>();
+            StarterDeckInfo starterDeck = screen.GetComponent<AscensionChooseStarterDeckScreen>().SelectedInfo;
             return starterDeck.cards
                    .AddItem(CardLoader.GetCardByName("Opossum"))
                    .AddItem(CardLoader.GetCardByName("RingWorm"))
@@ -103,7 +104,7 @@ namespace Infiniscryption.KayceeStarters.UserInterface
             RecalculateChallengePoints();
         }
 
-        public override void OnEnable()
+        protected override void OnEnable()
         {
             base.OnEnable();
 

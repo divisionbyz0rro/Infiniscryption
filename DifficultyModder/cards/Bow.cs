@@ -6,10 +6,6 @@ using DiskCardGame;
 using HarmonyLib;
 using System.Collections;
 using System.Collections.Generic;
-using System;
-using TMPro;
-using UnityEngine.UI;
-using Infiniscryption.Curses.Helpers;
 using Infiniscryption.Core.Helpers;
 using APIPlugin;
 using System.Linq;
@@ -27,8 +23,8 @@ namespace Infiniscryption.Curses.Cards
             // info.powerLevel = 7;
 
             SpecialAbilityIdentifier spellID = SpecialAbilityIdentifier.GetID("zorro.infiniscryption.sigils.targetedspell", "Spell (Targeted)");
-            AbilityIdentifier damageID = AbilityIdentifier.GetAbilityIdentifier("zorro.infiniscryption.sigils.directdamage", "Direct Damage");
-            AbilityIdentifier fishhookID = AbilityIdentifier.GetAbilityIdentifier("zorro.infiniscryption.sigils.fishhook", "Gain Control");
+            AbilityIdentifier damageID = AbilityIdentifier.GetID("zorro.infiniscryption.sigils.directdamage", "Direct Damage");
+            AbilityIdentifier fishhookID = AbilityIdentifier.GetID("zorro.infiniscryption.sigils.fishhook", "Gain Control");
 
             NewCard.Add(
                 "Trapper_Bow",
