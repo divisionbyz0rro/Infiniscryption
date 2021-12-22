@@ -21,6 +21,9 @@ The zip file should be structured in the same way as your Inscryption root direc
 <details>
 <summary>Changelog</summary>
 
+0.4.2
+- Fixed defect where deathcards were being selected using the wrong random seed.
+
 0.4.1
 - Fixed defect with multiple attacks and mega sharks
 
