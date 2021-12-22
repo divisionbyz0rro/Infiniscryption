@@ -61,7 +61,7 @@ namespace Infiniscryption.Curses.Patchers
         public static CardInfo GetRandomDeathcard()
         {
             // Build the base card
-            int seed = SaveManager.SaveFile.randomSeed;
+            int seed = SaveManager.SaveFile.GetCurrentRandomSeed();
             List<CardModificationInfo> modList = SaveManager.SaveFile.GetChoosableDeathcardMods().Where(
                 mod => mod.attackAdjustment < 10 && mod.healthAdjustment < 10
             ).ToList(); // Try to prevent some of the really nasty deathcards from one-shotting you
