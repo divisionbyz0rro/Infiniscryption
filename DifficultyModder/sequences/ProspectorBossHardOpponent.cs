@@ -55,6 +55,13 @@ namespace Infiniscryption.Curses.Sequences
             {
                 CardInfo bigBoulder = CardLoader.GetCardByName("Boulder");
                 bigBoulder.Mods.Add(new CardModificationInfo(Ability.Reach));
+
+                if (RunState.CurrentRegionTier == 0)
+                    bigBoulder.Mods.Add(new CardModificationInfo(0, -2));
+
+                if (RunState.CurrentRegionTier == 2)
+                    bigBoulder.Mods.Add(new CardModificationInfo(0, 2));
+
                 yield return BoardManager.Instance.CreateCardInSlot(bigBoulder, slot);
                 yield return new WaitForSeconds(0.15f);
             }

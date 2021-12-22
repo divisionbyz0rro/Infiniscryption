@@ -134,6 +134,10 @@ namespace Infiniscryption.Curses.Sequences
             retval.Add(CardLoader.GetCardByName("Trapper_Bow"));
             retval.Add(CardLoader.GetCardByName("Trapper_Bow"));
 
+            // If this is the first region, add another capture
+            if (RunState.CurrentRegionTier == 0)
+                retval.Add(CardLoader.GetCardByName("Trapper_Capture"));
+
             return retval;
         }
 
@@ -184,6 +188,7 @@ namespace Infiniscryption.Curses.Sequences
             clearUnusable.negateAbilities = new List<Ability>();
             foreach (Ability ability in retval.Abilities.Where(ab => !AbilitiesUtil.GetInfo(ab).opponentUsable))
                 clearUnusable.negateAbilities.Add(ability);
+                
             retval.Mods.Add(clearUnusable);
 
             return retval;

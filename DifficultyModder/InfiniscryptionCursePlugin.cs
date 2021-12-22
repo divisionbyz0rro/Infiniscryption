@@ -32,6 +32,8 @@ namespace Infiniscryption.Curses
             RandomSigils.Register(harmony);
             HarderBosses.Register(harmony);
             DeathcardHaunt.Register(harmony);
+            ThreeCandles.Register(harmony);
+            GoldenPeltStart.Register(harmony);
 
             // Initialize the RunStateHelper
             RunStateHelper.Initialize(harmony);

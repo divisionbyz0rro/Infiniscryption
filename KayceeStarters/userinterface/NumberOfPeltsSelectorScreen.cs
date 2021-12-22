@@ -44,10 +44,13 @@ namespace Infiniscryption.KayceeStarters.UserInterface
         {
             GameObject screen = Traverse.Create(AscensionMenuScreens.Instance).Field("starterDeckSelectScreen").GetValue<GameObject>();
             StarterDeckInfo starterDeck = screen.GetComponent<AscensionChooseStarterDeckScreen>().SelectedInfo;
-            return starterDeck.cards
+            List<CardInfo> retval = starterDeck.cards
                    .AddItem(CardLoader.GetCardByName("Opossum"))
                    .AddItem(CardLoader.GetCardByName("RingWorm"))
                    .ToList();
+
+            retval.Sort((a, b) => b.PowerLevel - a.PowerLevel);
+            return retval;
         }
 
         private int numberOfPelts = 2;

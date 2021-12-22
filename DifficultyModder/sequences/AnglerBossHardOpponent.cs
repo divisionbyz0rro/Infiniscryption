@@ -14,8 +14,6 @@ namespace Infiniscryption.Curses.Sequences
     {
         public override int StartingLives => 3;
 
-        public const int NUMBER_OF_SHARKS = 2;
-
         // The harder version lights an extra candle
         public override IEnumerator IntroSequence(EncounterData encounter)
         {
@@ -49,7 +47,10 @@ namespace Infiniscryption.Curses.Sequences
             this.ReplaceAndAppendTurnPlan(new List<List<CardInfo>>()); // There are no cards in the plan!
 
             List<CardSlot> slots = BoardManager.Instance.OpponentSlotsCopy;
-            for (int i = 0; i < NUMBER_OF_SHARKS; i++)
+            int numberOfSharks = 2;
+            if (SaveFile.IsAscension)
+                numberOfSharks = AscensionSaveData.Data.currentRun.regionTier + 1;
+            for (int i = 0; i < numberOfSharks; i++)
             {
                 int slotNum = i == 0 ? 1 : i == 1 ? 3 : i == 2 ? 2 : 0;
                 yield return BoardManager.Instance.CreateCardInSlot(CardLoader.GetCardByName("Angler_Shark"), slots[slotNum]);
