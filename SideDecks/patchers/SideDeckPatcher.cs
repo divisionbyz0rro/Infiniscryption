@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System;
 using Infiniscryption.Core.Helpers;
 using Infiniscryption.SideDecks.Sequences;
+using InscryptionAPI.Saves;
 
 namespace Infiniscryption.SideDecks.Patchers
 {
@@ -30,13 +31,13 @@ namespace Infiniscryption.SideDecks.Patchers
         {
             get 
             { 
-                string sideDeck = RunStateHelper.GetValue("SideDeck.SelectedDeck");
+                string sideDeck = ModdedSaveManager.RunState.GetValue(InfiniscryptionSideDecksPlugin.PluginGuid, "SideDeck.SelectedDeck");
                 if (String.IsNullOrEmpty(sideDeck))
                     return SideDecks.Squirrel.ToString();
 
                 return sideDeck; 
             }
-            set { RunStateHelper.SetValue("SideDeck.SelectedDeck", value.ToString()); }
+            set { ModdedSaveManager.RunState.SetValue(InfiniscryptionSideDecksPlugin.PluginGuid, "SideDeck.SelectedDeck", value.ToString()); }
         }
 
         [HarmonyPatch(typeof(Part1CardDrawPiles), "SideDeckData", MethodType.Getter)]

@@ -21,9 +21,9 @@ namespace Infiniscryption.KayceeStarters
     public class InfiniscryptionKayceeStartersPlugin : BaseUnityPlugin
     {
 
-        private const string PluginGuid = "zorro.inscryption.infiniscryption.kayceestarters";
-		private const string PluginName = "Infiniscryption Kaycees Starters";
-		private const string PluginVersion = "1.0";
+        public const string PluginGuid = "zorro.inscryption.infiniscryption.kayceestarters";
+		public const string PluginName = "Infiniscryption Kaycees Starters";
+		public const string PluginVersion = "1.0";
 
         internal static ManualLogSource Log;
 
@@ -42,7 +42,6 @@ namespace Infiniscryption.KayceeStarters
             AscensionScreenManager.RegisterScreen<SideDeckSelectorScreen>();
             AscensionScreenManager.RegisterScreen<NumberOfPeltsSelectionScreen>();
 
-            RunStateHelper.Initialize(harmony);
             CustomNodeHelper.Initialize(harmony, Log);
 
             Logger.LogInfo($"Plugin {PluginName} is loaded!");

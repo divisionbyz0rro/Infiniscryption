@@ -12,6 +12,7 @@ using Infiniscryption.StarterDecks.Helpers;
 using Infiniscryption.Core.Helpers;
 using TMPro;
 using UnityEngine.UI;
+using InscryptionAPI.Saves;
 
 namespace Infiniscryption.StarterDecks.Patchers
 {
@@ -23,8 +24,8 @@ namespace Infiniscryption.StarterDecks.Patchers
 
         public static bool PlayerHasSeenTeethExtraction
         {
-            get { return SaveGameHelper.GetBool("SeenTeethExtraction"); }
-            set { SaveGameHelper.SetValue("SeenTeethExtraction", value.ToString()); }
+            get { return ModdedSaveManager.SaveData.GetValueAsBoolean(InfiniscryptionStarterDecksPlugin.PluginGuid, "SeenTeethExtraction"); }
+            set { ModdedSaveManager.SaveData.SetValue(InfiniscryptionStarterDecksPlugin.PluginGuid, "SeenTeethExtraction", value.ToString()); }
         }
 
         [HarmonyPatch(typeof(DialogueDataUtil), "ReadDialogueData")]

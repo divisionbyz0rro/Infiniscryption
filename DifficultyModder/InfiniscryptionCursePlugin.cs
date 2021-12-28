@@ -36,7 +36,6 @@ namespace Infiniscryption.Curses
             GoldenPeltStart.Register(harmony);
 
             // Initialize the RunStateHelper
-            RunStateHelper.Initialize(harmony);
             CustomNodeHelper.Initialize(harmony, Log);
 
             Logger.LogInfo($"Plugin {PluginName} is loaded!");

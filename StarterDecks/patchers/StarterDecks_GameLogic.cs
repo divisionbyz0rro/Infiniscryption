@@ -13,6 +13,7 @@ using Infiniscryption.StarterDecks;
 using Infiniscryption.StarterDecks.Helpers;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using InscryptionAPI.Saves;
 
 namespace Infiniscryption.StarterDecks.Patchers
 {
@@ -45,12 +46,12 @@ namespace Infiniscryption.StarterDecks.Patchers
         {
             get 
             {
-                string starterDecks = SaveGameHelper.GetValue("StarterDecks");
+                string starterDecks = ModdedSaveManager.SaveData.GetValue(InfiniscryptionStarterDecksPlugin.PluginGuid, "StarterDecks");
 
                 if (starterDecks == default(string))
                 {
                     string[] retval = InfiniscryptionStarterDecksPlugin.DeckSpecs;
-                    SaveGameHelper.SetValue("StarterDecks", string.Join("|", retval));
+                    ModdedSaveManager.SaveData.SetValue(InfiniscryptionStarterDecksPlugin.PluginGuid, "StarterDecks", string.Join("|", retval));
                     return retval.ToList();
                 }
 
@@ -62,12 +63,12 @@ namespace Infiniscryption.StarterDecks.Patchers
         {
             get 
             {
-                string starterDecks = SaveGameHelper.GetValue("StarterDeckEvolutions");
+                string starterDecks = ModdedSaveManager.SaveData.GetValue(InfiniscryptionStarterDecksPlugin.PluginGuid,"StarterDeckEvolutions");
 
                 if (starterDecks == default(string))
                 {
                     string[] retval = InfiniscryptionStarterDecksPlugin.DeckEvolutions;
-                    SaveGameHelper.SetValue("StarterDeckEvolutions", string.Join("|", retval));
+                    ModdedSaveManager.SaveData.SetValue(InfiniscryptionStarterDecksPlugin.PluginGuid, "StarterDeckEvolutions", string.Join("|", retval));
                     return retval.ToList();
                 }
 
@@ -79,12 +80,12 @@ namespace Infiniscryption.StarterDecks.Patchers
         {
             get 
             {
-                string evolutions = SaveGameHelper.GetValue("StarterDeckProgress");
+                string evolutions = ModdedSaveManager.SaveData.GetValue(InfiniscryptionStarterDecksPlugin.PluginGuid,"StarterDeckProgress");
 
                 if (evolutions == default(string))
                 {
                     int[] retval = new int[] { 0, 0, 0 };
-                    SaveGameHelper.SetValue("StarterDeckProgress", string.Join("|", retval));
+                    ModdedSaveManager.SaveData.SetValue(InfiniscryptionStarterDecksPlugin.PluginGuid, "StarterDeckProgress", string.Join("|", retval));
                     return retval.ToList();
                 }
 
@@ -96,7 +97,7 @@ namespace Infiniscryption.StarterDecks.Patchers
         {
             List<int> curProgress = DeckEvolutionProgress;
             curProgress[deckId] = newLevel;
-            SaveGameHelper.SetValue("StarterDeckProgress", string.Join("|", curProgress));
+            ModdedSaveManager.SaveData.SetValue(InfiniscryptionStarterDecksPlugin.PluginGuid, "StarterDeckProgress", string.Join("|", curProgress));
         }
             
         [HarmonyPatch(typeof(PaperGameMap), "TryInitializeMapData")]

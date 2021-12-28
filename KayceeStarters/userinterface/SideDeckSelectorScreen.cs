@@ -73,6 +73,8 @@ namespace Infiniscryption.KayceeStarters.UserInterface
             }
         }
 
+        public int SideDeckPoints { get; private set; }
+
         private void VisualUpdate(bool immediate=false)
         {
             if (this.gameObject.activeSelf)
@@ -80,8 +82,8 @@ namespace Infiniscryption.KayceeStarters.UserInterface
                 CardInfo selectedCard = CardLoader.GetCardByName(KayceesDeckboxPatcher.SelectedSideDeck);
 
                 string message = String.Format(Localization.Translate("{0} SELECTED"), Localization.ToUpper(selectedCard.DisplayedNameLocalized));
-                int points = selectedCard.name.ToLowerInvariant() == "Squirrel" ? 0 : -5;
-                this.DisplayChallengeInfo(message, points, immediate);
+                SideDeckPoints = selectedCard.name.ToLowerInvariant() == "Squirrel" ? 0 : -10;
+                this.DisplayChallengeInfo(message, SideDeckPoints, immediate);
 
                 this.challengeHeaderDisplay.UpdateText();
 
@@ -91,7 +93,7 @@ namespace Infiniscryption.KayceeStarters.UserInterface
                     if (card.Info.name == KayceesDeckboxPatcher.SelectedSideDeck)
                     {
                         this.selectedBorder.SetActive(true);
-                        this.selectedBorder.transform.localPosition = card.transform.localPosition;
+                        this.selectedBorder.transform.localPosition = card.transform.localPosition + card.transform.Find("Base/PixelSnap").localPosition;
                         return;
                     }
                 }
@@ -119,8 +121,7 @@ namespace Infiniscryption.KayceeStarters.UserInterface
         private int scrollIndex = 0;
 
         private GameObject selectedBorder;
-
-        public bool resetSelection = false;
+        public bool resetSelection = true;
 
         public void ShowPage()
         {

@@ -12,6 +12,7 @@ using UnityEngine.UI;
 using Infiniscryption.Core.Helpers;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using InscryptionAPI.Saves;
 
 namespace Infiniscryption.Curses.Patchers
 {
@@ -28,7 +29,7 @@ namespace Infiniscryption.Curses.Patchers
                 // Your haunt level is the base haunt level (which increases by winning, gets reset to 0 by losing, and 
                 // decreases whenever you kill an opposing deathcard) plus a whopping 3 if you have killed the survivors,
                 // plus 1 for even 'minor starting bones' in your boons and 2 for every 'starting bones' in your boons.
-                return RunStateHelper.GetInt("Curse.BaseHauntLevel")
+                return ModdedSaveManager.RunState.GetValueAsInt(InfiniscryptionCursePlugin.PluginGuid, "Curse.BaseHauntLevel")
                 + (RunState.Run.survivorsDead ? 3 : 0)
                 + (RunState.Run.playerDeck.Boons.FindAll(boon => boon.type == BoonData.Type.MinorStartingBones).Count)
                 + (RunState.Run.playerDeck.Boons.FindAll(boon => boon.type == BoonData.Type.StartingBones).Count * 2);
@@ -38,15 +39,15 @@ namespace Infiniscryption.Curses.Patchers
         public static void ResetHaunt(int value=0)
         {
             InfiniscryptionCursePlugin.Log.LogInfo($"Resetting haunt to {value}");
-            RunStateHelper.SetValue("Curse.BaseHauntLevel", value.ToString());
+            ModdedSaveManager.RunState.SetValue(InfiniscryptionCursePlugin.PluginGuid, "Curse.BaseHauntLevel", value);
         }
 
         public static void IncreaseHaunt(int by=1)
         {
             // Make sure the haunt level 
-            int newHauntLevel = Mathf.Clamp(RunStateHelper.GetInt("Curse.BaseHauntLevel") + by, 0, MAX_HAUNT_LEVEL);
+            int newHauntLevel = Mathf.Clamp(ModdedSaveManager.RunState.GetValueAsInt(InfiniscryptionCursePlugin.PluginGuid, "Curse.BaseHauntLevel") + by, 0, MAX_HAUNT_LEVEL);
             InfiniscryptionCursePlugin.Log.LogInfo($"Updated haunt by {by} to {newHauntLevel}");
-            RunStateHelper.SetValue("Curse.BaseHauntLevel", newHauntLevel.ToString());
+            ModdedSaveManager.RunState.SetValue(InfiniscryptionCursePlugin.PluginGuid, "Curse.BaseHauntLevel", newHauntLevel.ToString());
         }
 
         private static List<GameObject> _orbitingFace = null;
@@ -153,8 +154,8 @@ namespace Infiniscryption.Curses.Patchers
 
         private static bool HasExplainedHaunt
         {
-            get { return SaveGameHelper.GetBool("Curses.HauntExplanation"); }
-            set { SaveGameHelper.SetValue("Curses.HauntExplanation", value.ToString()); }
+            get { return ModdedSaveManager.SaveData.GetValueAsBoolean(InfiniscryptionCursePlugin.PluginGuid, "Curses.HauntExplanation"); }
+            set { ModdedSaveManager.SaveData.SetValue(InfiniscryptionCursePlugin.PluginGuid, "Curses.HauntExplanation", value); }
         }
 
         [HarmonyPatch(typeof(DialogueDataUtil), "ReadDialogueData")]
