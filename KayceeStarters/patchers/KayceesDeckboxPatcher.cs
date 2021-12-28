@@ -11,6 +11,7 @@ using System.Linq;
 using Infiniscryption.Core.Helpers;
 using Infiniscryption.KayceeStarters.Cards;
 using Infiniscryption.KayceeStarters.UserInterface;
+using InscryptionAPI.Saves;
 
 namespace Infiniscryption.KayceeStarters.Patchers
 {
@@ -22,13 +23,13 @@ namespace Infiniscryption.KayceeStarters.Patchers
         {
             get 
             { 
-                string sideDeck = SaveGameHelper.GetValue("SideDeck.SelectedDeck");
+                string sideDeck = ModdedSaveManager.SaveData.GetValue(InfiniscryptionKayceeStartersPlugin.PluginGuid, "SideDeck.SelectedDeck");
                 if (String.IsNullOrEmpty(sideDeck))
                     return CustomCards.SideDecks.Squirrel.ToString();
 
                 return sideDeck; 
             }
-            set { SaveGameHelper.SetValue("SideDeck.SelectedDeck", value.ToString()); }
+            set { ModdedSaveManager.SaveData.SetValue(InfiniscryptionKayceeStartersPlugin.PluginGuid, "SideDeck.SelectedDeck", value.ToString()); }
         }
 
         [HarmonyPatch(typeof(Part1CardDrawPiles), "SideDeckData", MethodType.Getter)]
@@ -47,10 +48,8 @@ namespace Infiniscryption.KayceeStarters.Patchers
         [HarmonyPostfix]
         public static void ReduceChallengeIfCustomSideDeckSelected(ref int __result)
         {
-            if (SelectedSideDeck != CustomCards.SideDecks.Squirrel.ToString())
-            {
-                __result = __result - 5;
-            }
+            if (SideDeckSelectorScreen.Instance != null)
+                __result += SideDeckSelectorScreen.Instance.SideDeckPoints;
 
             if (NumberOfPeltsSelectionScreen.Instance != null)
                 __result += NumberOfPeltsSelectionScreen.Instance.deckScore;

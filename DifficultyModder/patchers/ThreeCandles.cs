@@ -18,7 +18,7 @@ namespace Infiniscryption.Curses.Patchers
                 InfiniscryptionCursePlugin.PluginGuid,
                 "Extra Candle",
                 "You are given an extra life",
-                -20,
+                -30,
                 AssetHelper.LoadTexture("assist_three_candles")
             );
 

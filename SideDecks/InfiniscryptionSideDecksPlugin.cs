@@ -18,9 +18,9 @@ namespace Infiniscryption.SideDecks
     public class InfiniscryptionSideDecksPlugin : BaseUnityPlugin
     {
 
-        private const string PluginGuid = "zorro.inscryption.infiniscryption.sidedecks";
-		private const string PluginName = "Infiniscryption Side Decks";
-		private const string PluginVersion = "1.0";
+        public const string PluginGuid = "zorro.inscryption.infiniscryption.sidedecks";
+		public const string PluginName = "Infiniscryption Side Decks";
+		public const string PluginVersion = "1.0";
 
         internal static ManualLogSource Log;
 
@@ -43,7 +43,6 @@ namespace Infiniscryption.SideDecks
             CustomCards.RegisterCustomCards(harmony);
             harmony.PatchAll(typeof(SideDeckPatcher));
 
-            RunStateHelper.Initialize(harmony);
             CustomNodeHelper.Initialize(harmony, Log);
 
             Logger.LogInfo($"Plugin {PluginName} is loaded!");

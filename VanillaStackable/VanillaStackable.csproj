@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>Infiniscryption.SideDecks</AssemblyName>
-    <Description>Infinite Inscryption - Side Decks</Description>
+    <AssemblyName>Infiniscryption.VanillaStackable</AssemblyName>
+    <Description>Infinite Inscryption - Vanilla Stackable Abilities</Description>
     <Version>1.0.0</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>9.0</LangVersion>
@@ -25,13 +25,13 @@
 
   <ItemGroup>
     <Reference Include="API" Private="false">
-      <HintPath>..\lib\beta\API.dll</HintPath>
+      <HintPath>..\lib\API.dll</HintPath>
     </Reference>
     <Reference Include="HealthForAnts" Private="false">
       <HintPath>..\lib\HealthForAnts.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp" Private="false">
-      <HintPath>..\lib\beta\Assembly-CSharp.dll</HintPath>
+      <HintPath>..\lib\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Sirenix.Serialization" Private="false">
       <HintPath>..\lib\Sirenix.Serialization.dll</HintPath>
@@ -61,13 +61,13 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="$(PkgILRepack)\tools\ILRepack /out:$(ProjectDir)\Compiled\Infiniscryption.SideDecks.dll $(TargetPath) $(ProjectDir)../Core/Compiled/Infiniscryption.Core.dll /lib:$(TargetDir)" />
-    <!-- <Exec Command="xcopy /Y $(ProjectDir)\Compiled\Infiniscryption.SideDecks.dll &quot;C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins&quot;" /> -->
+    <Exec Command="$(PkgILRepack)\tools\ILRepack /out:$(ProjectDir)\Compiled\Infiniscryption.VanillaStackable.dll $(TargetPath) $(ProjectDir)../Core/Compiled/Infiniscryption.Core.dll /lib:$(TargetDir)" />
+    <Exec Command="xcopy /Y $(ProjectDir)\Compiled\Infiniscryption.VanillaStackable.dll &quot;C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins&quot;" />
     <!--
     <Exec Command="xcopy /Y $(ProjectDir)\assets\*.png &quot;C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins\Infiniscryption\assets&quot;" />
     <Exec Command="xcopy /Y $(ProjectDir)\assets\*.wav &quot;C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins\Infiniscryption\assets&quot;" />
     -->
-    <Exec Command="xcopy /Y $(ProjectDir)\Compiled\Infiniscryption.SideDecks.dll $(ProjectDir)\package" />
+    <Exec Command="xcopy /Y $(ProjectDir)\Compiled\Infiniscryption.VanillaStackable.dll $(ProjectDir)\package" />
     <!--
     <Exec Command="xcopy /Y $(ProjectDir)\assets\*.png $(ProjectDir)\package\BepInEx\plugins\Infiniscryption\assets" />
     <Exec Command="xcopy /Y $(ProjectDir)\assets\*.wav $(ProjectDir)\package\BepInEx\plugins\Infiniscryption\assets" />

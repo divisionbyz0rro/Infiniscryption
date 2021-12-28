@@ -10,9 +10,9 @@ using System;
 using Infiniscryption.Core.Helpers;
 using APIPlugin;
 using System.Linq;
-using Infiniscryption.StackableSigils;
+using Infiniscryption.VanillaStackable;
 
-namespace Infiniscryption.Spells.Patchers
+namespace Infiniscryption.VanillaStackable.Patchers
 {
     public static class PatchAbilities
     {

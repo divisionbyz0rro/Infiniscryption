@@ -17,7 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StackableSigils", "Stackabl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KayceeStarters", "KayceeStarters\KayceeStarters.csproj", "{79FA6727-2B2B-4204-A782-4FF157865E76}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "P03KayceeRun", "P03KayceeRun\P03KayceeRun.csproj", "{0E5062C4-6EEC-45A4-834D-88B3D29F6A98}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VanillaStackable", "VanillaStackable\VanillaStackable.csproj", "{36399D2F-4E01-4179-B42D-F87899DF500E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -56,9 +56,9 @@ Global
 		{79FA6727-2B2B-4204-A782-4FF157865E76}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{79FA6727-2B2B-4204-A782-4FF157865E76}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{79FA6727-2B2B-4204-A782-4FF157865E76}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0E5062C4-6EEC-45A4-834D-88B3D29F6A98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0E5062C4-6EEC-45A4-834D-88B3D29F6A98}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0E5062C4-6EEC-45A4-834D-88B3D29F6A98}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0E5062C4-6EEC-45A4-834D-88B3D29F6A98}.Release|Any CPU.Build.0 = Release|Any CPU
+		{36399D2F-4E01-4179-B42D-F87899DF500E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36399D2F-4E01-4179-B42D-F87899DF500E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36399D2F-4E01-4179-B42D-F87899DF500E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36399D2F-4E01-4179-B42D-F87899DF500E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

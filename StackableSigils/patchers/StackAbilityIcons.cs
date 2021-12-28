@@ -297,6 +297,9 @@ namespace Infiniscryption.StackableSigils.Patchers
             if (info == null && card == null)
                 return;
 
+            if (!AbilitiesUtil.GetInfo(ability).canStack)
+                return;
+
             // Here's the goal
             // Find all abilities on the card
             // Replace all of the textures where it stacks with a texture showing that it stacks

@@ -10,25 +10,35 @@ using System;
 using Infiniscryption.Core.Helpers;
 using APIPlugin;
 
-namespace Infiniscryption.Spells.Patchers
+namespace Infiniscryption.VanillaStackable.Patchers
 {
     public static class SampleCards
     {
-        internal static void RegisterCustomCards()
+        internal static void RegisterCustomCards(Harmony harmony)
         {
             // Create the Kettle
             NewCard.Add(
                 "Super_Sharp_Porcupine",
                 "Smelly Pokeypine",
-                1, 2,
+                0, 10,
                 new List<CardMetaCategory>() { CardMetaCategory.ChoiceNode, CardMetaCategory.TraderOffer },
                 CardComplexity.Advanced,
                 CardTemple.Nature,
                 "Super sharp!",
-                bloodCost: 2,
+                bloodCost: 0,
                 defaultTex: Resources.Load<Texture2D>("art/cards/portraits/portrait_porcupine"),
-                abilities: new List<Ability>() { Ability.Sharp, Ability.Sharp, Ability.DebuffEnemy, Ability.DebuffEnemy }
+                abilities: new List<Ability>() { Ability.Sharp, Ability.DebuffEnemy }
             );
+
+            harmony.PatchAll(typeof(SampleCards));
+        }
+
+        [HarmonyPatch(typeof(RunState), "InitializeStarterDeckAndItems")]
+        [HarmonyPostfix]
+        public static void AddPokeypine()
+        {
+            for (int i = 0; i < 8; i++)
+                RunState.Run.playerDeck.AddCard(CardLoader.GetCardByName("Super_Sharp_Porcupine"));
         }
     }
 }
