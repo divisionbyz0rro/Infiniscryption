@@ -75,6 +75,7 @@ So far we have the following:
 - **Direct Healing** (GUID: "zorro.infiniscryption.sigils.directheal"): Heals the targeted card for one. This can overheal. This ability stacks. This only targets player cards.
 - **Attack Up** (GUID: "zorro.infiniscryption.sigils.attackup"): Increases the targeted card's attack by one for the rest of the batle. This only targets player cards.
 - **Attack Down** (GUID: "zorro.infiniscryption.sigils.attackdown"): Decreases the targeted card's attack by one for the rest of the batle. This only targets opponent cards.
+- **Gain Control** (GUID: "zorro.infiniscryption.sigils.fishhook"): Gains control of the targeted creature, but only if there is an empy slot for that creature to move into. Functionally similar to the fishook item.
 
 ## Split, Tri, and All Strike
 These sigils do **nothing** for global spells, but behave as you would expect for targeted spells. Be careful when putting Split Strike on a targeted spell, as it will behave exactly as expected, which is not necessarily intuitive. Rather than affecting the targeted space, it will affect the spaces on either side.
@@ -198,6 +199,11 @@ As of this release, the API has a defect that will not allow custom sigils to st
 
 <details>
 <summary>Changelog</summary>
+
+1.2.5
+- Fixed texture loading defect to prevent crashes when spell cards appear in certain situations for the first time.
+- Updated mod to have a dependency on the unofficial patch as opposed to the standalone visually stackable sigils mod.
+
 1.2.4
 - Added the fishhook sigil
 

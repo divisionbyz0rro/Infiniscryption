@@ -8,6 +8,8 @@ This mod adds difficulty modifiers (curses) to your runs. Some are simple, like 
 
 Because Kaycee's Mod (the free expansion for Inscryption) is imminent, no more development will be done on any of my mods until that expansion hits. I will fix breaking bugs, however.
 
+When Kaycee's Mod hits, this will morph into a mod that adds new challenges, and will no longer add nodes to the normal Part 1 map.
+
 ## Requirements
 
 As with most mods, you need [BepInEx](https://inscryption.thunderstore.io/package/BepInEx/BepInExPack_Inscryption/) installed. There are no other requirements.
@@ -21,6 +23,9 @@ The zip file should be structured in the same way as your Inscryption root direc
 <details>
 <summary>Changelog</summary>
 
+0.4.3
+- Fixed texture defect by ensuring that all textures are loaded up front (prevents occasional crash when spell cards show up in the wrong order).
+
 0.4.2
 - Fixed defect where deathcards were being selected using the wrong random seed.
 
@@ -29,7 +34,7 @@ The zip file should be structured in the same way as your Inscryption root direc
 
 0.4.0
 - Added the Curse of the Wilting Clover
-- Added the Curse of Boss' Reveng
+- Added the Curse of Boss' Revenge
 
 0.3.1
 - Fixed defect where unpaused audio would sometimes come back too loud.

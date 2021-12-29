@@ -1,11 +1,11 @@
 {
     "name": "Spell_Card_Toolkit",
-    "version_number": "1.2.4",
+    "version_number": "1.2.5",
     "website_url": "https://github.com/divisionbyz0rro/Infiniscryption",
     "description": "Now with targeted and global spells, and additional sigil support! Allows card creators to build spell cards that have an immediate effect and do not resolve on board.",
     "dependencies": [
         "BepInEx-BepInExPack_Inscryption-5.4.1701",
-        "API_dev-API-1.12.1",
-        "Infiniscryption-Visually_Stackable_Sigils-1.0.3"
+        "API_dev-API-1.13.0",
+        "UnofficialScrybePatches-Inscryption_Unofficial_Patch-1.1.6"
     ]
 }
