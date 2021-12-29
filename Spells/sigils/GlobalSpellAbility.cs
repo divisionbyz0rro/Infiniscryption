@@ -10,6 +10,7 @@ using System;
 using Infiniscryption.Core.Helpers;
 using APIPlugin;
 using System.Linq;
+using Infiniscryption.Spells.Patchers;
 
 namespace Infiniscryption.Spells.Sigils
 {
@@ -55,6 +56,9 @@ namespace Infiniscryption.Spells.Sigils
 
                 Instance = new NewSpecialAbility(typeof(GlobalSpellAbility), ID, info);
                 _icon = Instance.statIconInfo.iconType;
+
+                System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(SpellBehavior.SpellBackgroundAppearance).TypeHandle);
+                System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(SpellBehavior.RareSpellBackgroundAppearance).TypeHandle);
             }
         }
 
