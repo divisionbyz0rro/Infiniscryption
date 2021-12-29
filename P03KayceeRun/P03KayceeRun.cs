@@ -17,9 +17,9 @@ namespace Infiniscryption.P03KayceeRun
     public class InfiniscryptionP03Plugin : BaseUnityPlugin
     {
 
-        private const string PluginGuid = "zorro.inscryption.infiniscryption.p03kayceerun";
-		private const string PluginName = "Infiniscryption P03 in Kaycee's Mod";
-		private const string PluginVersion = "1.0";
+        public const string PluginGuid = "zorro.inscryption.infiniscryption.p03kayceerun";
+		public const string PluginName = "Infiniscryption P03 in Kaycee's Mod";
+		public const string PluginVersion = "1.0";
 
         internal static ManualLogSource Log;
 
@@ -29,8 +29,6 @@ namespace Infiniscryption.P03KayceeRun
 
             Harmony harmony = new Harmony(PluginGuid);
             harmony.PatchAll();
-
-            RunStateHelper.Initialize(harmony);
 
             Logger.LogInfo($"Plugin {PluginName} is loaded!");
         }

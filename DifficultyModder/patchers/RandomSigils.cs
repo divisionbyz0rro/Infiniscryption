@@ -22,7 +22,8 @@ namespace Infiniscryption.Curses.Patchers
             Ability.TriStrike,
             Ability.SplitStrike,
             Ability.AllStrike,
-            Ability.DoubleStrike
+            Ability.DoubleStrike,
+            Ability.CellDrawRandomCardOnDeath
         };
 
         public static AscensionChallenge ID {get; private set;}

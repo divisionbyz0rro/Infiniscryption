@@ -1,6 +1,11 @@
 using HarmonyLib;
 using DiskCardGame;
+using InscryptionAPI.Saves;
 using Infiniscryption.Core.Helpers;
+using System.Text;
+using System.IO;
+using System.IO.Compression;
+using System;
 
 namespace Infiniscryption.P03KayceeRun.Patchers
 {
@@ -10,9 +15,65 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         private const string ASCENSION_SAVE_KEY = "CopyOfPart3AscensionSave";
         private const string REGULAR_SAVE_KEY = "CopyOfPart3Save";
 
+        private static string SaveKey
+        {
+            get
+            {
+                if (SceneLoader.ActiveSceneName == "Ascension_Configure")
+                    return ASCENSION_SAVE_KEY;
+
+                if (SceneLoader.ActiveSceneName == SceneLoader.StartSceneName)
+                    return REGULAR_SAVE_KEY;
+
+                if (SaveFile.IsAscension)
+                    return ASCENSION_SAVE_KEY;
+
+                return REGULAR_SAVE_KEY;
+            }
+        }
+
         public static bool IsP03Run
         {
             get { return true; }
+        }
+
+        private static string ToCompressedJSON(object data)
+        {
+            string value = SaveManager.ToJSON(data);
+            //InfiniscryptionP03Plugin.Log.LogInfo($"JSON SAVE: {value}");
+            var bytes = Encoding.Unicode.GetBytes(value);
+            using (MemoryStream input = new MemoryStream(bytes))
+            {
+                using (MemoryStream output = new MemoryStream())
+                {
+                    using (GZipStream stream = new GZipStream(output, CompressionLevel.Optimal))
+                    {
+                        input.CopyTo(stream);
+                        //stream.Flush();
+                    }
+                    string result = Convert.ToBase64String(output.ToArray());
+                    //InfiniscryptionP03Plugin.Log.LogInfo($"B64 SAVE: {result}");
+                    return result;
+                }
+            }
+        }
+
+        private static T FromCompressedJSON<T>(string data)
+        {
+            var bytes = Convert.FromBase64String(data);
+            using(MemoryStream input = new MemoryStream(bytes))
+            {
+                using(MemoryStream output = new MemoryStream())
+                {
+                    using(GZipStream stream = new GZipStream(input, CompressionMode.Decompress))
+                    {
+                        stream.CopyTo(output);
+                        //output.Flush();            
+                    }
+                    string json = Encoding.Unicode.GetString(output.ToArray());
+                    return SaveManager.FromJSON<T>(json);
+                }
+            }
         }
 
         public static void EnsureRegularSave()
@@ -20,16 +81,15 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             // The only way there is not a copy of the regular save is because you went straight to a p03 ascension run
             // after installing the mod. This means that the current part3savedata is your actual act 3 save data
             // We don't want to lose that.
-            if (SaveGameHelper.GetValue(REGULAR_SAVE_KEY) == default(string))
-                SaveGameHelper.SetValue(REGULAR_SAVE_KEY, SaveManager.ToJSON(Part3SaveData.Data));
+            if (ModdedSaveManager.SaveData.GetValue(InfiniscryptionP03Plugin.PluginGuid, REGULAR_SAVE_KEY) == default(string))
+                ModdedSaveManager.SaveData.SetValue(InfiniscryptionP03Plugin.PluginGuid, REGULAR_SAVE_KEY, ToCompressedJSON(Part3SaveData.Data));
         }
 
         [HarmonyPatch(typeof(Part3SaveData), "Initialize")]
         [HarmonyPrefix]
         private static void ClearSaveData(ref Part3SaveData __instance)
         {
-            string saveKey = SaveFile.IsAscension ? ASCENSION_SAVE_KEY : REGULAR_SAVE_KEY;
-            SaveGameHelper.SetValue(saveKey, default(string));
+            ModdedSaveManager.SaveData.SetValue(InfiniscryptionP03Plugin.PluginGuid, SaveKey, default(string));
         }
 
         [HarmonyPatch(typeof(SaveManager), "SaveToFile")]
@@ -44,10 +104,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             // And whenever creating a new ascension part 3 run, we check to see if there is a copy of part 3 save yet
             // If not, we will end up creating one
 
-            if (SaveFile.IsAscension)
-                SaveGameHelper.SetValue(ASCENSION_SAVE_KEY, SaveManager.ToJSON(Part3SaveData.Data));
-            else
-                SaveGameHelper.SetValue(REGULAR_SAVE_KEY, SaveManager.ToJSON(Part3SaveData.Data));
+            InfiniscryptionP03Plugin.Log.LogInfo($"Saving {SaveKey}");
+            ModdedSaveManager.SaveData.SetValue(InfiniscryptionP03Plugin.PluginGuid, SaveKey, ToCompressedJSON(SaveManager.SaveFile.part3Data));
         }
 
         [HarmonyPatch(typeof(SaveManager), "LoadFromFile")]
@@ -55,10 +113,26 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         [HarmonyAfter(new string[] { "cyantist.inscryption.api" })]
         public static void LoadPart3AscensionSaveData()
         {
-            string saveKey = SaveFile.IsAscension ? ASCENSION_SAVE_KEY : REGULAR_SAVE_KEY;
-            string part3Data = SaveGameHelper.GetValue(saveKey);
+            string part3Data = ModdedSaveManager.SaveData.GetValue(InfiniscryptionP03Plugin.PluginGuid, SaveKey);
             if (part3Data != default(string))
-                SaveManager.SaveFile.part3Data = SaveManager.FromJSON<Part3SaveData>(part3Data);
+            {
+                Part3SaveData data = FromCompressedJSON<Part3SaveData>(part3Data);
+                if (data != null)
+                {
+                    SaveManager.SaveFile.part3Data = data;
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(Part3SaveData), "Initialize")]
+        [HarmonyPrefix]
+        public static void EnsurePart3Saved()
+        {
+            if (SaveFile.IsAscension)
+            {
+                // Check to see if there is a part 3 save data yet
+                EnsureRegularSave();
+            }
         }
     }
 }
