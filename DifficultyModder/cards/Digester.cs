@@ -90,6 +90,11 @@ namespace Infiniscryption.Curses.Cards
                 specialAbilitiesIdsParam: new List<SpecialAbilityIdentifier>() { Digester.Identifier }
             );
 
+            System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(Digester).TypeHandle);
+            System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(Bitten).TypeHandle);
+            System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(BittenCardAppearance).TypeHandle);
+            System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(MegaSharkAppearance).TypeHandle);
+
             // Add another emission
             NewCard.emissions.Add(MegaSharkAppearance.SHARK_CLOSED_PORTRAIT_SPRITE.name, MegaSharkAppearance.SHARK_CLOSED_EMISSION_SPRITE);
             NewCard.emissions.Add(MegaSharkAppearance.SHARK_OPEN_PORTRAIT_SPRITE.name, MegaSharkAppearance.SHARK_OPEN_EMISSION_SPRITE);

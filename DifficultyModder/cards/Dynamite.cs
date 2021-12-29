@@ -63,6 +63,8 @@ namespace Infiniscryption.Curses.Cards
                 abilityIdsParam: new List<AbilityIdentifier>() { Dynamite.Identifier }
             );
 
+            System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(DynamiteAppearance).TypeHandle);
+
             // Patch this class
             harmony.PatchAll(typeof(Dynamite));
         }
