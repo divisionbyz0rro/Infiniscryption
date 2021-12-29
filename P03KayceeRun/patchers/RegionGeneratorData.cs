@@ -51,6 +51,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                     break;
                 case RunBasedHoloMap.UNDEAD:
                     this.encounters = new string[] { "undead_bomblatchers", "undead_shieldlatchers", "undead_skeleswarm" };
+                    this.terrainRandoms = new string[] { "UndeadMainPath_4/Scenery/HoloDebris", "UndeadMainPath_4/Scenery/HoloGrass_Patch", "UndeadMainPath_4/Scenery/HoloZombieArm" };
+                    this.objectRandoms = new string[] { "UndeadMainPath_4/Scenery/HoloGravestone", "UndeadMainPath_4/Scenery/HoloTreeDead (2)", "UndeadMainPath_4/Scenery/HoloDirtPile_2" };
                     break;
                 default:
                     break;
