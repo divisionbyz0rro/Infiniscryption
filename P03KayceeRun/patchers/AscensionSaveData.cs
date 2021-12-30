@@ -71,6 +71,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                         //output.Flush();            
                     }
                     string json = Encoding.Unicode.GetString(output.ToArray());
+                    InfiniscryptionP03Plugin.Log.LogInfo($"SAVE JSON for {SaveKey}: {json}");
                     return SaveManager.FromJSON<T>(json);
                 }
             }

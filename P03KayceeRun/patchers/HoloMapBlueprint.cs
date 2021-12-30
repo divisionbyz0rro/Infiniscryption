@@ -20,6 +20,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         public static int RIGHT_BRIDGE = 2;
         public static int FULL_BRIDGE = 4;
         public static int NORTH_BUILDING_ENTRANCE = 8;
+        public static int NORTH_GATEWAY = 16;
 
         public int randomSeed;
         public int x;

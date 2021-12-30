@@ -6,6 +6,7 @@ using System.Linq;
 using System.Collections;
 using Infiniscryption.Core.Helpers;
 using InscryptionAPI.Saves;
+using System;
 
 namespace Infiniscryption.P03KayceeRun.Patchers
 {
@@ -41,6 +42,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         private static Dictionary<string, GameObject> objectLookups = new();
 
         private static GameObject HOLO_NODE_BASE = GetGameObject("StartingIslandJunction", "Scenery/HoloNodeBase");
+        private static GameObject HOVER_HOLO_NODE_BASE = GetGameObject("Shop", "Scenery/HoloDrone_HoldingPlatform_Undead");
 
         public static readonly int EMPTY = -1;
         public static readonly int BLANK = 0;
@@ -54,9 +56,32 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         public static readonly int COUNTDOWN = 128;
         public static readonly int ALL_DIRECTIONS = NORTH | EAST | SOUTH | WEST;
         private static readonly Dictionary<int, string> DIR_LOOKUP = new() {{SOUTH, "S"}, {WEST, "W"}, {NORTH, "N"}, {EAST, "E"}};
+        
+        private static IEnumerable<int> GetDirections(int compound, bool inclusive=true)
+        {
+            if (inclusive)
+            {
+                if ((compound & NORTH) != 0) yield return NORTH;
+                if ((compound & EAST) != 0) yield return EAST;
+                if ((compound & SOUTH) != 0) yield return SOUTH;
+                if ((compound & WEST) != 0) yield return WEST;
+                yield break;
+            }
+
+            yield return NORTH | WEST;
+            yield return NORTH | EAST;
+            yield return SOUTH | WEST;
+            yield return SOUTH | EAST;
+            if ((compound & NORTH) == 0) yield return NORTH;
+            if ((compound & EAST) == 0) yield return EAST;
+            if ((compound & SOUTH) == 0) yield return SOUTH;
+            if ((compound & WEST) == 0) yield return WEST;
+        }
 
         private static GameObject GetGameObject(string singleMapKey)
         {
+            if (singleMapKey == default(string))
+                return null;
             string holoMapKey = singleMapKey.Split('/')[0];
             string findPath = singleMapKey.Replace($"{holoMapKey}/", "");
             return GetGameObject(holoMapKey, findPath);
@@ -118,6 +143,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             specialTerrainPrefabs.TryAdd(HoloMapBlueprint.LEFT_BRIDGE, new GameObject[] { GetGameObject("UndeadMainPath_3", "Scenery/HoloBridge_Entrance") });
             specialTerrainPrefabs.TryAdd(HoloMapBlueprint.FULL_BRIDGE, new GameObject[] { GetGameObject("NeutralEastMain_2", "Scenery") });
             specialTerrainPrefabs.TryAdd(HoloMapBlueprint.NORTH_BUILDING_ENTRANCE, GetGameObject(new string[] { "UndeadMainPath_4/Scenery/SM_Bld_Wall_Exterior_04", "UndeadMainPath_4/Scenery/SM_Bld_Wall_Exterior_04 (1)", "UndeadMainPath_4/Scenery/SM_Bld_Wall_Doorframe_02" }));
+            specialTerrainPrefabs.TryAdd(HoloMapBlueprint.NORTH_GATEWAY, new GameObject[] { GetGameObject("NatureMainPath_2", "Scenery/HoloGateway") });
 
             // Let's instantiate the battle arrow prefabs
             arrowPrefabs = new();
@@ -137,73 +163,32 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             neutralHoloPrefab.SetActive(false);
         }
 
-        private static int xRelative(float x)
+        private static float[] MULTIPLIERS = new float[] { 0.33f, 0.66f };
+        private static List<Tuple<float, float>> GetSpotsForQuadrant(int quadrant)
         {
-            if (x <= -1.1f)
-                return -1;
-            if (x < 1.1f)
-                return 0;
-            return 1;
+            float minX = ((quadrant & WEST) != 0) ? -3.2f : ((quadrant & EAST) != 0) ? 1.1f : -1.1f;
+            float maxX = ((quadrant & WEST) != 0) ? -1.1f : ((quadrant & EAST) != 0) ? 3.2f : 1.1f;
+            float minZ = ((quadrant & NORTH) != 0) ? 1.1f : ((quadrant & SOUTH) != 0) ? -2.02f : -1.1f;
+            float maxZ = ((quadrant & NORTH) != 0) ? 2.02f : ((quadrant & SOUTH) != 0) ? -1.1f : 1.1f;
+            
+            List<Tuple<float, float>> retval = new();
+            foreach (float m in MULTIPLIERS)
+                foreach (float n in MULTIPLIERS)
+                    retval.Add(new(minX + m * (maxX - minX) - .025f + .05f * UnityEngine.Random.value, minZ + n * (maxZ - minZ) - .025f + .05f * UnityEngine.Random.value));
+
+            return retval;
         }
 
-        private static int zRelative(float z)
+        private static void BuildSpecialNode(HoloMapBlueprint blueprint, int regionId, Transform parent, Transform sceneryParent, float x, float z)
         {
-            if (z <= -1.1f)
-                return -1;
-            if (z < 1.1f)
-                return 0;
-            return 1;
-        }
+            HoloMapSpecialNode.NodeDataType dataType = blueprint.upgrade;
+            if (!specialNodePrefabs.ContainsKey(dataType))
+                return;
 
-        private static bool isValidLocation(float x, float z, int moveLocations)
-        {
-            int zR = zRelative(z);
-            int xR = xRelative(x);
-            if (zR == 0 && xR == 0)
-                return false;
+            InfiniscryptionP03Plugin.Log.LogInfo($"Adding {blueprint.upgrade.ToString()} at {x},{z}");
 
-            if ((moveLocations & NORTH) != 0)
-                if (zR == 1 && xR == 0)
-                    return false;
-
-            if ((moveLocations & SOUTH) != 0)
-                if (zR == -1 && xR == 0)
-                    return false;
-
-            if ((moveLocations & EAST) != 0)
-                if (zR == 0 && xR == 1)
-                    return false;
-
-            if ((moveLocations & WEST) != 0)
-                if (zR == 0 && xR == -1)
-                    return false;
-
-            return true;
-        }
-
-        private static Vector3 GetRandomLocation(int seed, int moveLocations)
-        {
-            float x = 0f;
-            float z = 0f;
-            for (int i = 0; i < 100; i++)
-            {
-                Random.InitState(seed + i);
-                x = Random.Range(-3.2f, 3.2f);
-                z = Random.Range(-2.02f, 2.02f);
-
-                if (isValidLocation(x, z, moveLocations))
-                    return new Vector3(x, 0.1f, z);
-
-                seed += 10;
-            }
-            return new Vector3(x, 0.1f, z); // give up
-        }
-
-        private static void BuildSpecialNode(HoloMapSpecialNode.NodeDataType dataType, Transform parent, Transform sceneryParent)
-        {
             GameObject defaultNode = specialNodePrefabs[dataType];
             GameObject newNode = GameObject.Instantiate(defaultNode, parent);
-            newNode.transform.localPosition = new Vector3(-2f + (Random.value > 0.5f ? 4f : 0f), newNode.transform.localPosition.y, -1f + (Random.value > 0.5f ? 2f : 0f));
 
             HoloMapShopNode shopNode = newNode.GetComponent<HoloMapShopNode>();
             if (shopNode != null)
@@ -216,17 +201,27 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
             if (dataType == HoloMapSpecialNode.NodeDataType.GainCurrency)
             {
+                string sceneryKey = REGION_DATA[regionId].objectRandoms[UnityEngine.Random.Range(0, REGION_DATA[regionId].objectRandoms.Length)];
+                GameObject sceneryObject = GameObject.Instantiate(GetGameObject(sceneryKey), sceneryParent);
+                sceneryObject.transform.localPosition = new Vector3(x, .1f, z);
+                sceneryObject.transform.localEulerAngles = new Vector3(7.4407f, UnityEngine.Random.Range(0f, 360f), .0297f);
+
                 // Our currency nodes are hidden...for fun!
+                newNode.transform.localPosition = new Vector3(x, newNode.transform.localPosition.y, z);
                 HoloMapGainCurrencyNode nodeData = newNode.GetComponent<HoloMapGainCurrencyNode>();
                 Traverse nodeTraverse = Traverse.Create(nodeData);
                 nodeTraverse.Field("secret").SetValue(true);
-                nodeTraverse.Field("amount").SetValue(Random.Range(4, 8));
-                newNode.transform.localPosition = sceneryParent.GetChild(0).localPosition;
+                nodeTraverse.Field("amount").SetValue(UnityEngine.Random.Range(7, 11));
             }
             else
             {
-                GameObject nodeBase = GameObject.Instantiate(HOLO_NODE_BASE, sceneryParent);
-                nodeBase.transform.localPosition = new Vector3(newNode.transform.localPosition.x, .1f, newNode.transform.localPosition.z);
+                float yVal = ((blueprint.specialTerrain & HoloMapBlueprint.FULL_BRIDGE) == 0) ? newNode.transform.localPosition.y : .5f;
+                newNode.transform.localPosition = new Vector3(x, yVal, z);
+
+                yVal = ((blueprint.specialTerrain & HoloMapBlueprint.FULL_BRIDGE) == 0) ? .1f : 1.33f;
+
+                GameObject nodeBase = GameObject.Instantiate(((blueprint.specialTerrain & HoloMapBlueprint.FULL_BRIDGE) == 0) ? HOLO_NODE_BASE : HOVER_HOLO_NODE_BASE, sceneryParent);
+                nodeBase.transform.localPosition = new Vector3(newNode.transform.localPosition.x, yVal, newNode.transform.localPosition.z);
             }
         }
 
@@ -257,30 +252,58 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
             InfiniscryptionP03Plugin.Log.LogInfo($"Setting arrows and walls active");
             Transform scenery = area.transform.Find("Scenery");
+            GameObject wall = GetGameObject(REGION_DATA[regionId].wall);
             foreach (int key in DIR_LOOKUP.Keys)
             {
-                GameObject wall = GetGameObject(REGION_DATA[regionId].wall);
                 area.transform.Find($"Nodes/MoveArea_{DIR_LOOKUP[key]}").gameObject.SetActive((bp.arrowDirections & key) != 0);
-                if ((bp.arrowDirections & key) == 0)
+
+                // Walls
+                if (wall != null)
                 {
-                    GameObject wallClone = GameObject.Instantiate(wall, scenery);
-                    wallClone.transform.localPosition = REGION_DATA[regionId].wallOrientations[key].Item1;
-                    wallClone.transform.localEulerAngles = REGION_DATA[regionId].wallOrientations[key].Item2;
+                    if ((bp.arrowDirections & key) == 0)
+                    {
+                        GameObject wallClone = GameObject.Instantiate(wall, scenery);
+                        wallClone.transform.localPosition = REGION_DATA[regionId].wallOrientations[key].Item1;
+                        wallClone.transform.localEulerAngles = REGION_DATA[regionId].wallOrientations[key].Item2;
+                    }
                 }
             }
 
             InfiniscryptionP03Plugin.Log.LogInfo($"Generating random scenery");
-            for (int i = 0; i < 20; i++)
+            List<int> directions = GetDirections(bp.arrowDirections, false).ToList();
+            bool firstQuadrant = true;
+            while(directions.Count > 0)
             {
-                int randomSeed = bp.randomSeed + i * 100;
-                Random.InitState(randomSeed);
+                int dir = directions[UnityEngine.Random.Range(0, directions.Count)];
+                directions.Remove(dir);
 
-                string[] scenerySource = i % 7 == 0 ? REGION_DATA[regionId].objectRandoms : REGION_DATA[regionId].terrainRandoms;
+                List<Tuple<float, float>> sceneryLocations = GetSpotsForQuadrant(dir);
 
-                string sceneryKey = scenerySource[Random.Range(0, scenerySource.Length)];
-                GameObject sceneryObject = GameObject.Instantiate(GetGameObject(sceneryKey), scenery);
-                sceneryObject.transform.localPosition = GetRandomLocation(randomSeed, bp.arrowDirections);
-                sceneryObject.transform.localEulerAngles = new Vector3(7.4407f, Random.Range(0f, 360f), .0297f);
+                bool firstObject = true;
+                while (sceneryLocations.Count > 0)
+                {
+                    int spIdx = UnityEngine.Random.Range(0, sceneryLocations.Count);
+                    Tuple<float, float> specialLocation = sceneryLocations[spIdx];
+                    sceneryLocations.RemoveAt(spIdx);
+
+                    if (firstQuadrant && firstObject && bp.upgrade != HoloMapSpecialNode.NodeDataType.MoveArea)
+                    {
+                        BuildSpecialNode(bp, regionId, nodes.transform, scenery.transform, specialLocation.Item1, specialLocation.Item2);
+                        firstQuadrant = false;
+                        firstObject = false;
+                        continue;
+                    }
+
+                    string[] scenerySource = firstObject ? REGION_DATA[regionId].objectRandoms : REGION_DATA[regionId].terrainRandoms;
+
+                    string sceneryKey = scenerySource[UnityEngine.Random.Range(0, scenerySource.Length)];
+                    GameObject sceneryObject = GameObject.Instantiate(GetGameObject(sceneryKey), scenery);
+                    sceneryObject.transform.localPosition = new Vector3(specialLocation.Item1, .1f, specialLocation.Item2);
+                    sceneryObject.transform.localEulerAngles = new Vector3(7.4407f, UnityEngine.Random.Range(0f, 360f), .0297f);
+
+                    firstQuadrant = false;
+                    firstObject = false;
+                }
             }
 
             InfiniscryptionP03Plugin.Log.LogInfo($"Generating special terrain");
@@ -288,12 +311,6 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 if ((bp.specialTerrain & key) != 0)
                     foreach (GameObject obj in specialTerrainPrefabs[key])
                         GameObject.Instantiate(obj, scenery);
-
-            if (specialNodePrefabs.ContainsKey(bp.upgrade))
-            {
-                InfiniscryptionP03Plugin.Log.LogInfo($"Creating upgrade {bp.upgrade.ToString()} on the spot");
-                BuildSpecialNode(bp.upgrade, nodes.transform, scenery.transform);
-            }
 
             InfiniscryptionP03Plugin.Log.LogInfo($"Setting grid data");
             HoloMapArea areaData = area.GetComponent<HoloMapArea>();
@@ -425,7 +442,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
             // Pick a random adjacent uncrawled node
             HoloMapBlueprint current = map[x,y];
-            HoloMapBlueprint next = uncrawled[Random.Range(0, uncrawled.Count)];
+            HoloMapBlueprint next = uncrawled[UnityEngine.Random.Range(0, uncrawled.Count)];
             current.arrowDirections = current.arrowDirections | current.DirTo(next);
             next.arrowDirections = next.arrowDirections | next.DirTo(current);
 
@@ -491,8 +508,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             List<HoloMapBlueprint> bridgeNodes = nodes.Where(bp => bp.arrowDirections == (EAST | WEST)).ToList();
             while (bridgeNodes.Count > 0 && bridgeOdds > 0f)
             {
-                HoloMapBlueprint bridge = bridgeNodes[Random.Range(0, bridgeNodes.Count)];
-                if (Random.value < bridgeOdds)
+                HoloMapBlueprint bridge = bridgeNodes[UnityEngine.Random.Range(0, bridgeNodes.Count)];
+                if (UnityEngine.Random.value < bridgeOdds)
                 {
                     bridge.specialTerrain |= HoloMapBlueprint.FULL_BRIDGE;
                     map[bridge.x-1, bridge.y].specialTerrain |= HoloMapBlueprint.LEFT_BRIDGE;
@@ -505,13 +522,13 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
         private static void DiscoverAndCreateBossRoom(HoloMapBlueprint[,] map, List<HoloMapBlueprint> nodes, int region)
         {
-            //if (region == NEUTRAL)
-            //    return;
+            if (region == NEUTRAL)
+                return;
 
             // We need a room that has a blank room above it
             // And does not have the same color as the starting room
             List<HoloMapBlueprint> bossPossibles = nodes.Where(bp => (bp.arrowDirections & NORTH) == 0 && bp.y > 0 && bp.color != nodes[0].color).ToList();
-            HoloMapBlueprint bossIntroRoom = bossPossibles[Random.Range(0, bossPossibles.Count)];
+            HoloMapBlueprint bossIntroRoom = bossPossibles[UnityEngine.Random.Range(0, bossPossibles.Count)];
             bossIntroRoom.specialTerrain |= HoloMapBlueprint.NORTH_BUILDING_ENTRANCE;
             bossIntroRoom.arrowDirections |= NORTH;
 
@@ -534,7 +551,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             if (savedBlueprint != default(string))
                 return savedBlueprint.Split('|').Select(s => new HoloMapBlueprint(s)).ToList();
 
-            Random.InitState(seed);
+            UnityEngine.Random.InitState(seed);
             int x = 0;
             int y = 0;
 
@@ -552,15 +569,15 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             
             // Randomly chop some rooms
             // Chop one of the middle rooms
-            bpBlueprint[Random.Range(2,4), Random.Range(2,4)] = null;
+            bpBlueprint[UnityEngine.Random.Range(2,4), UnityEngine.Random.Range(2,4)] = null;
             
             // Randomly chop a corner
             int[] corners = new int[] { 1, 4 };
-            bpBlueprint[corners[Random.Range(0, 2)], corners[Random.Range(0, 2)]] = null;
+            bpBlueprint[corners[UnityEngine.Random.Range(0, 2)], corners[UnityEngine.Random.Range(0, 2)]] = null;
 
             // Randomly chop an interior side
-            x = Random.Range(1, 5);
-            y = x == 1 || x == 4 ? Random.Range(2, 4) : corners[Random.Range(0, 2)];
+            x = UnityEngine.Random.Range(1, 5);
+            y = x == 1 || x == 4 ? UnityEngine.Random.Range(2, 4) : corners[UnityEngine.Random.Range(0, 2)];
             bpBlueprint[x, y] = null;
 
             // Paint each quadrant
@@ -575,10 +592,10 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                     FixPaint(bpBlueprint, i, j);
 
             // Crawl and mark each quadrant.
-            while (bpBlueprint[x = Random.Range(0, 3), y = Random.Range(0, 3)] == null); CrawlQuadrant(bpBlueprint, x, y);
-            while (bpBlueprint[x = Random.Range(0, 3), y = Random.Range(3, 6)] == null); CrawlQuadrant(bpBlueprint, x, y);
-            while (bpBlueprint[x = Random.Range(3, 6), y = Random.Range(0, 3)] == null); CrawlQuadrant(bpBlueprint, x, y);
-            while (bpBlueprint[x = Random.Range(3, 6), y = Random.Range(3, 6)] == null); CrawlQuadrant(bpBlueprint, x, y);
+            while (bpBlueprint[x = UnityEngine.Random.Range(0, 3), y = UnityEngine.Random.Range(0, 3)] == null); CrawlQuadrant(bpBlueprint, x, y);
+            while (bpBlueprint[x = UnityEngine.Random.Range(0, 3), y = UnityEngine.Random.Range(3, 6)] == null); CrawlQuadrant(bpBlueprint, x, y);
+            while (bpBlueprint[x = UnityEngine.Random.Range(3, 6), y = UnityEngine.Random.Range(0, 3)] == null); CrawlQuadrant(bpBlueprint, x, y);
+            while (bpBlueprint[x = UnityEngine.Random.Range(3, 6), y = UnityEngine.Random.Range(3, 6)] == null); CrawlQuadrant(bpBlueprint, x, y);
 
             // Set up the connections between quadrants
             ConnectQuadrants(bpBlueprint);
@@ -597,11 +614,11 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
             // Add four card choice nodes
             int seedForChoice = seed * 2 + 10;
-            Random.InitState(seedForChoice);
+            UnityEngine.Random.InitState(seedForChoice);
             for (int i = 1; i < 5; i++) // one for each color 1-4
             {
                 List<HoloMapBlueprint> validChoiceNodes = retval.Where(bp => bp.color == i && bp.upgrade == HoloMapSpecialNode.NodeDataType.MoveArea).ToList();
-                int idx = Random.Range(0, validChoiceNodes.Count);
+                int idx = UnityEngine.Random.Range(0, validChoiceNodes.Count);
                 validChoiceNodes[idx].upgrade = HoloMapSpecialNode.NodeDataType.CardChoice;
             }
 
@@ -610,14 +627,14 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             for (int i = 0; i < 2; i++)
             {
                 List<HoloMapBlueprint> validChoiceNodes = retval.Where(bp => bp.upgrade == HoloMapSpecialNode.NodeDataType.MoveArea && !regionsWithUpgrade.Contains(bp.color)).ToList();
-                int idx = Random.Range(0, validChoiceNodes.Count);
+                int idx = UnityEngine.Random.Range(0, validChoiceNodes.Count);
                 validChoiceNodes[idx].upgrade = HoloMapSpecialNode.NodeDataType.AddCardAbility;
                 regionsWithUpgrade.Add(validChoiceNodes[idx].color);
             }
             for (int i = 0; i < 2; i++)
             {
                 List<HoloMapBlueprint> validChoiceNodes = retval.Where(bp => bp.upgrade == HoloMapSpecialNode.NodeDataType.MoveArea && !regionsWithUpgrade.Contains(bp.color)).ToList();
-                int idx = Random.Range(0, validChoiceNodes.Count);
+                int idx = UnityEngine.Random.Range(0, validChoiceNodes.Count);
                 validChoiceNodes[idx].upgrade = HoloMapBlueprint.REGIONAL_NODES[region];
                 regionsWithUpgrade.Add(validChoiceNodes[idx].color);
             }
@@ -626,7 +643,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             for (int i = 0; i < 2; i++)
             {
                 List<HoloMapBlueprint> validChoiceNodes = retval.Where(bp => bp.upgrade == HoloMapSpecialNode.NodeDataType.MoveArea).ToList();
-                int idx = Random.Range(0, validChoiceNodes.Count);
+                int idx = UnityEngine.Random.Range(0, validChoiceNodes.Count);
                 validChoiceNodes[idx].upgrade = HoloMapSpecialNode.NodeDataType.GainCurrency;
             }
 
@@ -641,14 +658,14 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             HoloMapWorldData data = ScriptableObject.CreateInstance<HoloMapWorldData>();
             data.name = id;
 
-            List<HoloMapBlueprint> blueprints = BuildBlueprint(0, NEUTRAL, SaveManager.SaveFile.randomSeed);
+            List<HoloMapBlueprint> blueprints = BuildBlueprint(0, UNDEAD, SaveManager.SaveFile.randomSeed);
             int xDimension = blueprints.Select(b => b.x).Max() + 1;
             int yDimension = blueprints.Select(b => b.y).Max() + 1;
 
             data.areas = new HoloMapWorldData.AreaData[xDimension, yDimension];
 
             foreach(HoloMapBlueprint bp in blueprints)
-                data.areas[bp.x, bp.y] = new() { prefab = BuildMapAreaPrefab(0, bp) };
+                data.areas[bp.x, bp.y] = new() { prefab = BuildMapAreaPrefab(UNDEAD, bp) };
 
             // The second pass creates relationships between everything
             foreach(HoloMapBlueprint bp in blueprints)

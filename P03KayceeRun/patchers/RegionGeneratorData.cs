@@ -44,6 +44,14 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                     this.encounters = new string[] { "wizard_bigripper", "wizard_gemexploder", "wizard_shieldgems" };
                     break;
                 case RunBasedHoloMap.NATURE:
+                    this.terrainRandoms = new string[] { "NatureMainPath_2/Scenery/HoloGrass_Foliage", "NatureMainPath_2/Scenery/HoloDebris" };
+                    this.objectRandoms = new string[] { "NatureMainPath_2/Scenery/HoloTree_2", "NatureMainPath_2/Scenery/HoloCage_1" };
+                    this.wall = "NatureMainPath_2/Scenery/HoloTree_3";
+                    wallOrientations = new();
+                    wallOrientations.Add(RunBasedHoloMap.NORTH, new(new(.08f, -.18f, 2.02f), new(7.4407f, 179.305f, .0297f)));
+                    wallOrientations.Add(RunBasedHoloMap.SOUTH, new(new(.08f, -.18f, -2.02f), new(7.4407f, 359.2266f, .0297f)));
+                    wallOrientations.Add(RunBasedHoloMap.WEST, new(new(-3.2f, -.18f, -.4f), new(7.4407f, 89.603f, .0297f)));
+                    wallOrientations.Add(RunBasedHoloMap.EAST, new(new(3.2f, -.18f, -.4f), new(7.4407f, 270.359f, .0297f)));
                     this.encounters = new string[] { "nature_battransformers", "nature_beartransformers", "nature_hounds" };
                     break;
                 case RunBasedHoloMap.TECH:
@@ -51,8 +59,11 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                     break;
                 case RunBasedHoloMap.UNDEAD:
                     this.encounters = new string[] { "undead_bomblatchers", "undead_shieldlatchers", "undead_skeleswarm" };
-                    this.terrainRandoms = new string[] { "UndeadMainPath_4/Scenery/HoloDebris", "UndeadMainPath_4/Scenery/HoloGrass_Patch", "UndeadMainPath_4/Scenery/HoloZombieArm" };
-                    this.objectRandoms = new string[] { "UndeadMainPath_4/Scenery/HoloGravestone", "UndeadMainPath_4/Scenery/HoloTreeDead (2)", "UndeadMainPath_4/Scenery/HoloDirtPile_2" };
+                    this.terrainRandoms = new string[] { "UndeadMainPath_4/Scenery/HoloDebris", "UndeadMainPath_4/Scenery/HoloGrass_Patch", "UndeadMainPath_4/Scenery/HoloGrass_Patch", "UndeadMainPath_4/Scenery/HoloGrass_Patch" };
+                    this.objectRandoms = new string[] { "UndeadMainPath_4/Scenery/HoloGravestone", "UndeadMainPath_4/Scenery/HoloTreeDead (2)", "UndeadSecretPath_1/Scenery/HoloShovel", "UndeadMainPath_4/Scenery/HoloDirtPile_2", "UndeadMainPath_4/Scenery/HoloZombieArm", "UndeadMainPath_4/Scenery/HoloTreeDead (2)" };
+                    this.lightColor = new Color(.1702f, .8019f, .644f);
+                    this.mainColor = new Color(.0588f, .3608f, .3647f);
+                    this.wall = null;
                     break;
                 default:
                     break;
