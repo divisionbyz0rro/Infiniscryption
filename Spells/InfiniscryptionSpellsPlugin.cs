@@ -54,7 +54,7 @@ namespace Infiniscryption.Spells
 
             if (AddCards)
             {
-                SpellCards.RegisterCustomCards();
+                SpellCards.RegisterCustomCards(harmony);
             }
 
             Logger.LogInfo($"Plugin {PluginName} is loaded!");

@@ -15,7 +15,7 @@ namespace Infiniscryption.Spells.Patchers
 {
     public static class SpellCards
     {
-        internal static void RegisterCustomCards()
+        internal static void RegisterCustomCards(Harmony harmony)
         {
             // Create the Kettle
             NewCard.Add(
@@ -74,7 +74,7 @@ namespace Infiniscryption.Spells.Patchers
                 CardComplexity.Advanced,
                 CardTemple.Nature,
                 "Send one of your creatures on a trip to the store. Who knows what they will come back with",
-                bloodCost: 1,
+                bloodCost: 2,
                 hideAttackAndHealth: true,
                 defaultTex: AssetHelper.LoadTexture("backpack"),
                 specialStatIcon: GlobalSpellAbility.Instance.statIconInfo.iconType,

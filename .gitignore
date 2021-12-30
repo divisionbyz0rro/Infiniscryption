@@ -9,3 +9,6 @@ lib/
 saves/
 
 compiled/
+
+*.dll
+*.pdb
