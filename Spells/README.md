@@ -200,6 +200,9 @@ As of this release, the API has a defect that will not allow custom sigils to st
 <details>
 <summary>Changelog</summary>
 
+1.2.6
+- Prevented the game from soft locking if you back out of casting a spell partway through sacrificing creatures.
+
 1.2.5
 - Fixed texture loading defect to prevent crashes when spell cards appear in certain situations for the first time.
 - Updated mod to have a dependency on the unofficial patch as opposed to the standalone visually stackable sigils mod.

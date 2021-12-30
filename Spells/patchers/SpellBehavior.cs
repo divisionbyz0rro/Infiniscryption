@@ -411,7 +411,7 @@ namespace Infiniscryption.Spells.Patchers
 			if (!cardWasPlayed)
 				BoardManager.Instance.ShowCardNearBoard(card, false);
 			
-            playerHandTraverse.Field("choosingSlotCard").SetValue(card);
+            playerHandTraverse.Field("choosingSlotCard").SetValue(null);
 
 			if (card != null && card.Anim != null)
 				card.Anim.SetSelectedToPlay(false);
