@@ -252,6 +252,14 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 HoloMapNode node = newArrow.GetComponent<HoloMapNode>();
                 Traverse nodeTraverse = Traverse.Create(node);
                 nodeTraverse.Field("blueprintData").SetValue(Resources.Load<EncounterBlueprintData>($"data/encounterblueprints/part3/{REGION_DATA[regionId].encounters[bp.enemyIndex]}"));
+                if ((bp.specialTerrain & HoloMapBlueprint.FULL_BRIDGE) != 0)
+                    nodeTraverse.Field("bridgeBattle").SetValue(true);
+                else if (bp.battleTerrainIndex > 0)
+                {
+                    string[] terrain = REGION_DATA[regionId].terrain[bp.battleTerrainIndex - 1];
+                    nodeTraverse.Field("playerTerrain").SetValue(terrain.Take(5).Select(s => s == default(string) ? null : CardLoader.GetCardByName(s)).ToArray());
+                    nodeTraverse.Field("opponentTerrain").SetValue(terrain.Skip(5).Select(s => s == default(string) ? null : CardLoader.GetCardByName(s)).ToArray());
+                }
             }
 
             InfiniscryptionP03Plugin.Log.LogInfo($"Setting arrows and walls active");
@@ -419,11 +427,11 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         private static List<HoloMapBlueprint> GetPointOfInterestNodes(this List<HoloMapBlueprint> nodes, Func<HoloMapBlueprint, bool> filter = null)
         {
             Func<HoloMapBlueprint, bool> activeFilter = (filter == null) ? ((HoloMapBlueprint i) => true) : filter;
-            List<HoloMapBlueprint> deadEndPOI = nodes.Where(activeFilter).Where(bp => bp.IsDeadEnd && bp.upgrade == HoloMapSpecialNode.NodeDataType.MoveArea).ToList();
+            List<HoloMapBlueprint> deadEndPOI = nodes.Where(activeFilter).Where(bp => bp.IsDeadEnd && bp.EligibleForUpgrade).ToList();
             if (deadEndPOI.Count > 0)
                 return deadEndPOI;
             else
-                return nodes.Where(activeFilter).Where(bp => bp.upgrade == HoloMapSpecialNode.NodeDataType.MoveArea).ToList();
+                return nodes.Where(activeFilter).Where(bp => bp.EligibleForUpgrade).ToList();
         }
 
         private static HoloMapBlueprint GetRandomPointOfInterest(this List<HoloMapBlueprint> nodes, Func<HoloMapBlueprint, bool> filter = null, int randomSeed = -1)
@@ -577,7 +585,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             }
         }
 
-        private static bool DiscoverAndCreateEnemyEncounters(HoloMapBlueprint[,] map, List<HoloMapBlueprint> nodes, int color, int region, HoloMapSpecialNode.NodeDataType reward)
+        private static bool DiscoverAndCreateEnemyEncounter(HoloMapBlueprint[,] map, List<HoloMapBlueprint> nodes, int region, HoloMapSpecialNode.NodeDataType reward, int color = -1)
         {
             // The goal here is to find four rooms that have only one entrance
             // Then back out to the first spot that doesn't have a choice
@@ -596,7 +604,9 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 {
                     if (rewardNode.NumberOfArrows < 3)
                     {
-                        HoloMapBlueprint nextRewardNode = map.AdjacentTo(rewardNode.x, rewardNode.y).Where(bp => bp != enemyNode).First();
+                        int dirToEnemyNode = DirTo(rewardNode, enemyNode);
+                        int dirToNextRewardNode = rewardNode.arrowDirections & ~dirToEnemyNode;
+                        HoloMapBlueprint nextRewardNode = rewardNode.GetAdjacentNode(map, dirToNextRewardNode);
                         enemyNode = rewardNode;
                         rewardNode = nextRewardNode;
                     }
@@ -608,14 +618,19 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             }
             else
             {
-                rewardNode = nodes.GetRandomPointOfInterest(bp => bp.color == color && bp.IsDeadEnd);
+                rewardNode = nodes.GetRandomPointOfInterest(bp => (bp.color == color || color == -1) && bp.IsDeadEnd);
             }
 
             if (rewardNode != null)
             {
-                enemyNode = rewardNode.GetAdjacentNode(map, rewardNode.arrowDirections);
+                enemyNode = enemyNode ?? rewardNode.GetAdjacentNode(map, rewardNode.arrowDirections);
                 enemyNode.specialDirection = DirTo(enemyNode, rewardNode);
                 enemyNode.enemyIndex = UnityEngine.Random.Range(0, REGION_DATA[region].encounters.Length);
+
+                // 50% change of terrain
+                if (UnityEngine.Random.value < 0.5f)
+                    enemyNode.battleTerrainIndex = UnityEngine.Random.Range(0, REGION_DATA[region].terrain.Length) + 1;
+
                 rewardNode.upgrade = reward;
                 return true;
             }
@@ -721,16 +736,25 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
             // Add four enemy encounters and rewards
             int seedForChoice = seed * 2 + 10;
-            UnityEngine.Random.InitState(seedForChoice);
 
             List<int> colorsWithoutEnemies = new() { 1, 2, 3, 4 };
+            int numberOfEncountersAdded = 0;
             while (colorsWithoutEnemies.Count > 0)
             {
+                UnityEngine.Random.InitState(seedForChoice + colorsWithoutEnemies.Count * 1000);
                 int colorToUse = colorsWithoutEnemies[UnityEngine.Random.Range(0, colorsWithoutEnemies.Count)];
-                HoloMapSpecialNode.NodeDataType type = colorsWithoutEnemies.Count <= 2 ? HoloMapSpecialNode.NodeDataType.AddCardAbility : HoloMapBlueprint.REGIONAL_NODES[region];
-                DiscoverAndCreateEnemyEncounters(bpBlueprint, retval, colorToUse, region, type);
+                HoloMapSpecialNode.NodeDataType type = colorsWithoutEnemies.Count <= 2 ? HoloMapSpecialNode.NodeDataType.AddCardAbility : REGION_DATA[region].defaultReward;
+                if (DiscoverAndCreateEnemyEncounter(bpBlueprint, retval,  region, type, colorToUse))
+                    numberOfEncountersAdded += 1;
                 colorsWithoutEnemies.Remove(colorToUse);
             }
+
+            int remainingEncountersToAdd = EventManagement.ENEMIES_TO_UNLOCK_BOSS - numberOfEncountersAdded;
+            for (int i = 0; i < remainingEncountersToAdd; i++)
+                if (DiscoverAndCreateEnemyEncounter(bpBlueprint, retval, region, REGION_DATA[region].defaultReward))
+                    numberOfEncountersAdded += 1;
+
+            InfiniscryptionP03Plugin.Log.LogInfo($"I have created {numberOfEncountersAdded} enemy encounters");
 
             // Add four card choice nodes
             for (int i = 1; i < 5; i++) // one for each color 1-4
@@ -784,6 +808,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 __instance.playerPos = new("ascension_test", 0, 2) { gridX = 0, gridY = 2};
                 __instance.checkpointPos = new Part3SaveData.WorldPosition(__instance.playerPos);
                 __instance.reachedCheckpoints = new List<string>() { __instance.playerPos.worldId };
+
+                EventManagement.NumberOfZoneEnemiesKilled = 0;
             }
         }
 
@@ -820,30 +846,6 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 return false;
             }                
             return true;        
-        }
-
-        [HarmonyPatch(typeof(HoloMapArea), "OnAreaEnabled")]
-        [HarmonyPrefix]
-        public static void HackForSaves(ref HoloMapArea __instance)
-        {
-            InfiniscryptionP03Plugin.Log.LogInfo($"On Area Enabled; active nodes are {string.Join(",", MapNodeManager.Instance.nodes.Select(n => n.name + (n as HoloMapNode).Completed.ToString()))}");
-            //MapNodeManager.Instance.nodes.ForEach(node => (node as HoloMapNode).SetHidden(true, true));
-            //MapNodeManager.Instance.nodes.RemoveAll((MapNode x) => (x as HoloMapNode).Completed);
-            InfiniscryptionP03Plugin.Log.LogInfo($"On Area Enabled; active nodes are {string.Join(",", MapNodeManager.Instance.nodes.Select(n => n.name + (n as HoloMapNode).Completed.ToString()))}");
-        }
-
-        [HarmonyPatch(typeof(HoloMapArea), "SetNodesHidden")]
-        [HarmonyPrefix]
-        public static void HackForSaves(ref HoloMapArea __instance, bool hidden)
-        {
-            InfiniscryptionP03Plugin.Log.LogInfo($"Setting nodes hidden: {hidden}; active nodes are {string.Join(",", MapNodeManager.Instance.nodes.Select(n => n.name + (n as HoloMapNode).Completed.ToString()))}");
-        }
-
-        [HarmonyPatch(typeof(HoloMapNode), "SetHidden")]
-        [HarmonyPrefix]
-        public static void Test(ref HoloMapNode __instance, bool hidden)
-        {
-            InfiniscryptionP03Plugin.Log.LogInfo($"Setting {__instance.gameObject.name} hidden: {hidden}; animator is {__instance.GetComponent<Animator>()}");
         }
     }
 }

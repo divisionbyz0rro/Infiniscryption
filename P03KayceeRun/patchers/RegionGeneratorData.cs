@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DiskCardGame;
 using UnityEngine;
 
 namespace Infiniscryption.P03KayceeRun.Patchers
@@ -22,6 +23,10 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
         public Color mainColor;
 
+        public HoloMapSpecialNode.NodeDataType defaultReward;
+
+        public string[][] terrain;
+
         public RegionGeneratorData(int regionCode)
         {
             this.regionCode = regionCode;
@@ -34,6 +39,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                     this.wall = "NeutralEastMain_4/Scenery/HoloWall (1)";
                     this.lightColor = new Color(0.5802f, 0.8996f, 1f);
                     this.mainColor = new Color(0f, 0.5157f, 0.6792f);
+                    this.defaultReward = HoloMapNode.NodeDataType.AddCardAbility;
                     wallOrientations = new();
                     wallOrientations.Add(RunBasedHoloMap.NORTH, new(new(.08f, -.18f, 2.02f), new(7.4407f, 179.305f, .0297f)));
                     wallOrientations.Add(RunBasedHoloMap.SOUTH, new(new(.08f, -.18f, -2.02f), new(7.4407f, 359.2266f, .0297f)));
@@ -42,11 +48,13 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                     break;
                 case RunBasedHoloMap.MAGIC:
                     this.encounters = new string[] { "wizard_bigripper", "wizard_gemexploder", "wizard_shieldgems" };
+                    this.defaultReward = HoloMapNode.NodeDataType.AttachGem;
                     break;
                 case RunBasedHoloMap.NATURE:
                     this.terrainRandoms = new string[] { "NatureMainPath_2/Scenery/HoloGrass_Foliage", "NatureMainPath_2/Scenery/HoloDebris" };
                     this.objectRandoms = new string[] { "NatureMainPath_2/Scenery/HoloTree_2", "NatureMainPath_2/Scenery/HoloCage_1" };
                     this.wall = "NatureMainPath_2/Scenery/HoloTree_3";
+                    this.defaultReward = HoloMapNode.NodeDataType.CreateTransformer;
                     wallOrientations = new();
                     wallOrientations.Add(RunBasedHoloMap.NORTH, new(new(.08f, -.18f, 2.02f), new(7.4407f, 179.305f, .0297f)));
                     wallOrientations.Add(RunBasedHoloMap.SOUTH, new(new(.08f, -.18f, -2.02f), new(7.4407f, 359.2266f, .0297f)));
@@ -56,14 +64,20 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                     break;
                 case RunBasedHoloMap.TECH:
                     this.encounters = new string[] { "tech_attackconduits", "tech_giftcells", "tech_splintercells" };
+                    this.defaultReward = HoloMapNode.NodeDataType.BuildACard;
                     break;
                 case RunBasedHoloMap.UNDEAD:
                     this.encounters = new string[] { "undead_bomblatchers", "undead_shieldlatchers", "undead_skeleswarm" };
                     this.terrainRandoms = new string[] { "UndeadMainPath_4/Scenery/HoloDebris", "UndeadMainPath_4/Scenery/HoloGrass_Patch", "UndeadMainPath_4/Scenery/HoloGrass_Patch", "UndeadMainPath_4/Scenery/HoloGrass_Patch" };
                     this.objectRandoms = new string[] { "UndeadMainPath_4/Scenery/HoloGravestone", "UndeadMainPath_4/Scenery/HoloTreeDead (2)", "UndeadSecretPath_1/Scenery/HoloShovel", "UndeadMainPath_4/Scenery/HoloDirtPile_2", "UndeadMainPath_4/Scenery/HoloZombieArm", "UndeadMainPath_4/Scenery/HoloTreeDead (2)" };
+                    this.defaultReward = HoloMapNode.NodeDataType.OverclockCard;
                     this.lightColor = new Color(.1702f, .8019f, .644f);
                     this.mainColor = new Color(.0588f, .3608f, .3647f);
                     this.wall = null;
+                    this.terrain = new string[][] {
+                        new string[] { null, "DeadTree", null, null, null, null, null, null, null, "DeadTree" },
+                        new string[] { null, null, null, null, null, null, "TombStone", null, "TombStone", null }
+                    };
                     break;
                 default:
                     break;

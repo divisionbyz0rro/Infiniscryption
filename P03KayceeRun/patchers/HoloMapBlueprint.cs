@@ -6,15 +6,6 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 {
     public class HoloMapBlueprint
     {
-        public static readonly Dictionary<int, HoloMapSpecialNode.NodeDataType> REGIONAL_NODES = new()
-        {
-            { RunBasedHoloMap.NEUTRAL, HoloMapSpecialNode.NodeDataType.AddCardAbility },
-            { RunBasedHoloMap.NATURE, HoloMapSpecialNode.NodeDataType.CreateTransformer },
-            { RunBasedHoloMap.UNDEAD, HoloMapSpecialNode.NodeDataType.OverclockCard },
-            { RunBasedHoloMap.MAGIC, HoloMapSpecialNode.NodeDataType.AttachGem },
-            { RunBasedHoloMap.TECH, HoloMapSpecialNode.NodeDataType.BuildACard }
-        };
-
         public static int NO_SPECIAL = 0;
         public static int LEFT_BRIDGE = 1;
         public static int RIGHT_BRIDGE = 2;
@@ -35,13 +26,14 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         public int specialTerrain;
         public int blockedDirections;
         public StoryEvent blockEvent;
+        public int battleTerrainIndex;
 
         public int distance; // used only for generation - doesn't get saved or parsed
         public int color; // used only for generation - doesn't get saved or parsed
 
         public override string ToString()
         {
-            return $"[{randomSeed},{x},{y},{arrowDirections},{specialDirection},{enemyType},{enemyIndex},{(int)opponent},{(int)upgrade},{specialTerrain},{blockedDirections},{(int)blockEvent}]";
+            return $"[{randomSeed},{x},{y},{arrowDirections},{specialDirection},{enemyType},{enemyIndex},{(int)opponent},{(int)upgrade},{specialTerrain},{blockedDirections},{(int)blockEvent},{battleTerrainIndex}]";
         }
 
         public HoloMapBlueprint(int randomSeed) { this.randomSeed = randomSeed; this.upgrade = HoloMapSpecialNode.NodeDataType.MoveArea; }
@@ -61,6 +53,15 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             specialTerrain = int.Parse(split[9]);
             blockedDirections = int.Parse(split[10]);
             blockEvent = (StoryEvent)int.Parse(split[11]);
+            battleTerrainIndex = int.Parse(split[12]);
+        }
+
+        public bool EligibleForUpgrade
+        {
+            get
+            {
+                return this.opponent == Opponent.Type.Default && this.upgrade == HoloMapNode.NodeDataType.MoveArea;
+            }
         }
 
         public bool IsDeadEnd

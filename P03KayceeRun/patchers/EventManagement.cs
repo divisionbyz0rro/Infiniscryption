@@ -30,5 +30,13 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             }
             return true;
         }
+
+        [HarmonyPatch(typeof(TurnManager), "CleanupPhase")]
+        [HarmonyPrefix]
+        public static void TrackVictories(ref TurnManager __instance)
+        {
+            if (__instance.PlayerWon)
+                NumberOfZoneEnemiesKilled += 1;
+        }
     }
 }
