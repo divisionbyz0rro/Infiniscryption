@@ -56,6 +56,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         public static readonly int ALL_DIRECTIONS = NORTH | EAST | SOUTH | WEST;
         private static readonly Dictionary<int, string> DIR_LOOKUP = new() {{SOUTH, "S"}, {WEST, "W"}, {NORTH, "N"}, {EAST, "E"}};
         private static readonly Dictionary<int, LookDirection> LOOK_MAPPER = new() {{SOUTH, LookDirection.South}, {NORTH, LookDirection.North}, {EAST, LookDirection.East}, {WEST, LookDirection.West}};
+        private static readonly Dictionary<char, LookDirection> LOOK_CHAR_MAPPER = new () {{'S', LookDirection.South}, {'N', LookDirection.North}, {'E', LookDirection.East}, {'W', LookDirection.West}};
         
         private static IEnumerable<int> GetDirections(int compound, bool inclusive=true)
         {
@@ -249,16 +250,23 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 
                 InfiniscryptionP03Plugin.Log.LogInfo($"Copying arrow");
                 GameObject newArrow = GameObject.Instantiate(arrowPrefabs[bp.specialDirection | ENEMY], nodes.transform);
+                newArrow.name = $"MoveArea_{DIR_LOOKUP[bp.specialDirection]}";
                 HoloMapNode node = newArrow.GetComponent<HoloMapNode>();
                 Traverse nodeTraverse = Traverse.Create(node);
                 nodeTraverse.Field("blueprintData").SetValue(Resources.Load<EncounterBlueprintData>($"data/encounterblueprints/part3/{REGION_DATA[regionId].encounters[bp.enemyIndex]}"));
                 if ((bp.specialTerrain & HoloMapBlueprint.FULL_BRIDGE) != 0)
                     nodeTraverse.Field("bridgeBattle").SetValue(true);
-                else if (bp.battleTerrainIndex > 0)
+                
+                if (bp.battleTerrainIndex > 0 && (bp.specialTerrain & HoloMapBlueprint.FULL_BRIDGE) == 0)
                 {
                     string[] terrain = REGION_DATA[regionId].terrain[bp.battleTerrainIndex - 1];
                     nodeTraverse.Field("playerTerrain").SetValue(terrain.Take(5).Select(s => s == default(string) ? null : CardLoader.GetCardByName(s)).ToArray());
                     nodeTraverse.Field("opponentTerrain").SetValue(terrain.Skip(5).Select(s => s == default(string) ? null : CardLoader.GetCardByName(s)).ToArray());
+                }
+                else
+                {
+                    nodeTraverse.Field("playerTerrain").SetValue(new CardInfo[5]);
+                    nodeTraverse.Field("opponentTerrain").SetValue(new CardInfo[5]);
                 }
             }
 
@@ -374,14 +382,16 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
             HoloMapArea areaData = area.GetComponent<HoloMapArea>();
 
-            // The order of these adds is super important, as it corresponds to the values of the LookDirection enum
-            // So I'm not going to use any enumeration just to make it crystal clear what order they go in
+            // The index of DirectionNodes has to correspond to the integer value of the LookDirection enumeration
             areaData.DirectionNodes.Clear();
-            areaData.DirectionNodes.Add((bp.arrowDirections & NORTH) == 0 ? null : area.transform.Find("Nodes/MoveArea_N").gameObject.GetComponent<MoveHoloMapAreaNode>());
-            areaData.DirectionNodes.Add((bp.arrowDirections & EAST) == 0 ? null : area.transform.Find("Nodes/MoveArea_E").gameObject.GetComponent<MoveHoloMapAreaNode>());
-            areaData.DirectionNodes.Add((bp.arrowDirections & SOUTH) == 0 ? null : area.transform.Find("Nodes/MoveArea_S").gameObject.GetComponent<MoveHoloMapAreaNode>());
-            areaData.DirectionNodes.Add((bp.arrowDirections & WEST) == 0 ? null : area.transform.Find("Nodes/MoveArea_W").gameObject.GetComponent<MoveHoloMapAreaNode>());
+            for (int i = 0; i < 4; i++)
+                areaData.DirectionNodes.Add(null);
 
+            Transform nodes = area.transform.Find("Nodes");
+
+            foreach (Transform arrow in nodes)
+                if (arrow.gameObject.name.StartsWith("MoveArea"))
+                    areaData.DirectionNodes[(int)LOOK_CHAR_MAPPER[arrow.gameObject.name.Last()]] = arrow.gameObject.activeSelf ? arrow.gameObject.GetComponent<MoveHoloMapAreaNode>() : null;
         }
 
         private static readonly int[][] NSEW = new int[][] { new int[]{ -1, 0 }, new int[]{1, 0}, new int[]{0, -1}, new int[]{0, 1}};
@@ -472,11 +482,11 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
         private static void FixPaint(HoloMapBlueprint[,] map, int x, int y)
         {
-            if (map[x,y] != null && map[x,y].color == 0)
+            if (map[x,y] != null && map[x,y].color <= 0)
             {
                 foreach (HoloMapBlueprint adj in map.AdjacentTo(x, y))
                 {
-                    if (adj != null)
+                    if (adj != null && adj.color > 0)
                     {
                         map[x,y].color = adj.color;
                         return;
@@ -491,6 +501,18 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             retval = retval | (start.x == end.x ? 0 : start.x < end.x ? EAST : WEST);
             retval = retval | (start.y == end.y ? 0 : start.y < end.y ? SOUTH : NORTH);
             return retval;
+        }
+
+        private static void CrawlQuadrant(HoloMapBlueprint[,] map, int color)
+        {
+            List<HoloMapBlueprint> possibles = new();
+            for (int i = 0; i < map.GetLength(0); i++)
+                for (int j = 0; j < map.GetLength(1); j++)
+                    if (map[i,j] != null && map[i,j].color == color)
+                        possibles.Add(map[i, j]);
+
+            HoloMapBlueprint startNode = possibles[UnityEngine.Random.Range(0, possibles.Count)];
+            CrawlQuadrant(map, startNode.x, startNode.y);
         }
 
         private static void CrawlQuadrant(HoloMapBlueprint[,] map, int x, int y)
@@ -714,10 +736,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                     FixPaint(bpBlueprint, i, j);
 
             // Crawl and mark each quadrant.
-            while (bpBlueprint[x = UnityEngine.Random.Range(0, 3), y = UnityEngine.Random.Range(0, 3)] == null); CrawlQuadrant(bpBlueprint, x, y);
-            while (bpBlueprint[x = UnityEngine.Random.Range(0, 3), y = UnityEngine.Random.Range(3, 6)] == null); CrawlQuadrant(bpBlueprint, x, y);
-            while (bpBlueprint[x = UnityEngine.Random.Range(3, 6), y = UnityEngine.Random.Range(0, 3)] == null); CrawlQuadrant(bpBlueprint, x, y);
-            while (bpBlueprint[x = UnityEngine.Random.Range(3, 6), y = UnityEngine.Random.Range(3, 6)] == null); CrawlQuadrant(bpBlueprint, x, y);
+            for (int i = 1; i <= 4; i++)
+                CrawlQuadrant(bpBlueprint, i);
 
             // Set up the connections between quadrants
             ConnectQuadrants(bpBlueprint);
@@ -763,6 +783,18 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             // Add two hidden currency nodes
             for (int i = 0; i < 2; i++)
                 retval.GetRandomPointOfInterest().upgrade = HoloMapSpecialNode.NodeDataType.GainCurrency;
+
+            // Log to the file for debug purposes
+            for (int j = 0; j < bpBlueprint.GetLength(1); j++)
+            {
+                List<string> lines = new() { "", "", "", "", ""};
+                for (int i = 0; i < bpBlueprint.GetLength(0); i++)
+                    for (int s = 0; s < lines.Count; s++)
+                        lines[s] += bpBlueprint[i, j] == null ? "     " : bpBlueprint[i, j].DebugString[s];
+                for (int s = 0; s < lines.Count; s++)
+                    InfiniscryptionP03Plugin.Log.LogInfo(lines[s]);
+            }
+                
 
             savedBlueprint = string.Join("|", retval.Select(b => b.ToString()));
             ModdedSaveManager.RunState.SetValue(InfiniscryptionP03Plugin.PluginGuid, blueprintKey, savedBlueprint);

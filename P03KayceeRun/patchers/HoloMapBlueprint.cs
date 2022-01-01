@@ -85,5 +85,20 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                        (((this.arrowDirections & RunBasedHoloMap.WEST) != 0) ? 1 : 0);
             }
         }
+
+        public List<string> DebugString
+        {
+            get
+            {
+                List<string> retval = new();
+                string code = this.opponent != Opponent.Type.Default ? "B" : this.specialDirection != RunBasedHoloMap.BLANK ? "E" : this.upgrade != HoloMapSpecialNode.NodeDataType.MoveArea ? "U" : " ";
+                retval.Add("#---#");
+                retval.Add((this.arrowDirections & RunBasedHoloMap.NORTH) != 0 ? $"|{this.color}| |" : $"|{this.color}  |");
+                retval.Add("|" + ((this.arrowDirections & RunBasedHoloMap.WEST) != 0 ? $"-{code}" : $" {code}") + ((this.arrowDirections & RunBasedHoloMap.EAST) != 0 ? "-|" : " |"));
+                retval.Add((this.arrowDirections & RunBasedHoloMap.SOUTH) != 0 ? "| | |" : "|   |");
+                retval.Add("#---#");
+                return retval;
+            }
+        }
     }
 }

@@ -12,8 +12,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
     [HarmonyPatch]
     public static class P03AscensionSaveData
     {
-        private const string ASCENSION_SAVE_KEY = "CopyOfPart3AscensionSave";
-        private const string REGULAR_SAVE_KEY = "CopyOfPart3Save";
+        public const string ASCENSION_SAVE_KEY = "CopyOfPart3AscensionSave";
+        public const string REGULAR_SAVE_KEY = "CopyOfPart3Save";
 
         private static string SaveKey
         {
@@ -32,9 +32,20 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             }
         }
 
+        private static bool _isActiveP03Run = false;
         public static bool IsP03Run
         {
-            get { return true; }
+            get 
+            { 
+                if (SceneLoader.ActiveSceneName == "Part3_Cabin")
+                    return true;
+
+                return _isActiveP03Run;
+            }
+            set
+            {
+                _isActiveP03Run = value;
+            }
         }
 
         private static string ToCompressedJSON(object data)

@@ -35,8 +35,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         [HarmonyPrefix]
         public static void TrackVictories(ref TurnManager __instance)
         {
-            if (__instance.PlayerWon)
-                NumberOfZoneEnemiesKilled += 1;
+            if (__instance.Opponent.NumLives <= 0 || __instance.Opponent.Surrendered)
+                NumberOfZoneEnemiesKilled = NumberOfZoneEnemiesKilled + 1;
         }
     }
 }
