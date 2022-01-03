@@ -60,7 +60,10 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             // I can't easily hook into the 'confirm new run' button
             // But the only only way you get to this screen is by confirming a new run 
             if (screen == AscensionMenuScreens.Screen.StarterDeckSelect)
+            {
                 ModdedSaveManager.SaveData.SetValue(InfiniscryptionP03Plugin.PluginGuid, P03AscensionSaveData.ASCENSION_SAVE_KEY, default(string));
+                RunBasedHoloMap.ClearWorldData();
+            }
 
             if (screen == AscensionMenuScreens.Screen.Start) // At the main screen, you can't be in any style of run. Not yet.
                 P03AscensionSaveData.IsP03Run = false;

@@ -13,6 +13,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         public static int NORTH_BUILDING_ENTRANCE = 8;
         public static int NORTH_GATEWAY = 16;
         public static int NORTH_CABIN = 32;
+        public static int LOWER_TOWER_ROOM = 64;
+        public static int LANDMARKER = 128;
 
         public int randomSeed;
         public int x;
@@ -60,7 +62,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         {
             get
             {
-                return this.opponent == Opponent.Type.Default && this.upgrade == HoloMapNode.NodeDataType.MoveArea;
+                return this.opponent == Opponent.Type.Default && this.upgrade == HoloMapNode.NodeDataType.MoveArea && (this.specialTerrain & LANDMARKER) == 0;
             }
         }
 
@@ -91,7 +93,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             get
             {
                 List<string> retval = new();
-                string code = this.opponent != Opponent.Type.Default ? "B" : this.specialDirection != RunBasedHoloMap.BLANK ? "E" : this.upgrade != HoloMapSpecialNode.NodeDataType.MoveArea ? "U" : " ";
+                string code = ((this.specialTerrain & LANDMARKER) != 0) ? "L" : this.opponent != Opponent.Type.Default ? "B" : this.specialDirection != RunBasedHoloMap.BLANK ? "E" : this.upgrade != HoloMapSpecialNode.NodeDataType.MoveArea ? "U" : " ";
                 retval.Add("#---#");
                 retval.Add((this.arrowDirections & RunBasedHoloMap.NORTH) != 0 ? $"|{this.color}| |" : $"|{this.color}  |");
                 retval.Add("|" + ((this.arrowDirections & RunBasedHoloMap.WEST) != 0 ? $"-{code}" : $" {code}") + ((this.arrowDirections & RunBasedHoloMap.EAST) != 0 ? "-|" : " |"));

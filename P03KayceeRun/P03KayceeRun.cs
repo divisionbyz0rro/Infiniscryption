@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System;
 using Infiniscryption.Core.Helpers;
 using InscryptionAPI.AscensionScreens;
+using Infiniscryption.P03KayceeRun.Patchers;
 
 namespace Infiniscryption.P03KayceeRun
 {
@@ -29,6 +30,7 @@ namespace Infiniscryption.P03KayceeRun
 
             Harmony harmony = new Harmony(PluginGuid);
             harmony.PatchAll();
+            CustomCards.RegisterCustomCards(harmony);
 
             Logger.LogInfo($"Plugin {PluginName} is loaded!");
         }

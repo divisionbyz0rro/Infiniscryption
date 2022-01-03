@@ -27,6 +27,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
         public string[][] terrain;
 
+        public string[][] landmarks;
+
         public RegionGeneratorData(int regionCode)
         {
             this.regionCode = regionCode;
@@ -48,23 +50,66 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                     break;
                 case RunBasedHoloMap.MAGIC:
                     this.encounters = new string[] { "wizard_bigripper", "wizard_gemexploder", "wizard_shieldgems" };
+                    this.terrainRandoms = new string[] { "WizardEntrance/Scenery/HoloDebris (1)" };
+                    this.objectRandoms = new string[] { "WizardSidePath_1/Scenery/HoloRock_Floating", "WizardMainPath_2/Scenery/HoloRock_Floating (2)", "WizardSidePath_1/Scenery/HoloRock_Floating", "WizardMainPath_2/Scenery/HoloRock_Floating (2)", "WizardEntrance/Scenery/HoloGemGreen", "WizardEntrance/Scenery/HoloGemOrange", "WizardEntrance/Scenery/HoloGemBlue" };
                     this.defaultReward = HoloMapNode.NodeDataType.AttachGem;
+                    this.lightColor = new Color(0.5802f, 0.8996f, 1f);
+                    this.mainColor = new Color(0.1802f, 0.2778f, 0.5094f);
+                    this.terrain = new string[][] {
+                        new string[] { null, null, null, null, null, null, null, null, null, null } // There's no terrain in the magic world
+                    };
+                    this.landmarks = new string[][] {
+                        new string[] { "WizardMainPath_3/Scenery/HoloGenerator" },
+                        new string[] { "WizardMainPath_3/Scenery/HoloSlime_Pile_1", "WizardMainPath_3/Scenery/HoloSlime_Pile_2", "WizardMainPath_3/Scenery/HoloSlimePipe", "WizardMainPath_3/Scenery/HoloSlime_Pile_1 (1)" },
+                        new string[] { "WizardSidePath_3/Scenery/HoloSword", "WizardSidePath_3/Scenery/HoloSword (1)", "WizardSidePath_3/Scenery/HoloSword (2)", "WizardSidePath_1/Scenery/HoloSword", "WizardSidePath_1/Scenery/HoloSword (1)", },
+                        new string[] { "TempleWizardEntrance/Scenery/Gem", "TempleWizardEntrance/Scenery/Gem (2)", "TempleWizardEntrance/Scenery/Gem (3)", "TempleWizardMain1/Scenery/Gem", "TempleWizardMain1/Scenery/Gem (2)", "TempleWizardMain1/Scenery/Gem (3)", "TempleWizardMain2/Scenery/Gem (2)", "WizardMainPath_6/Scenery/HoloGemBlue/Gem"  },
+                    };
                     break;
                 case RunBasedHoloMap.NATURE:
                     this.terrainRandoms = new string[] { "NatureMainPath_2/Scenery/HoloGrass_Foliage", "NatureMainPath_2/Scenery/HoloDebris" };
-                    this.objectRandoms = new string[] { "NatureMainPath_2/Scenery/HoloTree_2", "NatureMainPath_2/Scenery/HoloCage_1" };
+                    this.objectRandoms = new string[] { "NatureMainPath_2/Scenery/HoloTree_2", "NatureMainPath_2/Scenery/HoloTree_2", "NatureMainPath_2/Scenery/HoloTree_2", "NatureMainPath_2/Scenery/HoloTree_2", "NatureMainPath_2/Scenery/HoloCage_1" };
                     this.wall = "NatureMainPath_2/Scenery/HoloTree_3";
                     this.defaultReward = HoloMapNode.NodeDataType.CreateTransformer;
                     wallOrientations = new();
-                    wallOrientations.Add(RunBasedHoloMap.NORTH, new(new(.08f, -.18f, 2.02f), new(7.4407f, 179.305f, .0297f)));
-                    wallOrientations.Add(RunBasedHoloMap.SOUTH, new(new(.08f, -.18f, -2.02f), new(7.4407f, 359.2266f, .0297f)));
-                    wallOrientations.Add(RunBasedHoloMap.WEST, new(new(-3.2f, -.18f, -.4f), new(7.4407f, 89.603f, .0297f)));
-                    wallOrientations.Add(RunBasedHoloMap.EAST, new(new(3.2f, -.18f, -.4f), new(7.4407f, 270.359f, .0297f)));
+                    wallOrientations.Add(RunBasedHoloMap.NORTH, new(new(.08f, -.18f, 2.02f), new(270f, 179.305f, .0297f)));
+                    wallOrientations.Add(RunBasedHoloMap.SOUTH, new(new(.08f, -.18f, -2.02f), new(270f, 359.2266f, .0297f)));
+                    wallOrientations.Add(RunBasedHoloMap.WEST, new(new(-3.2f, -.18f, -.4f), new(270f, 89.603f, .0297f)));
+                    wallOrientations.Add(RunBasedHoloMap.EAST, new(new(3.2f, -.18f, -.4f), new(270f, 270.359f, .0297f)));
                     this.encounters = new string[] { "nature_battransformers", "nature_beartransformers", "nature_hounds" };
+                    this.terrain = new string[][] {
+                        new string[] { null, "Tree_Hologram", null, "Tree_Hologram", null, null, "Tree_Hologram", null, "Tree_Hologram", null },
+                        new string[] { "Tree_Hologram_SnowCovered", null, "Tree_Hologram_SnowCovered", null, "Tree_Hologram_SnowCovered", "Tree_Hologram_SnowCovered", null, "Tree_Hologram_SnowCovered", null, "Tree_Hologram_SnowCovered" }
+                    };
+                    this.landmarks = new string[][] {
+                        new string[] { "NatureMainPath_2/Scenery/HoloGateway" },
+                        new string[] { "NatureEntrance/Scenery/HoloRock_3", "NatureEntrance/Scenery/HoloGenerator", "NatureEntrance/Scenery/HoloLamp" },
+                        new string[] { "NatureEntrance/Scenery/HoloGenerator/Generator_Cylinder", "NatureSidePath/Scenery/Generator_Cylinder (1)", "NatureSidePath/Scenery/Generator_Cylinder (2)", "NatureSidePath/Scenery/Generator_Cylinder (3)" },
+                        new string[] { "NatureEntrance/Scenery/HoloLamp", "NatureMainPath_4/Scenery/HoloLamp", "NatureMainPath_10/Scenery/HoloLamp"}
+                    };
                     break;
                 case RunBasedHoloMap.TECH:
                     this.encounters = new string[] { "tech_attackconduits", "tech_giftcells", "tech_splintercells" };
+                    this.terrainRandoms = new string[] { };
+                    this.objectRandoms = new string[] { "TechTower_SE/Scenery/HoloMapTurret", "TechTower_NW/Scenery/HoloDrone_Broken", "TechTower_NE/Scenery/HoloDrone_2", "TechTower_NE/Scenery/HoloMeter", "TechTower_NW/Scenery/HoloDrone_Broken", "TechTower_NE/Scenery/HoloDrone_2", "TechTower_NE/Scenery/HoloMeter", "TechTower_NW/Scenery/HoloDrone_Broken", "TechTower_NE/Scenery/HoloDrone_2", "TechTower_NE/Scenery/HoloMeter" };
+                    this.terrain = new string[][] {
+                        new string[] { null, null, null, null, null, null, null, "ConduitTower", null, null},
+                        new string[] { "ConduitTower", null, null, null, "ConduitTower", "ConduitTower", null, null, null, "ConduitTower"}
+                    };
+                    this.wall = "TechTower_SE/Scenery/HoloHandRail";
+                    this.lightColor = new Color(0.6934f, 0.9233f, 1f);
+                    this.mainColor = new Color(0.4413f, 0.5221f, 0.5472f);
+                    wallOrientations = new();
+                    wallOrientations.Add(RunBasedHoloMap.NORTH, new(new(-0.6f, -.18f, 2.02f), new(0f, 270f, 0f)));
+                    wallOrientations.Add(RunBasedHoloMap.SOUTH, new(new(-0.6f, -.18f, -2.02f), new(0f, 90f, 0f)));
+                    wallOrientations.Add(RunBasedHoloMap.WEST, new(new(-3.2f, -.18f, -1f), new(0f, 180f, 0f)));
+                    wallOrientations.Add(RunBasedHoloMap.EAST, new(new(3.2f, -.18f, -1f), new(0f, 0f, 0f)));
                     this.defaultReward = HoloMapNode.NodeDataType.BuildACard;
+                    this.landmarks = new string[][] {
+                        new string[] { "NeutralWestTechGate/Scenery/Generator_Turbine", "NeutralWestTechGate/Scenery/Generator_Turbine (1)" },
+                        new string[] { "NeutralWestMain_2/Scenery/HoloPowerPoll_1", "NeutralWestMain_2/Scenery/HoloPowerPoll_1 (1)"},
+                        new string[] { "Center/Scenery/HoloTeslaCoil", "Center/Scenery/HoloMeter", "Center/Scenery/TerrainHologram_AnnoyTower"},
+                        new string[] { "TechElevatorTop/Scenery/HoloTechPillar", "TechElevatorTop/Scenery/HoloTechPillar (1)", "TechElevatorTop/Scenery/HoloTechPillar (2)", "TechElevatorTop/Scenery/HoloTechPillar (3)"},
+                    };
                     break;
                 case RunBasedHoloMap.UNDEAD:
                     this.encounters = new string[] { "undead_bomblatchers", "undead_shieldlatchers", "undead_skeleswarm" };
@@ -77,6 +122,12 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                     this.terrain = new string[][] {
                         new string[] { null, "DeadTree", null, null, null, null, null, null, null, "DeadTree" },
                         new string[] { null, null, null, null, null, null, "TombStone", null, "TombStone", null }
+                    };
+                    this.landmarks = new string[][] {
+                        new string[] { "UndeadSmallDetour_2/Scenery/HoloTeslaCoil", "UndeadSmallDetour_2/Scenery/HoloTeslaCoil (1)", "UndeadSmallDetour_2/Scenery/HoloTeslaCoil (2)", "UndeadSmallDetour_2/Scenery/HoloTeslaCoil (3)", "UndeadSmallDetour_2/Scenery/HoloTeslaCoil (4)", "UndeadSmallDetour_2/Scenery/HoloMapLightning", "UndeadSmallDetour_2/Scenery/HoloMapLightning (2)", "UndeadSmallDetour_2/Scenery/HoloMapLightning (3)"},
+                        new string[] { "TempleUndeadEntrance/Scenery/HoloCasket", "TempleUndeadEntrance/Scenery/HoloCasket (1)", "TempleUndeadEntrance/Scenery/HoloCasket (2)", "TempleUndeadEntrance/Scenery/HoloCasket (3)"},
+                        new string[] { "TempleUndeadMain_1/Scenery/HoloLibrarianBot (1)", "TempleUndeadMain_1/Scenery/HoloLibrarianBot (2)"},
+                        new string[] { "UndeadSmallDetour_2/Scenery/HoloGravestone", "UndeadSmallDetour_2/Scenery/HoloGravestone (1)", "UndeadSmallDetour_2/Scenery/HoloGravestone (2)", "UndeadSmallDetour_2/Scenery/HoloGravestone (3)"}
                     };
                     break;
                 default:

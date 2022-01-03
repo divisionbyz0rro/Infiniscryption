@@ -6,6 +6,8 @@ using System.Text;
 using System.IO;
 using System.IO.Compression;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Infiniscryption.P03KayceeRun.Patchers
 {
@@ -14,6 +16,57 @@ namespace Infiniscryption.P03KayceeRun.Patchers
     {
         public const string ASCENSION_SAVE_KEY = "CopyOfPart3AscensionSave";
         public const string REGULAR_SAVE_KEY = "CopyOfPart3Save";
+
+        public static List<string> CompletedZones
+        {
+            get
+            {
+                string zoneCsv = ModdedSaveManager.RunState.GetValue(InfiniscryptionP03Plugin.PluginGuid, "CompletedZones");
+                if (zoneCsv == default(string))
+                    return new List<string>();
+
+                return zoneCsv.Split(',').ToList();
+            }
+        }
+        public static void AddCompletedZone(string id)
+        {
+            List<string> zones = CompletedZones;
+            if (!zones.Contains(id))
+                zones.Add(id);
+            
+            ModdedSaveManager.RunState.SetValue(InfiniscryptionP03Plugin.PluginGuid, "CompletedZones", string.Join(",", zones));
+        }
+
+        public static List<string> VisitedZones
+        {
+            get
+            {
+                string zoneCsv = ModdedSaveManager.RunState.GetValue(InfiniscryptionP03Plugin.PluginGuid, "VisitedZones");
+                if (zoneCsv == default(string))
+                    return new List<string>();
+
+                return zoneCsv.Split(',').ToList();
+            }
+        }
+        public static void AddVisitedZone(string id)
+        {
+            List<string> zones = VisitedZones;
+            if (!zones.Contains(id))
+                zones.Add(id);
+            
+            ModdedSaveManager.RunState.SetValue(InfiniscryptionP03Plugin.PluginGuid, "VisitedZones", string.Join(",", zones));
+        }
+
+        public static int RandomSeed
+        {
+            get
+            {
+                return AscensionSaveData.Data.currentRunSeed
+                       + 10 * CompletedZones.Count
+                       + 100 * VisitedZones.Count
+                       + 1000 * EventManagement.NumberOfZoneEnemiesKilled;
+            }
+        }
 
         private static string SaveKey
         {
@@ -144,6 +197,32 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             {
                 // Check to see if there is a part 3 save data yet
                 EnsureRegularSave();
+            }
+        }
+
+        [HarmonyPatch(typeof(Part3SaveData), "Initialize")]
+        [HarmonyPostfix]
+        private static void RewritePart3IntroSequence(ref Part3SaveData __instance)
+        {
+            if (SaveFile.IsAscension)
+            {
+                string worldId = RunBasedHoloMap.GetAscensionWorldID(RunBasedHoloMap.NEUTRAL);
+                Tuple<int, int> pos = RunBasedHoloMap.GetStartingSpace(RunBasedHoloMap.NEUTRAL);
+                Part3SaveData.WorldPosition worldPosition = new(worldId, pos.Item1, pos.Item2);
+
+                __instance.playerPos = worldPosition;
+                __instance.checkpointPos = new Part3SaveData.WorldPosition(__instance.playerPos);
+                __instance.reachedCheckpoints = new List<string>() { __instance.playerPos.worldId };
+
+                EventManagement.NumberOfZoneEnemiesKilled = 0;
+
+                __instance.deck = new DeckInfo();
+                __instance.deck.Cards.Clear();
+                __instance.deck.AddCard(CardLoader.GetCardByName("BatteryBot"));
+                __instance.deck.AddCard(CardLoader.GetCardByName("Shieldbot"));
+                __instance.deck.AddCard(CardLoader.GetCardByName("Sniper"));
+                __instance.deck.AddCard(CardLoader.GetCardByName(CustomCards.DRAFT_TOKEN));
+                __instance.deck.AddCard(CardLoader.GetCardByName(CustomCards.DRAFT_TOKEN));
             }
         }
     }
