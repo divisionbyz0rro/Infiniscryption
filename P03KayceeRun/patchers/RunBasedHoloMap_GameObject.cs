@@ -42,9 +42,9 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
         private static Dictionary<string, GameObject> objectLookups = new();
 
-        private static GameObject HOLO_NODE_BASE = GetGameObject("StartingIslandJunction", "Scenery/HoloNodeBase");
-        private static GameObject HOVER_HOLO_NODE_BASE = GetGameObject("Shop", "Scenery/HoloDrone_HoldingPlatform_Undead");
-        private static GameObject BLOCK_ICON = GetGameObject("UndeadShortcut_Exit", "HoloStopIcon");
+        private static GameObject HOLO_NODE_BASE;
+        private static GameObject HOVER_HOLO_NODE_BASE;
+        private static GameObject BLOCK_ICON;
 
         public static readonly int EMPTY = -1;
         public static readonly int BLANK = 0;
@@ -102,7 +102,13 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         {
             string key = $"{holomap}/{findPath}";
             if (objectLookups.ContainsKey(key))
-                return objectLookups[key];
+            {
+                GameObject dictval = objectLookups[key];
+                if (dictval == null)
+                    objectLookups.Remove(key);
+                else
+                    return objectLookups[key];
+            }
 
             InfiniscryptionP03Plugin.Log.LogInfo($"Getting {holomap} / {findPath} ");
             GameObject resource = Resources.Load<GameObject>($"prefabs/map/holomapareas/HoloMapArea_{holomap}");
@@ -113,7 +119,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             return retval;
         }
 
-        public static void AddReplace<K, V>(this IDictionary<K, V> dict, K key, Func<V> getValue)
+        public static void AddReplace<K, V>(this Dictionary<K, V> dict, K key, Func<V> getValue)
         {
             // I want to verify that these game objects are still alive
             // If they're not, I want to recreate them
@@ -124,19 +130,29 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             {
                 V oldValue = dict[key];
                 if (oldValue != null)
+                {
+                    InfiniscryptionP03Plugin.Log.LogInfo($"I already have a {key.ToString()}");
                     return;
+                }
                 
                 dict.Remove(key);
             }
 
+            InfiniscryptionP03Plugin.Log.LogInfo($"I need to create a {key.ToString()}");
             dict.Add(key, getValue());
         }
 
         private static void Initialize()
         {
+            InfiniscryptionP03Plugin.Log.LogInfo("Initializing world data");
+
             REGION_DATA.Clear(); // All of the actual region data is in the region data class itself
             for (int i = 0; i < 5; i++)
                 REGION_DATA.Add(i, new(i));
+
+            HOLO_NODE_BASE = HOLO_NODE_BASE ?? GetGameObject("StartingIslandJunction", "Scenery/HoloNodeBase");
+            HOVER_HOLO_NODE_BASE = HOVER_HOLO_NODE_BASE ?? GetGameObject("Shop", "Scenery/HoloDrone_HoldingPlatform_Undead");
+            BLOCK_ICON = BLOCK_ICON ?? GetGameObject("UndeadShortcut_Exit", "HoloStopIcon");
 
             defaultPrefab = Resources.Load<GameObject>("prefabs/map/holomapareas/holomaparea");
             InfiniscryptionP03Plugin.Log.LogInfo($"Default prefab is {defaultPrefab}");
@@ -237,6 +253,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             retval.tag = "HoloMapFixedColor"; // This is used to make sure the colors aren't overwritten.
 
             retval.SetActive(false);
+
+            InfiniscryptionP03Plugin.Log.LogInfo($"Build draft node {retval}");
             return retval;
         }
 
@@ -253,6 +271,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             InfiniscryptionP03Plugin.Log.LogInfo($"Adding {dataType.ToString()} at {x},{z}");
 
             GameObject defaultNode = specialNodePrefabs[dataType];
+
+            InfiniscryptionP03Plugin.Log.LogInfo($"node is{defaultNode}");
             GameObject newNode = GameObject.Instantiate(defaultNode, parent);
             newNode.SetActive(true);
 
@@ -268,11 +288,6 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
             if (dataType == HoloMapSpecialNode.NodeDataType.GainCurrency)
             {
-                string sceneryKey = REGION_DATA[regionId].objectRandoms[UnityEngine.Random.Range(0, REGION_DATA[regionId].objectRandoms.Length)];
-                GameObject sceneryObject = GameObject.Instantiate(GetGameObject(sceneryKey), sceneryParent);
-                sceneryObject.transform.localPosition = new Vector3(x, .1f, z);
-                sceneryObject.transform.localEulerAngles = new Vector3(7.4407f, UnityEngine.Random.Range(0f, 360f), .0297f);
-
                 newNode.transform.localPosition = new Vector3(x, newNode.transform.localPosition.y, z);
                 HoloMapGainCurrencyNode nodeData = newNode.GetComponent<HoloMapGainCurrencyNode>();
                 Traverse nodeTraverse = Traverse.Create(nodeData);
@@ -285,7 +300,9 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
                 yVal = ((specialTerrain & HoloMapBlueprint.FULL_BRIDGE) == 0) ? .1f : 1.33f;
 
-                GameObject nodeBase = GameObject.Instantiate(((specialTerrain & HoloMapBlueprint.FULL_BRIDGE) == 0) ? HOLO_NODE_BASE : HOVER_HOLO_NODE_BASE, sceneryParent);
+                GameObject nodeBasePrefab = ((specialTerrain & HoloMapBlueprint.FULL_BRIDGE) == 0) ? HOLO_NODE_BASE : HOVER_HOLO_NODE_BASE;
+                InfiniscryptionP03Plugin.Log.LogInfo($"nodebase is{nodeBasePrefab}");
+                GameObject nodeBase = GameObject.Instantiate(nodeBasePrefab, sceneryParent);
                 nodeBase.transform.localPosition = new Vector3(newNode.transform.localPosition.x, yVal, newNode.transform.localPosition.z);
             }
         }
@@ -657,6 +674,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
         public static void ClearWorldData()
         {
+            InfiniscryptionP03Plugin.Log.LogInfo("Clearing world data");
+
             // This completely clears the cache of game objects that we have access to
             foreach (var entry in worldDataCache)
                 for (int i = 0; i < entry.Value.areas.GetLength(0); i++)
@@ -667,24 +686,19 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             
             worldDataCache.Clear();
 
-            foreach(var entry in bossPrefabs)
-                if (entry.Value != null)
-                    GameObject.DestroyImmediate(entry.Value);
-            bossPrefabs.Clear();
-
             foreach(var entry in specialNodePrefabs)
-                if (entry.Value != null)
+                if (entry.Value != null && !objectLookups.Values.Contains(entry.Value))
                     GameObject.DestroyImmediate(entry.Value);
             specialNodePrefabs.Clear();
 
             foreach(var entry in arrowPrefabs)
-                if (entry.Value != null)
+                if (entry.Value != null && !objectLookups.Values.Contains(entry.Value))
                     GameObject.DestroyImmediate(entry.Value);
             arrowPrefabs.Clear();
 
             foreach(var entry in specialTerrainPrefabs)
                 foreach (GameObject obj in entry.Value)
-                    if (obj != null)
+                    if (obj != null && !objectLookups.Values.Contains(obj))
                         GameObject.DestroyImmediate(obj);
             specialTerrainPrefabs.Clear();        
         }

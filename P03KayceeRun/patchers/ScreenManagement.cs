@@ -53,14 +53,19 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             return true;
         }
 
+        private static void ClearP03Data()
+        {
+            P03AscensionSaveData.IsP03Run = false;
+            RunBasedHoloMap.ClearWorldData();
+        }
+
         [HarmonyPatch(typeof(AscensionMenuScreens), "SwitchToScreen")]
         [HarmonyPrefix]
         public static void ClearP03SaveOnNewRun(AscensionMenuScreens.Screen screen)
         {
             if (screen == AscensionMenuScreens.Screen.Start) // At the main screen, you can't be in any style of run. Not yet.
             {
-                P03AscensionSaveData.IsP03Run = false;
-                RunBasedHoloMap.ClearWorldData();
+                ClearP03Data();
             }
         }
 
@@ -69,6 +74,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         [HarmonyPostfix]
         public static void AddP03StartOption()
         {
+            ClearP03Data();
+
             Traverse menuScreens = Traverse.Create(AscensionMenuScreens.Instance);
             GameObject startScreen = menuScreens.Field("startScreen").GetValue<GameObject>();
 

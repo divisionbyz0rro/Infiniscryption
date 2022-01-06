@@ -40,12 +40,19 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                     yield return new WaitForSeconds(0.1f);
                     hasShownLivesLost = true;
 
-
                     // And if we have no more lives, we stop this sequence entirely and move to the end of game sequence:
                     if (EventManagement.NumberOfLivesRemaining == 1) // It hasn't been decremented yet
                     {
                         yield return LostAscensionRunSequence();
                         yield break;
+                    }
+
+                    bool diedToBoss = Traverse.Create(Part3GameFlowManager.Instance).Field("diedToBoss").GetValue<bool>();
+                    bool createBloodStain = !diedToBoss && Part3SaveData.Data.currency > 0;
+                    if (!createBloodStain)
+                    {
+                        ViewManager.Instance.SwitchToView(View.MapDefault, false, false);
+		                yield return new WaitForSeconds(0.1f);
                     }
 
                     continue;
