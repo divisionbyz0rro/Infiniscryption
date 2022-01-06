@@ -16,6 +16,10 @@ Enabled = true
 LogLevels = All
 ```
 
+## Feedback
+
+Please feel free to give me feedback on the Inscryption modding discord - @divisionbyzorro
+
 ## What does this mod do:
 - Brings P03 gameplay into Kaycee's Mod. There is now a separate 'New Run' button on the main screen that will start a P03 run instead of a Leshy run.
 - P03 runs use procedurally generated maps. You will start on a hub space with a draft node (*please* remember to draft), and you can choose which of the four regions to play through. Once you enter a region, you're stuck there until you complete it.

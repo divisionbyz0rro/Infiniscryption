@@ -45,7 +45,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         public static bool DoesP03RunExist(ref bool __result)
         {
             // If we have a Part 3 Ascension Run saved, then yes - a P03 run exists
-            if (ModdedSaveManager.SaveData.GetValue(InfiniscryptionP03Plugin.PluginGuid, P03AscensionSaveData.ASCENSION_SAVE_KEY) != default(string))
+            if (!string.IsNullOrEmpty(ModdedSaveManager.SaveData.GetValue(InfiniscryptionP03Plugin.PluginGuid, P03AscensionSaveData.ASCENSION_SAVE_KEY)))
             {
                 __result = true;
                 return false;
@@ -57,13 +57,6 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         [HarmonyPrefix]
         public static void ClearP03SaveOnNewRun(AscensionMenuScreens.Screen screen)
         {
-            // I can't easily hook into the 'confirm new run' button
-            // But the only only way you get to this screen is by confirming a new run 
-            if (screen == AscensionMenuScreens.Screen.StarterDeckSelect)
-            {
-                ModdedSaveManager.SaveData.SetValue(InfiniscryptionP03Plugin.PluginGuid, P03AscensionSaveData.ASCENSION_SAVE_KEY, default(string));
-            }
-
             if (screen == AscensionMenuScreens.Screen.Start) // At the main screen, you can't be in any style of run. Not yet.
             {
                 P03AscensionSaveData.IsP03Run = false;

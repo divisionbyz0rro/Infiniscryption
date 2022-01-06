@@ -174,6 +174,9 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             // Delete the ascension save; the run is over            
             ModdedSaveManager.SaveData.SetValue(InfiniscryptionP03Plugin.PluginGuid, P03AscensionSaveData.ASCENSION_SAVE_KEY, default(string)); 
 
+            // Also delete the normal ascension current run just in case
+            AscensionSaveData.Data.currentRun = null;
+
             SaveManager.SaveToFile(true);
 
             P03AscensionSaveData.IsP03Run = false; // and force the state of p03 runs back to false
