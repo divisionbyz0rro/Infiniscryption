@@ -29,6 +29,20 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                        .Select(p => map[x + p[0], y + p[1]]);
         }
 
+        private static int OppositeDirection(int direction)
+        {
+            int retval = 0;
+            if ((direction & NORTH) != 0)
+                retval |= SOUTH;
+            if ((direction & SOUTH) != 0)
+                retval |= NORTH;
+            if ((direction & EAST) != 0)
+                retval |= WEST;
+            if ((direction & WEST) != 0)
+                retval |= EAST;
+            return retval;
+        }
+
         private static IEnumerable<HoloMapBlueprint> AdjacentToQuadrant(this HoloMapBlueprint[,] map, HoloMapBlueprint node)
         {
             return map.AdjacentToQuadrant(node.x, node.y);
@@ -203,6 +217,38 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             }
         }
 
+        private static void DiscoverAndTrimDeadEnds(HoloMapBlueprint[,] map, List<HoloMapBlueprint> nodes)
+        {
+            // Look for all 'dead ends' - that is, nodes where you can only move in one direction
+            // The goal of this is to find pointless hallways; that is, a path that simply leads to a dead end with nothing interesting.
+            // There's no need to have to walk through a hallway just to get to a dead end
+            // This trims those by removing the dead end and turning the hallway into the dead end.
+
+            // It should make the maps feel smaller. Which is good, actually. There's not a lot to do on these maps.
+
+            // We ignore the first node, because that's the starting node. And we can't risk killing the starting node
+            List<HoloMapBlueprint> possibles = nodes.Where(bp => bp.NumberOfArrows == 1 && bp != nodes[0]).ToList();
+            foreach (HoloMapBlueprint deadEnd in possibles)
+            {
+                HoloMapBlueprint adjacent = deadEnd.GetAdjacentNode(map, deadEnd.arrowDirections);
+                
+                // If the node leading into a dead end only has two directions
+                // And the color of the dead end has more than two nodes
+                // We kill the dead end and make the hall leading into it into a dead end
+                if (adjacent.NumberOfArrows == 2 && nodes.Where(bp => bp.color == deadEnd.color).Count() > 2)
+                {
+                    // Kill the arrow going into the dead end node
+                    // Right, so, the arrow going to the dead end will be the opposite direction of the arrow leaving the dead end
+                    // We AND with the complement to get rid of it
+                    adjacent.arrowDirections &= ~OppositeDirection(deadEnd.arrowDirections);
+
+                    // Now just delete the node
+                    map[deadEnd.x, deadEnd.y] = null;
+                    nodes.Remove(deadEnd);
+                }
+            }
+        }
+
         private static void DiscoverAndCreateLandmarks(HoloMapBlueprint[,] map, List<HoloMapBlueprint> nodes)
         {
             for (int c = 1; c <= 4; c++)
@@ -210,6 +256,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 List<HoloMapBlueprint> possibles = nodes.Where(bp => bp.color == c && bp.NumberOfArrows >= 3).ToList();
                 if (possibles.Count == 0)
                     possibles = nodes.Where(bp => bp.color == c && bp.NumberOfArrows == 2).ToList();
+                if (possibles.Count == 0)
+                    possibles = nodes.Where(bp => bp.color == c).ToList();
 
                 HoloMapBlueprint landmarkNode = possibles[UnityEngine.Random.Range(0, possibles.Count)];
                 landmarkNode.specialTerrain |= HoloMapBlueprint.LANDMARKER;
@@ -239,7 +287,12 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             }
         }
 
-        private static bool DiscoverAndCreateEnemyEncounter(HoloMapBlueprint[,] map, List<HoloMapBlueprint> nodes, int region, HoloMapSpecialNode.NodeDataType reward, int color = -1)
+        private static int EncounterDifficulty(int tier)
+        {
+            return 5 + tier * 2 + RunState.Run.DifficultyModifier;
+        }
+
+        private static bool DiscoverAndCreateEnemyEncounter(HoloMapBlueprint[,] map, List<HoloMapBlueprint> nodes, int tier, int region, HoloMapSpecialNode.NodeDataType reward, int color = -1)
         {
             // The goal here is to find four rooms that have only one entrance
             // Then back out to the first spot that doesn't have a choice
@@ -279,7 +332,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             {
                 enemyNode = enemyNode ?? rewardNode.GetAdjacentNode(map, rewardNode.arrowDirections);
                 enemyNode.specialDirection = DirTo(enemyNode, rewardNode);
-                enemyNode.enemyIndex = UnityEngine.Random.Range(0, REGION_DATA[region].encounters.Length);
+                enemyNode.encounterDifficulty = EncounterDifficulty(tier);
 
                 // 50% change of terrain
                 if (UnityEngine.Random.value < 0.5f)
@@ -298,9 +351,9 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         {
             // We need two spaces vertically to make this work.
             HoloMapBlueprint bossIntroRoom = null;
-            for(int i = 0; i < map.GetLength(0); i++)
+            for(int i = map.GetLength(0) - 1; i >= 0; i--)
             {
-                for (int j = 2; j < map.GetLength(1); j++)
+                for (int j = map.GetLength(1) - 1; j >= 2; j--)
                 {
                     if (map[i,j-1] == null && map[i,j-2] == null)
                     {
@@ -370,6 +423,15 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             nodes.Add(bossRoom);
         }
 
+        private static List<HoloMapBlueprint> BuildHubBlueprint(int seed)
+        {
+            List<HoloMapBlueprint> retval = new();
+            retval.Add(new(seed) { upgrade = HoloMapWaypointNode.NodeDataType.FastTravel, x=0, y=1, arrowDirections = NORTH });
+            retval.Add(new(seed) { opponent = Opponent.Type.P03Boss, x=0, y=0, arrowDirections = SOUTH });
+
+            return retval;
+        }
+
         private static List<HoloMapBlueprint> BuildBlueprint(int order, int region, int seed)
         {
             string blueprintKey = $"ascensionBlueprint{order}{region}";
@@ -379,7 +441,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 return savedBlueprint.Split('|').Select(s => new HoloMapBlueprint(s)).ToList();
 
             if (region == NEUTRAL)
-                return new() { new(seed) { upgrade = HoloMapWaypointNode.NodeDataType.FastTravel, x=0, y=0 } };
+                return BuildHubBlueprint(seed);
 
             UnityEngine.Random.InitState(seed);
             int x = 0;
@@ -436,6 +498,9 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                     if (bpBlueprint[i, j] != null && bpBlueprint[i, j] != startSpace)
                         retval.Add(bpBlueprint[i, j]);
 
+            // Trim the map
+            DiscoverAndTrimDeadEnds(bpBlueprint, retval);
+
             // Make sure that the tech zone adds the conduit to the side deck
             if (region == TECH)
                 startSpace.upgrade = HoloMapSpecialNode.NodeDataType.ModifySideDeckConduit;
@@ -455,14 +520,14 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 UnityEngine.Random.InitState(seedForChoice + colorsWithoutEnemies.Count * 1000);
                 int colorToUse = colorsWithoutEnemies[UnityEngine.Random.Range(0, colorsWithoutEnemies.Count)];
                 HoloMapSpecialNode.NodeDataType type = colorsWithoutEnemies.Count <= 2 ? HoloMapSpecialNode.NodeDataType.AddCardAbility : REGION_DATA[region].defaultReward;
-                if (DiscoverAndCreateEnemyEncounter(bpBlueprint, retval,  region, type, colorToUse))
+                if (DiscoverAndCreateEnemyEncounter(bpBlueprint, retval, order, region, type, colorToUse))
                     numberOfEncountersAdded += 1;
                 colorsWithoutEnemies.Remove(colorToUse);
             }
 
             int remainingEncountersToAdd = EventManagement.ENEMIES_TO_UNLOCK_BOSS - numberOfEncountersAdded;
             for (int i = 0; i < remainingEncountersToAdd; i++)
-                if (DiscoverAndCreateEnemyEncounter(bpBlueprint, retval, region, REGION_DATA[region].defaultReward))
+                if (DiscoverAndCreateEnemyEncounter(bpBlueprint, retval, order, region, REGION_DATA[region].defaultReward))
                     numberOfEncountersAdded += 1;
 
             InfiniscryptionP03Plugin.Log.LogInfo($"I have created {numberOfEncountersAdded} enemy encounters");

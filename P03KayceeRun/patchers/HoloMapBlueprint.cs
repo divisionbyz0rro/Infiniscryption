@@ -22,20 +22,20 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         public int arrowDirections;
         public int specialDirection;
         public int enemyType;
-        public int enemyIndex;
         public Opponent.Type opponent;
-        public HoloMapSpecialNode.NodeDataType upgrade;
+        public HoloMapNode.NodeDataType upgrade;
         public int specialTerrain;
         public int blockedDirections;
         public StoryEvent blockEvent;
         public int battleTerrainIndex;
+        public int encounterDifficulty;
 
         public int distance; // used only for generation - doesn't get saved or parsed
-        public int color; // used only for generation - doesn't get saved or parsed
+        public int color;
 
         public override string ToString()
         {
-            return $"[{randomSeed},{x},{y},{arrowDirections},{specialDirection},{enemyType},{enemyIndex},{(int)opponent},{(int)upgrade},{specialTerrain},{blockedDirections},{(int)blockEvent},{battleTerrainIndex}]";
+            return $"[{randomSeed},{x},{y},{arrowDirections},{specialDirection},{enemyType},{encounterDifficulty},{(int)opponent},{(int)upgrade},{specialTerrain},{blockedDirections},{(int)blockEvent},{battleTerrainIndex},{color}]";
         }
 
         public HoloMapBlueprint(int randomSeed) { this.randomSeed = randomSeed; this.upgrade = HoloMapSpecialNode.NodeDataType.MoveArea; }
@@ -49,13 +49,14 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             arrowDirections = int.Parse(split[3]);
             specialDirection = int.Parse(split[4]);
             enemyType = int.Parse(split[5]);
-            enemyIndex = int.Parse(split[6]);
+            encounterDifficulty = int.Parse(split[6]);
             opponent = (Opponent.Type)int.Parse(split[7]);
             upgrade = (HoloMapSpecialNode.NodeDataType)int.Parse(split[8]);
             specialTerrain = int.Parse(split[9]);
             blockedDirections = int.Parse(split[10]);
             blockEvent = (StoryEvent)int.Parse(split[11]);
             battleTerrainIndex = int.Parse(split[12]);
+            color = int.Parse(split[13]);
         }
 
         public bool EligibleForUpgrade

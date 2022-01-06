@@ -6,13 +6,25 @@ using DiskCardGame;
 using HarmonyLib;
 using System.Collections;
 using System.Collections.Generic;
-using System;
+using System.Linq;
 
 namespace Infiniscryption.Core.Helpers
 {
     public static class DialogueHelper
     {
         // Helper functions for dialogue
+
+        public static DialogueEvent.LineSet CreateLineSet(
+            string[] lineString, 
+            Emotion emotion = Emotion.Neutral, 
+            TextDisplayer.LetterAnimation animation = TextDisplayer.LetterAnimation.None, 
+            P03AnimationController.Face p03Face = P03AnimationController.Face.Default, 
+            int speakerIndex = 0)
+        {
+            return new() {
+                lines = lineString.Select(s => new DialogueEvent.Line() { text = s, emotion=emotion, letterAnimation=animation, p03Face=p03Face, speakerIndex=speakerIndex}).ToList()
+            };
+        }
 
         public static void AddOrModifySimpleDialogEvent(string eventId, string line, TextDisplayer.LetterAnimation? animation = null, Emotion? emotion = null)
         {

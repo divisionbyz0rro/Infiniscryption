@@ -10,7 +10,6 @@ using System;
 using Infiniscryption.Core.Helpers;
 using Infiniscryption.KayceeStarters.Cards;
 using Infiniscryption.KayceeStarters.UserInterface;
-using Infiniscryption.KayceeStarters.Patchers;
 using InscryptionAPI.AscensionScreens;
 
 namespace Infiniscryption.KayceeStarters
@@ -35,12 +34,15 @@ namespace Infiniscryption.KayceeStarters
 
             CustomCards.RegisterCustomCards(harmony);
 
-            harmony.PatchAll(typeof(KayceesDeckboxPatcher));
             harmony.PatchAll(typeof(SideDeckSelectorScreen));
-            harmony.PatchAll(typeof(NumberOfPeltsSelectionScreen));
+            //harmony.PatchAll(typeof(NumberOfPeltsSelectionScreen));
 
             AscensionScreenManager.RegisterScreen<SideDeckSelectorScreen>();
-            AscensionScreenManager.RegisterScreen<NumberOfPeltsSelectionScreen>();
+            
+            // I don't think I'm actually going to release this screen
+            // I think the right move is a custom starter deck that's just three pelts
+            // Rather than these sort of half measures.
+            //AscensionScreenManager.RegisterScreen<NumberOfPeltsSelectionScreen>(); 
 
             CustomNodeHelper.Initialize(harmony, Log);
 

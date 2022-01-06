@@ -18,6 +18,14 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
         internal static void RegisterCustomCards(Harmony harmony)
         {
+
+            new CustomCard("BustedPrinter") { pixelTex = AssetHelper.LoadTexture("pixel_busted_printer") };
+            new CustomCard("Amoebot") { pixelTex = AssetHelper.LoadTexture("pixel_amoebot") };
+            new CustomCard("GiftBot") { pixelTex = AssetHelper.LoadTexture("pixel_giftbot") };
+            new CustomCard("Shieldbot") { pixelTex = AssetHelper.LoadTexture("pixel_shieldbot") };
+            new CustomCard("LatcherShield") { pixelTex = AssetHelper.LoadTexture("pixel_shieldlatcher") };
+            new CustomCard("EmptyVessel") { pixelTex = AssetHelper.LoadTexture("pixel_emptyvessel") };
+
             NewCard.Add(
                 DRAFT_TOKEN,
                 "Draft Token",
@@ -26,9 +34,9 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 CardComplexity.Vanilla,
                 CardTemple.Tech,
                 "It's worth a card",
-                defaultTex: AssetHelper.LoadTexture("portrait_drafttoken")
+                defaultTex: AssetHelper.LoadTexture("portrait_drafttoken"),
+                pixelTex: AssetHelper.LoadTexture("pixel_drafttoken")
             );
-
         }
     }
 }

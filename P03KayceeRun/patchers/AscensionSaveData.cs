@@ -17,53 +17,13 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         public const string ASCENSION_SAVE_KEY = "CopyOfPart3AscensionSave";
         public const string REGULAR_SAVE_KEY = "CopyOfPart3Save";
 
-        public static List<string> CompletedZones
-        {
-            get
-            {
-                string zoneCsv = ModdedSaveManager.RunState.GetValue(InfiniscryptionP03Plugin.PluginGuid, "CompletedZones");
-                if (zoneCsv == default(string))
-                    return new List<string>();
-
-                return zoneCsv.Split(',').ToList();
-            }
-        }
-        public static void AddCompletedZone(string id)
-        {
-            List<string> zones = CompletedZones;
-            if (!zones.Contains(id))
-                zones.Add(id);
-            
-            ModdedSaveManager.RunState.SetValue(InfiniscryptionP03Plugin.PluginGuid, "CompletedZones", string.Join(",", zones));
-        }
-
-        public static List<string> VisitedZones
-        {
-            get
-            {
-                string zoneCsv = ModdedSaveManager.RunState.GetValue(InfiniscryptionP03Plugin.PluginGuid, "VisitedZones");
-                if (zoneCsv == default(string))
-                    return new List<string>();
-
-                return zoneCsv.Split(',').ToList();
-            }
-        }
-        public static void AddVisitedZone(string id)
-        {
-            List<string> zones = VisitedZones;
-            if (!zones.Contains(id))
-                zones.Add(id);
-            
-            ModdedSaveManager.RunState.SetValue(InfiniscryptionP03Plugin.PluginGuid, "VisitedZones", string.Join(",", zones));
-        }
-
         public static int RandomSeed
         {
             get
             {
                 return AscensionSaveData.Data.currentRunSeed
-                       + 10 * CompletedZones.Count
-                       + 100 * VisitedZones.Count
+                       + 10 * EventManagement.CompletedZones.Count
+                       + 100 * EventManagement.VisitedZones.Count
                        + 1000 * EventManagement.NumberOfZoneEnemiesKilled;
             }
         }
@@ -85,7 +45,6 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             }
         }
 
-        private static bool _isActiveP03Run = false;
         public static bool IsP03Run
         {
             get 
@@ -93,11 +52,14 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 if (SceneLoader.ActiveSceneName == "Part3_Cabin")
                     return true;
 
-                return _isActiveP03Run;
+                if (!String.IsNullOrEmpty(ModdedSaveManager.SaveData.GetValue(InfiniscryptionP03Plugin.PluginGuid, ASCENSION_SAVE_KEY)))
+                    return true;
+
+                return ModdedSaveManager.SaveData.GetValueAsBoolean(InfiniscryptionP03Plugin.PluginGuid, "IsP03Run");
             }
             set
             {
-                _isActiveP03Run = value;
+                ModdedSaveManager.SaveData.SetValue(InfiniscryptionP03Plugin.PluginGuid, "IsP03Run", value);
             }
         }
 
@@ -218,9 +180,12 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
                 __instance.deck = new DeckInfo();
                 __instance.deck.Cards.Clear();
-                __instance.deck.AddCard(CardLoader.GetCardByName("BatteryBot"));
-                __instance.deck.AddCard(CardLoader.GetCardByName("Shieldbot"));
-                __instance.deck.AddCard(CardLoader.GetCardByName("Sniper"));
+
+                StarterDeckInfo deckInfo = StarterDecks.StarterDeckScreen.SelectedInfo;
+
+                __instance.deck.AddCard(deckInfo.cards[0]);
+                __instance.deck.AddCard(deckInfo.cards[1]);
+                __instance.deck.AddCard(deckInfo.cards[2]);
                 __instance.deck.AddCard(CardLoader.GetCardByName(CustomCards.DRAFT_TOKEN));
                 __instance.deck.AddCard(CardLoader.GetCardByName(CustomCards.DRAFT_TOKEN));
             }

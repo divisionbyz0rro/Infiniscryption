@@ -13,6 +13,8 @@ namespace Infiniscryption.P03KayceeRun.Sequences
     [HarmonyPatch]
 	public class TradeChipsSequencer : CardChoicesSequencer
 	{
+        // This is pretty much just a copy-paste of TradePeltsSequencer.
+
         public static TradeChipsSequencer Instance { get; private set; }
 
         public TradeChipsSequencer()
@@ -55,6 +57,8 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 				yield return new WaitForSeconds(0.15f);
 
                 InfiniscryptionP03Plugin.Log.LogInfo("Spawning deck");
+                Vector3 originalDeckLocation = this.deckPile.transform.localPosition;
+                this.deckPile.transform.localPosition = DECK_LOCATION;
 				yield return this.deckPile.SpawnCards(Part3SaveData.Data.deck.Cards.Count, 0.75f);
 
 				foreach (int tier in tradingTiers)
@@ -106,6 +110,7 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 					yield return this.CleanupTradeCards(this.tradeCards);
 					yield return new WaitForSeconds(0.1f);
 					yield return this.deckPile.DestroyCards(0.5f);
+                    this.deckPile.transform.localPosition = originalDeckLocation;
 				}
 			}
 			else
@@ -259,6 +264,7 @@ namespace Infiniscryption.P03KayceeRun.Sequences
             // I don't care about unlocks or temples right now
             List<CardInfo> cards = ScriptableObjectLoader<CardInfo>.AllData.FindAll((CardInfo x) => x.metaCategories.Contains(CardMetaCategory.Part3Random));
             cards.RemoveAll((CardInfo x) => x.onePerDeck && Part3SaveData.Data.deck.Cards.Exists((CardInfo y) => y.name == x.name));
+            cards.RemoveAll(c => c.name == "Bee");
             return CardLoader.GetDistinctCardsFromPool(P03AscensionSaveData.RandomSeed, 8, cards);
 		}
 
@@ -280,6 +286,8 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 		private readonly Vector3 TOKEN_CARDS_ANCHOR = new Vector3(-2.95f, 5.01f, -1.15f);
 
 		private readonly Vector3 TOKEN_CARD_SPACING = new Vector3(0.3f, 0.04f, -0.3f);
+
+        private readonly Vector3 DECK_LOCATION = new Vector3(3.7f, 5.01f, -2.2f);
 
 		private const int RARE_CARD_TIER = 2;
 

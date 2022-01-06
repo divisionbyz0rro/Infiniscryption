@@ -62,11 +62,13 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             if (screen == AscensionMenuScreens.Screen.StarterDeckSelect)
             {
                 ModdedSaveManager.SaveData.SetValue(InfiniscryptionP03Plugin.PluginGuid, P03AscensionSaveData.ASCENSION_SAVE_KEY, default(string));
-                RunBasedHoloMap.ClearWorldData();
             }
 
             if (screen == AscensionMenuScreens.Screen.Start) // At the main screen, you can't be in any style of run. Not yet.
+            {
                 P03AscensionSaveData.IsP03Run = false;
+                RunBasedHoloMap.ClearWorldData();
+            }
         }
 
         private static readonly string[] menuItems = new string[] { "Menu_New", "Continue", "Menu_Stats", "Menu_Unlocks", "Menu_Exit", "Menu_QuitApp" };

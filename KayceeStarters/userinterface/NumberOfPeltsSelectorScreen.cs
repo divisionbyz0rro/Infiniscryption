@@ -6,15 +6,17 @@ using System.Linq;
 using Infiniscryption.KayceeStarters.Cards;
 using System;
 using GBC;
-using Infiniscryption.KayceeStarters.Patchers;
 using InscryptionAPI.AscensionScreens;
+using InscryptionAPI.Saves;
 
 namespace Infiniscryption.KayceeStarters.UserInterface
 {
     [AscensionScreenSort(AscensionScreenSort.Direction.NoPreference)]
     public class NumberOfPeltsSelectionScreen : AscensionRunSetupScreenBase
     {
-        public override string headerText => "Choose Starting Pelts";
+        public const string DRAFT_MATERIAL_GUID = "zorro.inscryption.infiniscryption.draftmaterial";
+
+        public override string headerText => "Choose Starting Cards";
         public override bool showCardDisplayer => true;
         public override bool showCardPanel => true;
 
@@ -36,9 +38,60 @@ namespace Infiniscryption.KayceeStarters.UserInterface
                 NumberOfPeltsSelectionScreen.Instance.resetSelection = true;
         }
 
+        [HarmonyPatch(typeof(AscensionSaveData), "NewRun")]
+        [HarmonyPostfix]
+        public static void ResetDeck(ref AscensionSaveData __instance)
+        {
+            if (NumberOfPeltsSelectionScreen.Instance != null)
+            {
+                __instance.currentRun.playerDeck = new DeckInfo();
+                foreach (CardInfo card in NumberOfPeltsSelectionScreen.Instance.currentDeck)
+                {
+                    __instance.currentRun.playerDeck.AddCard(card);
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(MapGenerator), "ForceFirstNodeTraderForAscension")]
+        [HarmonyPostfix]
+        public static void OverrideTraderBehavior(ref bool __result, int rowIndex)
+        {
+            __result = SaveFile.IsAscension && rowIndex == 1 && RunState.Run.regionTier == 0 && 
+                       AscensionSaveData.Data.currentRun.playerDeck.Cards.Where(c => c.name.ToLowerInvariant().Contains("pelt")).Count() > 0;
+        }
+
+        [HarmonyPatch(typeof(AscensionSaveData), "GetActiveChallengePoints")]
+        [HarmonyPostfix]
+        public static void ReduceChallengeIfCustomSideDeckSelected(ref int __result)
+        {
+            if (NumberOfPeltsSelectionScreen.Instance != null)
+                __result += NumberOfPeltsSelectionScreen.Instance.deckScore;
+        }
+
         public List<CardInfo> defaultDeck;
 
         public List<CardInfo> currentDeck;
+
+        private static readonly List<CardInfo> defaultDraftMaterial = new() {
+            CardLoader.GetCardByName("WolfPelt"),
+            CardLoader.GetCardByName("HarePelt"),
+            CardLoader.GetCardByName("HarePelt"),
+            CardLoader.GetCardByName("HarePelt"),
+            CardLoader.GetCardByName("HarePelt"),
+        };
+
+        private static List<CardInfo> GetDraftMaterialForDeck(string deckname)
+        {
+            string saveFileMaterial = ModdedSaveManager.SaveData.GetValue(DRAFT_MATERIAL_GUID, deckname);
+            if (string.IsNullOrEmpty(saveFileMaterial))
+                return defaultDraftMaterial;
+            
+            string[] deckList = saveFileMaterial.Split(',');
+            if (deckList.Length != 5)
+                return defaultDraftMaterial;
+
+            return deckList.Select(CardLoader.GetCardByName).ToList();
+        }
 
         private static List<CardInfo> GetDefaultDeck()
         {

@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Linq;
 using System.Collections.Generic;
 using System;
+using System.Collections;
 
 namespace Infiniscryption.P03KayceeRun.Patchers
 {
@@ -31,7 +32,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         public static void ActivateFastTravelUsingAscensionLogic(ref FastTravelNode __instance)
         {
             if (SaveFile.IsAscension)
-                __instance.gameObject.SetActive(fastTravelNodes.Keys.Contains(__instance.gameObject.name) && !P03AscensionSaveData.CompletedZones.Contains(__instance.gameObject.name));
+                __instance.gameObject.SetActive(fastTravelNodes.Keys.Contains(__instance.gameObject.name) && !EventManagement.CompletedZones.Contains(__instance.gameObject.name));
         }
 
         [HarmonyPatch(typeof(FastTravelNode), "OnCursorSelectEnd")]
@@ -43,7 +44,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             // Instead, we will dynamically create a world based on that node
             if (SaveFile.IsAscension)
             {
-                P03AscensionSaveData.AddVisitedZone(__instance.gameObject.name);
+                EventManagement.AddVisitedZone(__instance.gameObject.name);
 
                 Traverse nodeTraverse = Traverse.Create(__instance);
                 InfiniscryptionP03Plugin.Log.LogInfo($"SetHoveringEffectsShown");
@@ -70,26 +71,33 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         }
 
         private static bool isDroneFlying = false;
-        [HarmonyPatch(typeof(HoloMapAreaManager), "DroneFlyToArea")]
-        [HarmonyPrefix]
-        public static void SetDroneFlying()
-        {
-            isDroneFlying = true;
-        }
 
         [HarmonyPatch(typeof(HoloMapAreaManager), "DroneFlyToArea")]
-        [HarmonyPostfix]
-        public static void SetDroneNotFlying()
+        public static class ManageDroneFlying
         {
-            isDroneFlying = false;
+            [HarmonyPrefix]
+            public static void SetDroneFlying()
+            {
+                InfiniscryptionP03Plugin.Log.LogInfo("Drone flying = true");
+                FastTravelManagement.isDroneFlying = true;
+            }
+
+            [HarmonyPostfix]
+            public static IEnumerator SetDroneNotFlying(IEnumerator sequence)
+            {
+                InfiniscryptionP03Plugin.Log.LogInfo("Drone flying = false");
+                yield return sequence;
+                FastTravelManagement.isDroneFlying = false;
+            }
         }
 
         [HarmonyPatch(typeof(HoloGameMap), "UpdateColors")]
         [HarmonyPrefix]
         public static bool ManuallySetMapColorsIfDroneFlying(ref HoloGameMap __instance)
         {
-            if (SaveFile.IsAscension && isDroneFlying)
+            if (SaveFile.IsAscension && FastTravelManagement.isDroneFlying)
             {
+                InfiniscryptionP03Plugin.Log.LogInfo("Setting map colors after drone flight");
                 HoloMapArea currentArea = HoloMapAreaManager.Instance.CurrentArea;
                 Traverse mapTrav = new Traverse(__instance);
                 mapTrav.Method("SetSceneColors", new Type[] { typeof(Color), typeof(Color)}).GetValue(currentArea.MainColor, currentArea.LightColor);
@@ -98,6 +106,38 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 return false;
             }
             return true;
+        }
+
+        public static IEnumerator ReturnToHomeBase() 
+        {
+            // We do our own special sequence when you complete a boss
+            // ... we just play the drone and move you back to the hub world.
+            
+            yield return new WaitUntil(() => HoloMapAreaManager.Instance.CurrentArea != null);
+            HoloGameMap.Instance.ToggleFastTravelActive(false, false);
+            HoloMapAreaManager.Instance.CurrentArea.OnAreaActive();
+            HoloMapAreaManager.Instance.CurrentArea.OnAreaEnabled();
+
+            string worldId = RunBasedHoloMap.GetAscensionWorldID(RunBasedHoloMap.NEUTRAL);
+            Tuple<int, int> pos = RunBasedHoloMap.GetStartingSpace(RunBasedHoloMap.NEUTRAL);
+            Part3SaveData.WorldPosition worldPosition = new(worldId, pos.Item1, pos.Item2);
+
+            HoloMapAreaManager.Instance.StartCoroutine(HoloMapAreaManager.Instance.DroneFlyToArea(worldPosition, false));
+            Part3SaveData.Data.checkpointPos = worldPosition;
+
+            yield return new WaitForSeconds(1.75f);
+        }
+
+        [HarmonyPatch(typeof(HoloGameMap), "ToggleFastTravelActive")]
+        [HarmonyPrefix]
+        public static void LogThisStupidError(ref HoloGameMap __instance)
+        {
+            Traverse mapTraverse = Traverse.Create(__instance);
+            InfiniscryptionP03Plugin.Log.LogInfo($"Fast travel map {mapTraverse.Field("fastTravelMap").GetValue<HoloFastTravelMap>()}");
+            InfiniscryptionP03Plugin.Log.LogInfo($"Current area {HoloMapAreaManager.Instance.CurrentArea}");
+            InfiniscryptionP03Plugin.Log.LogInfo($"Current area gameobject {HoloMapAreaManager.Instance.CurrentArea.gameObject}");
+            InfiniscryptionP03Plugin.Log.LogInfo($"Current area marker {HoloMapPlayerMarker.Instance}");
+            InfiniscryptionP03Plugin.Log.LogInfo($"Current area marker gameobject {HoloMapPlayerMarker.Instance.gameObject}");
         }
     }
 }

@@ -6,8 +6,8 @@ using System.Linq;
 using Infiniscryption.KayceeStarters.Cards;
 using System;
 using GBC;
-using Infiniscryption.KayceeStarters.Patchers;
 using InscryptionAPI.AscensionScreens;
+using InscryptionAPI.Saves;
 
 namespace Infiniscryption.KayceeStarters.UserInterface
 {
@@ -30,10 +30,38 @@ namespace Infiniscryption.KayceeStarters.UserInterface
             GameObject selectedBorderPrefab = Resources.Load<GameObject>("prefabs/gbcui/pixelselectionborder");
             GameObject selectedBorder = GameObject.Instantiate(selectedBorderPrefab, this.cards[0].gameObject.transform.parent);
             selectedBorder.GetComponent<SpriteRenderer>().color = GameColors.Instance.brightNearWhite; // Got this color off of the unityexplorer
+            selectedBorder.AddComponent<PixelSnapElement>();
             this.selectedBorder = selectedBorder;
 
             // Save the instance
             Instance = this;
+        }
+
+        public const int SIDE_DECK_SIZE = 10;
+
+        public static string SelectedSideDeck
+        {
+            get 
+            { 
+                string sideDeck = ModdedSaveManager.SaveData.GetValue(InfiniscryptionKayceeStartersPlugin.PluginGuid, "SideDeck.SelectedDeck");
+                if (String.IsNullOrEmpty(sideDeck))
+                    return CustomCards.SideDecks.Squirrel.ToString();
+
+                return sideDeck; 
+            }
+            set { ModdedSaveManager.SaveData.SetValue(InfiniscryptionKayceeStartersPlugin.PluginGuid, "SideDeck.SelectedDeck", value.ToString()); }
+        }
+
+        [HarmonyPatch(typeof(Part1CardDrawPiles), "SideDeckData", MethodType.Getter)]
+        [HarmonyPrefix]
+        public static bool ReplaceSideDeck(ref List<CardInfo> __result)
+        {
+            __result = new List<CardInfo>();
+            string selectedDeck = SelectedSideDeck;
+            for (int i = 0; i < SIDE_DECK_SIZE; i++)
+                __result.Add(CardLoader.GetCardByName(selectedDeck));
+
+            return false;
         }
 
         [HarmonyPatch(typeof(AscensionSaveData), "EndRun")]
@@ -42,16 +70,50 @@ namespace Infiniscryption.KayceeStarters.UserInterface
         {
             if (SideDeckSelectorScreen.Instance != null)
             {
-                KayceesDeckboxPatcher.SelectedSideDeck = "Squirrel";
+                SelectedSideDeck = "Squirrel";
                 SideDeckSelectorScreen.Instance.resetSelection = true;
             }
         }
 
+        [HarmonyPatch(typeof(AscensionSaveData), "GetActiveChallengePoints")]
+        [HarmonyPostfix]
+        public static void ReduceChallengeIfCustomSideDeckSelected(ref int __result)
+        {
+            if (SideDeckSelectorScreen.Instance != null)
+                __result += SideDeckSelectorScreen.Instance.SideDeckPoints;
+        }
+
+        private static bool IsP03Run
+        {
+            get { return ModdedSaveManager.SaveData.GetValueAsBoolean("zorro.inscryption.infiniscryption.p03kayceerun", "IsP03Run"); }
+        }
+
         private static List<string> GetAllValidSideDeckCards()
         {
-            return CardLoader.AllData.Where(
-                    card => card.traits.Any(tr => (int)tr == (int)CustomCards.SIDE_DECK_MARKER)
-                ).Select(card => card.name).ToList();
+            if (!AscensionSaveData.Data.ChallengeIsActive(AscensionChallenge.SubmergeSquirrels))
+            {
+                if (!IsP03Run)
+                {
+                    return CardLoader.AllData.Where(
+                            card => card.traits.Any(tr => (int)tr == (int)CustomCards.SIDE_DECK_MARKER)
+                        ).Select(card => card.name).ToList();
+                }
+                else
+                {
+                    return new() { "EmptyVessel" };
+                }
+            }
+            else
+            {
+                if (!IsP03Run)
+                {
+                    return new() { "AquaSquirrel" };
+                }
+                else
+                {
+                    return new() { "EmptyVessel" };
+                }
+            }
         }
 
         public override void LeftButtonClicked(MainInputInteractable button)
@@ -65,8 +127,7 @@ namespace Infiniscryption.KayceeStarters.UserInterface
 
         public override void RightButtonClicked(MainInputInteractable button)
         {
-            List<CardInfo> cardsToShow = inHardMode ? hardModeSideDeckCards : sideDeckCards;
-            if ((scrollIndex + 1) * this.cards.Count < cardsToShow.Count)
+            if ((scrollIndex + 1) * this.cards.Count < this.sideDeckCards.Count)
             {
                 scrollIndex += 1;
                 ShowPage();
@@ -77,29 +138,26 @@ namespace Infiniscryption.KayceeStarters.UserInterface
 
         private void VisualUpdate(bool immediate=false)
         {
-            if (this.gameObject.activeSelf)
+            CardInfo selectedCard = CardLoader.GetCardByName(SelectedSideDeck);
+
+            string message = String.Format(Localization.Translate("{0} SELECTED"), Localization.ToUpper(selectedCard.DisplayedNameLocalized));
+            SideDeckPoints = selectedCard.name == sideDeckCards[0].name ? 0 : -10;
+            this.DisplayChallengeInfo(message, SideDeckPoints, immediate);
+
+            this.challengeHeaderDisplay.UpdateText();
+
+            // This bit sorts out the border    
+            foreach (PixelSelectableCard card in this.cards)
             {
-                CardInfo selectedCard = CardLoader.GetCardByName(KayceesDeckboxPatcher.SelectedSideDeck);
-
-                string message = String.Format(Localization.Translate("{0} SELECTED"), Localization.ToUpper(selectedCard.DisplayedNameLocalized));
-                SideDeckPoints = selectedCard.name.ToLowerInvariant() == "Squirrel" ? 0 : -10;
-                this.DisplayChallengeInfo(message, SideDeckPoints, immediate);
-
-                this.challengeHeaderDisplay.UpdateText();
-
-                // This bit sorts out the border    
-                foreach (PixelSelectableCard card in this.cards)
+                if (card.Info.name == SelectedSideDeck)
                 {
-                    if (card.Info.name == KayceesDeckboxPatcher.SelectedSideDeck)
-                    {
-                        this.selectedBorder.SetActive(true);
-                        this.selectedBorder.transform.localPosition = card.transform.localPosition + card.transform.Find("Base/PixelSnap").localPosition;
-                        return;
-                    }
+                    this.selectedBorder.SetActive(true);
+                    this.selectedBorder.transform.SetParent(card.transform.Find("Base/PixelSnap"));
+                    return;
                 }
-
-                this.selectedBorder.SetActive(false);
             }
+
+            this.selectedBorder.SetActive(false);
         }
 
         public override void CardClicked(PixelSelectableCard card)
@@ -108,37 +166,33 @@ namespace Infiniscryption.KayceeStarters.UserInterface
             if (card != null && card.Info != null)
             {
                 InfiniscryptionKayceeStartersPlugin.Log.LogInfo($"Setting selection to {card.Info.name}");
-                KayceesDeckboxPatcher.SelectedSideDeck = card.Info.name;
+                SelectedSideDeck = card.Info.name;
 
                 VisualUpdate();
             }
         }
-
-        public List<CardInfo> hardModeSideDeckCards; 
 
         private bool inHardMode = false;
 
         private int scrollIndex = 0;
 
         private GameObject selectedBorder;
+
         public bool resetSelection = true;
 
         public void ShowPage()
         {
             InfiniscryptionKayceeStartersPlugin.Log.LogInfo($"Side deck screen: setting page {scrollIndex}. I have {this.cards.Count} card objects to play with");
 
-            List<CardInfo> cardsToShow = inHardMode ? hardModeSideDeckCards : sideDeckCards;
-
             int startIdx = this.cards.Count * scrollIndex;
-            int numToShow = Math.Min(this.cards.Count, cardsToShow.Count - startIdx);
-            this.ShowCards(cardsToShow.GetRange(startIdx, numToShow));
+            int numToShow = Math.Min(this.cards.Count, sideDeckCards.Count - startIdx);
+            this.ShowCards(sideDeckCards.GetRange(startIdx, numToShow));
         }
 
         public void InitializeCardSelection()
         {
             InfiniscryptionKayceeStartersPlugin.Log.LogInfo($"Setting card infos");
             this.sideDeckCards = GetAllValidSideDeckCards().Select(CardLoader.GetCardByName).ToList();
-            this.hardModeSideDeckCards = new List<CardInfo>() { CardLoader.GetCardByName("AquaSquirrel") };
 
             // Hide the left and right buttons if the number of available side deck cards is <= the number of card panels
             this.leftButton.gameObject.SetActive(this.cards.Count < this.sideDeckCards.Count);
