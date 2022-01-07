@@ -52,7 +52,9 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 if (SceneLoader.ActiveSceneName == "Part3_Cabin")
                     return true;
 
-                if (!String.IsNullOrEmpty(ModdedSaveManager.SaveData.GetValue(InfiniscryptionP03Plugin.PluginGuid, ASCENSION_SAVE_KEY)))
+                if (AscensionMenuScreens.Instance != null && 
+                    AscensionMenuScreens.Instance.CurrentScreen == AscensionMenuScreens.Screen.Start &&
+                    !String.IsNullOrEmpty(ModdedSaveManager.SaveData.GetValue(InfiniscryptionP03Plugin.PluginGuid, ASCENSION_SAVE_KEY)))
                     return true;
 
                 return ModdedSaveManager.SaveData.GetValueAsBoolean(InfiniscryptionP03Plugin.PluginGuid, "IsP03Run");
@@ -187,7 +189,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 __instance.deck.AddCard(deckInfo.cards[1]);
                 __instance.deck.AddCard(deckInfo.cards[2]);
                 __instance.deck.AddCard(CardLoader.GetCardByName(CustomCards.DRAFT_TOKEN));
-                __instance.deck.AddCard(CardLoader.GetCardByName(CustomCards.RARE_DRAFT_TOKEN));
+                __instance.deck.AddCard(CardLoader.GetCardByName(CustomCards.DRAFT_TOKEN));
 
                 __instance.sideDeckAbilities.Add(Ability.ConduitNull);
             }

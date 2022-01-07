@@ -21,6 +21,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             {
                 // Reduce the number of lives
                 EventManagement.NumberOfLivesRemaining = EventManagement.NumberOfLivesRemaining - 1;
+                EventManagement.NumberOfZoneEnemiesKilled = 0;
             }
         }
 

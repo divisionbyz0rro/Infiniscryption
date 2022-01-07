@@ -1,8 +1,8 @@
 {
-    "name": "Kaycee's Deck Manager",
+    "name": "P03_In_Kaycees_Mod",
     "version_number": "0.1.0",
     "website_url": "https://github.com/divisionbyz0rro/Infiniscryption",
-    "description": "[BETA] Choose a new side deck before starting a run in Kaycee's Mod.",
+    "description": "[BETA] Play against P03 in Kaycee's Mod.",
     "dependencies": [
         "BepInEx-BepInExPack_Inscryption-5.4.1701",
         "API_dev-API-1.12.1",

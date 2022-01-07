@@ -39,7 +39,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         {
             P03StarterDecks = new() {
                 CreateStarterDeckInfo("Snipers", "starterdeck_icon_snipers", new string[] {"Sniper", "BustedPrinter", "SentryBot" }),
-                CreateStarterDeckInfo("Random", "starterdeck_icon_random", new string[] {"Amoebot", "GiftBot", "GiftBot" }),
+                CreateStarterDeckInfo("Random", "starterdeck_icon_random", new string[] {"Amoebot", "GiftBot", "EnergyRoller" }),
                 CreateStarterDeckInfo("Shield", "starterdeck_icon_shield", new string[] {"BoltHound", "Shieldbot", "LatcherShield" }),
                 CreateStarterDeckInfo("Energy", "starterdeck_icon_energy", new string[] {"CloserBot", "BatteryBot", "BatteryBot" })
             };
