@@ -119,13 +119,13 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 }
                 if ((int)storyEvent == (int)HAS_DRAFT_TOKEN)
                 {
-                    __result = Part3SaveData.Data.deck.Cards.Any(card => card.name == CustomCards.DRAFT_TOKEN);
+                    __result = Part3SaveData.Data.deck.Cards.Any(card => card.name == CustomCards.DRAFT_TOKEN || card.name == CustomCards.RARE_DRAFT_TOKEN);
                     return false;
                 }
 
                 if (storyEvent == StoryEvent.GemsModuleFetched) // Simply going to this world 'completes' that story event for you
                 {
-                    __result = EventManagement.VisitedZones.Contains("FastTravelMapNode_Wizard");
+                    __result = true;
                     return false;
                 }
 

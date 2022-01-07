@@ -355,7 +355,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             {
                 for (int j = map.GetLength(1) - 1; j >= 2; j--)
                 {
-                    if (map[i,j-1] == null && map[i,j-2] == null)
+                    if (map[i,j] != null && map[i,j-1] == null && map[i,j-2] == null)
                     {
                         bossIntroRoom = map[i,j];
                         break;
@@ -502,8 +502,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             DiscoverAndTrimDeadEnds(bpBlueprint, retval);
 
             // Make sure that the tech zone adds the conduit to the side deck
-            if (region == TECH)
-                startSpace.upgrade = HoloMapSpecialNode.NodeDataType.ModifySideDeckConduit;
+            //if (region == TECH)
+            //    startSpace.upgrade = HoloMapSpecialNode.NodeDataType.ModifySideDeckConduit;
             
             // Do some special sequencing
             DiscoverAndCreateLandmarks(bpBlueprint, retval);

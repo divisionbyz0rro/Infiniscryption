@@ -187,7 +187,9 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 __instance.deck.AddCard(deckInfo.cards[1]);
                 __instance.deck.AddCard(deckInfo.cards[2]);
                 __instance.deck.AddCard(CardLoader.GetCardByName(CustomCards.DRAFT_TOKEN));
-                __instance.deck.AddCard(CardLoader.GetCardByName(CustomCards.DRAFT_TOKEN));
+                __instance.deck.AddCard(CardLoader.GetCardByName(CustomCards.RARE_DRAFT_TOKEN));
+
+                __instance.sideDeckAbilities.Add(Ability.ConduitNull);
             }
         }
     }

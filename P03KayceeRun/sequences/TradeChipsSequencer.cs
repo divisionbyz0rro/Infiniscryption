@@ -161,7 +161,8 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 
 		private IEnumerator CreateTokenCards(int tier)
 		{
-			List<CardInfo> cardInfos = Part3SaveData.Data.deck.Cards.FindAll((CardInfo x) => x.name == CustomCards.DRAFT_TOKEN);
+			string tierName = tier == 2 ? CustomCards.RARE_DRAFT_TOKEN : CustomCards.DRAFT_TOKEN;
+			List<CardInfo> cardInfos = Part3SaveData.Data.deck.Cards.FindAll((CardInfo x) => x.name == tierName);
 			int numPelts = Mathf.Min((tier == 2) ? 4 : 8, cardInfos.Count);
 			for (int i = 0; i < numPelts; i++)
 			{
@@ -255,17 +256,44 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 			List<int> list = new List<int>();
             if (Part3SaveData.Data.deck.Cards.Any(c => c.name == CustomCards.DRAFT_TOKEN))
                 list.Add(0);
+			if (Part3SaveData.Data.deck.Cards.Any(c => c.name == CustomCards.RARE_DRAFT_TOKEN))
+                list.Add(2);
 			return list;
+		}
+
+		private bool IsValidDraftCard(CardInfo card)
+		{
+			if (card.temple != CardTemple.Tech)
+				return false;
+
+			foreach (CardMetaCategory cat in card.metaCategories)
+			{
+				if (cat == CustomCards.NeutralRegion) return true;
+				if (cat == CustomCards.WizardRegion) return true;
+				if (cat == CustomCards.TechRegion) return true;
+				if (cat == CustomCards.UndeadRegion) return true;
+				if (cat == CustomCards.NatureRegion) return true;
+				if (cat == CardMetaCategory.ChoiceNode) return true;
+			}
+
+			return false;
 		}
 
 		private List<CardInfo> GetTradeCardInfos(int tier)
 		{
             // Any part 3 card is fair game in this case
             // I don't care about unlocks or temples right now
-            List<CardInfo> cards = ScriptableObjectLoader<CardInfo>.AllData.FindAll((CardInfo x) => x.metaCategories.Contains(CardMetaCategory.Part3Random));
+            List<CardInfo> cards = ScriptableObjectLoader<CardInfo>.AllData.FindAll(IsValidDraftCard);
+
+			if (tier != 2)
+				cards.RemoveAll(c => c.metaCategories.Contains(CardMetaCategory.Rare));
+			if (tier == 2)
+				cards.RemoveAll(c => !c.metaCategories.Contains(CardMetaCategory.Rare));
+
             cards.RemoveAll((CardInfo x) => x.onePerDeck && Part3SaveData.Data.deck.Cards.Exists((CardInfo y) => y.name == x.name));
-            cards.RemoveAll(c => c.name == "Bee");
-            return CardLoader.GetDistinctCardsFromPool(P03AscensionSaveData.RandomSeed, 8, cards);
+
+			int numberOfCards = tier == 2 ? 4 : 8;
+            return CardLoader.GetDistinctCardsFromPool(P03AscensionSaveData.RandomSeed, numberOfCards, cards);
 		}
 
 		private string GetTierName(int tier)

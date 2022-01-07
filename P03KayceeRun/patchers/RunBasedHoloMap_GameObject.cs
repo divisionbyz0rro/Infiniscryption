@@ -619,6 +619,11 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             return $"ascension_{EventManagement.CompletedZones.Count}_{regionCode}";
         }
 
+        public static int GetRegionCodeFromWorldID(string worldId)
+        {
+            return int.Parse(worldId[worldId.Length - 1].ToString());
+        }
+
         public static Tuple<int, int> GetStartingSpace(int regionCode)
         {
             return regionCode == NEUTRAL ? new(0, 1) : new(0, 2);
