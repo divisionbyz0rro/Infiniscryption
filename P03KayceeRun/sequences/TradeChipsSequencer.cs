@@ -73,7 +73,7 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 
                     InfiniscryptionP03Plugin.Log.LogInfo("Creating trade cards");
 					yield return new WaitForSeconds(0.15f);
-					yield return this.CreateTradeCards(this.GetTradeCardInfos(tier), 4, tier == 2);
+					yield return this.CreateTradeCards(this.GetTradeCardInfos(tier), CARDS_PER_ROW, tier == RARE_CARD_TIER);
 
                     InfiniscryptionP03Plugin.Log.LogInfo("Adding rulebook");
 					TableRuleBook.Instance.SetOnBoard(true);
@@ -161,9 +161,9 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 
 		private IEnumerator CreateTokenCards(int tier)
 		{
-			string tierName = tier == 2 ? CustomCards.RARE_DRAFT_TOKEN : CustomCards.DRAFT_TOKEN;
+			string tierName = tier == RARE_CARD_TIER ? CustomCards.RARE_DRAFT_TOKEN : CustomCards.DRAFT_TOKEN;
 			List<CardInfo> cardInfos = Part3SaveData.Data.deck.Cards.FindAll((CardInfo x) => x.name == tierName);
-			int numPelts = Mathf.Min((tier == 2) ? 4 : 8, cardInfos.Count);
+			int numPelts = Mathf.Min((tier == RARE_CARD_TIER) ? NUM_RARE_CARDS : NUM_CARDS, cardInfos.Count);
 			for (int i = 0; i < numPelts; i++)
 			{
 				this.deckPile.Draw();
@@ -257,7 +257,7 @@ namespace Infiniscryption.P03KayceeRun.Sequences
             if (Part3SaveData.Data.deck.Cards.Any(c => c.name == CustomCards.DRAFT_TOKEN))
                 list.Add(0);
 			if (Part3SaveData.Data.deck.Cards.Any(c => c.name == CustomCards.RARE_DRAFT_TOKEN))
-                list.Add(2);
+                list.Add(RARE_CARD_TIER);
 			return list;
 		}
 
@@ -285,14 +285,14 @@ namespace Infiniscryption.P03KayceeRun.Sequences
             // I don't care about unlocks or temples right now
             List<CardInfo> cards = ScriptableObjectLoader<CardInfo>.AllData.FindAll(IsValidDraftCard);
 
-			if (tier != 2)
+			if (tier != RARE_CARD_TIER)
 				cards.RemoveAll(c => c.metaCategories.Contains(CardMetaCategory.Rare));
-			if (tier == 2)
+			if (tier == RARE_CARD_TIER)
 				cards.RemoveAll(c => !c.metaCategories.Contains(CardMetaCategory.Rare));
 
             cards.RemoveAll((CardInfo x) => x.onePerDeck && Part3SaveData.Data.deck.Cards.Exists((CardInfo y) => y.name == x.name));
 
-			int numberOfCards = tier == 2 ? 4 : 8;
+			int numberOfCards = tier == RARE_CARD_TIER ? NUM_RARE_CARDS : NUM_CARDS;
             return CardLoader.GetDistinctCardsFromPool(P03AscensionSaveData.RandomSeed, numberOfCards, cards);
 		}
 
@@ -321,7 +321,7 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 
 		private const int NUM_CARDS = 8;
 
-		private const int NUM_RARE_CARDS = 4;
+		private const int NUM_RARE_CARDS = 3;
 
 		private const int CARDS_PER_ROW = 4;
 	}

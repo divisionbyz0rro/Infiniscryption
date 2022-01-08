@@ -190,6 +190,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 __instance.deck.AddCard(deckInfo.cards[2]);
                 __instance.deck.AddCard(CardLoader.GetCardByName(CustomCards.DRAFT_TOKEN));
                 __instance.deck.AddCard(CardLoader.GetCardByName(CustomCards.DRAFT_TOKEN));
+                __instance.deck.AddCard(CardLoader.GetCardByName("TechMoxTriple")); // Testing
 
                 __instance.sideDeckAbilities.Add(Ability.ConduitNull);
             }

@@ -27,12 +27,13 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
         private readonly static List<CardMetaCategory> GBC_RARE_PLAYABLES = new() { CardMetaCategory.GBCPack, CardMetaCategory.GBCPlayable, CardMetaCategory.Rare, CardMetaCategory.ChoiceNode };
 
-        private static void UpdateExistingCard(string name, string textureKey, string pixelTextureKey, string regionCode)
+        private static void UpdateExistingCard(string name, string textureKey, string pixelTextureKey, string regionCode, string decalTextureKey)
         {
             if (string.IsNullOrEmpty(name))
                 return;
 
             CustomCard customCard = new CustomCard(name);
+            CardInfo card = null;
 
             if (!string.IsNullOrEmpty(textureKey))
                 customCard.tex = AssetHelper.LoadTexture(textureKey);
@@ -42,11 +43,14 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
             if (!string.IsNullOrEmpty(regionCode))
             {
-                CardInfo card = CardLoader.GetCardByName(name);
+                card = card ?? CardLoader.GetCardByName(name);
                 List<CardMetaCategory> cats = card.metaCategories;
                 cats.Add((CardMetaCategory)GuidManager.GetEnumValue<CardMetaCategory>(InfiniscryptionP03Plugin.PluginGuid, regionCode));
                 customCard.metaCategories = cats;
             }
+
+            if (!string.IsNullOrEmpty(decalTextureKey))
+                customCard.decals = new () { AssetHelper.LoadTexture(decalTextureKey) };
         }
 
         internal static void RegisterCustomCards(Harmony harmony)
@@ -57,8 +61,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             foreach(string line in lines.Skip(1))
             {
                 string[] cols = line.Split(new char[] { ',' } , StringSplitOptions.None);
-                InfiniscryptionP03Plugin.Log.LogInfo($"I see line {string.Join(";", cols)}");
-                UpdateExistingCard(cols[0], cols[1], cols[2], cols[3]);
+                //InfiniscryptionP03Plugin.Log.LogInfo($"I see line {string.Join(";", cols)}");
+                UpdateExistingCard(cols[0], cols[1], cols[2], cols[3], cols[4]);
             }
 
 
