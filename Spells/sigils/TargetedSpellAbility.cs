@@ -50,8 +50,14 @@ namespace Infiniscryption.Spells.Sigils
                 info.appliesToAttack = true;
                 info.appliesToHealth = true;
                 info.rulebookName = "Spell (Targeted)";
-                info.rulebookDescription = "This card is not a creature and dies immediately when played. When played, it will target and affect a single chosen space on the board.";
+                info.rulebookDescription = "When played, this card will target and affect a chosen space on the board and then disappear.";
+                info.gbcDescription = "Targeted spell";
                 info.iconGraphic = AssetHelper.LoadTexture("targeted_spell_stat_icon");
+                info.pixelIconGraphic = Sprite.Create(
+                    AssetHelper.LoadTexture("targeted_spell_icon_pixel", FilterMode.Point),
+                    new Rect(0f, 0f, 16f, 8f),
+                    new Vector2(0.5f, 0.5f)
+                );
 
                 Instance = new NewSpecialAbility(typeof(TargetedSpellAbility), ID, info);
                 _icon = Instance.statIconInfo.iconType;

@@ -28,12 +28,17 @@ namespace Infiniscryption.Spells.Sigils
         {
             AbilityInfo info = AbilityInfoUtils.CreateInfoWithDefaultSettings(
                 "Direct Damage",
-                "When this card attacks a slot, it deals 1 extra damage to that slot."
+                "Deals damage directly to a target."
             );
             info.canStack = true;
             info.powerLevel = 1;            
             info.passive = false;
             info.metaCategories = new List<AbilityMetaCategory>() { AbilityMetaCategory.Part1Rulebook };
+            info.pixelIcon = Sprite.Create(
+                AssetHelper.LoadTexture("damage_pixel", FilterMode.Point),
+                new Rect(0f, 0f, 17f, 17f),
+                new Vector2(0.5f, 0.5f)
+            );
 
             NewAbility ability = new NewAbility(
                 info,
