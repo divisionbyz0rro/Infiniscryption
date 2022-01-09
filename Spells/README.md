@@ -23,6 +23,8 @@ Because Kaycee's Mod (the free expansion for Inscryption) is imminent, no more d
 
 This mod would not be possible without signifcant contributions from @Kopie in the Inscryption Modding discord channel.
 
+Pixel icons were contributed by [Arakulele](https://inscryption.thunderstore.io/package/Arackulele/).
+
 ## Does this pack add any cards?
 
 It can, but it doesn't by default. If you want my example cards added to the card pool, go to the config file 'zorro.inscryption.infiniscryption.spells.cfg' and set 'AddCards' to true.
@@ -199,6 +201,9 @@ As of this release, the API has a defect that will not allow custom sigils to st
 
 <details>
 <summary>Changelog</summary>
+
+1.2.7
+- Added pixel icons for compatibility with GBC mode
 
 1.2.6
 - Prevented the game from soft locking if you back out of casting a spell partway through sacrificing creatures.

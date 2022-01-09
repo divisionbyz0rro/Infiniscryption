@@ -1,9 +1,12 @@
 using DiskCardGame;
+using GBC;
 using HarmonyLib;
 using Infiniscryption.Core.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
 using UnityEngine;
 
 namespace Infiniscryption.StackableSigils.Patchers
@@ -34,6 +37,25 @@ namespace Infiniscryption.StackableSigils.Patchers
             AssetHelper.LoadTexture("Stack_7_med"),
             AssetHelper.LoadTexture("Stack_8_med"),
             AssetHelper.LoadTexture("Stack_9_med")
+        };
+
+        private static Sprite GetGBCNumberSprite(int number)
+        {
+            Texture2D texture = AssetHelper.LoadTexture("stack_gbc", FilterMode.Point);
+            return Sprite.Create(texture, new Rect(0f, 10f * (9f-number), 15f, 10f), new Vector2(0.5f, 0.5f));
+        }
+
+        private static Sprite[] GBC_NUMBER_SPRITES = new Sprite[]
+        {
+            GetGBCNumberSprite(1),
+            GetGBCNumberSprite(2),
+            GetGBCNumberSprite(3),
+            GetGBCNumberSprite(4),
+            GetGBCNumberSprite(5),
+            GetGBCNumberSprite(6),
+            GetGBCNumberSprite(7),
+            GetGBCNumberSprite(8),
+            GetGBCNumberSprite(9),
         };
 
         private static Color[] _topBorder = null;
@@ -318,6 +340,144 @@ namespace Infiniscryption.StackableSigils.Patchers
                 InfiniscryptionStackableSigilsPlugin.Log.LogInfo($"Ability {ability.ToString()} stacks {count} times");
                 // We need to add an override
                 __instance.SetIcon(PatchTexture(ability, count));
+            }
+        }
+
+        [HarmonyPatch(typeof(PixelCardAbilityIcons), "DisplayAbilities", new Type[] { typeof(List<Ability>), typeof(PlayableCard)})]
+        [HarmonyPrefix]
+        public static bool PatchPixelCardStacks(ref PixelCardAbilityIcons __instance, List<Ability> abilities, PlayableCard card)
+        {
+            List<Tuple<Ability, int>> grps = abilities.Distinct().Select(a => new Tuple<Ability, int>(a, abilities.Where(ab => ab == a).Count())).ToList();
+            Traverse iconTraverse = Traverse.Create(__instance);
+            List<GameObject> abilityIconGroups = iconTraverse.Field("abilityIconGroups").GetValue<List<GameObject>>();
+
+            if (abilityIconGroups.Count > 0)
+            {
+                foreach (GameObject gameObject in abilityIconGroups)
+                    gameObject.gameObject.SetActive(false);
+                
+                if (grps.Count > 0 && grps.Count - 1 < abilityIconGroups.Count)
+                {
+                    GameObject iconGroup = abilityIconGroups[grps.Count - 1];
+                    iconGroup.gameObject.SetActive(true);
+                    SpriteRenderer[] componentsInChildren = iconGroup.GetComponentsInChildren<SpriteRenderer>();
+                    for (int i = 0; i < componentsInChildren.Length; i++)
+                    {
+                        SpriteRenderer abilityRenderer = componentsInChildren[i];
+                        AbilityInfo info = AbilitiesUtil.GetInfo(grps[i].Item1);
+                        abilityRenderer.sprite = info.pixelIcon;
+                        if (info.flipYIfOpponent && card != null && card.OpponentCard)
+                        {
+                            if (info.customFlippedPixelIcon)
+                                abilityRenderer.sprite = info.customFlippedPixelIcon;
+                            else
+                                abilityRenderer.flipY = true;
+                        }
+                        else
+                        {
+                            abilityRenderer.flipY = false;
+                        }
+
+                        // And now my custom code to add the ability counter
+                        Transform countTransform = abilityRenderer.transform.Find("Count");
+                        if (countTransform == null)
+                        {
+                            GameObject counter = GameObject.Instantiate(abilityRenderer.transform.parent.parent.parent.parent.parent.parent.Find("Count").gameObject, abilityRenderer.transform);
+                            counter.name = "Count";
+                            counter.transform.localPosition = new Vector3(.03f, -.05f, 0f);
+                            countTransform = counter.transform;
+                        }
+
+                        if (grps[i].Item2 <= 1)
+                            countTransform.gameObject.SetActive(false);
+                        else
+                        {
+                            countTransform.gameObject.SetActive(true);
+                            countTransform.gameObject.GetComponent<SpriteRenderer>().sprite = GBC_NUMBER_SPRITES[grps[i].Item2 - 1];
+                        }
+                    }
+                }
+                iconTraverse.Field("conduitIcon").GetValue<GameObject>().SetActive(abilities.Exists((Ability x) => AbilitiesUtil.GetInfo(x).conduit));
+                Ability ability = abilities.Find((Ability x) => AbilitiesUtil.GetInfo(x).activated);
+
+                PixelActivatedAbilityButton button = iconTraverse.Field("activatedAbilityButton").GetValue<PixelActivatedAbilityButton>();
+                if (ability > Ability.None)
+                {
+                    button.gameObject.SetActive(true);
+                    button.SetAbility(ability);
+                }
+                else
+                {
+                    button.gameObject.SetActive(false);
+                }
+            }
+            return false;
+        }
+
+        public static string StripAlso(string input)
+        {
+            return input.Replace(Localization.Translate("Also: "), "");
+        }
+
+        public static string StackDescription(string input)
+        {
+            string[] lines = input.Split('\n');
+            string retval = lines[0];
+            int duplicateCount = 0;
+            for (int i = 1; i < lines.Length; i++)
+            {
+                if (lines[i] == lines[i-1])
+                {
+                    duplicateCount += 1;
+                }
+                else
+                {
+                    if (duplicateCount > 0)
+                        retval = retval + $" (x{duplicateCount + 1})";
+                    retval = retval + "\n" + lines[i];
+                    duplicateCount = 0;
+                }
+            }
+            if (duplicateCount > 0 )
+            {
+                retval = retval + $" (x{duplicateCount + 1})";
+            } 
+            return retval;
+        }
+
+        public static class KayceesDescriptionPatch
+        {
+
+            [HarmonyPatch(typeof(CardInfo), "GetGBCDescriptionLocalized")]
+            [HarmonyPostfix]
+            public static void GetStackedGBCDescriptionLocalized(ref string __result)
+            {
+                __result = StackDescription(__result);        
+            }
+
+        }
+
+        public static class OldSchoolDescriptionPatch
+        {
+
+            private static MethodInfo stackDescriptionHelper = AccessTools.Method(typeof(StackAbilityIcons), "StackDescription");
+
+            [HarmonyPatch(typeof(CardPreviewPanel), "DisplayDescription")]
+            [HarmonyTranspiler]
+            public static IEnumerable<CodeInstruction> TranspilerPatch(IEnumerable<CodeInstruction> instructions)
+            {
+                List<CodeInstruction> codeInstructions = instructions.ToList();
+                for (int i = 0; i < codeInstructions.Count - 5; i++)
+                    yield return codeInstructions[i];
+
+                // Now we have the string pass through the StackDescription before it goes to the component
+                yield return new CodeInstruction(OpCodes.Ldloc_0);
+                yield return new CodeInstruction(OpCodes.Callvirt, stackDescriptionHelper);
+                yield return new CodeInstruction(OpCodes.Stloc_0);
+
+                // And return the remaining instructions
+                for (int i = codeInstructions.Count - 5; i < codeInstructions.Count; i++)
+                    yield return codeInstructions[i];
             }
         }
     }

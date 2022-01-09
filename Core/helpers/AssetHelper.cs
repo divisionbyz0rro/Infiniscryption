@@ -45,9 +45,12 @@ namespace Infiniscryption.Core.Helpers
             }
         }
 
-        public static Texture2D LoadTexture(string texture)
+        public static Texture2D LoadTexture(string texture, FilterMode? filterMode = null)
         {
             Texture2D retval = new Texture2D(2, 2);
+            
+            if (filterMode.HasValue)
+                retval.filterMode = filterMode.Value;
 
             byte[] imgBytes = GetResourceBytes(texture, "png", Assembly.GetExecutingAssembly());
             retval.LoadImage(imgBytes);

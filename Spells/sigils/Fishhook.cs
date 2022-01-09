@@ -34,6 +34,11 @@ namespace Infiniscryption.Spells.Sigils
             info.canStack = false;            
             info.passive = false;
             info.metaCategories = new List<AbilityMetaCategory>() { AbilityMetaCategory.Part1Rulebook };
+            info.pixelIcon = Sprite.Create(
+                AssetHelper.LoadTexture("fishhook_pixel", FilterMode.Point),
+                new Rect(0f, 0f, 17f, 17f),
+                new Vector2(0.5f, 0.5f)
+            );
 
             NewAbility ability = new NewAbility(
                 info,

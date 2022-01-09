@@ -51,8 +51,14 @@ namespace Infiniscryption.Spells.Sigils
                 info.appliesToAttack = true;
                 info.appliesToHealth = true;
                 info.rulebookName = "Spell (Global)";
-                info.rulebookDescription = "This card is not a creature, does not need an empty space on the board, and dies immediately when played.";
+                info.rulebookDescription = "When played, this card will cause an immediate effect and then disappear.";
+                info.gbcDescription = "Global spell";
                 info.iconGraphic = AssetHelper.LoadTexture("global_spell_stat_icon");
+                info.pixelIconGraphic = Sprite.Create(
+                    AssetHelper.LoadTexture("global_spell_icon_pixel", FilterMode.Point),
+                    new Rect(0f, 0f, 16f, 8f),
+                    new Vector2(0.5f, 0.5f)
+                );
 
                 Instance = new NewSpecialAbility(typeof(GlobalSpellAbility), ID, info);
                 _icon = Instance.statIconInfo.iconType;

@@ -28,11 +28,16 @@ namespace Infiniscryption.Spells.Sigils
         {
             AbilityInfo info = AbilityInfoUtils.CreateInfoWithDefaultSettings(
                 "Direct Heal",
-                "When this card is targeted at a friendly card, it heals one point of damage. This can overheal."
+                "Heals the target. This can heal the target beyond its original max health."
             );
             info.canStack = true;
             info.passive = false;
             info.metaCategories = new List<AbilityMetaCategory>() { AbilityMetaCategory.Part1Rulebook };
+            info.pixelIcon = Sprite.Create(
+                AssetHelper.LoadTexture("direct_heal_pixel", FilterMode.Point),
+                new Rect(0f, 0f, 17f, 17f),
+                new Vector2(0.5f, 0.5f)
+            );
 
             NewAbility ability = new NewAbility(
                 info,

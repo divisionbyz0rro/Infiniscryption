@@ -31,6 +31,14 @@ namespace Infiniscryption.StackableSigils
 
             harmony.PatchAll(typeof(StackAbilityIcons));
 
+
+
+            System.Type testType = AccessTools.TypeByName("DiskCardGame.AscensionMenuScreens");
+            if (testType == null)
+                harmony.PatchAll(typeof(StackAbilityIcons.OldSchoolDescriptionPatch));
+            else
+                harmony.PatchAll(typeof(StackAbilityIcons.KayceesDescriptionPatch));
+
             Logger.LogInfo($"Plugin {PluginName} is loaded!");
         }
     }
