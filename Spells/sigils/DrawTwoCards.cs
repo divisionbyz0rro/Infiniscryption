@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using APIPlugin;
 using DiskCardGame;
 using Infiniscryption.Core.Helpers;
+using UnityEngine;
 
 namespace Infiniscryption.Spells.Sigils
 {
@@ -27,9 +28,14 @@ namespace Infiniscryption.Spells.Sigils
         {
             AbilityInfo info = AbilityInfoUtils.CreateInfoWithDefaultSettings(
                 "Draw Twice",
-                "Draw the top card of your main deck and side deck when this card dies."
+                "Draw two cards."
             );
             info.canStack = true;
+            info.pixelIcon = Sprite.Create(
+                AssetHelper.LoadTexture("drawtwocardsondeath_pixel", FilterMode.Point),
+                new Rect(0f, 0f, 17f, 17f),
+                new Vector2(0.5f, 0.5f)
+            );
 
             NewAbility ability = new NewAbility(
                 info,

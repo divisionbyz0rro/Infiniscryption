@@ -5,6 +5,7 @@ using APIPlugin;
 using DiskCardGame;
 using Infiniscryption.Core.Helpers;
 using Infiniscryption.Spells;
+using UnityEngine;
 
 namespace Infiniscryption.Spells.Sigils
 {
@@ -31,6 +32,11 @@ namespace Infiniscryption.Spells.Sigils
                 "Destroys every other creature on board when this card dies."
             );
             info.powerLevel = 6;
+            info.pixelIcon = Sprite.Create(
+                AssetHelper.LoadTexture("nuke_pixel", FilterMode.Point),
+                new Rect(0f, 0f, 17f, 17f),
+                new Vector2(0.5f, 0.5f)
+            );
 
             NewAbility ability = new NewAbility(
                 info,

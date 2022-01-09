@@ -25,11 +25,16 @@ namespace Infiniscryption.Spells.Sigils
         {
             AbilityInfo info = AbilityInfoUtils.CreateInfoWithDefaultSettings(
                 "Attack Up",
-                "When this card is targeted at a friendly card, it increases that card's attack by 1 for the rest of the battle."
+                "Increases the target's attack for the rest of the battle."
             );
             info.canStack = true;
             info.passive = false;
             info.metaCategories = new List<AbilityMetaCategory>() { AbilityMetaCategory.Part1Rulebook };
+            info.pixelIcon = Sprite.Create(
+                AssetHelper.LoadTexture("attack_up_pixel", FilterMode.Point),
+                new Rect(0f, 0f, 17f, 17f),
+                new Vector2(0.5f, 0.5f)
+            );
 
             NewAbility ability = new NewAbility(
                 info,
