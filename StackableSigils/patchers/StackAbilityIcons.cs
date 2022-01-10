@@ -351,6 +351,8 @@ namespace Infiniscryption.StackableSigils.Patchers
             Traverse iconTraverse = Traverse.Create(__instance);
             List<GameObject> abilityIconGroups = iconTraverse.Field("abilityIconGroups").GetValue<List<GameObject>>();
 
+            //InfiniscryptionStackableSigilsPlugin.Log.LogInfo($"abilityIconGroups {abilityIconGroups}");
+
             if (abilityIconGroups.Count > 0)
             {
                 foreach (GameObject gameObject in abilityIconGroups)
@@ -360,8 +362,14 @@ namespace Infiniscryption.StackableSigils.Patchers
                 {
                     GameObject iconGroup = abilityIconGroups[grps.Count - 1];
                     iconGroup.gameObject.SetActive(true);
-                    SpriteRenderer[] componentsInChildren = iconGroup.GetComponentsInChildren<SpriteRenderer>();
-                    for (int i = 0; i < componentsInChildren.Length; i++)
+
+                    List<SpriteRenderer> componentsInChildren = new();
+                    foreach (Transform child in iconGroup.transform)
+                        componentsInChildren.Add(child.gameObject.GetComponent<SpriteRenderer>());
+
+                    componentsInChildren.RemoveAll(sr => sr == null);
+
+                    for (int i = 0; i < componentsInChildren.Count; i++)
                     {
                         SpriteRenderer abilityRenderer = componentsInChildren[i];
                         AbilityInfo info = AbilitiesUtil.GetInfo(grps[i].Item1);
@@ -379,14 +387,32 @@ namespace Infiniscryption.StackableSigils.Patchers
                         }
 
                         // And now my custom code to add the ability counter
+                        // But only if we need to
                         Transform countTransform = abilityRenderer.transform.Find("Count");
+
+                        if (countTransform == null && grps[i].Item2 <= 1)
+                            continue;
+
+//InfiniscryptionStackableSigilsPlugin.Log.LogInfo($"countTransform {countTransform}");
                         if (countTransform == null)
                         {
-                            GameObject counter = GameObject.Instantiate(abilityRenderer.transform.parent.parent.parent.parent.parent.parent.Find("Count").gameObject, abilityRenderer.transform);
+                            GameObject counter = new GameObject();
+                            counter.transform.SetParent(abilityRenderer.transform);
+                            counter.layer = LayerMask.NameToLayer("GBCPauseMenu");
+                            SpriteRenderer renderer = counter.AddComponent<SpriteRenderer>();
+                            renderer.size = new Vector2(0.14f, 0.08f);
+                            renderer.color = new Color(1f, 1f, 1f, 1f);
+                            renderer.adaptiveModeThreshold = 0.5f;
+                            renderer.enabled = true;
+                            renderer.sortingLayerName = "PauseMenuUI";
+                            renderer.sortingOrder = 200;
+
                             counter.name = "Count";
                             counter.transform.localPosition = new Vector3(.03f, -.05f, 0f);
                             countTransform = counter.transform;
                         }
+                        //InfiniscryptionStackableSigilsPlugin.Log.LogInfo($"countTransform.gameObject {countTransform.gameObject}");
+                        //InfiniscryptionStackableSigilsPlugin.Log.LogInfo($"countTransform.gameObject.spriterenderer {countTransform.gameObject.GetComponent<SpriteRenderer>()}");
 
                         if (grps[i].Item2 <= 1)
                             countTransform.gameObject.SetActive(false);

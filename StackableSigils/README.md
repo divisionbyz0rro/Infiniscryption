@@ -18,6 +18,8 @@ Some of the game's original sigils don't always behave the way you would expect 
 
 <details>
 <summary>Changelog</summary>
+1.1.1
+- Fixed defect with GBC cards going to battle.
 
 1.1.0
 - Added GBC card support
