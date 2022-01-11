@@ -83,6 +83,9 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 UpdateExistingCard(cols[0], cols[1], cols[2], cols[3], cols[4]);
             }
 
+            // This creates all the sprites behind the scenes so we're ready to go
+            RandomStupidAssApePortrait.RandomApePortrait.GenerateApeSprites(); 
+
             NewCard.Add(
                 DRAFT_TOKEN,
                 "Draft Token",
@@ -136,7 +139,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 "Stupid-Ass Ape",
                 0, 1,
                 new List<CardMetaCategory>() { },
-                CardComplexity.Vanilla,
+                CardComplexity.Advanced,
                 CardTemple.Tech,
                 "To the moon!"
             );
@@ -146,9 +149,14 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         [HarmonyPostfix]
         public static void SpellBackground(ref Card __instance)
         {
-            if (__instance.Info.name == NFT || __instance.Info.name == BLOCKCHAIN || __instance.Info.name == GOLLYCOIN)
+            if (__instance.Info.name == BLOCKCHAIN || __instance.Info.name == GOLLYCOIN)
             {
                 __instance.gameObject.AddComponent<HighResAlternatePortrait>().ApplyAppearance();
+            }
+
+            if (__instance.Info.name == NFT)
+            {
+                __instance.gameObject.AddComponent<RandomStupidAssApePortrait>().ApplyAppearance();
             }
         }
     }

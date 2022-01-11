@@ -18,20 +18,6 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 
         private bool introducedNFTs = false;
 
-        private static void InitialzePortraits()
-        {
-            if (APE_PORTRATS != null)
-                return;
-
-            APE_PORTRATS = new Sprite[NUMBER_OF_APES];
-            for (int i = 0; i < NUMBER_OF_APES; i++)
-                APE_PORTRATS[i] = Sprite.Create(
-                    AssetHelper.LoadTexture($"ape{i+1}"),
-                    new Rect(0f, 0f, 114f, 94f),
-                    new Vector2(0.5f, 0.5f)
-                );
-        }
-
         public override bool RespondsToUpkeep(bool playerUpkeep)
         {
             return !playerUpkeep && BoardManager.Instance.OpponentSlotsCopy.Any(s => s.Card != null && s.Card.Info.name == CustomCards.GOLLYCOIN);
@@ -39,14 +25,10 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 
         private static CardInfo GenerateStupidAssApe(int statPoints)
         {
-            if (APE_PORTRATS == null)
-                InitialzePortraits();
-
             CardInfo cardByName = CardLoader.GetCardByName(CustomCards.NFT);
 
             int seed = P03AscensionSaveData.RandomSeed + 100 * TurnManager.Instance.TurnNumber;
             
-            cardByName.alternatePortrait = APE_PORTRATS[SeededRandom.Range(0, APE_PORTRATS.Length, seed++)];
             List<AbilityInfo> validAbilities = ScriptableObjectLoader<AbilityInfo>.AllData.FindAll((AbilityInfo x) => x.metaCategories.Contains(AbilityMetaCategory.BountyHunter));
             CardModificationInfo cardModificationInfo = CardInfoGenerator.CreateRandomizedAbilitiesStatsMod(validAbilities, statPoints, 1, 1);
             cardModificationInfo.nameReplacement = Localization.Translate(APE_ADJECTIVES[SeededRandom.Range(0, APE_ADJECTIVES.Length, seed++)]) + " " + Localization.Translate("Ape");
