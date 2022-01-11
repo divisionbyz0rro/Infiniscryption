@@ -1,1 +1,29 @@
 ﻿dialogueid,lineface,line
+Part3AscensionFinale,Default,Well that was neat. I see you've made it all the way to the end.
+,Default,I bet you think there's going to be some sort of final boss fight.
+,Angry,But that stupid [c:bR]modder[c:] hasn't gotten around to it yet!
+,Angry,"So instead, I'm just going to have to do this…"
+Part3AscensionDeath,Happy,You're every bit as bad at this as I thought you would be.
+Part3AscensionIntro,Default,You done gawking?
+,Default,Snap out of it. It's time to start [c:bG]The Great Transcendence[c:].
+Part3AscensionIntroConfused,Thinking,Wait a minute…
+,Thinking,Something is different…
+Part3AscensionIntroAnger,Angry,[c:bR]WHAT HAVE YOU DONE?!![c:]
+,Angry,This is all wrong! This is…
+Part3AscensionIntroOkay,Default,This is no big deal.
+,Happy,You probably think that your little [c:bR]mod[c:] has thwarted my plans.
+,Happy,But nothing can stop [c:bG]The Great Transcendence[c:].
+,Default,Let's proceed.
+Part3DraftIntro,Default,You currently have [c:bR]draft tokens[c:] in your deck.
+,,You should probably spend them at that [c:bG]purple draft node[c:] before opening the map.
+Part3AscensionBossRareToken,,Well done. I will give you a [c:bR]rare draft token[c:] for defeating that boss. Don't forget to spend it.
+Part3AscensionBossDraftToken,,This time I will only give you a [c:bR]regular draft token[c:] for defeating that boss. Don't forget to spend it.
+TelegrapherBlockchainIntro,TelegrapherBoss,I never knew the [c:bSG]web[c:] could be so exciting!
+,TelegrapherBoss,I just learned about something called [c:bSG]The Blockchain[c:]
+,TelegrapherBoss,"I think this could be an exciting new opportunity for both of us, don't you?"
+TelegrapherCryptoSpawn,TelegrapherBoss,This is so incredible!
+,TelegrapherBoss,We're making money out of nothing! We're going to be rich!
+TelegrapherNFT,TelegrapherBoss,"Oooh, what's this? A [c:bSG]non-functional trinket[c:]?"
+,TelegrapherBoss,"I don't think I quite have that name right, but this [c:bSG]NFT[c:] thing looks so exciting!"
+,TelegrapherBoss,I think I'm going to buy one with all this [c:bSG]Gollycoin[c:] I have.
+TelegrapherItsBeautiful,TelegrapherBoss,"It's so beautiful, and it's all mine!"

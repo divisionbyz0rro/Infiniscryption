@@ -11,9 +11,12 @@ using Infiniscryption.Core.Helpers;
 using APIPlugin;
 using InscryptionAPI.Guid;
 using System.Linq;
+using Infiniscryption.P03KayceeRun.Cards;
+using Infiniscryption.P03KayceeRun.Sequences;
 
 namespace Infiniscryption.P03KayceeRun.Patchers
 {
+    [HarmonyPatch]
     public static class CustomCards
     {
         public static readonly CardMetaCategory NeutralRegion = (CardMetaCategory)GuidManager.GetEnumValue<CardMetaCategory>(InfiniscryptionP03Plugin.PluginGuid, "NeutralRegionCards");
@@ -24,8 +27,20 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
         public const string DRAFT_TOKEN = "P03_Draft_Token";
         public const string RARE_DRAFT_TOKEN = "P03_Draft_Token_Rare";
+        public const string GOLLYCOIN = "P03_GollyCoin";
+        public const string BLOCKCHAIN = "P03_Blockchain";
+        public const string NFT = "P03_NFT";
 
         private readonly static List<CardMetaCategory> GBC_RARE_PLAYABLES = new() { CardMetaCategory.GBCPack, CardMetaCategory.GBCPlayable, CardMetaCategory.Rare, CardMetaCategory.ChoiceNode };
+
+        internal static Sprite GetSprite(string textureKey)
+        {
+            return Sprite.Create(
+                AssetHelper.LoadTexture(textureKey),
+                new Rect(0f, 0f, 114f, 94f),
+                new Vector2(0.5f, 0.5f)
+            );
+        }
 
         private static void UpdateExistingCard(string name, string textureKey, string pixelTextureKey, string regionCode, string decalTextureKey)
         {
@@ -55,6 +70,9 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
         internal static void RegisterCustomCards(Harmony harmony)
         {
+            // Register all the custom ability
+            ConduitSpawnCrypto.Register();
+
             // Load the custom cards from the CSV database
             string database = AssetHelper.GetResourceString("card_database", "csv");
             string[] lines = database.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
@@ -64,7 +82,6 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 //InfiniscryptionP03Plugin.Log.LogInfo($"I see line {string.Join(";", cols)}");
                 UpdateExistingCard(cols[0], cols[1], cols[2], cols[3], cols[4]);
             }
-
 
             NewCard.Add(
                 DRAFT_TOKEN,
@@ -89,6 +106,50 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 defaultTex: AssetHelper.LoadTexture("portrait_drafttoken_plusplus"),
                 pixelTex: AssetHelper.LoadTexture("pixel_drafttoken")
             );
+
+            NewCard.Add(
+                BLOCKCHAIN,
+                "Blockchain",
+                0, 5,
+                new List<CardMetaCategory>() { },
+                CardComplexity.Vanilla,
+                CardTemple.Tech,
+                "To the moon!",
+                abilities: new() { Ability.DebuffEnemy, Ability.DeathShield, Ability.ConduitNull},
+                abilityIdsParam: new() { ConduitSpawnCrypto.Identifier },
+                altTex: AssetHelper.LoadTexture("portrait_blockchain")
+            );
+
+            NewCard.Add(
+                GOLLYCOIN,
+                "GollyCoin",
+                0, 2,
+                new List<CardMetaCategory>() { },
+                CardComplexity.Vanilla,
+                CardTemple.Tech,
+                "To the moon!",
+                altTex: AssetHelper.LoadTexture("portrait_gollycoin")
+            );
+
+            NewCard.Add(
+                NFT,
+                "Stupid-Ass Ape",
+                0, 1,
+                new List<CardMetaCategory>() { },
+                CardComplexity.Vanilla,
+                CardTemple.Tech,
+                "To the moon!"
+            );
+        }
+
+        [HarmonyPatch(typeof(Card), "ApplyAppearanceBehaviours")]
+        [HarmonyPostfix]
+        public static void SpellBackground(ref Card __instance)
+        {
+            if (__instance.Info.name == NFT || __instance.Info.name == BLOCKCHAIN || __instance.Info.name == GOLLYCOIN)
+            {
+                __instance.gameObject.AddComponent<HighResAlternatePortrait>().ApplyAppearance();
+            }
         }
     }
 }

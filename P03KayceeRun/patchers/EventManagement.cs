@@ -13,6 +13,14 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         public const StoryEvent ALL_ZONE_ENEMIES_KILLED = (StoryEvent)8055;
         public const StoryEvent ALL_BOSSES_KILLED = (StoryEvent)805535;
         public const StoryEvent HAS_DRAFT_TOKEN = (StoryEvent)2477;
+        public const StoryEvent SAW_P03_INTRODUCTION = (StoryEvent)12740;
+        public const StoryEvent GOLLY_NFT = (StoryEvent)1337579;
+
+        public static readonly StoryEvent[] P03AscensionSaveEvents = new StoryEvent[]
+        {
+            SAW_P03_INTRODUCTION,
+            GOLLY_NFT
+        };
 
         public static int UpgradePrice
         {
@@ -100,6 +108,18 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             return StoryEvent.WoodcarverDefeated;
         }
 
+        [HarmonyPatch(typeof(StoryEventsData), "SetEventCompleted")]
+        [HarmonyPrefix]
+        public static bool P03AscensionStoryCompleted(StoryEvent storyEvent)
+        {
+            if (SaveFile.IsAscension && P03AscensionSaveData.IsP03Run && P03AscensionSaveEvents.Contains(storyEvent))
+            {
+                ModdedSaveManager.SaveData.SetValue(InfiniscryptionP03Plugin.PluginGuid, $"StoryEvent{storyEvent}", true);
+                return false;
+            }
+            return true;
+        }
+
         [HarmonyPatch(typeof(StoryEventsData), "EventCompleted")]
         [HarmonyPrefix]
         public static bool P03AscensionStoryData(ref bool __result, StoryEvent storyEvent)
@@ -132,6 +152,12 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 if (storyEvent == StoryEvent.HoloTechTempleSatelliteActivated)
                 {
                     __result = true;
+                    return false;
+                }
+
+                if (P03AscensionSaveEvents.Contains(storyEvent))
+                {
+                    __result = ModdedSaveManager.SaveData.GetValueAsBoolean(InfiniscryptionP03Plugin.PluginGuid, $"StoryEvent{storyEvent}");
                     return false;
                 }
             }

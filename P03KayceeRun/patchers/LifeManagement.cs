@@ -63,20 +63,6 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             yield break;
         }
 
-        [HarmonyPatch(typeof(DialogueDataUtil), "ReadDialogueData")]
-        [HarmonyPostfix]
-        public static void AddSequenceDialogue()
-        {
-            // I need some more control over dialogue than the simple helper gives me
-            DialogueDataUtil.Data.events.Add(new DialogueEvent() {
-                id = "Part3AscensionDeath",
-                speakers = new List<DialogueEvent.Speaker>() { DialogueEvent.Speaker.Single, DialogueEvent.Speaker.P03 },
-                mainLines = new(new List<DialogueEvent.Line>() {
-                    new() { p03Face = P03AnimationController.Face.Happy, text="You're every bit as bad at this as I thought you would be", specialInstruction=""}
-                })
-            });
-        }
-
         private static IEnumerator LostAscensionRunSequence()
         {
             ViewManager.Instance.SwitchToView(View.P03Face, false, false);

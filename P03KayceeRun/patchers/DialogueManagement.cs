@@ -14,49 +14,13 @@ using System.Linq;
 
 namespace Infiniscryption.P03KayceeRun.Patchers
 {
+    [HarmonyPatch]
     public static class DialogueManagement
     {
-        private static void UpdateExistingCard(string name, string textureKey, string pixelTextureKey, string regionCode, string decalTextureKey)
+        private static void AddDialogue(string id, List<string> lines, List<string> faces)
         {
-            if (string.IsNullOrEmpty(name))
-                return;
+            InfiniscryptionP03Plugin.Log.LogInfo($"Creating dialogue {id}, {string.Join(",", lines)}");
 
-            CustomCard customCard = new CustomCard(name);
-            CardInfo card = null;
-
-            if (!string.IsNullOrEmpty(textureKey))
-                customCard.tex = AssetHelper.LoadTexture(textureKey);
-
-            if (!string.IsNullOrEmpty(pixelTextureKey))
-                customCard.pixelTex = AssetHelper.LoadTexture(pixelTextureKey);
-
-            if (!string.IsNullOrEmpty(regionCode))
-            {
-                card = card ?? CardLoader.GetCardByName(name);
-                List<CardMetaCategory> cats = card.metaCategories;
-                cats.Add((CardMetaCategory)GuidManager.GetEnumValue<CardMetaCategory>(InfiniscryptionP03Plugin.PluginGuid, regionCode));
-                customCard.metaCategories = cats;
-            }
-
-            if (!string.IsNullOrEmpty(decalTextureKey))
-                customCard.decals = new () { AssetHelper.LoadTexture(decalTextureKey) };
-        }
-
-        internal static void RegisterCustomCards(Harmony harmony)
-        {
-            // Load the custom cards from the CSV database
-            string database = AssetHelper.GetResourceString("card_database", "csv");
-            string[] lines = database.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-            foreach(string line in lines.Skip(1))
-            {
-                string[] cols = line.Split(new char[] { ',' } , StringSplitOptions.None);
-                //InfiniscryptionP03Plugin.Log.LogInfo($"I see line {string.Join(";", cols)}");
-                UpdateExistingCard(cols[0], cols[1], cols[2], cols[3], cols[4]);
-            }
-        }
-
-        private static void AddDialogue(string id, List<string> faces, List<string> lines)
-        {
             if (string.IsNullOrEmpty(id))
                 return;
 
@@ -66,9 +30,41 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 mainLines = new(faces.Zip(lines, (face, line) => new DialogueEvent.Line() {
                     text = line,
                     specialInstruction = "",
-                    p03Face = (P03AnimationController.Face)Enum.Parse(typeof(P03AnimationController.Face), face)
+                    p03Face = (P03AnimationController.Face)Enum.Parse(typeof(P03AnimationController.Face), (String.IsNullOrEmpty(face) ? "NoChange" : face))
                 }).ToList())
             });
+        }
+
+        private static List<string> SplitColumn(string col, char sep = ',', char quote = '"')
+        {
+            bool isQuoted = false;
+            List<string> retval = new();
+            string cur = string.Empty;
+            foreach (char c in col)
+            {
+                if (c == sep && !isQuoted)
+                {
+                    retval.Add(cur);
+                    cur = string.Empty;
+                    continue;
+                }
+
+                if (c == quote && cur == string.Empty)
+                {
+                    isQuoted = true;
+                    continue;
+                }
+
+                if (c == quote && cur != string.Empty && isQuoted)
+                {
+                    isQuoted = false;
+                    continue;
+                }
+
+                cur += c;
+            }
+            retval.Add(cur);
+            return retval;
         }
 
         [HarmonyPatch(typeof(DialogueDataUtil), "ReadDialogueData")]
@@ -83,7 +79,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             List<string> dialogueFaces = new();
             foreach(string line in lines.Skip(1))
             {
-                string[] cols = line.Split(new char[] { ',' } , StringSplitOptions.None);
+                List<string> cols = SplitColumn(line);
                 
                 if (string.IsNullOrEmpty(cols[0]))
                 {
@@ -95,8 +91,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 AddDialogue(dialogueId, dialogueLines, dialogueFaces);
 
                 dialogueId = cols[0];
-                dialogueLines.Add(cols[2]);
-                dialogueFaces.Add(cols[1]);
+                dialogueLines = new() { cols[2] };
+                dialogueFaces = new() { cols[1] };
             }
 
             AddDialogue(dialogueId, dialogueLines, dialogueFaces);

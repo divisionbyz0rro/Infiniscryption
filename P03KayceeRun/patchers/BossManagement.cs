@@ -6,34 +6,13 @@ using System;
 using System.Collections;
 using UnityEngine;
 using System.Collections.Generic;
+using Infiniscryption.P03KayceeRun.Sequences;
 
 namespace Infiniscryption.P03KayceeRun.Patchers
 {
     [HarmonyPatch]
     public static class BossManagement
     {
-        [HarmonyPatch(typeof(DialogueDataUtil), "ReadDialogueData")]
-        [HarmonyPostfix]
-        public static void AddSequenceDialogue()
-        {
-            // I need some more control over dialogue than the simple helper gives me
-            DialogueDataUtil.Data.events.Add(new DialogueEvent() {
-                id = "Part3AscensionBossRareToken",
-                speakers = new List<DialogueEvent.Speaker>() { DialogueEvent.Speaker.Single, DialogueEvent.Speaker.P03 },
-                mainLines = new(new List<DialogueEvent.Line>() {
-                    new() { p03Face = P03AnimationController.Face.NoChange, text="Well done. I will give you a [c:bR]rare draft token[c:] for defeating that boss. Don't forget to spend it.", specialInstruction=""}
-                })
-            });
-
-            DialogueDataUtil.Data.events.Add(new DialogueEvent() {
-                id = "Part3AscensionBossDraftToken",
-                speakers = new List<DialogueEvent.Speaker>() { DialogueEvent.Speaker.Single, DialogueEvent.Speaker.P03 },
-                mainLines = new(new List<DialogueEvent.Line>() {
-                    new() { p03Face = P03AnimationController.Face.NoChange, text="This time I will only give you a [c:bR]regular draft token[c:] for defeating that boss. Don't forget to spend it.", specialInstruction=""}
-                })
-            });
-        }
-
         [HarmonyPatch(typeof(HoloGameMap), "BossDefeatedSequence")]
         [HarmonyPostfix]
         public static IEnumerator AscensionP03BossDefeatedSequence(IEnumerator sequence, StoryEvent bossDefeatedStoryEvent)
@@ -61,6 +40,73 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             yield return FastTravelManagement.ReturnToHomeBase();
 
             yield break;
+        }
+
+        private static void AddBossSequencer<T>(TurnManager manager) where T : SpecialBattleSequencer
+        {
+            GameObject.Destroy(manager.SpecialSequencer);
+            SpecialBattleSequencer sequencer = manager.gameObject.AddComponent<T>();
+            Traverse trav = Traverse.Create(manager);
+            trav.Property("SpecialSequencer").SetValue(sequencer);
+        }
+
+        [HarmonyPatch(typeof(TurnManager), "UpdateSpecialSequencer")]
+        [HarmonyPrefix]
+        public static bool ReplaceSequencers(string specialBattleId, ref TurnManager __instance)
+        {
+            if (SaveFile.IsAscension && P03AscensionSaveData.IsP03Run)
+            {
+                if (specialBattleId == BossBattleSequencer.GetSequencerIdForBoss(Opponent.Type.TelegrapherBoss))
+                {
+                    AddBossSequencer<TelegrapherAscensionSequencer>(__instance);
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static Opponent.Type[] SUPPORTED_OPPONENTS = new Opponent.Type[] { 
+            Opponent.Type.TelegrapherBoss
+        };
+
+        [HarmonyPatch(typeof(Opponent), "SpawnOpponent")]
+        [HarmonyPrefix]
+        public static bool ReplaceOpponent(EncounterData encounterData, ref Opponent __result)
+        {
+            if (!(SaveFile.IsAscension && P03AscensionSaveData.IsP03Run))
+                return true;
+
+            if (!SUPPORTED_OPPONENTS.Contains(encounterData.opponentType))
+                return true;
+
+            GameObject gameObject = new GameObject();
+			gameObject.name = "Opponent";
+			Opponent.Type opponentType = encounterData.opponentType;
+			Opponent opponent;
+			switch (opponentType)
+			{
+			    case Opponent.Type.TelegrapherBoss:
+				    opponent = gameObject.AddComponent<TelegrapherAscensionOpponent>();
+				    break;
+			
+			    default:
+                    throw new InvalidOperationException("Somehow got into a patch for ascension opponents that's not supported");
+			}
+			string text = encounterData.aiId;
+			if (string.IsNullOrEmpty(text))
+			{
+				text = "AI";
+			}
+			opponent.AI = (Activator.CreateInstance(CustomType.GetType("DiskCardGame", text)) as AI);
+			opponent.NumLives = opponent.StartingLives;
+			opponent.OpponentType = opponentType;
+			opponent.TurnPlan = opponent.ModifyTurnPlan(encounterData.opponentTurnPlan);
+			opponent.Blueprint = encounterData.Blueprint;
+			opponent.Difficulty = encounterData.Difficulty;
+			opponent.ExtraTurnsToSurrender = SeededRandom.Range(0, 3, SaveManager.SaveFile.GetCurrentRandomSeed());
+			__result = opponent;
+            return false;
         }
     }
 }
