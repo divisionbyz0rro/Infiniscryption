@@ -11,7 +11,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine.UI;
 using Infiniscryption.Core.Helpers;
-using InscryptionAPI.Challenges;
+using InscryptionAPI.Ascension;
 
 namespace Infiniscryption.Curses.Patchers
 {
@@ -37,7 +37,7 @@ namespace Infiniscryption.Curses.Patchers
                 "Opposing creatures gain random abilities",
                 15,
                 AssetHelper.LoadTexture("challenge_random_sigils")
-            );
+            ).challengeType;
 
             harmony.PatchAll(typeof(RandomSigils));
         }

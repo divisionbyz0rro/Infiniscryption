@@ -11,18 +11,28 @@ namespace Infiniscryption.P03KayceeRun.Patchers
     [HarmonyPatch]
     public static class ScreenManagement
     {
+        public static Opponent.Type ScreenState { get; private set; } = Opponent.Type.Default;
+
         [HarmonyPatch(typeof(AscensionMenuScreens), "TransitionToGame")]
         [HarmonyPrefix]
         public static void InitializeP03SaveData(ref AscensionMenuScreens __instance, bool newRun)
         {
-            if (newRun && P03AscensionSaveData.IsP03Run)
+            if (newRun)
             {
-                // Ensure the old part 3 save data gets saved if it needs to be
-                P03AscensionSaveData.EnsureRegularSave();
-                Part3SaveData data = new Part3SaveData();
-                data.Initialize();
-                SaveManager.SaveFile.part3Data = data;
-                SaveManager.SaveToFile();
+                if (ScreenState == Opponent.Type.P03Boss)
+                {
+                    // Ensure the old part 3 save data gets saved if it needs to be
+                    P03AscensionSaveData.EnsureRegularSave();
+                    P03AscensionSaveData.IsP03Run = true;
+                    Part3SaveData data = new Part3SaveData();
+                    data.Initialize();
+                    SaveManager.SaveFile.part3Data = data;
+                    SaveManager.SaveToFile();
+                }
+                else
+                {
+                    P03AscensionSaveData.IsP03Run = false;
+                }
             }
         }
 
@@ -45,7 +55,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         public static bool DoesP03RunExist(ref bool __result)
         {
             // If we have a Part 3 Ascension Run saved, then yes - a P03 run exists
-            if (!string.IsNullOrEmpty(ModdedSaveManager.SaveData.GetValue(InfiniscryptionP03Plugin.PluginGuid, P03AscensionSaveData.ASCENSION_SAVE_KEY)))
+            if (!string.IsNullOrEmpty(ModdedSaveManager.SaveData.GetValue(P03Plugin.PluginGuid, P03AscensionSaveData.ASCENSION_SAVE_KEY)))
             {
                 __result = true;
                 return false;
@@ -55,7 +65,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
         private static void ClearP03Data()
         {
-            P03AscensionSaveData.IsP03Run = false;
+            ScreenState = Opponent.Type.Default;
             RunBasedHoloMap.ClearWorldData();
         }
 
@@ -99,7 +109,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             newP03Button.name = "Menu_New_P03";
             AscensionMenuInteractable newP03ButtonController = newP03Button.GetComponent<AscensionMenuInteractable>();
             newP03ButtonController.CursorSelectStarted = delegate (MainInputInteractable i) {
-                P03AscensionSaveData.IsP03Run = true;
+                ScreenState = Opponent.Type.Default;
                 newButtonController.CursorSelectStart();
             };
             newP03Button.GetComponentInChildren<PixelText>().SetText("- NEW P03 RUN -");

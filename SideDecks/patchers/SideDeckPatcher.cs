@@ -4,17 +4,40 @@ using BepInEx.Configuration;
 using UnityEngine;
 using DiskCardGame;
 using HarmonyLib;
-using System.Collections;
 using System.Collections.Generic;
 using System;
 using Infiniscryption.Core.Helpers;
 using Infiniscryption.SideDecks.Sequences;
 using InscryptionAPI.Saves;
+using InscryptionAPI.Card;
+using System.Linq;
+using InscryptionAPI.Guid;
 
 namespace Infiniscryption.SideDecks.Patchers
 {
-    public static class SideDeckPatcher
+    public static class SideDeckManager
     {
+        public static Trait BACKWARDS_COMPATIBLE_SIDE_DECK_MARKER = (Trait)5103;
+        public static CardMetaCategory SIDE_DECK = GuidManager.GetEnumValue<CardMetaCategory>(SideDecksPlugin.PluginGuid, "SideDeck");
+
+        public static string SelectedSideDeck
+        {
+            get 
+            { 
+                string sideDeck = ModdedSaveManager.SaveData.GetValue(SideDecksPlugin.PluginGuid, "SideDeck.SelectedDeck");
+                if (String.IsNullOrEmpty(sideDeck))
+                    return CustomCards.SideDecks.Squirrel.ToString();
+
+                return sideDeck; 
+            }
+            set { ModdedSaveManager.SaveData.SetValue(SideDecksPlugin.PluginGuid, "SideDeck.SelectedDeck", value.ToString()); }
+        }
+
+        private static bool IsP03Run
+        {
+            get { return ModdedSaveManager.SaveData.GetValueAsBoolean("zorro.inscryption.infiniscryption.p03kayceerun", "IsP03Run"); }
+        }
+
         public const int SIDE_DECK_SIZE = 10;
 
         public enum SideDecks
@@ -27,17 +50,32 @@ namespace Infiniscryption.SideDecks.Patchers
             INF_One_Eyed_Goat = 5
         }
 
-        public static string SelectedSideDeck
+        public static List<string> GetAllValidSideDeckCards()
         {
-            get 
-            { 
-                string sideDeck = ModdedSaveManager.RunState.GetValue(InfiniscryptionSideDecksPlugin.PluginGuid, "SideDeck.SelectedDeck");
-                if (String.IsNullOrEmpty(sideDeck))
-                    return SideDecks.Squirrel.ToString();
-
-                return sideDeck; 
+            if (!AscensionSaveData.Data.ChallengeIsActive(AscensionChallenge.SubmergeSquirrels))
+            {
+                if (!IsP03Run)
+                {
+                    return CardManager.AllCards.Where(card => card.traits.Contains(BACKWARDS_COMPATIBLE_SIDE_DECK_MARKER)
+                                                         || card.metaCategories.Contains(SIDE_DECK))
+                                               .Select(card => card.name).ToList();
+                }
+                else
+                {
+                    return new() { "EmptyVessel" };
+                }
             }
-            set { ModdedSaveManager.RunState.SetValue(InfiniscryptionSideDecksPlugin.PluginGuid, "SideDeck.SelectedDeck", value.ToString()); }
+            else
+            {
+                if (!IsP03Run)
+                {
+                    return new() { "AquaSquirrel" };
+                }
+                else
+                {
+                    return new() { "EmptyVessel" };
+                }
+            }
         }
 
         [HarmonyPatch(typeof(Part1CardDrawPiles), "SideDeckData", MethodType.Getter)]
@@ -78,20 +116,20 @@ namespace Infiniscryption.SideDecks.Patchers
             // Be a good citizen - if you haven't completed the tutorial, this should have no effect:
             if (StoryEventsData.EventCompleted(StoryEvent.TutorialRunCompleted))
             {
-                InfiniscryptionSideDecksPlugin.Log.LogInfo($"Testing to add sdiedeck node");
+                SideDecksPlugin.Log.LogInfo($"Testing to add sdiedeck node");
                 if (RunState.Run.map == null) // Only do this when the map is empty
                 {
-                    InfiniscryptionSideDecksPlugin.Log.LogInfo($"Map is null - adding sidedeck node");
+                    SideDecksPlugin.Log.LogInfo($"Map is null - adding sidedeck node");
                     // Let's start by seeing if we have predefined nodes already
                     // It's unfortunately private
                     Traverse paperMapTraverse = Traverse.Create(__instance);
                     PredefinedNodes predefinedNodes = paperMapTraverse.Method("get_PredefinedNodes").GetValue<PredefinedNodes>();
                     if (predefinedNodes != null)
                     {
-                        InfiniscryptionSideDecksPlugin.Log.LogInfo($"Inserting the sidedeck node at the end");
+                        SideDecksPlugin.Log.LogInfo($"Inserting the sidedeck node at the end");
                         predefinedNodes.nodeRows.Add(new List<NodeData>() { CustomNodeHelper.GetNodeData<SideDeckSelectionSequencer>("animated_sidedeck") });
                     } else {
-                        InfiniscryptionSideDecksPlugin.Log.LogInfo($"Adding the sidedeck node to start");
+                        SideDecksPlugin.Log.LogInfo($"Adding the sidedeck node to start");
                         PredefinedNodes nodes = ScriptableObject.CreateInstance<PredefinedNodes>();
                         nodes.nodeRows.Add(new List<NodeData>() { new NodeData() });
                         nodes.nodeRows.Add(new List<NodeData>() { CustomNodeHelper.GetNodeData<SideDeckSelectionSequencer>("animated_sidedeck") });

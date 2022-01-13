@@ -1,42 +1,37 @@
-using BepInEx;
-using BepInEx.Logging;
-using BepInEx.Configuration;
 using UnityEngine;
 using DiskCardGame;
 using HarmonyLib;
-using System.Collections;
 using System.Collections.Generic;
-using System;
 using Infiniscryption.Core.Helpers;
-using APIPlugin;
+using InscryptionAPI.Card;
 
 namespace Infiniscryption.SideDecks.Sigils
 {
     public class DoubleBlood : AbilityBehaviour
     {
-        public override Ability Ability => _ability;
-        internal static Ability _ability;
-        internal static AbilityIdentifier Identifier;
+		public override Ability Ability => AbilityID;
+        public static Ability AbilityID { get; private set; }
 
         // This ability...does nothing? That's right!
 
         public static void Register(Harmony harmony)
         {
-            AbilityInfo info = AbilityInfoUtils.CreateInfoWithDefaultSettings(
-                "Acceptable Sacrifice",
-                "Sacrificing this creature will count as if two creatures were sacrificed"
-            );
+            AbilityInfo info = ScriptableObject.CreateInstance<AbilityInfo>();
+            info.rulebookName = "Acceptable Sacrifice";
+            info.rulebookDescription = "Sacrificing [creature] will count as if two creatures were sacrificed";
+            info.canStack = true;
+            info.powerLevel = 2;
+            info.opponentUsable = false;
+            info.passive = false;
+            info.metaCategories = new List<AbilityMetaCategory>() { AbilityMetaCategory.Part1Rulebook };
+            info.SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_doubleblood"));
 
-            Identifier = AbilityIdentifier.GetAbilityIdentifier("zorro.infiniscryption.sigils.doubleblood", "DoubleBlood");
-
-            NewAbility ability = new NewAbility(
+            DoubleBlood.AbilityID = AbilityManager.Add(
+                SideDecksPlugin.PluginGuid,
                 info,
                 typeof(DoubleBlood),
-                AssetHelper.LoadTexture("ability_doubleblood"),
-                Identifier
-            );
-
-            DoubleBlood._ability = ability.ability;
+                AssetHelper.LoadTexture("ability_doubleblood")
+            ).Id;
 
             harmony.PatchAll(typeof(DoubleBlood));
         }

@@ -110,7 +110,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                     return objectLookups[key];
             }
 
-            InfiniscryptionP03Plugin.Log.LogInfo($"Getting {holomap} / {findPath} ");
+            P03Plugin.Log.LogInfo($"Getting {holomap} / {findPath} ");
             GameObject resource = Resources.Load<GameObject>($"prefabs/map/holomapareas/HoloMapArea_{holomap}");
             GameObject retval = resource.transform.Find(findPath).gameObject;
 
@@ -131,20 +131,20 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 V oldValue = dict[key];
                 if (oldValue != null)
                 {
-                    InfiniscryptionP03Plugin.Log.LogInfo($"I already have a {key.ToString()}");
+                    P03Plugin.Log.LogInfo($"I already have a {key.ToString()}");
                     return;
                 }
                 
                 dict.Remove(key);
             }
 
-            InfiniscryptionP03Plugin.Log.LogInfo($"I need to create a {key.ToString()}");
+            P03Plugin.Log.LogInfo($"I need to create a {key.ToString()}");
             dict.Add(key, getValue());
         }
 
         private static void Initialize()
         {
-            InfiniscryptionP03Plugin.Log.LogInfo("Initializing world data");
+            P03Plugin.Log.LogInfo("Initializing world data");
 
             REGION_DATA.Clear(); // All of the actual region data is in the region data class itself
             for (int i = 0; i < 5; i++)
@@ -155,7 +155,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             BLOCK_ICON = BLOCK_ICON ?? GetGameObject("UndeadShortcut_Exit", "HoloStopIcon");
 
             defaultPrefab = Resources.Load<GameObject>("prefabs/map/holomapareas/holomaparea");
-            InfiniscryptionP03Plugin.Log.LogInfo($"Default prefab is {defaultPrefab}");
+            P03Plugin.Log.LogInfo($"Default prefab is {defaultPrefab}");
 
             // Boss prefabs
             bossPrefabs.AddReplace(Opponent.Type.ArchivistBoss, () => Resources.Load<GameObject>("prefabs/map/holomapareas/HoloMapArea_TempleUndeadBoss"));
@@ -254,7 +254,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
             retval.SetActive(false);
 
-            InfiniscryptionP03Plugin.Log.LogInfo($"Build draft node {retval}");
+            P03Plugin.Log.LogInfo($"Build draft node {retval}");
             return retval;
         }
 
@@ -268,11 +268,11 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             if (!specialNodePrefabs.ContainsKey(dataType))
                 return;
 
-            InfiniscryptionP03Plugin.Log.LogInfo($"Adding {dataType.ToString()} at {x},{z}");
+            P03Plugin.Log.LogInfo($"Adding {dataType.ToString()} at {x},{z}");
 
             GameObject defaultNode = specialNodePrefabs[dataType];
 
-            InfiniscryptionP03Plugin.Log.LogInfo($"node is{defaultNode}");
+            P03Plugin.Log.LogInfo($"node is{defaultNode}");
             GameObject newNode = GameObject.Instantiate(defaultNode, parent);
             newNode.SetActive(true);
 
@@ -301,7 +301,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 yVal = ((specialTerrain & HoloMapBlueprint.FULL_BRIDGE) == 0) ? .1f : 1.33f;
 
                 GameObject nodeBasePrefab = ((specialTerrain & HoloMapBlueprint.FULL_BRIDGE) == 0) ? HOLO_NODE_BASE : HOVER_HOLO_NODE_BASE;
-                InfiniscryptionP03Plugin.Log.LogInfo($"nodebase is{nodeBasePrefab}");
+                P03Plugin.Log.LogInfo($"nodebase is{nodeBasePrefab}");
                 GameObject nodeBase = GameObject.Instantiate(nodeBasePrefab, sceneryParent);
                 nodeBase.transform.localPosition = new Vector3(newNode.transform.localPosition.x, yVal, newNode.transform.localPosition.z);
             }
@@ -350,7 +350,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
         private static void BlockDirections(GameObject area, Traverse areaTrav, int blocked, StoryEvent storyEvent)
         {
-            InfiniscryptionP03Plugin.Log.LogInfo($"Blocking directions");
+            P03Plugin.Log.LogInfo($"Blocking directions");
             List<GameObject> blockIcons = new();
             List<LookDirection> blockedDirections = new();
             foreach (int direction in GetDirections(blocked, true))
@@ -424,7 +424,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
         private static GameObject BuildMapAreaPrefab(int regionId, HoloMapBlueprint bp)
         {
-            InfiniscryptionP03Plugin.Log.LogInfo($"Building gameobject for [{bp.x},{bp.y}]");
+            P03Plugin.Log.LogInfo($"Building gameobject for [{bp.x},{bp.y}]");
 
             if (bp.opponent == Opponent.Type.P03Boss)
             {
@@ -455,21 +455,21 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             if (bp.specialTerrain == HoloMapBlueprint.LOWER_TOWER_ROOM)
                 return BuildLowerTowerRoom();
 
-            InfiniscryptionP03Plugin.Log.LogInfo($"Instantiating base object {neutralHoloPrefab}");
+            P03Plugin.Log.LogInfo($"Instantiating base object {neutralHoloPrefab}");
             GameObject area = GameObject.Instantiate(neutralHoloPrefab);
             area.name = $"ProceduralMapArea_{regionId}_{bp.x}_{bp.y})";
 
-            InfiniscryptionP03Plugin.Log.LogInfo($"Getting nodes");
+            P03Plugin.Log.LogInfo($"Getting nodes");
             GameObject nodes = area.transform.Find("Nodes").gameObject;
 
             if (DIR_LOOKUP.ContainsKey(bp.specialDirection))
             {
-                InfiniscryptionP03Plugin.Log.LogInfo($"Finding arrow to destroy");
+                P03Plugin.Log.LogInfo($"Finding arrow to destroy");
                 GameObject arrowToReplace = area.transform.Find($"Nodes/MoveArea_{DIR_LOOKUP[bp.specialDirection]}").gameObject;
-                InfiniscryptionP03Plugin.Log.LogInfo($"Destroying arrow");
+                P03Plugin.Log.LogInfo($"Destroying arrow");
                 GameObject.DestroyImmediate(arrowToReplace);
                 
-                InfiniscryptionP03Plugin.Log.LogInfo($"Copying arrow");
+                P03Plugin.Log.LogInfo($"Copying arrow");
                 GameObject newArrow = GameObject.Instantiate(arrowPrefabs[bp.specialDirection | ENEMY], nodes.transform);
                 newArrow.name = $"MoveArea_{DIR_LOOKUP[bp.specialDirection]}";
                 HoloMapNode node = newArrow.GetComponent<HoloMapNode>();
@@ -492,7 +492,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 }
             }
 
-            InfiniscryptionP03Plugin.Log.LogInfo($"Setting arrows and walls active");
+            P03Plugin.Log.LogInfo($"Setting arrows and walls active");
             Transform scenery = area.transform.Find("Scenery");
             GameObject wall = GetGameObject(REGION_DATA[regionId].wall);
             foreach (int key in DIR_LOOKUP.Keys)
@@ -511,7 +511,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 }
             }
 
-            InfiniscryptionP03Plugin.Log.LogInfo($"Generating random scenery");
+            P03Plugin.Log.LogInfo($"Generating random scenery");
 
             // Add the landmarks if necessary
             if ((bp.specialTerrain & HoloMapBlueprint.LANDMARKER) != 0)
@@ -564,13 +564,13 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 }
             }
 
-            InfiniscryptionP03Plugin.Log.LogInfo($"Generating special terrain");
+            P03Plugin.Log.LogInfo($"Generating special terrain");
             foreach (int key in specialTerrainPrefabs.Keys)
                 if ((bp.specialTerrain & key) != 0)
                     foreach (GameObject obj in specialTerrainPrefabs[key])
                         GameObject.Instantiate(obj, scenery);
 
-            InfiniscryptionP03Plugin.Log.LogInfo($"Setting grid data");
+            P03Plugin.Log.LogInfo($"Setting grid data");
             HoloMapArea areaData = area.GetComponent<HoloMapArea>();
             Traverse areaTrav = Traverse.Create(areaData);
             areaData.GridX = bp.x;
@@ -631,7 +631,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
         public static HoloMapWorldData GetAscensionWorldbyId(string id)
         {
-            InfiniscryptionP03Plugin.Log.LogInfo($"Getting world for {id}");
+            P03Plugin.Log.LogInfo($"Getting world for {id}");
 
             HoloMapWorldData data = ScriptableObject.CreateInstance<HoloMapWorldData>();
             data.name = id;
@@ -679,7 +679,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
         public static void ClearWorldData()
         {
-            InfiniscryptionP03Plugin.Log.LogInfo("Clearing world data");
+            P03Plugin.Log.LogInfo("Clearing world data");
 
             // This completely clears the cache of game objects that we have access to
             foreach (var entry in worldDataCache)

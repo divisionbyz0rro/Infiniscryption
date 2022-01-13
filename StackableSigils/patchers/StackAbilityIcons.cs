@@ -348,8 +348,7 @@ namespace Infiniscryption.StackableSigils.Patchers
         public static bool PatchPixelCardStacks(ref PixelCardAbilityIcons __instance, List<Ability> abilities, PlayableCard card)
         {
             List<Tuple<Ability, int>> grps = abilities.Distinct().Select(a => new Tuple<Ability, int>(a, abilities.Where(ab => ab == a).Count())).ToList();
-            Traverse iconTraverse = Traverse.Create(__instance);
-            List<GameObject> abilityIconGroups = iconTraverse.Field("abilityIconGroups").GetValue<List<GameObject>>();
+            List<GameObject> abilityIconGroups = __instance.abilityIconGroups;
 
             //InfiniscryptionStackableSigilsPlugin.Log.LogInfo($"abilityIconGroups {abilityIconGroups}");
 
@@ -423,10 +422,10 @@ namespace Infiniscryption.StackableSigils.Patchers
                         }
                     }
                 }
-                iconTraverse.Field("conduitIcon").GetValue<GameObject>().SetActive(abilities.Exists((Ability x) => AbilitiesUtil.GetInfo(x).conduit));
+                __instance.conduitIcon.SetActive(abilities.Exists((Ability x) => AbilitiesUtil.GetInfo(x).conduit));
                 Ability ability = abilities.Find((Ability x) => AbilitiesUtil.GetInfo(x).activated);
 
-                PixelActivatedAbilityButton button = iconTraverse.Field("activatedAbilityButton").GetValue<PixelActivatedAbilityButton>();
+                PixelActivatedAbilityButton button = __instance.activatedAbilityButton;
                 if (ability > Ability.None)
                 {
                     button.gameObject.SetActive(true);

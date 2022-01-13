@@ -43,42 +43,42 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 
 		public IEnumerator TradeTokens(NodeData nodeData)
 		{
-            InfiniscryptionP03Plugin.Log.LogInfo("Starting trade sequencer");
+            P03Plugin.Log.LogInfo("Starting trade sequencer");
 			ViewManager.Instance.SwitchToView(View.Default, false, true);
 			yield return new WaitForSeconds(0.5f); // TODO: Write some snarky P03 dialogue about trading here
 
-            InfiniscryptionP03Plugin.Log.LogInfo("Getting trade tiers");
+            P03Plugin.Log.LogInfo("Getting trade tiers");
 			List<int> tradingTiers = this.GetTradingTiers();
 			bool hasPelts = tradingTiers.Count > 0;
 			if (hasPelts)
 			{
-                InfiniscryptionP03Plugin.Log.LogInfo("Going topdown");
+                P03Plugin.Log.LogInfo("Going topdown");
 				ViewManager.Instance.SwitchToView(View.TradingTopDown, false, true);
 				yield return new WaitForSeconds(0.15f);
 
-                InfiniscryptionP03Plugin.Log.LogInfo("Spawning deck");
+                P03Plugin.Log.LogInfo("Spawning deck");
                 Vector3 originalDeckLocation = this.deckPile.transform.localPosition;
                 this.deckPile.transform.localPosition = DECK_LOCATION;
 				yield return this.deckPile.SpawnCards(Part3SaveData.Data.deck.Cards.Count, 0.75f);
 
 				foreach (int tier in tradingTiers)
 				{
-                    InfiniscryptionP03Plugin.Log.LogInfo("Clearing");
+                    P03Plugin.Log.LogInfo("Clearing");
 					this.tradeCards.Clear();
 					this.tokenCards.Clear();
 
-                    InfiniscryptionP03Plugin.Log.LogInfo("Creating token cards");
+                    P03Plugin.Log.LogInfo("Creating token cards");
 					yield return new WaitForSeconds(0.15f);
 					yield return this.CreateTokenCards(tier);
 
-                    InfiniscryptionP03Plugin.Log.LogInfo("Creating trade cards");
+                    P03Plugin.Log.LogInfo("Creating trade cards");
 					yield return new WaitForSeconds(0.15f);
 					yield return this.CreateTradeCards(this.GetTradeCardInfos(tier), CARDS_PER_ROW, tier == RARE_CARD_TIER);
 
-                    InfiniscryptionP03Plugin.Log.LogInfo("Adding rulebook");
+                    P03Plugin.Log.LogInfo("Adding rulebook");
 					TableRuleBook.Instance.SetOnBoard(true);
 
-                    InfiniscryptionP03Plugin.Log.LogInfo("Setting selectable card propeties");
+                    P03Plugin.Log.LogInfo("Setting selectable card propeties");
 					foreach (SelectableCard card in this.tradeCards)
 					{
 						card.SetEnabled(true);
@@ -92,7 +92,7 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 					
 					yield return new WaitForSeconds(0.25f);
 
-                    InfiniscryptionP03Plugin.Log.LogInfo("Waiting for trading to be done");
+                    P03Plugin.Log.LogInfo("Waiting for trading to be done");
 					ViewManager.Instance.Controller.LockState = ViewLockState.Unlocked;
 					base.EnableViewDeck(ViewController.ControlMode.TradePelts, base.transform.position);
 
@@ -102,11 +102,11 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 					base.DisableViewDeck();
 					yield return new WaitForSeconds(0.15f);
 
-                    InfiniscryptionP03Plugin.Log.LogInfo("Disabling cards");
+                    P03Plugin.Log.LogInfo("Disabling cards");
 					foreach (SelectableCard card in this.tradeCards)
 						card.SetEnabled(false);
 					
-                    InfiniscryptionP03Plugin.Log.LogInfo("Cleaning up");
+                    P03Plugin.Log.LogInfo("Cleaning up");
 					yield return this.CleanupTradeCards(this.tradeCards);
 					yield return new WaitForSeconds(0.1f);
 					yield return this.deckPile.DestroyCards(0.5f);
@@ -171,11 +171,11 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 			}
 			for (int j = 0; j < numPelts; j++)
 			{
-                InfiniscryptionP03Plugin.Log.LogInfo("Instantiating prefab");
+                P03Plugin.Log.LogInfo("Instantiating prefab");
 				GameObject cardObj = GameObject.Instantiate<GameObject>(this.selectableCardPrefab, base.transform);
 				cardObj.SetActive(true);
 
-                InfiniscryptionP03Plugin.Log.LogInfo("Setting data");
+                P03Plugin.Log.LogInfo("Setting data");
 				SelectableCard card = cardObj.GetComponent<SelectableCard>();
 				card.SetInfo(cardInfos[j]);
 

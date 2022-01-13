@@ -1,13 +1,9 @@
-using BepInEx;
-using BepInEx.Logging;
-using BepInEx.Configuration;
 using UnityEngine;
 using DiskCardGame;
 using HarmonyLib;
-using System.Collections;
 using System.Collections.Generic;
-using APIPlugin;
 using System.Linq;
+using InscryptionAPI.Card;
 
 namespace Infiniscryption.Curses.Cards
 {
@@ -16,37 +12,26 @@ namespace Infiniscryption.Curses.Cards
         // This ability does **absolutely nothing**
         // The purposes is to be able to track characteristics of a card when you save and load a run
         // Thanks to the way that the game stores saved decks.
-
-        public static AbilityIdentifier Identifier 
-        { 
-            get
-            {
-                return AbilityIdentifier.GetAbilityIdentifier("zorro.infiniscryption.sigils.bitten", "Bitten");
-            }
-        }
-        public static Ability _ability { get; private set; }
-        public override Ability Ability => _ability;
+        public static Ability AbilityID { get; private set; }
+        public override Ability Ability => AbilityID;
 
         public static void RegisterCardAndAbilities(Harmony harmony)
         {
-            AbilityInfo info = AbilityInfoUtils.CreateInfoWithDefaultSettings(
-                "Bitten",
-                "This card has been bitten."
-            );
+            AbilityInfo info = ScriptableObject.CreateInstance<AbilityInfo>();
+            info.rulebookName = "Bitten By Predator";
+            info.rulebookDescription = "This card was bitten by a predator";
             info.canStack = false;
             info.powerLevel = -2;
             info.opponentUsable = false;
             info.passive = false;
             info.metaCategories = new List<AbilityMetaCategory>() { };
 
-            NewAbility ability = new NewAbility(
+            Bitten.AbilityID = AbilityManager.Add(
+                InfiniscryptionCursePlugin.PluginGuid,
                 info,
                 typeof(Bitten),
-                Resources.Load<Texture2D>("art/cards/abilityicons/ability_deathtouch"),
-                Identifier
-            );
-
-            Bitten._ability = ability.ability;
+                Resources.Load<Texture2D>("art/cards/abilityicons/ability_deathtouch")
+            ).Id;
 
             // Patch this class
             harmony.PatchAll(typeof(Bitten));
@@ -57,7 +42,7 @@ namespace Infiniscryption.Curses.Cards
         [HarmonyPostfix]
         public static void SpellBackground(ref Card __instance)
         {
-            if (__instance.Info.Abilities.Any(sp => (int)sp == (int)_ability))
+            if (__instance.Info.Abilities.Any(sp => sp == AbilityID))
             {
                 __instance.gameObject.AddComponent<BittenCardAppearance>().ApplyAppearance();
             }
@@ -67,7 +52,7 @@ namespace Infiniscryption.Curses.Cards
         [HarmonyPostfix]
         public static void DontShowThisIcon(ref List<Ability> __result)
         {
-            __result.Remove(_ability);
+            __result.Remove(AbilityID);
         }
     }
 }

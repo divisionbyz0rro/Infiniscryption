@@ -3,7 +3,7 @@ using DiskCardGame;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Infiniscryption.P03KayceeRun.Patchers  
+namespace Infiniscryption.P03KayceeRun.Patchers
 {
     [HarmonyPatch]
     public static class CardChoiceGenerator
@@ -30,7 +30,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
                 // Don't allow rares
                 List<CardInfo> regionCards = ScriptableObjectLoader<CardInfo>.AllData.FindAll(x => x.metaCategories.Contains(selectionCategories[region]) && !x.metaCategories.Contains(CardMetaCategory.Rare));
-                List<CardInfo> regionAndNeutralCards = ScriptableObjectLoader<CardInfo>.AllData.FindAll(x => (x.metaCategories.Contains(selectionCategories[region]) || x.metaCategories.Contains(CustomCards.NeutralRegion))  && !x.metaCategories.Contains(CardMetaCategory.Rare));
+                List<CardInfo> regionAndNeutralCards = ScriptableObjectLoader<CardInfo>.AllData.FindAll(x => (x.metaCategories.Contains(selectionCategories[region]) || x.metaCategories.Contains(CustomCards.NeutralRegion)) && !x.metaCategories.Contains(CardMetaCategory.Rare));
 
                 __result = new();
 
@@ -48,7 +48,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                     regionAndNeutralCards.Remove(newCard);
                 }
 
-//                InfiniscryptionP03Plugin.Log.LogInfo($"I selected the following cards for region {region}: {string.Join(",", __result.Select(c => c.CardInfo.name))}");
+                //                InfiniscryptionP03Plugin.Log.LogInfo($"I selected the following cards for region {region}: {string.Join(",", __result.Select(c => c.CardInfo.name))}");
 
                 return false;
             }

@@ -1,16 +1,7 @@
-using BepInEx;
-using BepInEx.Logging;
-using BepInEx.Configuration;
-using UnityEngine;
 using DiskCardGame;
 using HarmonyLib;
-using System.Collections;
 using System.Collections.Generic;
-using System;
-using Infiniscryption.Core.Helpers;
-using APIPlugin;
 using System.Linq;
-using Infiniscryption.VanillaStackable;
 
 namespace Infiniscryption.VanillaStackable.Patchers
 {

@@ -1,21 +1,13 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
-using BepInEx.Configuration;
-using UnityEngine;
-using DiskCardGame;
 using HarmonyLib;
-using System.Collections;
-using System.Collections.Generic;
-using System;
-using Infiniscryption.Core.Helpers;
-using InscryptionAPI.AscensionScreens;
 using Infiniscryption.P03KayceeRun.Patchers;
 
 namespace Infiniscryption.P03KayceeRun
 {
     [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
     [BepInDependency("cyantist.inscryption.api")]
-    public class InfiniscryptionP03Plugin : BaseUnityPlugin
+    public class P03Plugin : BaseUnityPlugin
     {
 
         public const string PluginGuid = "zorro.inscryption.infiniscryption.p03kayceerun";

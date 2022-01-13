@@ -1,7 +1,4 @@
 using DiskCardGame;
-using APIPlugin;
-using Infiniscryption.Core.Helpers;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Collections;
@@ -22,7 +19,7 @@ namespace Infiniscryption.Curses.Sequences
         }
 
         // The harder version has an extra phase
-        protected override IEnumerator StartNewPhaseSequence()
+        public override IEnumerator StartNewPhaseSequence()
         {
             if (this.NumLives >= 2)
             {

@@ -3,7 +3,7 @@ using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
 using Infiniscryption.Core.Helpers;
-using InscryptionAPI.Challenges;
+using InscryptionAPI.Ascension;
 
 namespace Infiniscryption.Curses.Patchers
 {
@@ -20,7 +20,7 @@ namespace Infiniscryption.Curses.Patchers
                 "You are given an extra life",
                 -30,
                 AssetHelper.LoadTexture("assist_three_candles")
-            );
+            ).challengeType;
 
             harmony.PatchAll(typeof(ThreeCandles));
         }

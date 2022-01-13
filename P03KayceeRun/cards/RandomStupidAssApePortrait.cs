@@ -3,11 +3,14 @@ using DiskCardGame;
 using System.Linq;
 using UnityEngine;
 using Infiniscryption.P03KayceeRun.Patchers;
+using InscryptionAPI.Card;
 
 namespace Infiniscryption.P03KayceeRun.Cards
 {
     public class RandomStupidAssApePortrait : CardAppearanceBehaviour
     {
+        public static CardAppearanceBehaviour.Appearance ID { get; private set; }
+
         public class ApeAppearanceModification : CardModificationInfo
         {
             [SerializeField]
@@ -48,7 +51,7 @@ namespace Infiniscryption.P03KayceeRun.Cards
                 SpriteRenderer myRenderer = this.gameObject.GetComponent<SpriteRenderer>();
                 if (myRenderer != null && !renderers.Contains(myRenderer))
                     renderers.Add(myRenderer);
-                InfiniscryptionP03Plugin.Log.LogInfo($"I found {renderers.Count} sprite renderers for apes");
+                P03Plugin.Log.LogInfo($"I found {renderers.Count} sprite renderers for apes");
                 renderers.Sort((a, b) => a.sortingOrder - b.sortingOrder);
                 
                 for (int i = 0; i < renderers.Count; i++)
@@ -87,6 +90,11 @@ namespace Infiniscryption.P03KayceeRun.Cards
                
             base.Card.RenderInfo.prefabPortrait = prefabPortrait;
             base.Card.RenderInfo.hidePortrait = true;
+        }
+
+        public static void Register()
+        {
+            ID = CardAppearanceBehaviourManager.Add(P03Plugin.PluginGuid, "RandomStupidAssApePortrait", typeof(HighResAlternatePortrait)).Id;
         }
     }
 }

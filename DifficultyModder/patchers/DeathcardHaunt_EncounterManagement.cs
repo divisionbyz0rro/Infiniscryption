@@ -13,7 +13,7 @@ using Infiniscryption.Curses.Sequences;
 using Infiniscryption.Core.Helpers;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using InscryptionAPI.Challenges;
+using InscryptionAPI.Ascension;
 
 namespace Infiniscryption.Curses.Patchers
 {
@@ -31,7 +31,7 @@ namespace Infiniscryption.Curses.Patchers
                 5,
                 AssetHelper.LoadTexture("challenge_deathcards"),
                 AssetHelper.LoadTexture("ascensionicon_activated_deathcards")
-            );
+            ).challengeType;
 
             harmony.PatchAll(typeof(DeathcardHaunt));
         }

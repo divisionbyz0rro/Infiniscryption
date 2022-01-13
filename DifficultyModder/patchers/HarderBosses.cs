@@ -13,7 +13,7 @@ using Infiniscryption.Core.Helpers;
 using Infiniscryption.Curses.Cards;
 using Infiniscryption.Curses.Sequences;
 using System.Linq;
-using InscryptionAPI.Challenges;
+using InscryptionAPI.Ascension;
 
 namespace Infiniscryption.Curses.Patchers
 {
@@ -31,7 +31,7 @@ namespace Infiniscryption.Curses.Patchers
                 10,
                 AssetHelper.LoadTexture("challenge_boss_revenge"),
                 AssetHelper.LoadTexture("ascensionicon_activated_bossrevenge")
-            );
+            ).challengeType;
 
             harmony.PatchAll(typeof(HarderBosses));
 

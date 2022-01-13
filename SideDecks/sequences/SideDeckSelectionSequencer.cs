@@ -2,33 +2,20 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using DiskCardGame;
-using Infiniscryption.Core.Helpers;
 using Pixelplacement;
 using UnityEngine;
-using HarmonyLib;
 using Infiniscryption.SideDecks.Patchers;
-using System.Linq;
 using Infiniscryption.Core.Components;
 
 namespace Infiniscryption.SideDecks.Sequences
 {
     public class SideDeckSelectionSequencer : CardChoicesSequencer, ICustomNodeSequence
 	{        
-        private static Traverse _parentContainer;
-        private static T GetCopiedField<T>(string fieldName) where T : class
-        {
-            if (_parentContainer == null)
-                _parentContainer = Traverse.Create(Traverse.Create(SpecialNodeHandler.Instance).Field("cardChoiceSequencer").GetValue() as CardSingleChoicesSequencer);
-
-            return _parentContainer.Field(fieldName).GetValue() as T;
-        }
-
         private void Initialize()
         {
             // Does some basic setup
-
             if (base.selectableCardPrefab == null)
-                base.selectableCardPrefab = GetCopiedField<GameObject>("selectableCardPrefab");
+                base.selectableCardPrefab = SpecialNodeHandler.Instance.cardChoiceSequencer.selectableCardPrefab;
 
             this.basePosition = base.transform.position;
         }
@@ -43,7 +30,7 @@ namespace Infiniscryption.SideDecks.Sequences
 			ViewManager.Instance.SwitchToView(View.Choices, false, true);
 			yield return new WaitForSeconds(0.15f);
 
-            InfiniscryptionSideDecksPlugin.Log.LogInfo($"Leshy is ready to give us side deck options");
+            SideDecksPlugin.Log.LogInfo($"Leshy is ready to give us side deck options");
 
 			yield return TextDisplayer.Instance.PlayDialogueEvent("SideDeckIntro", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
 
@@ -53,7 +40,7 @@ namespace Infiniscryption.SideDecks.Sequences
             // But we have to choose where the cards go based on how many there are.
 			base.selectableCards = new List<SelectableCard>();
             
-            List<string> allValidCards = this.GetAllValidSideDeckCards();
+            List<string> allValidCards = SideDeckManager.GetAllValidSideDeckCards();
 
             int i = 0;
 			foreach (string cardName in allValidCards)
@@ -74,7 +61,7 @@ namespace Infiniscryption.SideDecks.Sequences
             TableRuleBook.Instance.SetOnBoard(false);
 
             // Set the side deck
-            SideDeckPatcher.SelectedSideDeck = this.selectedCardName;
+            SideDeckManager.SelectedSideDeck = this.selectedCardName;
 
 			SaveManager.SaveToFile(false);
 
@@ -84,38 +71,6 @@ namespace Infiniscryption.SideDecks.Sequences
 			}
 
 			yield break;
-        }
-
-        private List<string> GetAllValidSideDeckCards()
-        {
-            List<string> retval;
-            if (InfiniscryptionSideDecksPlugin.PullFromPool)
-            {
-                retval = CardLoader.AllData.Where(
-                    card => card.traits.Any(tr => (int)tr == (int)CustomCards.SIDE_DECK_MARKER)
-                ).Select(card => card.name).ToList();
-            }
-            else
-            {
-                retval = ((SideDeckPatcher.SideDecks[])Enum.GetValues(typeof(SideDeckPatcher.SideDecks))).Select(deck => deck.ToString()).ToList();
-            }
-
-            if (retval.Count > 12)
-            {
-                List<string> newRet = new List<string>();
-                int seed = SaveManager.SaveFile.GetCurrentRandomSeed();
-                for (int i = 0; i < 12; i++)
-                {
-                    int idx = SeededRandom.Range(0, retval.Count, seed + i);
-                    newRet.Add(retval[idx]);
-                    retval.RemoveAt(idx);
-                }
-                return newRet;
-            } 
-            else 
-            {
-                return retval;
-            }
         }
 
         private Vector3 GetLocationForCard(int index, int totalCards)
@@ -146,7 +101,7 @@ namespace Infiniscryption.SideDecks.Sequences
 			SelectableCard component = newUpgradeCard.GetComponent<SelectableCard>();
 			component.gameObject.SetActive(true);
 
-            InfiniscryptionSideDecksPlugin.Log.LogInfo($"Starting to create card");
+            SideDecksPlugin.Log.LogInfo($"Starting to create card");
 
             // Need to create a decal card now
             CardInfo sideDeckCard = CardLoader.GetCardByName(cardName);
@@ -159,7 +114,7 @@ namespace Infiniscryption.SideDecks.Sequences
             );
             component.SetFaceDown(!ProgressionData.IntroducedCard(sideDeckCard));
 
-            InfiniscryptionSideDecksPlugin.Log.LogInfo($"Calculating card location");  
+            SideDecksPlugin.Log.LogInfo($"Calculating card location");  
 
 			Vector3 vector = GetLocationForCard(index, totalCards);
 			newUpgradeCard.transform.localPosition = vector + Vector3.forward * 6f;
@@ -169,11 +124,11 @@ namespace Infiniscryption.SideDecks.Sequences
 			Tween.Rotate(newUpgradeCard.transform, new Vector3(0f, 0f, -2f + UnityEngine.Random.value * 4f), Space.Self, 0.25f, tweenDelay, Tween.EaseOut, Tween.LoopType.None, null, null, true);
 			CustomCoroutine.WaitThenExecute(tweenDelay, new Action(component.Anim.PlayRiffleSound), false);
 
-            InfiniscryptionSideDecksPlugin.Log.LogInfo($"The card is on the table");
+            SideDecksPlugin.Log.LogInfo($"The card is on the table");
 
             this.selectableCards.Add(component);
 
-            InfiniscryptionSideDecksPlugin.Log.LogInfo($"Done");
+            SideDecksPlugin.Log.LogInfo($"Done");
 		}
 
         private void OnCardChosen(SelectableCard card)

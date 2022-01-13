@@ -17,7 +17,7 @@ namespace Infiniscryption.Core.Helpers
     {
         public static string FindResourceName(string key, string type, Assembly target)
         {
-            string lowerKey = $"{key.ToLowerInvariant()}.{type.ToLowerInvariant()}";
+            string lowerKey = $".{key.ToLowerInvariant()}.{type.ToLowerInvariant()}";
             foreach (string resourceName in target.GetManifestResourceNames())
                 if (resourceName.ToLowerInvariant().EndsWith(lowerKey))
                     return resourceName;

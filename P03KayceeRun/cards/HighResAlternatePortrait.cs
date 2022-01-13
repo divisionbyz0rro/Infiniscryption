@@ -1,12 +1,15 @@
 using DiskCardGame;
 using Infiniscryption.Core.Helpers;
 using Infiniscryption.P03KayceeRun.Patchers;
+using InscryptionAPI.Card;
 using UnityEngine;
 
 namespace Infiniscryption.P03KayceeRun.Cards
 {
     public class HighResAlternatePortrait : CardAppearanceBehaviour
     {
+        public static CardAppearanceBehaviour.Appearance ID { get; private set; }
+
         public class DynamicPortrait : DynamicCardPortrait
         {
             public override void ApplyCardInfo(CardInfo card)
@@ -34,6 +37,11 @@ namespace Infiniscryption.P03KayceeRun.Cards
                
             base.Card.RenderInfo.prefabPortrait = prefabPortrait;
             base.Card.RenderInfo.hidePortrait = true;
+        }
+
+        public static void Register()
+        {
+            ID = CardAppearanceBehaviourManager.Add(P03Plugin.PluginGuid, "HighResAlternatePortrait", typeof(HighResAlternatePortrait)).Id;
         }
     }
 }

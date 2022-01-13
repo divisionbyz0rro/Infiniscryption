@@ -67,15 +67,15 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         [HarmonyPrefix]
         public static void SetP03StarterDecks(ref AscensionChooseStarterDeckScreen __instance)
         {
-            InfiniscryptionP03Plugin.Log.LogInfo($"Starter deck screen active - is P03? {P03AscensionSaveData.IsP03Run}");
+            P03Plugin.Log.LogInfo($"Starter deck screen active - is P03? {ScreenManagement.ScreenState}");
             StarterDeckScreen = __instance; // Keep a reference to this for later
 
-            if (P03AscensionSaveData.IsP03Run || OriginalStarterDecks != null)
+            if (ScreenManagement.ScreenState == Opponent.Type.P03Boss || OriginalStarterDecks != null)
             {
                 Traverse screenTraverse = Traverse.Create(__instance);
                 List<AscensionStarterDeckIcon> decks = screenTraverse.Field("deckIcons").GetValue<List<AscensionStarterDeckIcon>>();
 
-                if (P03AscensionSaveData.IsP03Run)
+                if (ScreenManagement.ScreenState == Opponent.Type.P03Boss)
                 {
                     if (OriginalStarterDecks == null)
                         OriginalStarterDecks = decks.Select(i => i.Info).ToList();

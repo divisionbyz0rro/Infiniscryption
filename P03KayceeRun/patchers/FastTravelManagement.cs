@@ -47,9 +47,9 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 EventManagement.AddVisitedZone(__instance.gameObject.name);
 
                 Traverse nodeTraverse = Traverse.Create(__instance);
-                InfiniscryptionP03Plugin.Log.LogInfo($"SetHoveringEffectsShown");
+                P03Plugin.Log.LogInfo($"SetHoveringEffectsShown");
                 nodeTraverse.Method("SetHoveringEffectsShown", new Type[] { typeof(bool) }).GetValue(false);
-                InfiniscryptionP03Plugin.Log.LogInfo($"OnSelected");
+                P03Plugin.Log.LogInfo($"OnSelected");
                 nodeTraverse.Method("OnSelected").GetValue();
                 HoloGameMap.Instance.ToggleFastTravelActive(false, false);
                 HoloMapAreaManager.Instance.CurrentArea.OnAreaActive();
@@ -78,14 +78,14 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             [HarmonyPrefix]
             public static void SetDroneFlying()
             {
-                InfiniscryptionP03Plugin.Log.LogInfo("Drone flying = true");
+                P03Plugin.Log.LogInfo("Drone flying = true");
                 FastTravelManagement.isDroneFlying = true;
             }
 
             [HarmonyPostfix]
             public static IEnumerator SetDroneNotFlying(IEnumerator sequence)
             {
-                InfiniscryptionP03Plugin.Log.LogInfo("Drone flying = false");
+                P03Plugin.Log.LogInfo("Drone flying = false");
                 yield return sequence;
                 FastTravelManagement.isDroneFlying = false;
             }
@@ -97,7 +97,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         {
             if (SaveFile.IsAscension && FastTravelManagement.isDroneFlying)
             {
-                InfiniscryptionP03Plugin.Log.LogInfo("Setting map colors after drone flight");
+                P03Plugin.Log.LogInfo("Setting map colors after drone flight");
                 HoloMapArea currentArea = HoloMapAreaManager.Instance.CurrentArea;
                 Traverse mapTrav = new Traverse(__instance);
                 mapTrav.Method("SetSceneColors", new Type[] { typeof(Color), typeof(Color)}).GetValue(currentArea.MainColor, currentArea.LightColor);
@@ -133,11 +133,11 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         public static void LogThisStupidError(ref HoloGameMap __instance)
         {
             Traverse mapTraverse = Traverse.Create(__instance);
-            InfiniscryptionP03Plugin.Log.LogInfo($"Fast travel map {mapTraverse.Field("fastTravelMap").GetValue<HoloFastTravelMap>()}");
-            InfiniscryptionP03Plugin.Log.LogInfo($"Current area {HoloMapAreaManager.Instance.CurrentArea}");
-            InfiniscryptionP03Plugin.Log.LogInfo($"Current area gameobject {HoloMapAreaManager.Instance.CurrentArea.gameObject}");
-            InfiniscryptionP03Plugin.Log.LogInfo($"Current area marker {HoloMapPlayerMarker.Instance}");
-            InfiniscryptionP03Plugin.Log.LogInfo($"Current area marker gameobject {HoloMapPlayerMarker.Instance.gameObject}");
+            P03Plugin.Log.LogInfo($"Fast travel map {mapTraverse.Field("fastTravelMap").GetValue<HoloFastTravelMap>()}");
+            P03Plugin.Log.LogInfo($"Current area {HoloMapAreaManager.Instance.CurrentArea}");
+            P03Plugin.Log.LogInfo($"Current area gameobject {HoloMapAreaManager.Instance.CurrentArea.gameObject}");
+            P03Plugin.Log.LogInfo($"Current area marker {HoloMapPlayerMarker.Instance}");
+            P03Plugin.Log.LogInfo($"Current area marker gameobject {HoloMapPlayerMarker.Instance.gameObject}");
         }
     }
 }

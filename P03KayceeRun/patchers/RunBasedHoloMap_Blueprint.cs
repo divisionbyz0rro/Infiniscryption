@@ -435,7 +435,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         private static List<HoloMapBlueprint> BuildBlueprint(int order, int region, int seed)
         {
             string blueprintKey = $"ascensionBlueprint{order}{region}";
-            string savedBlueprint = ModdedSaveManager.RunState.GetValue(InfiniscryptionP03Plugin.PluginGuid, blueprintKey);
+            string savedBlueprint = ModdedSaveManager.RunState.GetValue(P03Plugin.PluginGuid, blueprintKey);
 
             if (savedBlueprint != default(string))
                 return savedBlueprint.Split('|').Select(s => new HoloMapBlueprint(s)).ToList();
@@ -530,10 +530,10 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 if (DiscoverAndCreateEnemyEncounter(bpBlueprint, retval, order, region, REGION_DATA[region].defaultReward))
                     numberOfEncountersAdded += 1;
 
-            InfiniscryptionP03Plugin.Log.LogInfo($"I have created {numberOfEncountersAdded} enemy encounters");
+            P03Plugin.Log.LogInfo($"I have created {numberOfEncountersAdded} enemy encounters");
 
             // Add four card choice nodes
-            InfiniscryptionP03Plugin.Log.LogInfo($"Adding upgrades");
+            P03Plugin.Log.LogInfo($"Adding upgrades");
             int cardChoiceNodes = 0;
             for (int i = 1; i < 5; i++) // one for each color 1-4
             {
@@ -548,7 +548,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 retval.GetRandomPointOfInterest().upgrade = HoloMapSpecialNode.NodeDataType.CardChoice;
 
             // Add two hidden currency nodes
-            InfiniscryptionP03Plugin.Log.LogInfo($"Adding hidden currency nodes");
+            P03Plugin.Log.LogInfo($"Adding hidden currency nodes");
             for (int i = 0; i < 2; i++)
                 retval.GetRandomPointOfInterest().upgrade = HoloMapSpecialNode.NodeDataType.GainCurrency;
 
@@ -560,11 +560,11 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                     for (int s = 0; s < lines.Count; s++)
                         lines[s] += bpBlueprint[i, j] == null ? "     " : bpBlueprint[i, j].DebugString[s];
                 for (int s = 0; s < lines.Count; s++)
-                    InfiniscryptionP03Plugin.Log.LogInfo(lines[s]);
+                    P03Plugin.Log.LogInfo(lines[s]);
             }   
 
             savedBlueprint = string.Join("|", retval.Select(b => b.ToString()));
-            ModdedSaveManager.RunState.SetValue(InfiniscryptionP03Plugin.PluginGuid, blueprintKey, savedBlueprint);
+            ModdedSaveManager.RunState.SetValue(P03Plugin.PluginGuid, blueprintKey, savedBlueprint);
             SaveManager.SaveToFile();
             return retval;
         }

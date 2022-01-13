@@ -1,53 +1,37 @@
-using System;
 using System.Collections.Generic;
-using APIPlugin;
 using DiskCardGame;
 using Infiniscryption.Core.Helpers;
 using Infiniscryption.P03KayceeRun.Patchers;
+using InscryptionAPI.Card;
+using UnityEngine;
 
 namespace Infiniscryption.P03KayceeRun.Cards
 {
 	public class ConduitSpawnCrypto : ConduitSpawn
 	{
-        private static Ability _ability;
-		public override Ability Ability
-		{
-			get
-			{
-				return _ability;
-			}
-		}
-
-        public static AbilityIdentifier Identifier 
-        { 
-            get
-            {
-                return AbilityIdentifier.GetAbilityIdentifier("zorro.infiniscryption.sigils.conduitspawncrypto", "Crypto Miner");
-            }
-        }
+        public override Ability Ability => AbilityID;
+        public static Ability AbilityID { get; private set; }
 
         public static void Register()
         {
-            AbilityInfo info = AbilityInfoUtils.CreateInfoWithDefaultSettings(
-                "Mine Cryptocurrency",
-                "When part of a conduit, [creature] will generate cryptocurrency."
-            );
+            AbilityInfo info = ScriptableObject.CreateInstance<AbilityInfo>();
+            info.rulebookName = "Mine Cryptocurrency";
+            info.rulebookDescription = "When part of a conduit, [creature] will generate cryptocurrency.";
             info.canStack = true;
+            info.powerLevel = 3;
+            info.opponentUsable = false;
             info.passive = false;
             info.metaCategories = new List<AbilityMetaCategory>() { AbilityMetaCategory.Part3Rulebook };
 
-            NewAbility ability = new NewAbility(
+            ConduitSpawnCrypto.AbilityID = AbilityManager.Add(
+                P03Plugin.PluginGuid,
                 info,
                 typeof(ConduitSpawnCrypto),
-                AssetHelper.LoadTexture("ability_minecrypto"),
-                Identifier
-            );
-
-            ConduitSpawnCrypto._ability = ability.ability;
+                AssetHelper.LoadTexture("ability_minecrypto")
+            ).Id;
         }
 
-		// Token: 0x0600142B RID: 5163 RVA: 0x000546BC File Offset: 0x000528BC
-		protected override string GetSpawnCardId()
+		public override string GetSpawnCardId()
 		{
 			return CustomCards.GOLLYCOIN;
 		}

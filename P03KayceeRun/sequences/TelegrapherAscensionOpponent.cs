@@ -9,7 +9,7 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 {
     public class TelegrapherAscensionOpponent : TelegrapherBossOpponent
     {
-        protected override IEnumerator StartNewPhaseSequence()
+        public override IEnumerator StartNewPhaseSequence()
         {
             // Do nothing if this is not the ascension boss fight
             if (!SaveFile.IsAscension)

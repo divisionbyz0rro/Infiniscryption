@@ -1,14 +1,9 @@
 using BepInEx;
-using BepInEx.Logging;
-using BepInEx.Configuration;
 using UnityEngine;
 using DiskCardGame;
 using HarmonyLib;
-using System.Collections;
 using System.Collections.Generic;
-using System;
-using Infiniscryption.Core.Helpers;
-using APIPlugin;
+using InscryptionAPI.Card;
 
 namespace Infiniscryption.VanillaStackable.Patchers
 {
@@ -16,19 +11,19 @@ namespace Infiniscryption.VanillaStackable.Patchers
     {
         internal static void RegisterCustomCards(Harmony harmony)
         {
-            // Create the Kettle
-            NewCard.Add(
-                "Super_Sharp_Porcupine",
-                "Smelly Pokeypine",
-                0, 10,
-                new List<CardMetaCategory>() { CardMetaCategory.ChoiceNode, CardMetaCategory.TraderOffer },
-                CardComplexity.Advanced,
-                CardTemple.Nature,
-                "Super sharp!",
-                bloodCost: 0,
-                defaultTex: Resources.Load<Texture2D>("art/cards/portraits/portrait_porcupine"),
-                abilities: new List<Ability>() { Ability.Sharp, Ability.DebuffEnemy }
-            );
+            CardInfo card = ScriptableObject.CreateInstance<CardInfo>();
+            card.name = "Super_Sharp_Porcupine";
+            card.displayedName = "Smelly Pokeypine";
+            card.baseAttack = 0;
+            card.baseHealth = 10;
+            card.metaCategories = new List<CardMetaCategory>() { CardMetaCategory.ChoiceNode, CardMetaCategory.TraderOffer };
+            card.cardComplexity = CardComplexity.Advanced;
+            card.temple = CardTemple.Nature;
+            card.description = "Super Sharp!";
+            card.hideAttackAndHealth = true;
+            card.SetPortrait(Resources.Load<Texture2D>("art/cards/portraits/portrait_porcupine"));
+            card.abilities = new() { Ability.Sharp, Ability.Sharp, Ability.DebuffEnemy, Ability.DebuffEnemy };
+            CardManager.Add(card);
 
             harmony.PatchAll(typeof(SampleCards));
         }

@@ -19,9 +19,9 @@ namespace Infiniscryption.Spells
     public class InfiniscryptionSpellsPlugin : BaseUnityPlugin
     {
 
-        private const string PluginGuid = "zorro.inscryption.infiniscryption.spells";
-		private const string PluginName = "Infiniscryption Spells";
-		private const string PluginVersion = "1.0";
+        internal const string PluginGuid = "zorro.inscryption.infiniscryption.spells";
+		internal const string PluginName = "Infiniscryption Spells";
+		internal const string PluginVersion = "1.0";
 
         internal static ManualLogSource Log;
 

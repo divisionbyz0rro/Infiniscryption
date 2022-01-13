@@ -52,16 +52,11 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 if (SceneLoader.ActiveSceneName == "Part3_Cabin")
                     return true;
 
-                if (AscensionMenuScreens.Instance != null && 
-                    AscensionMenuScreens.Instance.CurrentScreen == AscensionMenuScreens.Screen.Start &&
-                    !String.IsNullOrEmpty(ModdedSaveManager.SaveData.GetValue(InfiniscryptionP03Plugin.PluginGuid, ASCENSION_SAVE_KEY)))
-                    return true;
-
-                return ModdedSaveManager.SaveData.GetValueAsBoolean(InfiniscryptionP03Plugin.PluginGuid, "IsP03Run");
+                return ModdedSaveManager.SaveData.GetValueAsBoolean(P03Plugin.PluginGuid, "IsP03Run");
             }
             set
             {
-                ModdedSaveManager.SaveData.SetValue(InfiniscryptionP03Plugin.PluginGuid, "IsP03Run", value);
+                ModdedSaveManager.SaveData.SetValue(P03Plugin.PluginGuid, "IsP03Run", value);
             }
         }
 
@@ -99,7 +94,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                         //output.Flush();            
                     }
                     string json = Encoding.Unicode.GetString(output.ToArray());
-                    InfiniscryptionP03Plugin.Log.LogInfo($"SAVE JSON for {SaveKey}: {json}");
+                    P03Plugin.Log.LogInfo($"SAVE JSON for {SaveKey}: {json}");
                     return SaveManager.FromJSON<T>(json);
                 }
             }
@@ -110,15 +105,15 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             // The only way there is not a copy of the regular save is because you went straight to a p03 ascension run
             // after installing the mod. This means that the current part3savedata is your actual act 3 save data
             // We don't want to lose that.
-            if (ModdedSaveManager.SaveData.GetValue(InfiniscryptionP03Plugin.PluginGuid, REGULAR_SAVE_KEY) == default(string))
-                ModdedSaveManager.SaveData.SetValue(InfiniscryptionP03Plugin.PluginGuid, REGULAR_SAVE_KEY, ToCompressedJSON(Part3SaveData.Data));
+            if (ModdedSaveManager.SaveData.GetValue(P03Plugin.PluginGuid, REGULAR_SAVE_KEY) == default(string))
+                ModdedSaveManager.SaveData.SetValue(P03Plugin.PluginGuid, REGULAR_SAVE_KEY, ToCompressedJSON(Part3SaveData.Data));
         }
 
         [HarmonyPatch(typeof(Part3SaveData), "Initialize")]
         [HarmonyPrefix]
         private static void ClearSaveData(ref Part3SaveData __instance)
         {
-            ModdedSaveManager.SaveData.SetValue(InfiniscryptionP03Plugin.PluginGuid, SaveKey, default(string));
+            ModdedSaveManager.SaveData.SetValue(P03Plugin.PluginGuid, SaveKey, default(string));
         }
 
         [HarmonyPatch(typeof(SaveManager), "SaveToFile")]
@@ -133,8 +128,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             // And whenever creating a new ascension part 3 run, we check to see if there is a copy of part 3 save yet
             // If not, we will end up creating one
 
-            InfiniscryptionP03Plugin.Log.LogInfo($"Saving {SaveKey}");
-            ModdedSaveManager.SaveData.SetValue(InfiniscryptionP03Plugin.PluginGuid, SaveKey, ToCompressedJSON(SaveManager.SaveFile.part3Data));
+            P03Plugin.Log.LogInfo($"Saving {SaveKey}");
+            ModdedSaveManager.SaveData.SetValue(P03Plugin.PluginGuid, SaveKey, ToCompressedJSON(SaveManager.SaveFile.part3Data));
         }
 
         [HarmonyPatch(typeof(SaveManager), "LoadFromFile")]
@@ -142,7 +137,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         [HarmonyAfter(new string[] { "cyantist.inscryption.api" })]
         public static void LoadPart3AscensionSaveData()
         {
-            string part3Data = ModdedSaveManager.SaveData.GetValue(InfiniscryptionP03Plugin.PluginGuid, SaveKey);
+            string part3Data = ModdedSaveManager.SaveData.GetValue(P03Plugin.PluginGuid, SaveKey);
             if (part3Data != default(string))
             {
                 Part3SaveData data = FromCompressedJSON<Part3SaveData>(part3Data);
@@ -183,7 +178,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 __instance.deck = new DeckInfo();
                 __instance.deck.Cards.Clear();
 
-                StarterDeckInfo deckInfo = StarterDecks.StarterDeckScreen.SelectedInfo;
+                StarterDeckInfo deckInfo = StarterDecksUtil.GetInfo(AscensionSaveData.Data.currentStarterDeck);
 
                 __instance.deck.AddCard(deckInfo.cards[0]);
                 __instance.deck.AddCard(deckInfo.cards[1]);

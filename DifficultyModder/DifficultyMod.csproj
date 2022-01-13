@@ -21,11 +21,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />
+    <ProjectReference Include="..\Spells\Spells.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="API" Private="false">
-      <HintPath>..\lib\beta\API.dll</HintPath>
+      <HintPath>..\lib\beta\InscryptionAPI.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp" Private="false">
       <HintPath>..\lib\beta\Assembly-CSharp.dll</HintPath>

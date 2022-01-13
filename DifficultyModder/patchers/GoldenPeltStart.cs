@@ -3,7 +3,7 @@ using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
 using Infiniscryption.Core.Helpers;
-using InscryptionAPI.Challenges;
+using InscryptionAPI.Ascension;
 
 namespace Infiniscryption.Curses.Patchers
 {
@@ -21,7 +21,7 @@ namespace Infiniscryption.Curses.Patchers
                 -10,
                 AssetHelper.LoadTexture("assist_golden_pelt"),
                 stackable: true
-            );
+            ).challengeType;
 
             harmony.PatchAll(typeof(GoldenPeltStart));
         }

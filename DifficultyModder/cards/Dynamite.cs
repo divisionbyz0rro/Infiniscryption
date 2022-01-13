@@ -7,8 +7,8 @@ using HarmonyLib;
 using System.Collections;
 using System.Collections.Generic;
 using Infiniscryption.Core.Helpers;
-using APIPlugin;
 using System.Linq;
+using InscryptionAPI.Card;
 
 namespace Infiniscryption.Curses.Cards
 {
@@ -16,65 +16,42 @@ namespace Infiniscryption.Curses.Cards
     {
         public const string EXPLOSION_SOUND = "card_explosion";
 
-        private static Ability _ability;
-        public override Ability Ability => _ability;
-
-        public static AbilityIdentifier Identifier 
-        { 
-            get
-            {
-                return AbilityIdentifier.GetID("zorro.infiniscryption.sigils.dynamite", "Booby Trap");
-            }
-        }
+		public override Ability Ability => AbilityID;
+        public static Ability AbilityID { get; private set; }
 
         // This has all of the logic to implement the Dynamite card that is added to the Prospector boss battle
         public static void RegisterCardAndAbilities(Harmony harmony)
         {
-            AbilityInfo info = AbilityInfoUtils.CreateInfoWithDefaultSettings(
-                "Booby Trap",
-                "If this is in your hand at the beginning of your turn, it explodes. If it is on the board at the beginning of your opponent's turn, it explodes. Either way, it explodes."
-            );
-            info.powerLevel = -2;
+            DynamiteAppearance.Register();
 
-            NewAbility ability = new NewAbility(
+            AbilityInfo info = ScriptableObject.CreateInstance<AbilityInfo>();
+            info.rulebookName = "Booby Trap";
+            info.rulebookDescription = "If this is in your hand at the beginning of your turn, it explodes. If it is on the board at the beginning of your opponent's turn, it explodes. Either way, it explodes.";
+            info.canStack = true;
+            info.powerLevel = -2;
+            info.opponentUsable = false;
+            info.passive = false;
+            info.metaCategories = new List<AbilityMetaCategory>() { AbilityMetaCategory.Part1Rulebook };
+
+            Dynamite.AbilityID = AbilityManager.Add(
+                InfiniscryptionCursePlugin.PluginGuid,
                 info,
                 typeof(Dynamite),
-                AssetHelper.LoadTexture("ability_dynamite"),
-                Identifier
-            );
+                AssetHelper.LoadTexture("ability_dynamite")
+            ).Id;
 
-            Dynamite._ability = ability.ability;
-
-            NewCard.Add(
-                "Prospector_Dynamite",
-                "Dynamite",
-                0, 2,
-                new List<CardMetaCategory>(),
-                CardComplexity.Advanced,
-                CardTemple.Nature,
-                "Ouch!",
-                traits: new List<Trait>() { Trait.Terrain },
-                defaultTex: AssetHelper.LoadTexture("dynamite_portrait"),
-                emissionTex: AssetHelper.LoadTexture("dynamite_emission"),
-                abilityIdsParam: new List<AbilityIdentifier>() { Dynamite.Identifier }
-            );
+            CardManager.New("Prospector_Dynamite", "Dynamite", 0, 2)
+                .AddTraits(Trait.Terrain)
+                .SetPortrait(AssetHelper.LoadTexture("dynamite_portrait"), AssetHelper.LoadTexture("dynamite_emission"))
+                .AddAbilities(Dynamite.AbilityID)
+                .AddAppearances(DynamiteAppearance.ID)
+                .temple = CardTemple.Nature;
 
             System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(Dynamite).TypeHandle);
             System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(DynamiteAppearance).TypeHandle);
 
             // Patch this class
             harmony.PatchAll(typeof(Dynamite));
-        }
-
-        // This patch makes the card have the right background
-        [HarmonyPatch(typeof(Card), "ApplyAppearanceBehaviours")]
-        [HarmonyPostfix]
-        public static void SpellBackground(ref Card __instance)
-        {
-            if (__instance.Info.Abilities.Contains(Dynamite._ability))
-            {
-                __instance.gameObject.AddComponent<DynamiteAppearance>().ApplyAppearance();
-            }
         }
 
         // We're going to cheat the upkeep triggers a bit.
@@ -93,7 +70,7 @@ namespace Infiniscryption.Curses.Cards
             if (PlayerHand.Instance != null && playerUpkeep)
             {
                 List<PlayableCard> cardsToExplode = PlayerHand.Instance.CardsInHand
-                                                    .Where(c => c.Info.Abilities.Any(a => (int)a == (int)Dynamite._ability))
+                                                    .Where(c => c.Info.Abilities.Any(a => a == Dynamite.AbilityID))
                                                     .ToList();
 
                 object[] upkeepVars = new object[] { playerUpkeep };

@@ -1,15 +1,8 @@
-using BepInEx;
-using BepInEx.Logging;
-using BepInEx.Configuration;
-using UnityEngine;
 using DiskCardGame;
 using HarmonyLib;
-using System.Collections;
 using System.Collections.Generic;
 using System;
 using Infiniscryption.Core.Helpers;
-using APIPlugin;
-using InscryptionAPI.Guid;
 using System.Linq;
 
 namespace Infiniscryption.P03KayceeRun.Patchers
@@ -19,7 +12,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
     {
         private static void AddDialogue(string id, List<string> lines, List<string> faces)
         {
-            InfiniscryptionP03Plugin.Log.LogInfo($"Creating dialogue {id}, {string.Join(",", lines)}");
+            P03Plugin.Log.LogInfo($"Creating dialogue {id}, {string.Join(",", lines)}");
 
             if (string.IsNullOrEmpty(id))
                 return;

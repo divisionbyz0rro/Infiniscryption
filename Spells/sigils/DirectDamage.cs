@@ -1,58 +1,36 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using APIPlugin;
 using DiskCardGame;
 using Infiniscryption.Core.Helpers;
+using InscryptionAPI.Card;
 using UnityEngine;
 
 namespace Infiniscryption.Spells.Sigils
 {
-	// Token: 0x02000324 RID: 804
 	public class DirectDamage : AbilityBehaviour
 	{
-		// Token: 0x17000268 RID: 616
-		// (get) Token: 0x06001358 RID: 4952 RVA: 0x000438A9 File Offset: 0x00041AA9
-		public override Ability Ability => _ability;
-        private static Ability _ability;
-        
-        public static AbilityIdentifier Identifier 
-        { 
-            get
-            {
-                return AbilityIdentifier.GetAbilityIdentifier("zorro.infiniscryption.sigils.directdamage", "Direct Damage");
-            }
-        }
+		public override Ability Ability => AbilityID;
+        public static Ability AbilityID { get; private set; }
 
         public static void Register()
         {
-            AbilityInfo info = AbilityInfoUtils.CreateInfoWithDefaultSettings(
-                "Direct Damage",
-                "Deals damage directly to a target."
-            );
+            AbilityInfo info = ScriptableObject.CreateInstance<AbilityInfo>();
+            info.rulebookName = "Direct Damage";
+            info.rulebookDescription = "Deals damage directly to a target.";
             info.canStack = true;
             info.powerLevel = 1;            
             info.passive = false;
             info.metaCategories = new List<AbilityMetaCategory>() { AbilityMetaCategory.Part1Rulebook };
-            info.pixelIcon = Sprite.Create(
-                AssetHelper.LoadTexture("damage_pixel", FilterMode.Point),
-                new Rect(0f, 0f, 17f, 17f),
-                new Vector2(0.5f, 0.5f)
-            );
+            info.SetPixelAbilityIcon(AssetHelper.LoadTexture("damage_pixel"));
 
-            NewAbility ability = new NewAbility(
+            DirectDamage.AbilityID = AbilityManager.Add(
+                InfiniscryptionSpellsPlugin.PluginGuid,
                 info,
                 typeof(DirectDamage),
-                AssetHelper.LoadTexture("ability_damage"),
-                Identifier
-            );
-
-            DirectDamage._ability = ability.ability;
+                AssetHelper.LoadTexture("ability_damage")
+            ).Id;
         }
 
-        
-
-		// Token: 0x0600135B RID: 4955 RVA: 0x0000F57E File Offset: 0x0000D77E
 		public override bool RespondsToSlotTargetedForAttack(CardSlot slot, PlayableCard attacker)
 		{
 			if (slot.Card == null)
@@ -64,7 +42,6 @@ namespace Infiniscryption.Spells.Sigils
             return true;
 		}
 
-		// Token: 0x0600135C RID: 4956 RVA: 0x000438AD File Offset: 0x00041AAD
 		public override IEnumerator OnSlotTargetedForAttack(CardSlot slot, PlayableCard attacker)
 		{
 			if (slot.Card != null)

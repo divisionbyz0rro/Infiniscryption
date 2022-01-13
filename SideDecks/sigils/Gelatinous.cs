@@ -1,44 +1,40 @@
-using BepInEx;
-using BepInEx.Logging;
-using BepInEx.Configuration;
-using UnityEngine;
 using DiskCardGame;
 using HarmonyLib;
 using System.Collections;
-using System.Collections.Generic;
-using System;
 using Infiniscryption.Core.Helpers;
-using APIPlugin;
+using System.Collections.Generic;
+using UnityEngine;
+using InscryptionAPI.Card;
 
 namespace Infiniscryption.SideDecks.Sigils
 {
     public class Gelatinous : AbilityBehaviour
     {
-        public override Ability Ability => _ability;
-        internal static Ability _ability;
-        internal static AbilityIdentifier Identifier;
+		public override Ability Ability => AbilityID;
+        public static Ability AbilityID { get; private set; }
 
         // This ability...does nothing? That's right!
 
         public static void Register(Harmony harmony)
         {
-            AbilityInfo info = AbilityInfoUtils.CreateInfoWithDefaultSettings(
-                "Gelatinous",
-                "This creature has no bones"
-            );
+            AbilityInfo info = ScriptableObject.CreateInstance<AbilityInfo>();
+            info.rulebookName = "Gelatinous";
+            info.rulebookDescription = "[creature] has no bones";
+            info.canStack = true;
+            info.powerLevel = -1;
+            info.opponentUsable = false;
+            info.passive = false;
+            info.metaCategories = new List<AbilityMetaCategory>() { AbilityMetaCategory.Part1Rulebook };
+            info.SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_gelatinous"));
 
-            Identifier = AbilityIdentifier.GetAbilityIdentifier("zorro.infiniscryption.sigils.gelatinous", "Gelatinous");
-
-            NewAbility ability = new NewAbility(
+            Gelatinous.AbilityID = AbilityManager.Add(
+                SideDecksPlugin.PluginGuid,
                 info,
                 typeof(Gelatinous),
-                AssetHelper.LoadTexture("ability_gelatinous"),
-                Identifier
-            );
+                AssetHelper.LoadTexture("ability_gelatinous")
+            ).Id;
 
-            Gelatinous._ability = ability.ability;
-
-            harmony.PatchAll(typeof(Gelatinous));
+            harmony.PatchAll(typeof(DoubleTeeth));
         }
 
         [HarmonyPatch(typeof(ResourcesManager), "AddBones")]

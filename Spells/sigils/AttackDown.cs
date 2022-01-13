@@ -1,49 +1,35 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using APIPlugin;
 using DiskCardGame;
 using Infiniscryption.Core.Helpers;
+using InscryptionAPI.Card;
 using UnityEngine;
 
 namespace Infiniscryption.Spells.Sigils
 {
 	public class AttackNerf : AbilityBehaviour
 	{
-		public override Ability Ability => _ability;
-        private static Ability _ability;
-        
-        public static AbilityIdentifier Identifier 
-        { 
-            get
-            {
-                return AbilityIdentifier.GetAbilityIdentifier("zorro.infiniscryption.sigils.attackdown", "Attack Down");
-            }
-        }
+		public override Ability Ability => AbilityID;
+        public static Ability AbilityID { get; private set; }
 
         public static void Register()
         {
-            AbilityInfo info = AbilityInfoUtils.CreateInfoWithDefaultSettings(
-                "Attack Down",
-                "Decreases the target's attack for the rest of the battle."
-            );
+            AbilityInfo info = ScriptableObject.CreateInstance<AbilityInfo>();
+            info.rulebookName = "Attack Down";
+            info.rulebookDescription = "Decreases the target's attack for the rest of the battle.";
             info.canStack = true;
+            info.powerLevel = 1;
+            info.opponentUsable = false;
             info.passive = false;
             info.metaCategories = new List<AbilityMetaCategory>() { AbilityMetaCategory.Part1Rulebook };
-            info.pixelIcon = Sprite.Create(
-                AssetHelper.LoadTexture("attack_down_pixel", FilterMode.Point),
-                new Rect(0f, 0f, 17f, 17f),
-                new Vector2(0.5f, 0.5f)
-            );
+            info.SetPixelAbilityIcon(AssetHelper.LoadTexture("attack_down_pixel"));
 
-            NewAbility ability = new NewAbility(
+            AttackNerf.AbilityID = AbilityManager.Add(
+                InfiniscryptionSpellsPlugin.PluginGuid,
                 info,
                 typeof(AttackNerf),
-                AssetHelper.LoadTexture("ability_attack_down"),
-                Identifier
-            );
-
-            AttackNerf._ability = ability.ability;
+                AssetHelper.LoadTexture("ability_attack_down")
+            ).Id;
         }
 
 		public override bool RespondsToSlotTargetedForAttack(CardSlot slot, PlayableCard attacker)

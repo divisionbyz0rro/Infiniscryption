@@ -1,29 +1,24 @@
-using BepInEx;
-using BepInEx.Logging;
-using BepInEx.Configuration;
 using UnityEngine;
 using DiskCardGame;
 using HarmonyLib;
-using System.Collections;
 using System.Collections.Generic;
 using System;
 using Infiniscryption.Core.Helpers;
-using APIPlugin;
 using InscryptionAPI.Guid;
 using System.Linq;
 using Infiniscryption.P03KayceeRun.Cards;
-using Infiniscryption.P03KayceeRun.Sequences;
+using InscryptionAPI.Card;
 
 namespace Infiniscryption.P03KayceeRun.Patchers
 {
     [HarmonyPatch]
     public static class CustomCards
     {
-        public static readonly CardMetaCategory NeutralRegion = (CardMetaCategory)GuidManager.GetEnumValue<CardMetaCategory>(InfiniscryptionP03Plugin.PluginGuid, "NeutralRegionCards");
-        public static readonly CardMetaCategory WizardRegion = (CardMetaCategory)GuidManager.GetEnumValue<CardMetaCategory>(InfiniscryptionP03Plugin.PluginGuid, "WizardRegionCards");
-        public static readonly CardMetaCategory TechRegion = (CardMetaCategory)GuidManager.GetEnumValue<CardMetaCategory>(InfiniscryptionP03Plugin.PluginGuid, "TechRegionCards");
-        public static readonly CardMetaCategory NatureRegion = (CardMetaCategory)GuidManager.GetEnumValue<CardMetaCategory>(InfiniscryptionP03Plugin.PluginGuid, "NatureRegionCards");
-        public static readonly CardMetaCategory UndeadRegion = (CardMetaCategory)GuidManager.GetEnumValue<CardMetaCategory>(InfiniscryptionP03Plugin.PluginGuid, "UndeadRegionCards");
+        public static readonly CardMetaCategory NeutralRegion = (CardMetaCategory)GuidManager.GetEnumValue<CardMetaCategory>(P03Plugin.PluginGuid, "NeutralRegionCards");
+        public static readonly CardMetaCategory WizardRegion = (CardMetaCategory)GuidManager.GetEnumValue<CardMetaCategory>(P03Plugin.PluginGuid, "WizardRegionCards");
+        public static readonly CardMetaCategory TechRegion = (CardMetaCategory)GuidManager.GetEnumValue<CardMetaCategory>(P03Plugin.PluginGuid, "TechRegionCards");
+        public static readonly CardMetaCategory NatureRegion = (CardMetaCategory)GuidManager.GetEnumValue<CardMetaCategory>(P03Plugin.PluginGuid, "NatureRegionCards");
+        public static readonly CardMetaCategory UndeadRegion = (CardMetaCategory)GuidManager.GetEnumValue<CardMetaCategory>(P03Plugin.PluginGuid, "UndeadRegionCards");
 
         public const string DRAFT_TOKEN = "P03_Draft_Token";
         public const string RARE_DRAFT_TOKEN = "P03_Draft_Token_Rare";
@@ -47,102 +42,98 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             if (string.IsNullOrEmpty(name))
                 return;
 
-            CustomCard customCard = new CustomCard(name);
-            CardInfo card = null;
+            CardInfo card = CardManager.AllCards.CardByName(name);
+            if (card == null)
+                return;
+
 
             if (!string.IsNullOrEmpty(textureKey))
-                customCard.tex = AssetHelper.LoadTexture(textureKey);
+                card.SetPortrait(AssetHelper.LoadTexture(textureKey));
 
             if (!string.IsNullOrEmpty(pixelTextureKey))
-                customCard.pixelTex = AssetHelper.LoadTexture(pixelTextureKey);
+                card.SetPixelPortrait(AssetHelper.LoadTexture(pixelTextureKey));
 
             if (!string.IsNullOrEmpty(regionCode))
             {
-                card = card ?? CardLoader.GetCardByName(name);
-                List<CardMetaCategory> cats = card.metaCategories;
-                cats.Add((CardMetaCategory)GuidManager.GetEnumValue<CardMetaCategory>(InfiniscryptionP03Plugin.PluginGuid, regionCode));
-                customCard.metaCategories = cats;
+                card.metaCategories = card.metaCategories ?? new();
+                card.metaCategories.Add(GuidManager.GetEnumValue<CardMetaCategory>(P03Plugin.PluginGuid, regionCode));
             }
 
             if (!string.IsNullOrEmpty(decalTextureKey))
-                customCard.decals = new () { AssetHelper.LoadTexture(decalTextureKey) };
+                card.decals = new() { AssetHelper.LoadTexture(decalTextureKey) };
         }
 
         internal static void RegisterCustomCards(Harmony harmony)
         {
             // Register all the custom ability
             ConduitSpawnCrypto.Register();
+            HighResAlternatePortrait.Register();
+            RandomStupidAssApePortrait.Register();
 
             // Load the custom cards from the CSV database
             string database = AssetHelper.GetResourceString("card_database", "csv");
             string[] lines = database.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-            foreach(string line in lines.Skip(1))
+            foreach (string line in lines.Skip(1))
             {
-                string[] cols = line.Split(new char[] { ',' } , StringSplitOptions.None);
+                string[] cols = line.Split(new char[] { ',' }, StringSplitOptions.None);
                 //InfiniscryptionP03Plugin.Log.LogInfo($"I see line {string.Join(";", cols)}");
                 UpdateExistingCard(cols[0], cols[1], cols[2], cols[3], cols[4]);
             }
 
             // This creates all the sprites behind the scenes so we're ready to go
-            RandomStupidAssApePortrait.RandomApePortrait.GenerateApeSprites(); 
+            RandomStupidAssApePortrait.RandomApePortrait.GenerateApeSprites();
 
-            NewCard.Add(
-                DRAFT_TOKEN,
-                "Draft Token",
-                0, 1,
-                new List<CardMetaCategory>() { },
-                CardComplexity.Vanilla,
-                CardTemple.Tech,
-                "It's worth a card",
-                defaultTex: AssetHelper.LoadTexture("portrait_drafttoken"),
-                pixelTex: AssetHelper.LoadTexture("pixel_drafttoken")
-            );
+            AbilityManager.AllAbilityInfos.AbilityByID(Ability.DrawVesselOnHit).SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_drawvessel"));
+            AbilityManager.AllAbilityInfos.AbilityByID(Ability.Sniper).SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_sniper"));
+            AbilityManager.AllAbilityInfos.AbilityByID(Ability.RandomAbility).SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_random"));
+            AbilityManager.AllAbilityInfos.AbilityByID(Ability.DrawRandomCardOnDeath).SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_randomcard"));
+            AbilityManager.AllAbilityInfos.AbilityByID(Ability.LatchDeathShield).SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_shieldlatch"));
 
-            NewCard.Add(
-                RARE_DRAFT_TOKEN,
-                "Rare Draft Token",
-                0, 2,
-                new List<CardMetaCategory>() { },
-                CardComplexity.Vanilla,
-                CardTemple.Tech,
-                "It's worth a card",
-                defaultTex: AssetHelper.LoadTexture("portrait_drafttoken_plusplus"),
-                pixelTex: AssetHelper.LoadTexture("pixel_drafttoken")
-            );
 
-            NewCard.Add(
-                BLOCKCHAIN,
-                "Blockchain",
-                0, 5,
-                new List<CardMetaCategory>() { },
-                CardComplexity.Vanilla,
-                CardTemple.Tech,
-                "To the moon!",
-                abilities: new() { Ability.DebuffEnemy, Ability.DeathShield, Ability.ConduitNull},
-                abilityIdsParam: new() { ConduitSpawnCrypto.Identifier },
-                altTex: AssetHelper.LoadTexture("portrait_blockchain")
-            );
+            CardInfo card = ScriptableObject.CreateInstance<CardInfo>();
+            card.name = DRAFT_TOKEN;
+            card.SetBasic("Draft Token", 0, 1);
+            card.temple = CardTemple.Tech;
+            card.metaCategories = new();
+            card.SetPortrait(AssetHelper.LoadTexture("portrait_drafttoken"));
+            card.SetPixelPortrait(AssetHelper.LoadTexture("pixel_drafttoken"));
+            CardManager.Add(card);
 
-            NewCard.Add(
-                GOLLYCOIN,
-                "GollyCoin",
-                0, 2,
-                new List<CardMetaCategory>() { },
-                CardComplexity.Vanilla,
-                CardTemple.Tech,
-                "To the moon!",
-                altTex: AssetHelper.LoadTexture("portrait_gollycoin")
-            );
+            card = ScriptableObject.CreateInstance<CardInfo>();
+            card.name = RARE_DRAFT_TOKEN;
+            card.SetBasic("Rare Draft Token", 0, 1);
+            card.temple = CardTemple.Tech;
+            card.metaCategories = new();
+            card.SetPortrait(AssetHelper.LoadTexture("portrait_drafttoken_plusplus"));
+            card.SetPixelPortrait(AssetHelper.LoadTexture("pixel_drafttoken"));
+            CardManager.Add(card);
 
-            NewCard.Add(
-                NFT,
-                "Stupid-Ass Ape",
-                0, 1,
-                new List<CardMetaCategory>() { },
-                CardComplexity.Advanced,
-                CardTemple.Tech,
-                "To the moon!"
-            );
+            card = ScriptableObject.CreateInstance<CardInfo>();
+            card.name = BLOCKCHAIN;
+            card.SetBasic("Blockchain", 0, 5);
+            card.temple = CardTemple.Tech;
+            card.metaCategories = new();
+            card.SetAltPortrait(AssetHelper.LoadTexture("portrait_blockchain"), FilterMode.Trilinear);
+            card.abilities = new() { Ability.DebuffEnemy, Ability.DeathShield, Ability.ConduitNull, ConduitSpawnCrypto.AbilityID };
+            card.appearanceBehaviour = new () { HighResAlternatePortrait.ID };
+            CardManager.Add(card);
+
+            card = ScriptableObject.CreateInstance<CardInfo>();
+            card.name = GOLLYCOIN;
+            card.SetBasic("GollyCoin", 0, 2);
+            card.temple = CardTemple.Tech;
+            card.metaCategories = new();
+            card.SetAltPortrait(AssetHelper.LoadTexture("portrait_gollycoin"), FilterMode.Trilinear);
+            card.appearanceBehaviour = new () { HighResAlternatePortrait.ID };
+            CardManager.Add(card);
+
+            card = ScriptableObject.CreateInstance<CardInfo>();
+            card.name = NFT;
+            card.SetBasic("Stupid-Ass Ape", 0, 1);
+            card.temple = CardTemple.Tech;
+            card.metaCategories = new();
+            card.appearanceBehaviour = new () { RandomStupidAssApePortrait.ID };
+            CardManager.Add(card);
         }
 
         [HarmonyPatch(typeof(Card), "ApplyAppearanceBehaviours")]

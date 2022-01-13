@@ -1,14 +1,7 @@
-using BepInEx;
-using BepInEx.Logging;
-using BepInEx.Configuration;
 using UnityEngine;
 using DiskCardGame;
 using HarmonyLib;
-using System.Collections;
 using System.Collections.Generic;
-using System;
-using Infiniscryption.Core.Helpers;
-using APIPlugin;
 
 namespace Infiniscryption.P03KayceeRun.Cards
 {
@@ -21,8 +14,7 @@ namespace Infiniscryption.P03KayceeRun.Cards
         {
             if (SaveManager.SaveFile.IsPart3)
             {
-                Traverse iconTrav = Traverse.Create(__instance);
-                List<GameObject> defaultIconGroups = iconTrav.Field("defaultIconGroups").GetValue<List<GameObject>>();
+                List<GameObject> defaultIconGroups = __instance.defaultIconGroups;
                 foreach (GameObject group in defaultIconGroups)
                 {
                     if (group.activeSelf)
