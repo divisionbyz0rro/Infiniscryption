@@ -9,6 +9,18 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 {
     public class TelegrapherAscensionOpponent : TelegrapherBossOpponent
     {
+        private CardInfo GetBlockchain()
+        {
+            CardInfo blockchain = CardLoader.GetCardByName(CustomCards.BLOCKCHAIN);
+            if (EventManagement.CompletedZones.Count == 0)
+                blockchain.mods.Add(new(0, -2));
+            if (EventManagement.CompletedZones.Count >= 2)
+                blockchain.mods.Add(new(Ability.DeathShield));
+            if (EventManagement.CompletedZones.Count == 3)
+                blockchain.mods.Add(new(Ability.DebuffEnemy));
+            return blockchain;
+        }
+
         public override IEnumerator StartNewPhaseSequence()
         {
             // Do nothing if this is not the ascension boss fight
@@ -37,9 +49,9 @@ namespace Infiniscryption.P03KayceeRun.Sequences
             this.Blueprint = null;
             this.TurnPlan = new();
 
-            yield return BoardManager.Instance.CreateCardInSlot( CardLoader.GetCardByName(CustomCards.BLOCKCHAIN), BoardManager.Instance.OpponentSlotsCopy[0]);
+            yield return BoardManager.Instance.CreateCardInSlot(GetBlockchain(), BoardManager.Instance.OpponentSlotsCopy[0]);
             yield return new WaitForSeconds(0.15f);
-            yield return BoardManager.Instance.CreateCardInSlot( CardLoader.GetCardByName(CustomCards.BLOCKCHAIN), BoardManager.Instance.OpponentSlotsCopy[4]);
+            yield return BoardManager.Instance.CreateCardInSlot(GetBlockchain(), BoardManager.Instance.OpponentSlotsCopy[4]);
             yield return new WaitForSeconds(0.15f);
 
             yield return new WaitForSeconds(0.75f);

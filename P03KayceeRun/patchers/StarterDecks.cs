@@ -12,9 +12,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
     [HarmonyPatch]
     public static class StarterDecks
     {
-        public static List<StarterDeckInfo> P03StarterDecks { get; private set; }
-
-        public static List<StarterDeckInfo> OriginalStarterDecks { get; private set; }
+        public static Dictionary<Opponent.Type, List<StarterDeckInfo>> StarterDeckReference = new ();
 
         public static AscensionChooseStarterDeckScreen StarterDeckScreen { get; private set; }
 
@@ -37,12 +35,25 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
         static StarterDecks()
         {
-            P03StarterDecks = new() {
+            StarterDeckReference = new Dictionary<Opponent.Type, List<StarterDeckInfo>>();
+            StarterDeckReference.Add(Opponent.Type.Default, new () {
+                StarterDecksUtil.GetInfo("Vanilla"),
+                StarterDecksUtil.GetInfo("Bones"),
+                StarterDecksUtil.GetInfo("Ants"),
+                StarterDecksUtil.GetInfo("MantisGod"),
+                StarterDecksUtil.GetInfo("MooseBlood"),
+                StarterDecksUtil.GetInfo("FreeReptiles"),
+                StarterDecksUtil.GetInfo("Tentacles"),
+            });
+
+            StarterDeckReference.Add(Opponent.Type.P03Boss, new () {
                 CreateStarterDeckInfo("Snipers", "starterdeck_icon_snipers", new string[] {"Sniper", "BustedPrinter", "SentryBot" }),
                 CreateStarterDeckInfo("Random", "starterdeck_icon_random", new string[] {"Amoebot", "GiftBot", "EnergyRoller" }),
-                CreateStarterDeckInfo("Shield", "starterdeck_icon_shield", new string[] {"BoltHound", "Shieldbot", "LatcherShield" }),
-                CreateStarterDeckInfo("Energy", "starterdeck_icon_energy", new string[] {"CloserBot", "BatteryBot", "BatteryBot" })
-            };
+                CreateStarterDeckInfo("Shield", "starterdeck_icon_shield", new string[] {"GemShielder", "Shieldbot", "LatcherShield" }),
+                CreateStarterDeckInfo("Energy", "starterdeck_icon_energy", new string[] {"CloserBot", "BatteryBot", "BatteryBot" })//,
+            });
+
+            StarterDecksUtil.allData.AddRange(StarterDeckReference[Opponent.Type.P03Boss]);
         }
 
         private static void SyncIconsToStarters(List<AscensionStarterDeckIcon> icons, List<StarterDeckInfo> decks)
@@ -70,31 +81,15 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             P03Plugin.Log.LogInfo($"Starter deck screen active - is P03? {ScreenManagement.ScreenState}");
             StarterDeckScreen = __instance; // Keep a reference to this for later
 
-            if (ScreenManagement.ScreenState == Opponent.Type.P03Boss || OriginalStarterDecks != null)
-            {
-                Traverse screenTraverse = Traverse.Create(__instance);
-                List<AscensionStarterDeckIcon> decks = screenTraverse.Field("deckIcons").GetValue<List<AscensionStarterDeckIcon>>();
-
-                if (ScreenManagement.ScreenState == Opponent.Type.P03Boss)
-                {
-                    if (OriginalStarterDecks == null)
-                        OriginalStarterDecks = decks.Select(i => i.Info).ToList();
-
-                    SyncIconsToStarters(decks, P03StarterDecks);
-                }
-                else if (OriginalStarterDecks != null)
-                {
-                    SyncIconsToStarters(decks, OriginalStarterDecks);
-                    OriginalStarterDecks = null;
-                }
-            }
+            SyncIconsToStarters(__instance.deckIcons, StarterDeckReference[ScreenManagement.ScreenState]);
         }
 
         [HarmonyPatch(typeof(AscensionStarterDeckIcon), "AssignInfo")]
         [HarmonyPrefix]
         public static void ForceAssignInfo(ref AscensionStarterDeckIcon __instance, StarterDeckInfo info)
         {
-            Traverse.Create(__instance).Field("starterDeckInfo").SetValue(info);
+            __instance.starterDeckInfo = info;
+            __instance.conqueredRenderer.enabled = false;
         }
     }
 }

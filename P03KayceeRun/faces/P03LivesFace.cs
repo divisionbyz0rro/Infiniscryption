@@ -105,6 +105,7 @@ namespace Infiniscryption.P03KayceeRun.Faces
 
         public static IEnumerator ShowChangeLives(int change, bool changeView = true)
 		{
+            P03AnimationController.Face currentFace = P03AnimationController.Instance.CurrentFace;
 			if (changeView)
 				ViewManager.Instance.SwitchToView(View.P03Face, false, true);
 			
@@ -115,6 +116,8 @@ namespace Infiniscryption.P03KayceeRun.Faces
 
 			if (changeView)
 				Singleton<ViewManager>.Instance.Controller.LockState = ViewLockState.Unlocked;
+            
+            P03AnimationController.Instance.SwitchToFace(currentFace, true, true);
 			
 			yield break;
 		}

@@ -37,6 +37,7 @@ namespace Infiniscryption.P03KayceeRun.Cards
                
             base.Card.RenderInfo.prefabPortrait = prefabPortrait;
             base.Card.RenderInfo.hidePortrait = true;
+            base.Card.renderInfo.hiddenCost = true;
         }
 
         public static void Register()

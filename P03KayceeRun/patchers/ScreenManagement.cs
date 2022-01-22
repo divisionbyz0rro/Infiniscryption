@@ -11,7 +11,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
     [HarmonyPatch]
     public static class ScreenManagement
     {
-        public static Opponent.Type ScreenState { get; private set; } = Opponent.Type.Default;
+        public static Opponent.Type ScreenState { get; set; } = Opponent.Type.Default;
 
         [HarmonyPatch(typeof(AscensionMenuScreens), "TransitionToGame")]
         [HarmonyPrefix]
@@ -57,7 +57,10 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             // If we have a Part 3 Ascension Run saved, then yes - a P03 run exists
             if (!string.IsNullOrEmpty(ModdedSaveManager.SaveData.GetValue(P03Plugin.PluginGuid, P03AscensionSaveData.ASCENSION_SAVE_KEY)))
             {
-                __result = true;
+                if (Part3SaveData.Data.checkpointPos.worldId == EventManagement.GAME_OVER)
+                    __result = false;
+                else
+                    __result = true;
                 return false;
             }
             return true;
@@ -109,7 +112,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             newP03Button.name = "Menu_New_P03";
             AscensionMenuInteractable newP03ButtonController = newP03Button.GetComponent<AscensionMenuInteractable>();
             newP03ButtonController.CursorSelectStarted = delegate (MainInputInteractable i) {
-                ScreenState = Opponent.Type.Default;
+                ScreenState = Opponent.Type.P03Boss;
                 newButtonController.CursorSelectStart();
             };
             newP03Button.GetComponentInChildren<PixelText>().SetText("- NEW P03 RUN -");

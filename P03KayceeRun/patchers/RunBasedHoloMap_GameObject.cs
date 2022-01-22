@@ -174,6 +174,9 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             specialNodePrefabs.AddReplace(HoloMapSpecialNode.NodeDataType.GainCurrency, () => GetGameObject("NatureMainPath_3", "Nodes/CurrencyGainNode3D"));
             specialNodePrefabs.AddReplace(HoloMapSpecialNode.NodeDataType.ModifySideDeckConduit, () => GetGameObject("TechEntrance", "Nodes/ModifySideDeckNode3D"));
             specialNodePrefabs.AddReplace(TradeChipsNodeData.TradeChipsForCards, () => GetDraftNode());
+            specialNodePrefabs.AddReplace(UnlockAscensionItemNodeData.UnlockItemsAscension, () => GetItemNode());
+            specialNodePrefabs.AddReplace(AscensionRecycleCardNodeData.AscensionRecycleCard, () => GetRecycleNode());
+            specialNodePrefabs.AddReplace(HoloMapSpecialNode.NodeDataType.BossBattle, () => GetGameObject("TempleWizardBoss", "Nodes/BossNode3D"));
 
             // Special terrain prefabs
             specialTerrainPrefabs.AddReplace(HoloMapBlueprint.RIGHT_BRIDGE, () => new GameObject[] { GetGameObject("UndeadMainPath_4", "Scenery/HoloBridge_Entrance") });
@@ -201,6 +204,19 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             neutralHoloPrefab.SetActive(false);
         }
 
+        private static List<int> CompletedRegions
+        {
+            get
+            {
+                return EventManagement.CompletedZones.Select( s=>
+                    s.EndsWith("Undead") ? UNDEAD :
+                    s.EndsWith("Wizard") ? MAGIC : 
+                    s.EndsWith("Tech") ? TECH :
+                    s.EndsWith("Nature") ? NATURE :
+                    NEUTRAL).ToList();
+            }
+        }
+
         private static float[] MULTIPLIERS = new float[] { 0.33f, 0.66f };
         private static List<Tuple<float, float>> GetSpotsForQuadrant(int quadrant)
         {
@@ -213,6 +229,36 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             foreach (float m in MULTIPLIERS)
                 foreach (float n in MULTIPLIERS)
                     retval.Add(new(minX + m * (maxX - minX) - .025f + .05f * UnityEngine.Random.value, minZ + n * (maxZ - minZ) - .025f + .05f * UnityEngine.Random.value));
+
+            return retval;
+        }
+
+        private static GameObject GetItemNode()
+        {
+            GameObject baseObject = GetGameObject("Shop", "Nodes/ShopNode3D_ShieldGenItem");
+            GameObject retval = GameObject.Instantiate(baseObject);
+
+            // Turn this into a trade node
+            HoloMapSpecialNode nodeData = retval.GetComponentInChildren<HoloMapSpecialNode>();
+            nodeData.nodeType = UnlockAscensionItemNodeData.UnlockItemsAscension;
+            nodeData.repeatable = false;
+
+            retval.SetActive(false);
+
+            return retval;
+        }
+
+        private static GameObject GetRecycleNode()
+        {
+            GameObject baseObject = GetGameObject("TechTower_NW", "Nodes/ShopNode3D_Recycle");
+            GameObject retval = GameObject.Instantiate(baseObject);
+
+            // Turn this into a trade node
+            HoloMapSpecialNode nodeData = retval.GetComponentInChildren<HoloMapSpecialNode>();
+            nodeData.nodeType = AscensionRecycleCardNodeData.AscensionRecycleCard;
+            nodeData.repeatable = false;
+
+            retval.SetActive(false);
 
             return retval;
         }
@@ -263,10 +309,10 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             BuildSpecialNode(blueprint.upgrade, blueprint.specialTerrain, regionId, parent, sceneryParent, x, z);
         }
 
-        private static void BuildSpecialNode(HoloMapNode.NodeDataType dataType, int specialTerrain, int regionId, Transform parent, Transform sceneryParent, float x, float z)
+        private static HoloMapNode BuildSpecialNode(HoloMapNode.NodeDataType dataType, int specialTerrain, int regionId, Transform parent, Transform sceneryParent, float x, float z)
         {
             if (!specialNodePrefabs.ContainsKey(dataType))
-                return;
+                return null;
 
             P03Plugin.Log.LogInfo($"Adding {dataType.ToString()} at {x},{z}");
 
@@ -295,16 +341,21 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             }
             else
             {
-                float yVal = ((specialTerrain & HoloMapBlueprint.FULL_BRIDGE) == 0) ? newNode.transform.localPosition.y : .5f;
-                newNode.transform.localPosition = new Vector3(x, yVal, z);
+                if (sceneryParent != null)
+                {
+                    float yVal = ((specialTerrain & HoloMapBlueprint.FULL_BRIDGE) == 0) ? newNode.transform.localPosition.y : .5f;
+                    newNode.transform.localPosition = new Vector3(x, yVal, z);
 
-                yVal = ((specialTerrain & HoloMapBlueprint.FULL_BRIDGE) == 0) ? .1f : 1.33f;
+                    yVal = ((specialTerrain & HoloMapBlueprint.FULL_BRIDGE) == 0) ? .1f : 1.33f;
 
-                GameObject nodeBasePrefab = ((specialTerrain & HoloMapBlueprint.FULL_BRIDGE) == 0) ? HOLO_NODE_BASE : HOVER_HOLO_NODE_BASE;
-                P03Plugin.Log.LogInfo($"nodebase is{nodeBasePrefab}");
-                GameObject nodeBase = GameObject.Instantiate(nodeBasePrefab, sceneryParent);
-                nodeBase.transform.localPosition = new Vector3(newNode.transform.localPosition.x, yVal, newNode.transform.localPosition.z);
+                    GameObject nodeBasePrefab = ((specialTerrain & HoloMapBlueprint.FULL_BRIDGE) == 0) ? HOLO_NODE_BASE : HOVER_HOLO_NODE_BASE;
+                    P03Plugin.Log.LogInfo($"nodebase is{nodeBasePrefab}");
+                    GameObject nodeBase = GameObject.Instantiate(nodeBasePrefab, sceneryParent);
+                    nodeBase.transform.localPosition = new Vector3(newNode.transform.localPosition.x, yVal, newNode.transform.localPosition.z);
+                }
             }
+
+            return newNode.GetComponent<HoloMapNode>();
         }
 
         private static GameObject BuildP03BossNode()
@@ -315,11 +366,28 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             Part3FinaleAreaSequencer sequencer = retval.GetComponent<Part3FinaleAreaSequencer>();
             Component.Destroy(sequencer);
 
-            AscensionFinaleSequencer newSequencer = retval.AddComponent<AscensionFinaleSequencer>();
-            newSequencer.enabled = true;
+            //AscensionFinaleSequencer newSequencer = retval.AddComponent<AscensionFinaleSequencer>();
+            //newSequencer.enabled = true;
 
             HoloMapArea area = retval.GetComponent<HoloMapArea>();
-            Traverse.Create(area).Field("specialSequencer").SetValue(newSequencer);
+            //Traverse.Create(area).Field("specialSequencer").SetValue(newSequencer);
+            area.firstEnterDialogueId = "P03AscensionPreIntro";
+
+            P03Plugin.Log.LogInfo("Building boss node");
+            HoloMapBossNode bossNode = BuildSpecialNode(HoloMapNode.NodeDataType.BossBattle, HoloMapBlueprint.NO_SPECIAL, NEUTRAL, retval.transform.Find("Nodes"), null, 0f, 0f) as HoloMapBossNode;
+            P03Plugin.Log.LogInfo($"Making boss invisible: { bossNode }");
+            foreach (Renderer rend in bossNode.gameObject.GetComponentsInChildren<Renderer>())
+                rend.enabled = false; // Hide the boss node visually - I don't want to see it
+
+            bossNode.lootNodes = new();
+            bossNode.bossAnim = null;
+            bossNode.specialEncounterId = P03FinalBossSequencer.SequenceID;
+
+            P03Plugin.Log.LogInfo("Setting boss type");
+            (bossNode.Data as CardBattleNodeData).specialBattleId = P03FinalBossSequencer.SequenceID;
+
+            area.bossNode = bossNode;
+            area.activateBossOnEnter = true;
 
             retval.SetActive(false);
             return retval;
@@ -411,15 +479,20 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
         private static EncounterBlueprintData GetBlueprintForRegion(int regionId, int color)
         {
+            string encounterName = default(string);
             if (color == 1) // The first encounter pulls from neutral
             {
                 string[] encounters = REGION_DATA[NEUTRAL].encounters;
-                return Resources.Load<EncounterBlueprintData>($"data/encounterblueprints/part3/{encounters[UnityEngine.Random.Range(0, encounters.Length)]}");
+                encounterName = encounters[UnityEngine.Random.Range(0, encounters.Length)];
             }
             else
             {
-                return Resources.Load<EncounterBlueprintData>($"data/encounterblueprints/part3/{REGION_DATA[regionId].encounters[color - 2]}");
+                encounterName = REGION_DATA[regionId].encounters[color - 2];
             }
+
+            // Use EncounterBlueprintHelper to get our custom representation of the encounter blueprint
+            // and convert that to a blueprint the game understands
+            return (new EncounterBlueprintHelper(AssetHelper.GetResourceString(encounterName, "dat"))).AsBlueprint();
         }
 
         private static GameObject BuildMapAreaPrefab(int regionId, HoloMapBlueprint bp)
@@ -494,19 +567,33 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
             P03Plugin.Log.LogInfo($"Setting arrows and walls active");
             Transform scenery = area.transform.Find("Scenery");
-            GameObject wall = GetGameObject(REGION_DATA[regionId].wall);
-            foreach (int key in DIR_LOOKUP.Keys)
+            if (REGION_DATA[regionId].wallPrefabs != null && REGION_DATA[regionId].wallPrefabs.Keys.Count > 0)
             {
-                area.transform.Find($"Nodes/MoveArea_{DIR_LOOKUP[key]}").gameObject.SetActive((bp.arrowDirections & key) != 0);
-
-                // Walls
-                if (wall != null)
+                foreach (int key in DIR_LOOKUP.Keys)
                 {
+                    area.transform.Find($"Nodes/MoveArea_{DIR_LOOKUP[key]}").gameObject.SetActive((bp.arrowDirections & key) != 0);
+
                     if ((bp.arrowDirections & key) == 0)
+                        foreach (string wallPrefabKey in REGION_DATA[regionId].wallPrefabs[key])
+                            GameObject.Instantiate(GetGameObject(wallPrefabKey), scenery);
+                }
+            }
+            else
+            {
+                GameObject wall = GetGameObject(REGION_DATA[regionId].wall);
+                foreach (int key in DIR_LOOKUP.Keys)
+                {
+                    area.transform.Find($"Nodes/MoveArea_{DIR_LOOKUP[key]}").gameObject.SetActive((bp.arrowDirections & key) != 0);
+
+                    // Walls
+                    if (wall != null)
                     {
-                        GameObject wallClone = GameObject.Instantiate(wall, scenery);
-                        wallClone.transform.localPosition = REGION_DATA[regionId].wallOrientations[key].Item1;
-                        wallClone.transform.localEulerAngles = REGION_DATA[regionId].wallOrientations[key].Item2;
+                        if ((bp.arrowDirections & key) == 0)
+                        {
+                            GameObject wallClone = GameObject.Instantiate(wall, scenery);
+                            wallClone.transform.localPosition = REGION_DATA[regionId].wallOrientations[key].Item1;
+                            wallClone.transform.localEulerAngles = REGION_DATA[regionId].wallOrientations[key].Item2;
+                        }
                     }
                 }
             }
@@ -575,6 +662,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             Traverse areaTrav = Traverse.Create(areaData);
             areaData.GridX = bp.x;
             areaData.GridY = bp.y;
+            areaData.audioLoopsConfig = REGION_DATA[regionId].audioConfig;
+            areaData.screenPrefab = REGION_DATA[regionId].screenPrefab;
             areaTrav.Field("mainColor").SetValue(REGION_DATA[regionId].mainColor);
             areaTrav.Field("lightColor").SetValue(REGION_DATA[regionId].mainColor);
 
@@ -641,6 +730,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             int regionCode = int.Parse(idSplit[2]);
 
             List<HoloMapBlueprint> blueprints = BuildBlueprint(regionCount, regionCode, P03AscensionSaveData.RandomSeed);
+
             int xDimension = blueprints.Select(b => b.x).Max() + 1;
             int yDimension = blueprints.Select(b => b.y).Max() + 1;
 

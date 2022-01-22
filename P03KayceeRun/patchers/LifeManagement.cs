@@ -72,5 +72,24 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             EventManagement.FinishAscension(false);
             yield break;
         }
+
+        [HarmonyPatch(typeof(Part3SaveData), "ResetBattlesInCurrentZone")]
+        [HarmonyPrefix]
+        public static bool ResetBattlesForAscension(ref Part3SaveData __instance)
+        {
+            if (SaveFile.IsAscension)
+            {
+                foreach (Part3SaveData.MapAreaStateData area in __instance.areaData)
+                {
+                    area.clearedBattles.ForEach(delegate(LookDirection x)
+                    {
+                        area.clearedDirections.Remove(x);
+                    });
+                    area.clearedBattles.Clear();
+                }
+                return false;
+            }
+            return true;
+        }
     }
 }

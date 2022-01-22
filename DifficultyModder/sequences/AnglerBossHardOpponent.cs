@@ -45,12 +45,17 @@ namespace Infiniscryption.Curses.Sequences
 
             List<CardSlot> slots = BoardManager.Instance.OpponentSlotsCopy;
             int numberOfSharks = 2;
-            if (SaveFile.IsAscension)
-                numberOfSharks = AscensionSaveData.Data.currentRun.regionTier + 1;
+            if (SaveFile.IsAscension && AscensionSaveData.Data.currentRun.regionTier == 0)
+                numberOfSharks = 1;
             for (int i = 0; i < numberOfSharks; i++)
             {
                 int slotNum = i == 0 ? 1 : i == 1 ? 3 : i == 2 ? 2 : 0;
-                yield return BoardManager.Instance.CreateCardInSlot(CardLoader.GetCardByName("Angler_Shark"), slots[slotNum]);
+                CardInfo shark = CardLoader.GetCardByName("Angler_Shark");
+
+                if (SaveFile.IsAscension && AscensionSaveData.Data.currentRun.regionTier == 2)
+                    shark.mods.Add(new CardModificationInfo(1, 1));
+
+                yield return BoardManager.Instance.CreateCardInSlot(shark, slots[slotNum]);
                 yield return new WaitForSeconds(0.15f);
             }
 

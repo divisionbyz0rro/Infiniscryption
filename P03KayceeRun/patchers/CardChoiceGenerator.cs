@@ -17,7 +17,6 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             { RunBasedHoloMap.TECH, CustomCards.TechRegion }
         };
 
-
         [HarmonyPatch(typeof(Part3CardChoiceGenerator), "GenerateChoices")]
         [HarmonyPrefix]
         public static bool AscensionChoiceGeneration(CardChoicesNodeData data, int randomSeed, ref List<CardChoice> __result)
@@ -37,14 +36,26 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 if (regionCards.Count > 0)
                 {
                     CardInfo newCard = regionCards[SeededRandom.Range(0, regionCards.Count, randomSeed++)];
-                    __result.Add(new CardChoice() { CardInfo = newCard });
+                    __result.Add(new CardChoice() { CardInfo = CustomCards.ModifyCardForAscension(newCard) });
+                    regionCards.Remove(newCard);
                     regionAndNeutralCards.Remove(newCard);
+                }
+
+                // 50% chance that the second card also comes from the region
+                if (SeededRandom.Bool(randomSeed++))
+                {
+                    if (regionCards.Count > 0)
+                    {
+                        CardInfo newCard = regionCards[SeededRandom.Range(0, regionCards.Count, randomSeed++)];
+                        __result.Add(new CardChoice() { CardInfo = CustomCards.ModifyCardForAscension(newCard) });
+                        regionAndNeutralCards.Remove(newCard);
+                    }
                 }
 
                 while (__result.Count < 3)
                 {
                     CardInfo newCard = regionAndNeutralCards[SeededRandom.Range(0, regionAndNeutralCards.Count, randomSeed++)];
-                    __result.Add(new CardChoice() { CardInfo = newCard });
+                    __result.Add(new CardChoice() { CardInfo = CustomCards.ModifyCardForAscension(newCard) });
                     regionAndNeutralCards.Remove(newCard);
                 }
 

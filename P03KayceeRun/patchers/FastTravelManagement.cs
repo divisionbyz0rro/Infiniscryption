@@ -27,14 +27,6 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             { "FastTravelMapNode_Tech", RunBasedHoloMap.TECH }
         };
         
-        [HarmonyPatch(typeof(FastTravelNode), "OnFastTravelActive")]
-        [HarmonyPostfix]
-        public static void ActivateFastTravelUsingAscensionLogic(ref FastTravelNode __instance)
-        {
-            if (SaveFile.IsAscension)
-                __instance.gameObject.SetActive(fastTravelNodes.Keys.Contains(__instance.gameObject.name) && !EventManagement.CompletedZones.Contains(__instance.gameObject.name));
-        }
-
         [HarmonyPatch(typeof(FastTravelNode), "OnCursorSelectEnd")]
         [HarmonyPrefix]
         public static bool FastTravelInAscensionMode(ref FastTravelNode __instance)
@@ -68,6 +60,28 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             }
 
             return true;
+        }
+
+        [HarmonyPatch(typeof(FastTravelNode), nameof(FastTravelNode.OnFastTravelActive))]
+        [HarmonyPostfix]
+        public static void SetFastTravelNodeActive(ref FastTravelNode __instance)
+        {
+            if (SaveFile.IsAscension)
+                __instance.gameObject.SetActive(fastTravelNodes.Keys.Contains(__instance.gameObject.name) && !EventManagement.CompletedZones.Contains(__instance.gameObject.name));
+        }
+
+        [HarmonyPatch(typeof(HoloMapWaypointNode), nameof(HoloMapWaypointNode.OnCursorSelectEnd))]
+        [HarmonyPrefix]
+        public static void SetFastTravelNodesVisible()
+        {
+            if (SaveFile.IsAscension)
+            {
+                foreach (Transform trans in HoloGameMap.Instance.fastTravelMap.gameObject.transform)
+                {
+                    bool active = trans.gameObject.name == "WireframeGeo" || (fastTravelNodes.Keys.Contains(trans.gameObject.name) && !EventManagement.CompletedZones.Contains(trans.gameObject.name));
+                    trans.gameObject.SetActive(active);
+                }
+            }
         }
 
         private static bool isDroneFlying = false;

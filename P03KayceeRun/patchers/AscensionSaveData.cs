@@ -28,6 +28,14 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             }
         }
 
+        public static int NumberOfItems
+        {
+            get
+            {
+                return 3 - AscensionSaveData.Data.GetNumChallengesOfTypeActive(AscensionChallenge.LessConsumables);
+            }
+        }
+
         private static string SaveKey
         {
             get
@@ -180,13 +188,39 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
                 StarterDeckInfo deckInfo = StarterDecksUtil.GetInfo(AscensionSaveData.Data.currentStarterDeck);
 
-                __instance.deck.AddCard(deckInfo.cards[0]);
-                __instance.deck.AddCard(deckInfo.cards[1]);
-                __instance.deck.AddCard(deckInfo.cards[2]);
+                List<CardInfo> starterDeckCards = deckInfo.cards.Select(i => CardLoader.GetCardByName(i.name)).ToList();
+                if (AscensionSaveData.Data.ChallengeIsActive(AscensionChallenge.WeakStarterDeck))
+                {
+                    foreach(CardInfo info in starterDeckCards)
+                    {
+                        if (info.mods == null)
+                            info.mods = new();
+                        info.mods.Add(new(Ability.BuffEnemy));
+                    }
+                }
+
+                foreach(CardInfo info in starterDeckCards)
+                    __instance.deck.AddCard(info);
+                
                 __instance.deck.AddCard(CardLoader.GetCardByName(CustomCards.DRAFT_TOKEN));
                 __instance.deck.AddCard(CardLoader.GetCardByName(CustomCards.DRAFT_TOKEN));
 
                 __instance.sideDeckAbilities.Add(Ability.ConduitNull);
+
+                if (__instance.items == null)
+                    __instance.items = new List<string>();
+
+                if (NumberOfItems >= 1)
+                    __instance.items.Add("Battery");
+
+                if (NumberOfItems >= 2)
+                    __instance.items.Add("ShieldGenerator");
+
+                if (NumberOfItems >= 3 && !AscensionSaveData.Data.ChallengeIsActive(AscensionChallenge.NoHook))
+                    __instance.items.Add("BombRemote");
+
+                __instance.reachedCheckpoints.Add("NorthNeutralPath"); // This makes bounty hunters work properly
+                                                                       // Without this, your bounty can never reach tier 1
             }
         }
     }

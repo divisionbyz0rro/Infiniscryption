@@ -7,6 +7,7 @@ using System;
 using Infiniscryption.Core.Helpers;
 using System.Linq;
 using Infiniscryption.Spells.Sigils;
+using InscryptionAPI.Card;
 
 namespace Infiniscryption.Spells.Patchers
 {
@@ -14,6 +15,7 @@ namespace Infiniscryption.Spells.Patchers
     {
         public class SpellBackgroundAppearance : CardAppearanceBehaviour
         {
+            public static CardAppearanceBehaviour.Appearance ID = CardAppearanceBehaviourManager.Add(InfiniscryptionSpellsPlugin.PluginGuid, "SpellBackground", typeof(SpellBackgroundAppearance)).Id;
             private static Texture _emptySpell = AssetHelper.LoadTexture("card_empty_spell");
             public override void ApplyAppearance()
             {
@@ -23,6 +25,7 @@ namespace Infiniscryption.Spells.Patchers
 
         public class RareSpellBackgroundAppearance : CardAppearanceBehaviour
         {
+            public static CardAppearanceBehaviour.Appearance ID = CardAppearanceBehaviourManager.Add(InfiniscryptionSpellsPlugin.PluginGuid, "RareSpellBackground", typeof(RareSpellBackgroundAppearance)).Id;
             private static Texture _emptySpell = AssetHelper.LoadTexture("card_empty_spell_rare");
             public override void ApplyAppearance()
             {
@@ -115,54 +118,6 @@ namespace Infiniscryption.Spells.Patchers
         public static bool IsSpell(this CardInfo card)
         {
             return card.SpecialAbilities.Any(ab => ab == GlobalSpellAbility.ID || ab == TargetedSpellAbility.ID);
-        }
-
-        // This patch makes the card back have nostats despite having a staticon
-        [HarmonyPatch(typeof(Card), "ApplyAppearanceBehaviours")]
-        [HarmonyPostfix]
-        public static void SpellBackground(ref Card __instance)
-        {
-            if (__instance.Info.IsSpell())
-            {
-                if (__instance.Info.metaCategories.Any(cat => cat == CardMetaCategory.Rare))
-                    __instance.gameObject.AddComponent<RareSpellBackgroundAppearance>().ApplyAppearance();
-                else
-                    __instance.gameObject.AddComponent<SpellBackgroundAppearance>().ApplyAppearance();
-            }
-        }
-
-        // This patch takes care of making sure that the staticon appears
-        private static void PatchGlobals()
-        {
-            List<CardInfo> allCards = ScriptableObjectLoader<CardInfo>.allData;
-            foreach (CardInfo card in allCards)
-            {
-                if (card.IsGlobalSpell())
-                {
-                    // This has the global spell ability.
-                    // Let's check its icon info
-                    card.specialStatIcon = GlobalSpellAbility.Icon;
-                } else if (card.IsTargetedSpell())
-                {
-                    // This has the global spell ability.
-                    // Let's check its icon info
-                    card.specialStatIcon = TargetedSpellAbility.Icon;
-                }
-            }
-        }
-
-        [HarmonyPatch(typeof(LoadingScreenManager), "LoadGameData")]
-        [HarmonyPostfix]
-        public static void AttachStatIconsToGlobalSpells()
-        {
-            PatchGlobals();
-        }
-
-        [HarmonyPatch(typeof(ChapterSelectMenu), "OnChapterConfirmed")]
-        [HarmonyPostfix]
-        public static void AttachStatIconsToGlobalSpellsOnChapter()
-        {
-            PatchGlobals();
         }
 
         // First: we don't need room on board

@@ -121,8 +121,6 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 			TableRuleBook.Instance.SetOnBoard(false);
 			ViewManager.Instance.SwitchToView(View.Default, false, false);
 
-			yield return new WaitForSeconds(1f);
-
 			if (GameFlowManager.Instance != null)
 			{
 				GameFlowManager.Instance.TransitionToGameState(GameState.Map, null);
@@ -161,7 +159,7 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 
 		private IEnumerator CreateTokenCards(int tier)
 		{
-			string tierName = tier == RARE_CARD_TIER ? CustomCards.RARE_DRAFT_TOKEN : CustomCards.DRAFT_TOKEN;
+			string tierName = tier == RARE_CARD_TIER ? CustomCards.RARE_DRAFT_TOKEN : tier == 1 ? CustomCards.UNC_TOKEN : CustomCards.DRAFT_TOKEN;
 			List<CardInfo> cardInfos = Part3SaveData.Data.deck.Cards.FindAll((CardInfo x) => x.name == tierName);
 			int numPelts = Mathf.Min((tier == RARE_CARD_TIER) ? NUM_RARE_CARDS : NUM_CARDS, cardInfos.Count);
 			for (int i = 0; i < numPelts; i++)
@@ -256,6 +254,8 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 			List<int> list = new List<int>();
             if (Part3SaveData.Data.deck.Cards.Any(c => c.name == CustomCards.DRAFT_TOKEN))
                 list.Add(0);
+			if (Part3SaveData.Data.deck.Cards.Any(c => c.name == CustomCards.UNC_TOKEN))
+                list.Add(1);
 			if (Part3SaveData.Data.deck.Cards.Any(c => c.name == CustomCards.RARE_DRAFT_TOKEN))
                 list.Add(RARE_CARD_TIER);
 			return list;
@@ -293,7 +293,20 @@ namespace Infiniscryption.P03KayceeRun.Sequences
             cards.RemoveAll((CardInfo x) => x.onePerDeck && Part3SaveData.Data.deck.Cards.Exists((CardInfo y) => y.name == x.name));
 
 			int numberOfCards = tier == RARE_CARD_TIER ? NUM_RARE_CARDS : NUM_CARDS;
-            return CardLoader.GetDistinctCardsFromPool(P03AscensionSaveData.RandomSeed, numberOfCards, cards);
+			int randomSeed = P03AscensionSaveData.RandomSeed;
+            List<CardInfo> result = CardLoader.GetDistinctCardsFromPool(randomSeed, numberOfCards, cards).Select(CustomCards.ModifyCardForAscension).ToList();
+
+			if (tier == 1)
+			{
+				foreach (CardInfo info in result)
+				{
+					CardModificationInfo mod = new CardModificationInfo();
+					mod.abilities.Add(AbilitiesUtil.GetRandomLearnedAbility(randomSeed++, false, 0, 5, AbilityMetaCategory.Part3Rulebook));
+					info.mods.Add(mod);
+				}
+			}
+
+			return result;
 		}
 
 		private string GetTierName(int tier)

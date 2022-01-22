@@ -90,11 +90,12 @@ namespace Infiniscryption.P03KayceeRun.Cards
                
             base.Card.RenderInfo.prefabPortrait = prefabPortrait;
             base.Card.RenderInfo.hidePortrait = true;
+            base.Card.renderInfo.hiddenCost = true;
         }
 
         public static void Register()
         {
-            ID = CardAppearanceBehaviourManager.Add(P03Plugin.PluginGuid, "RandomStupidAssApePortrait", typeof(HighResAlternatePortrait)).Id;
+            ID = CardAppearanceBehaviourManager.Add(P03Plugin.PluginGuid, "RandomStupidAssApePortrait", typeof(RandomStupidAssApePortrait)).Id;
         }
     }
 }

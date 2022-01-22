@@ -1,18 +1,19 @@
 using HarmonyLib;
 using DiskCardGame;
+using InscryptionAPI.Guid;
 
 namespace Infiniscryption.P03KayceeRun.Sequences
 {
     [HarmonyPatch]
     public class TradeChipsNodeData : SpecialNodeData
     {
-        public static HoloMapNode.NodeDataType TradeChipsForCards = (HoloMapNode.NodeDataType)72403;
+        public static readonly HoloMapNode.NodeDataType TradeChipsForCards = GuidManager.GetEnumValue<HoloMapNode.NodeDataType>(P03Plugin.PluginGuid, "TradeChipsForCards");
 
         [HarmonyPatch(typeof(HoloMapNode), "AssignNodeData")]
         [HarmonyPrefix]
         public static bool PatchTradeSequenceNodeData(ref HoloMapNode __instance)
         {
-            if ((int)__instance.NodeType == (int)TradeChipsForCards)
+            if (__instance.NodeType == TradeChipsForCards)
             {
                 __instance.Data = new TradeChipsNodeData();
                 return false;

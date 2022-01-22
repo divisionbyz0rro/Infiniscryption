@@ -56,8 +56,7 @@ namespace Infiniscryption.SideDecks.Patchers
             {
                 if (!IsP03Run)
                 {
-                    return CardManager.AllCards.Where(card => card.traits.Contains(BACKWARDS_COMPATIBLE_SIDE_DECK_MARKER)
-                                                         || card.metaCategories.Contains(SIDE_DECK))
+                    return CardManager.AllCardsCopy.Where(card => card.metaCategories.Contains(SIDE_DECK))
                                                .Select(card => card.name).ToList();
                 }
                 else

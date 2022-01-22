@@ -14,16 +14,19 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         {
             P03Plugin.Log.LogInfo($"Creating dialogue {id}, {string.Join(",", lines)}");
 
+            bool leshy = faces.Any(s => s.ToLowerInvariant() == "leshy");
+
             if (string.IsNullOrEmpty(id))
                 return;
 
             DialogueDataUtil.Data.events.Add(new DialogueEvent() {
                 id = id,
-                speakers = new List<DialogueEvent.Speaker>() { DialogueEvent.Speaker.Single, DialogueEvent.Speaker.P03 },
+                speakers = new List<DialogueEvent.Speaker>() { DialogueEvent.Speaker.Single, (leshy ? DialogueEvent.Speaker.Leshy : DialogueEvent.Speaker.P03) },
                 mainLines = new(faces.Zip(lines, (face, line) => new DialogueEvent.Line() {
                     text = line,
                     specialInstruction = "",
-                    p03Face = (P03AnimationController.Face)Enum.Parse(typeof(P03AnimationController.Face), (String.IsNullOrEmpty(face) ? "NoChange" : face))
+                    p03Face = leshy ? (P03AnimationController.Face)0 : (P03AnimationController.Face)Enum.Parse(typeof(P03AnimationController.Face), (String.IsNullOrEmpty(face) ? "NoChange" : face)),
+                    speakerIndex = 1
                 }).ToList())
             });
         }

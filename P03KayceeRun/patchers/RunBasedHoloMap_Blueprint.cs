@@ -7,13 +7,14 @@ using System.Collections;
 using Infiniscryption.Core.Helpers;
 using InscryptionAPI.Saves;
 using System;
+using Infiniscryption.P03KayceeRun.Sequences;
 
 namespace Infiniscryption.P03KayceeRun.Patchers
 {
     [HarmonyPatch]
     public static partial class RunBasedHoloMap
     {
-        private static readonly int[][] NSEW = new int[][] { new int[]{ -1, 0 }, new int[]{1, 0}, new int[]{0, -1}, new int[]{0, 1}};
+        private static readonly int[][] NSEW = new int[][] { new int[]{ 0, -1 }, new int[]{0, 1}, new int[]{1, 0}, new int[]{-1, 0}};
 
         private static IEnumerable<HoloMapBlueprint> AdjacentToQuadrant(this HoloMapBlueprint[,] map, int x, int y)
         {
@@ -228,6 +229,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
             // We ignore the first node, because that's the starting node. And we can't risk killing the starting node
             List<HoloMapBlueprint> possibles = nodes.Where(bp => bp.NumberOfArrows == 1 && bp != nodes[0]).ToList();
+            int i = 0;
             foreach (HoloMapBlueprint deadEnd in possibles)
             {
                 HoloMapBlueprint adjacent = deadEnd.GetAdjacentNode(map, deadEnd.arrowDirections);
@@ -246,6 +248,10 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                     map[deadEnd.x, deadEnd.y] = null;
                     nodes.Remove(deadEnd);
                 }
+
+                i++;
+                if (i >= 2)
+                    break;
             }
         }
 
@@ -285,11 +291,6 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 }
                 bridgeNodes.Remove(bridge);
             }
-        }
-
-        private static int EncounterDifficulty(int tier)
-        {
-            return 5 + tier * 2 + RunState.Run.DifficultyModifier;
         }
 
         private static bool DiscoverAndCreateEnemyEncounter(HoloMapBlueprint[,] map, List<HoloMapBlueprint> nodes, int tier, int region, HoloMapSpecialNode.NodeDataType reward, int color = -1)
@@ -332,7 +333,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             {
                 enemyNode = enemyNode ?? rewardNode.GetAdjacentNode(map, rewardNode.arrowDirections);
                 enemyNode.specialDirection = DirTo(enemyNode, rewardNode);
-                enemyNode.encounterDifficulty = EncounterDifficulty(tier);
+                enemyNode.encounterDifficulty = EventManagement.EncounterDifficulty;
 
                 // 50% change of terrain
                 if (UnityEngine.Random.value < 0.5f)
@@ -432,7 +433,21 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             return retval;
         }
 
-        private static List<HoloMapBlueprint> BuildBlueprint(int order, int region, int seed)
+        private static void LogBlueprint(HoloMapBlueprint[,] bpBlueprint)
+        {
+            // Log to the file for debug purposes
+            for (int j = 0; j < bpBlueprint.GetLength(1); j++)
+            {
+                List<string> lines = new() { "", "", "", "", ""};
+                for (int i = 0; i < bpBlueprint.GetLength(0); i++)
+                    for (int s = 0; s < lines.Count; s++)
+                        lines[s] += bpBlueprint[i, j] == null ? "     " : bpBlueprint[i, j].DebugString[s];
+                for (int s = 0; s < lines.Count; s++)
+                    P03Plugin.Log.LogInfo(lines[s]);
+            }  
+        }
+
+        private static List<HoloMapBlueprint> BuildBlueprint(int order, int region, int seed, int stackDepth = 0)
         {
             string blueprintKey = $"ascensionBlueprint{order}{region}";
             string savedBlueprint = ModdedSaveManager.RunState.GetValue(P03Plugin.PluginGuid, blueprintKey);
@@ -547,26 +562,84 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             for (int i = cardChoiceNodes; i < 4; i++) // Just in case we couldn't find a valid point of interest in every quadrant
                 retval.GetRandomPointOfInterest().upgrade = HoloMapSpecialNode.NodeDataType.CardChoice;
 
+            // And now we're just going to add one more regional upgrade
+            retval.GetRandomPointOfInterest().upgrade = REGION_DATA[region].defaultReward;
+
+            for (int i = 0; i < 2; i++)
+                retval.GetRandomPointOfInterest().upgrade = UnlockAscensionItemNodeData.UnlockItemsAscension;
+
+            retval.GetRandomPointOfInterest().upgrade = AscensionRecycleCardNodeData.AscensionRecycleCard;
+
             // Add two hidden currency nodes
             P03Plugin.Log.LogInfo($"Adding hidden currency nodes");
             for (int i = 0; i < 2; i++)
                 retval.GetRandomPointOfInterest().upgrade = HoloMapSpecialNode.NodeDataType.GainCurrency;
 
-            // Log to the file for debug purposes
-            for (int j = 0; j < bpBlueprint.GetLength(1); j++)
+            // Add one of each of the default upgrades for each completed zone
+            foreach (int cRegion in CompletedRegions)
+                retval.GetRandomPointOfInterest().upgrade = REGION_DATA[cRegion].defaultReward;
+
+            LogBlueprint(bpBlueprint);
+
+            if (!IsBlueprintValid(retval))
             {
-                List<string> lines = new() { "", "", "", "", ""};
-                for (int i = 0; i < bpBlueprint.GetLength(0); i++)
-                    for (int s = 0; s < lines.Count; s++)
-                        lines[s] += bpBlueprint[i, j] == null ? "     " : bpBlueprint[i, j].DebugString[s];
-                for (int s = 0; s < lines.Count; s++)
-                    P03Plugin.Log.LogInfo(lines[s]);
-            }   
+                if (stackDepth == 500)
+                    throw new InvalidOperationException("Could not generate a valid map after 500 attempts - something has gone horribly wrong!");
+                retval = BuildBlueprint(order, region, seed + 25, stackDepth + 1);
+            }
 
             savedBlueprint = string.Join("|", retval.Select(b => b.ToString()));
             ModdedSaveManager.RunState.SetValue(P03Plugin.PluginGuid, blueprintKey, savedBlueprint);
             SaveManager.SaveToFile();
             return retval;
+        }
+
+        public static void TravelMap(HoloMapBlueprint current, List<HoloMapBlueprint> map)
+        {
+            for (int idx = 0; idx < 4; idx++)
+            {
+                int dir = idx == 0 ? NORTH : idx == 1 ? SOUTH : idx == 2 ? EAST : WEST;
+                int xDelta = NSEW[idx][0];
+                int yDelta = NSEW[idx][1];
+                if ((current.arrowDirections & dir) != 0)
+                {
+                    HoloMapBlueprint node = map.FirstOrDefault(b => b.x == current.x + xDelta && b.y == current.y + yDelta);
+                    if (node != null)
+                    {
+                        map.Remove(node);
+                        TravelMap(node, map);
+                    }
+                }
+            }
+        }
+
+        public static bool IsBlueprintValid(List<HoloMapBlueprint> blueprint)
+        {
+            // Make sure we can travel the entire map
+            List<HoloMapBlueprint> bpCopy = new(blueprint);
+            TravelMap(bpCopy[0], bpCopy);
+
+            if (bpCopy.Count > 0)
+            {
+                P03Plugin.Log.LogInfo($"Map failed validation - could not visit entire map from start. {bpCopy.Count} nodes remaining");
+                return false;
+            }
+
+            // Make sure there is a boss node
+            if (!blueprint.Any(bp => bp.opponent != Opponent.Type.Default))
+            {
+                P03Plugin.Log.LogInfo("Map failed validation - no boss");
+                return false;
+            }
+
+            // Make sure there are four enemy nodes
+            if (blueprint.Where(bp => bp.specialDirection != 0).Count() < 4)
+            {
+                P03Plugin.Log.LogInfo("Map failed validation - not enough enemy encounters");
+                return false;
+            }
+
+            return true;
         }
     }
 }

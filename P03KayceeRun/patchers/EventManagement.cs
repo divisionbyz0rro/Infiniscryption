@@ -16,18 +16,56 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         public static readonly StoryEvent HAS_DRAFT_TOKEN = (StoryEvent)GuidManager.GetEnumValue<StoryEvent>(P03Plugin.PluginGuid, "HasDraftToken");
         public static readonly StoryEvent SAW_P03_INTRODUCTION = (StoryEvent)GuidManager.GetEnumValue<StoryEvent>(P03Plugin.PluginGuid, "SawP03Introduction");
         public static readonly StoryEvent GOLLY_NFT = (StoryEvent)GuidManager.GetEnumValue<StoryEvent>(P03Plugin.PluginGuid, "GollyNFTIntro");
+        public static readonly StoryEvent DEFEATED_P03 = (StoryEvent)GuidManager.GetEnumValue<StoryEvent>(P03Plugin.PluginGuid, "DefeatedP03");    
+        public static readonly StoryEvent ONLY_ONE_BOSS_LIFE = (StoryEvent)GuidManager.GetEnumValue<StoryEvent>(P03Plugin.PluginGuid, "P03AscensionOneBossLife");    
+
+        public const string GAME_OVER = "GameOverZone";
 
         public static readonly StoryEvent[] P03AscensionSaveEvents = new StoryEvent[]
         {
             SAW_P03_INTRODUCTION,
-            GOLLY_NFT
+            GOLLY_NFT,
+            ONLY_ONE_BOSS_LIFE
         };
+
+        public static readonly MechanicsConcept[] P03_MECHANICS = new MechanicsConcept[]
+        {
+            MechanicsConcept.BossMultipleLives,
+            MechanicsConcept.GainCurrency,
+            MechanicsConcept.HoloMapCheckpoint,
+            MechanicsConcept.HoloMapFastTravel,
+            MechanicsConcept.OnlineFriendCards,
+            MechanicsConcept.Part3AttachGem,
+            MechanicsConcept.Part3Bloodstain,
+            MechanicsConcept.Part3Bounty,
+            MechanicsConcept.Part3BountyTiers,
+            MechanicsConcept.Part3BuildACard,
+            MechanicsConcept.Part3Consumables,
+            MechanicsConcept.Part3CreateTransformer,
+            MechanicsConcept.Part3ModifySideDeck,
+            MechanicsConcept.Part3OverclockCard,
+            MechanicsConcept.Part3RecycleCard,
+            MechanicsConcept.Part3Respawn,
+            MechanicsConcept.Part3TradeCards,
+            MechanicsConcept.PhotographerRestoreSnapshot,
+            MechanicsConcept.PhotographerTakeSnapshot
+        };
+
+        public static int EncounterDifficulty
+        {
+            get
+            {
+                int tier = EventManagement.CompletedZones.Count;
+                int modifier = AscensionSaveData.Data.GetNumChallengesOfTypeActive(AscensionChallenge.BaseDifficulty);
+                return tier + modifier + (tier == 0 ? 0 : 1);
+            }
+        }
 
         public static int UpgradePrice
         {
             get
             {
-                return 6 + (AscensionSaveData.Data.ChallengeIsActive(AscensionChallenge.ExpensivePelts) ? 4 : 0);
+                return 6 + (AscensionSaveData.Data.ChallengeIsActive(AscensionChallenge.ExpensivePelts) ? 2 + 2 * CompletedZones.Count: CompletedZones.Count);
             }
         }
 
@@ -109,6 +147,18 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             return StoryEvent.WoodcarverDefeated;
         }
 
+        [HarmonyPatch(typeof(ProgressionData), nameof(ProgressionData.LearnedMechanic))]
+        [HarmonyPrefix]
+        public static bool ForceMechanicsLearnd(MechanicsConcept mechanic, ref bool __result)
+        {
+            if (SaveFile.IsAscension && P03_MECHANICS.Contains(mechanic))
+            {
+                __result = true;
+                return false;
+            }
+            return true;
+        }
+
         [HarmonyPatch(typeof(StoryEventsData), "SetEventCompleted")]
         [HarmonyPrefix]
         public static bool P03AscensionStoryCompleted(StoryEvent storyEvent)
@@ -127,6 +177,30 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         {
             if (SaveFile.IsAscension && P03AscensionSaveData.IsP03Run)
             {
+                if (storyEvent == StoryEvent.ArchivistDefeated)
+                {
+                    __result = CompletedZones.Contains("FastTravelMapNode_Undead");
+                    return false;
+                }
+
+                if (storyEvent == StoryEvent.CanvasDefeated) 
+                {
+                    __result = CompletedZones.Contains("FastTravelMapNode_Wizard");
+                    return false;
+                }
+
+                if (storyEvent == StoryEvent.TelegrapherDefeated)
+                {
+                    __result = CompletedZones.Contains("FastTravelMapNode_Tech");
+                    return false;
+                }
+
+                if (storyEvent == StoryEvent.PhotographerDefeated)
+                {
+                    __result = CompletedZones.Contains("FastTravelMapNode_Nature");
+                    return false;
+                }
+
                 if ((int)storyEvent == (int)ALL_ZONE_ENEMIES_KILLED)
                 {
                     __result = NumberOfZoneEnemiesKilled >= ENEMIES_TO_UNLOCK_BOSS;
@@ -204,9 +278,14 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             // Also delete the normal ascension current run just in case
             AscensionSaveData.Data.currentRun = null;
 
-            SaveManager.SaveToFile(true);
+            if (EventManagement.CompletedZones.Count > 0)
+                AscensionSaveData.Data.numRunsSinceReachedFirstBoss = 0;
 
             P03AscensionSaveData.IsP03Run = false; // and force the state of p03 runs back to false
+
+            Part3SaveData.Data.checkpointPos = new Part3SaveData.WorldPosition(GAME_OVER, 0, 0);
+
+            SaveManager.SaveToFile(false);
 
             P03Plugin.Log.LogInfo("Loading ascension scene");
             SceneLoader.Load("Ascension_Configure");

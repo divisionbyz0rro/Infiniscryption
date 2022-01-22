@@ -6,6 +6,8 @@ using InscryptionAPI.Guid;
 using Infiniscryption.SideDecks.Sigils;
 using InscryptionAPI.Card;
 using Infiniscryption.SideDecks;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Infiniscryption.SideDecks.Patchers
 {
@@ -36,11 +38,23 @@ namespace Infiniscryption.SideDecks.Patchers
             RegisterCustomAbilities(harmony);
 
             // Modify the squirrel
-            CardManager.AllCards.CardByName("Squirrel").metaCategories.Add(SideDeckManager.SIDE_DECK);
-            CardManager.AllCards.CardByName("AquaSquirrel").SetPixelPortrait(AssetHelper.LoadTexture("pixelportrait_aquasquirrel"));
-            CardManager.AllCards.CardByName("PeltHare").SetPixelPortrait(AssetHelper.LoadTexture("pixelportrait_pelthare"));
-            CardManager.AllCards.CardByName("PeltWolf").SetPixelPortrait(AssetHelper.LoadTexture("pixelportrait_peltwolf"));
+            CardManager.BaseGameCards.CardByName("Squirrel").metaCategories.Add(SideDeckManager.SIDE_DECK);
+            CardManager.BaseGameCards.CardByName("AquaSquirrel").SetPixelPortrait(AssetHelper.LoadTexture("pixelportrait_aquasquirrel"));
+            CardManager.BaseGameCards.CardByName("PeltHare").SetPixelPortrait(AssetHelper.LoadTexture("pixelportrait_pelthare"));
+            CardManager.BaseGameCards.CardByName("PeltWolf").SetPixelPortrait(AssetHelper.LoadTexture("pixelportrait_peltwolf"));
             AbilityManager.AllAbilityInfos.AbilityByID(Ability.TailOnHit).SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_tailonhit"));
+
+            // Update all of the old style side deck cards
+            CardManager.ModifyCardList += delegate(List<CardInfo> cards)
+            {
+                foreach (CardInfo card in cards.Where(c => c.HasTrait(SideDeckManager.BACKWARDS_COMPATIBLE_SIDE_DECK_MARKER)))
+                {
+                    card.SetSideDeck(card.temple);
+                    card.traits.Remove(SideDeckManager.BACKWARDS_COMPATIBLE_SIDE_DECK_MARKER);
+                }
+
+                return cards;
+            };
 
             // Create the squirrel
             CardManager.New(CustomCards.SideDecks.INF_Squirrel_Reach.ToString(),
