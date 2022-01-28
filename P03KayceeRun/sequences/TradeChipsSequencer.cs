@@ -261,7 +261,7 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 			return list;
 		}
 
-		private bool IsValidDraftCard(CardInfo card)
+		public static bool IsValidDraftCard(CardInfo card)
 		{
 			if (card.temple != CardTemple.Tech)
 				return false;

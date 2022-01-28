@@ -8,6 +8,7 @@ using InscryptionAPI.Guid;
 using System.Linq;
 using Infiniscryption.P03KayceeRun.Cards;
 using InscryptionAPI.Card;
+using Infiniscryption.P03KayceeRun.Sequences;
 
 namespace Infiniscryption.P03KayceeRun.Patchers
 {
@@ -129,69 +130,91 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             AbilityManager.AllAbilityInfos.AbilityByID(Ability.Transformer).SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_evolve"));
             AbilityManager.AllAbilityInfos.AbilityByID(Ability.ShieldGems).SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_shieldgems"));
 
-            AbilityManager.AllAbilityInfos.AbilityByID(Ability.ActivatedDealDamage).SetPixelAbilityIcon(AssetHelper.LoadTexture("ActivatedDealDamage"));
-            AbilityManager.AllAbilityInfos.AbilityByID(Ability.ActivatedRandomPowerEnergy).SetPixelAbilityIcon(AssetHelper.LoadTexture("ActivatedRandomPowerEnergy"));
-            AbilityManager.AllAbilityInfos.AbilityByID(Ability.ActivatedStatsUpEnergy).SetPixelAbilityIcon(AssetHelper.LoadTexture("ActivatedStatsUpEnergy"));
-            AbilityManager.AllAbilityInfos.AbilityByID(Ability.BombSpawner).SetPixelAbilityIcon(AssetHelper.LoadTexture("BombSpawner"));
-            AbilityManager.AllAbilityInfos.AbilityByID(Ability.ConduitEnergy).SetPixelAbilityIcon(AssetHelper.LoadTexture("ConduitEnergy"));
-            AbilityManager.AllAbilityInfos.AbilityByID(Ability.ConduitFactory).SetPixelAbilityIcon(AssetHelper.LoadTexture("ConduitFactory"));
-            AbilityManager.AllAbilityInfos.AbilityByID(Ability.ConduitHeal).SetPixelAbilityIcon(AssetHelper.LoadTexture("ConduitHeal"));
-            AbilityManager.AllAbilityInfos.AbilityByID(Ability.GainGemTriple).SetPixelAbilityIcon(AssetHelper.LoadTexture("GainGemTriple"));
+            AbilityManager.AllAbilityInfos.AbilityByID(Ability.ActivatedDealDamage).SetIcon(AssetHelper.LoadTexture("ActivatedDealDamage"));
+            AbilityManager.AllAbilityInfos.AbilityByID(Ability.ActivatedRandomPowerEnergy).SetIcon(AssetHelper.LoadTexture("ActivatedRandomPowerEnergy"));
+            AbilityManager.AllAbilityInfos.AbilityByID(Ability.ActivatedStatsUpEnergy).SetIcon(AssetHelper.LoadTexture("ActivatedStatsUpEnergy"));
+            AbilityManager.AllAbilityInfos.AbilityByID(Ability.BombSpawner).SetIcon(AssetHelper.LoadTexture("BombSpawner"));
+            AbilityManager.AllAbilityInfos.AbilityByID(Ability.ConduitEnergy).SetIcon(AssetHelper.LoadTexture("ConduitEnergy"));
+            AbilityManager.AllAbilityInfos.AbilityByID(Ability.ConduitFactory).SetIcon(AssetHelper.LoadTexture("ConduitFactory"));
+            AbilityManager.AllAbilityInfos.AbilityByID(Ability.ConduitHeal).SetIcon(AssetHelper.LoadTexture("ConduitHeal"));
+            AbilityManager.AllAbilityInfos.AbilityByID(Ability.GainGemTriple).SetIcon(AssetHelper.LoadTexture("GainGemTriple"));
 
             CardManager.New(DRAFT_TOKEN, "Basic Token", 0, 1)
                 .SetPortrait(AssetHelper.LoadTexture("portrait_drafttoken"))
-                .SetPixelPortrait(AssetHelper.LoadTexture("pixel_drafttoken"));
+                .SetPixelPortrait(AssetHelper.LoadTexture("pixel_drafttoken"))
+                .temple = CardTemple.Tech;
 
             CardManager.New(UNC_TOKEN, "Improved Token", 0, 2)
                 .SetPortrait(AssetHelper.LoadTexture("portrait_drafttoken_plus"))
-                .SetPixelPortrait(AssetHelper.LoadTexture("pixel_drafttoken_plus"));
+                .SetPixelPortrait(AssetHelper.LoadTexture("pixel_drafttoken_plus"))
+                .temple = CardTemple.Tech;
 
             CardManager.New(RARE_DRAFT_TOKEN, "Rare Token", 0, 3)
                 .SetPortrait(AssetHelper.LoadTexture("portrait_drafttoken_plusplus"))
-                .SetPixelPortrait(AssetHelper.LoadTexture("pixel_drafttoken"));
+                .SetPixelPortrait(AssetHelper.LoadTexture("pixel_drafttoken"))
+                .temple = CardTemple.Tech;
 
             CardManager.New(BLOCKCHAIN, "Blockchain", 0, 5)
                 .SetAltPortrait(AssetHelper.LoadTexture("portrait_blockchain"), FilterMode.Trilinear)
                 .AddAbilities(Ability.ConduitNull, ConduitSpawnCrypto.AbilityID)
-                .AddAppearances(HighResAlternatePortrait.ID);
+                .AddAppearances(HighResAlternatePortrait.ID)
+                .temple = CardTemple.Tech;
 
             CardManager.New(GOLLYCOIN, "GollyCoin", 0, 2)
                 .SetAltPortrait(AssetHelper.LoadTexture("portrait_gollycoin"), FilterMode.Trilinear)
-                .AddAppearances(HighResAlternatePortrait.ID );
+                .AddAppearances(HighResAlternatePortrait.ID)
+                .temple = CardTemple.Tech;
 
             CardManager.New(NFT, "Stupid-Ass Ape", 0, 1)
-                .AddAppearances(RandomStupidAssApePortrait.ID);
+                .AddAppearances(RandomStupidAssApePortrait.ID)
+                .temple = CardTemple.Tech;
 
             CardManager.New(OLD_DATA, "UNSAFE.DAT", 0, 1)
                 .SetPortrait(Resources.Load<Texture2D>("art/cards/part 3 portraits/portrait_captivefile"))
-                .AddAbilities(LoseOnDeath.AbilityID);
+                .AddAbilities(LoseOnDeath.AbilityID)
+                .temple = CardTemple.Tech;
 
             CardManager.New(CODE_BLOCK, "Code Snippet", 1, 2)
                 .SetPortrait(AssetHelper.LoadTexture("portrait_code"))
-                .AddTraits(Programmer.CodeTrait);
+                .AddTraits(Programmer.CodeTrait)
+                .temple = CardTemple.Tech;
 
             CardManager.New(CODE_BUG, "Bug", 2, 1)
                 .SetPortrait(AssetHelper.LoadTexture("portrait_bug"))
                 .AddTraits(Programmer.CodeTrait)
-                .AddAbilities(Ability.Brittle); 
+                .AddAbilities(Ability.Brittle)
+                .temple = CardTemple.Tech;
 
             CardManager.New(VIRUS_SCANNER, "VIRSCAN.EXE", 1, 7)
                 .SetPortrait(AssetHelper.LoadTexture("portrait_virusscanner"))
-                .AddAbilities(Ability.Deathtouch, Ability.StrafeSwap);
+                .AddAbilities(Ability.Deathtouch, Ability.StrafeSwap)
+                .temple = CardTemple.Tech;
 
             CardManager.New(PROGRAMMER, "Programmer", 0, 2)
                 .SetPortrait(AssetHelper.LoadTexture("portrait_codemonkey"))
-                .AddAbilities(Programmer.AbilityID);
+                .AddAbilities(Programmer.AbilityID)
+                .temple = CardTemple.Tech;
 
             CardManager.New(ARTIST, "Artist", 1, 2)
                 .SetPortrait(AssetHelper.LoadTexture("portrait_artist"))
-                .AddAbilities(Artist.AbilityID);
+                .AddAbilities(Artist.AbilityID)
+                .temple = CardTemple.Tech;
 
             CardManager.New(FIREWALL, "Firewall", 0, 3)
                 .SetPortrait(AssetHelper.LoadTexture("portrait_firewall"))
-                .AddAbilities(Ability.PreventAttack);
+                .AddAbilities(Ability.PreventAttack)
+                .temple = CardTemple.Tech;
 
-            
+            // This should patch the rulebook
+            CardManager.ModifyCardList += delegate(List<CardInfo> cards)
+            {
+                List<Ability> allP3Abs = cards.Where(c => c.temple == CardTemple.Tech).SelectMany(c => c.abilities).Distinct().ToList();
+                foreach (AbilityInfo ab in AbilityManager.AllAbilityInfos)
+                    if (allP3Abs.Contains(ab.ability))
+                        ab.SetDefaultPart3Ability();
+
+                return cards;
+            };
         }
     }
 }
