@@ -90,7 +90,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             return retval;
         }
 
-        private static EncounterBlueprintData.CardBlueprint StringToBlueprint(string bpString)
+        private static EncounterBlueprintData.CardBlueprint StringToBlueprint(string bpString, int maxDifficulty)
         {
             try
             {
@@ -103,7 +103,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 retval.card = splitString[0] == "NONE" ? null : CardLoader.GetCardByName(splitString[0]);
 
                 retval.minDifficulty = 0;
-                retval.maxDifficulty = 6; // hardcoded to the way that I am setting difficulties for this mod
+                retval.maxDifficulty = maxDifficulty == 0 ? 6 : maxDifficulty;
 
                 if (splitString.Length > 1)
                 {
@@ -166,7 +166,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             data.PowerLevel = this.powerLevel;
             data.PowerLevelString = this.powerLevelString;
 
-            data.turns = turnPlan.Select(turn => turn.Select(StringToBlueprint).ToList()).ToList();
+            data.turns = turnPlan.Select(turn => turn.Select(s => StringToBlueprint(s, data.maxDifficulty)).Where(bp => bp != null).ToList()).ToList();
 
 
             return data;

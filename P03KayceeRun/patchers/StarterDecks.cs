@@ -48,12 +48,28 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
             StarterDeckReference.Add(Opponent.Type.P03Boss, new () {
                 CreateStarterDeckInfo("Snipers", "starterdeck_icon_snipers", new string[] {"Sniper", "BustedPrinter", "SentryBot" }),
-                CreateStarterDeckInfo("Random", "starterdeck_icon_random", new string[] {"Amoebot", "GiftBot", "EnergyRoller" }),
+                CreateStarterDeckInfo("Random", "starterdeck_icon_random", new string[] {"Amoebot", "GiftBot", "GiftBot" }),
                 CreateStarterDeckInfo("Shield", "starterdeck_icon_shield", new string[] {"GemShielder", "Shieldbot", "LatcherShield" }),
-                CreateStarterDeckInfo("Energy", "starterdeck_icon_energy", new string[] {"CloserBot", "BatteryBot", "BatteryBot" })//,
+                CreateStarterDeckInfo("Energy", "starterdeck_icon_energy", new string[] {"CloserBot", "BatteryBot", "BatteryBot" }),//,
+                CreateStarterDeckInfo("Conduit", "starterdeck_icon_conduit", new string[] {"CellTri", "CellBuff", "HealerConduit" }),//,
+                CreateStarterDeckInfo("Nature", "starterdeck_icon_evolve", new string[] {"XformerGrizzlyBot", "XformerBatBot", "XformerPorcupineBot" }),//,
+                CreateStarterDeckInfo("Gems", "starterdeck_icon_gems", new string[] {"SentinelBlue", "SentinelGreen", "SentinelOrange"}),
+                CreateStarterDeckInfo("FullDraft", "starterdeck_icon_token", new string[] {CustomCards.UNC_TOKEN, CustomCards.DRAFT_TOKEN, CustomCards.DRAFT_TOKEN })//,
             });
 
             StarterDecksUtil.allData.AddRange(StarterDeckReference[Opponent.Type.P03Boss]);
+        }
+
+        private static int NumberOfConqueredP03Decks
+        {
+            get
+            {
+                int i = 0;
+                foreach (var deck in StarterDeckReference[Opponent.Type.P03Boss])
+                    if (AscensionSaveData.Data.conqueredStarterDecks.Contains(deck.name))
+                        i++;
+                return i;
+            }
         }
 
         private static void SyncIconsToStarters(List<AscensionStarterDeckIcon> icons, List<StarterDeckInfo> decks)
@@ -68,6 +84,17 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         {
             if (id.StartsWith("P03"))
             {
+                int numDecks = NumberOfConqueredP03Decks;
+
+                // if (id.EndsWith("Conduit"))
+                //     __result = numDecks >= 1;
+                // else if (id.EndsWith("Nature"))
+                //     __result = numDecks >= 2;
+                // else if (id.EndsWith("Gems"))
+                //     __result = numDecks >= 4;
+                // else if (id.EndsWith("FullDraft"))
+                //     __result = numDecks >= 7;
+                // else
                 __result = id != DUMMY_DECK.name;
                 return false;
             }

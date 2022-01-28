@@ -9,7 +9,7 @@ dominantTribes: []
 redundantAbilities: []
 unlockedCardPrerequisites: []
 randomReplacementCards: []
-overclockBlueprint: [D:3/T:0,D:1/T:1,D:5/T:4]
+overclockBlueprint: [D:3/T:7,D:1/T:1,D:5/T:3]
 LatcherShield,LeapBot -> Automaton 1
 MineCart -> Amoebot 3
 LatcherShield -> Shieldbot 5,Bombbot -> Insectodrone 4

@@ -9,12 +9,12 @@ dominantTribes: []
 redundantAbilities: []
 unlockedCardPrerequisites: []
 randomReplacementCards: [Shieldbot,Bombbot,SentryBot]
-overclockBlueprint: [D:1/T:0,D:3/T:2,D:3/T:1]
-Shieldbot,NONE -> Shieldbot 2,NONE -> SentryBot 4
-NONE -> Shieldbot 2,Bombbot -> Shieldbot 4
-Bombbot -> CloserBot 6
+overclockBlueprint: [D:3/T:2,D:5/T:4]
+Shieldbot,NONE -> Shieldbot 2,NONE -> SentryBot 4,NONE -> Bombbot 6
+Automaton -> Shieldbot 6,Bombbot
+Bombbot -> CloserBot 6,NONE -> Bombbot 1
 NONE -> Bombbot 2,NONE -> Bombbot 4
 Shieldbot -> CloserBot 4
 NONE -> CloserBot 2,Shieldbot,NONE -> Bombbot 4
-NONE -> CloserBot 4
+EMPTY TURN
 NONE -> CloserBot 6

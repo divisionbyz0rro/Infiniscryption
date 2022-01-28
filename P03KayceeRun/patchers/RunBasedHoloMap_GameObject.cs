@@ -327,7 +327,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             {
                 // This is a shop node but we want it to behave differently than the in-game shop nodes
                 Traverse shopTraverse = Traverse.Create(shopNode);
-                shopTraverse.Field("cost").SetValue(EventManagement.UpgradePrice);
+                shopTraverse.Field("cost").SetValue(EventManagement.UpgradePrice(dataType));
                 shopTraverse.Field("repeatable").SetValue(false);
                 shopTraverse.Field("increasingCost").SetValue(false);
             }
@@ -337,7 +337,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 newNode.transform.localPosition = new Vector3(x, newNode.transform.localPosition.y, z);
                 HoloMapGainCurrencyNode nodeData = newNode.GetComponent<HoloMapGainCurrencyNode>();
                 Traverse nodeTraverse = Traverse.Create(nodeData);
-                nodeTraverse.Field("amount").SetValue(UnityEngine.Random.Range(EventManagement.CURRENCY_GAIN_RANGE.Item1, EventManagement.CURRENCY_GAIN_RANGE.Item2));
+                nodeTraverse.Field("amount").SetValue(UnityEngine.Random.Range(EventManagement.CurrencyGainRange.Item1, EventManagement.CurrencyGainRange.Item2));
             }
             else
             {
@@ -410,7 +410,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             // We need to add the draft node
             Transform nodes = retval.transform.Find("Nodes");
             Transform scenery = retval.transform.Find("Scenery");
-            BuildSpecialNode(TradeChipsNodeData.TradeChipsForCards, 0, NEUTRAL, nodes, scenery, 1.5f, 0f);
+            HoloMapNode node = BuildSpecialNode(TradeChipsNodeData.TradeChipsForCards, 0, NEUTRAL, nodes, scenery, 1.5f, 0f);
             
             retval.SetActive(false);
             return retval;

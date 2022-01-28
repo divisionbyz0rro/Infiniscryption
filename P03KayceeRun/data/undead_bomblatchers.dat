@@ -9,11 +9,11 @@ dominantTribes: []
 redundantAbilities: []
 unlockedCardPrerequisites: []
 randomReplacementCards: []
-overclockBlueprint: [D:3/T:0,D:3/T:1,D:1/T:2,D:5/T:4]
+overclockBlueprint: [D:5/T:0,D:3/T:2]
 LatcherBomb,LeapBot -> Automaton 1
 NONE -> Bombbot 2,NONE -> Automaton 5
 LatcherBomb,Bombbot -> Insectodrone 3
-CloserBot
+BoltHound -> CloserBot 5
 NONE -> Shieldbot 6,NONE -> LatcherBomb 4
 NONE -> LatcherBomb 2,NONE -> Shieldbot 4
 LatcherBomb

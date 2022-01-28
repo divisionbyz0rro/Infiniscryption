@@ -10,7 +10,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
     [HarmonyPatch]
     public static class DialogueManagement
     {
-        private static void AddDialogue(string id, List<string> lines, List<string> faces)
+        private static void AddDialogue(string id, List<string> lines, List<string> faces, List<string> dialogueWavies)
         {
             P03Plugin.Log.LogInfo($"Creating dialogue {id}, {string.Join(",", lines)}");
 
@@ -27,6 +27,11 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                     specialInstruction = "",
                     p03Face = leshy ? (P03AnimationController.Face)0 : (P03AnimationController.Face)Enum.Parse(typeof(P03AnimationController.Face), (String.IsNullOrEmpty(face) ? "NoChange" : face)),
                     speakerIndex = 1
+                })
+                .Zip(dialogueWavies, delegate(DialogueEvent.Line line, string wavy) {
+                    if (!string.IsNullOrEmpty(wavy) && wavy.ToLowerInvariant() == "y")
+                        line.letterAnimation = TextDisplayer.LetterAnimation.WavyJitter;
+                    return line;
                 }).ToList())
             });
         }
@@ -72,6 +77,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
             string dialogueId = string.Empty;
             List<string> dialogueLines = new();
+            List<string> dialogueWavies = new ();
             List<string> dialogueFaces = new();
             foreach(string line in lines.Skip(1))
             {
@@ -79,19 +85,21 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 
                 if (string.IsNullOrEmpty(cols[0]))
                 {
-                    dialogueLines.Add(cols[2]);
+                    dialogueLines.Add(cols[3]);
+                    dialogueWavies.Add(cols[2]);
                     dialogueFaces.Add(cols[1]);
                     continue;
                 }
 
-                AddDialogue(dialogueId, dialogueLines, dialogueFaces);
+                AddDialogue(dialogueId, dialogueLines, dialogueFaces, dialogueWavies);
 
                 dialogueId = cols[0];
-                dialogueLines = new() { cols[2] };
+                dialogueLines = new() { cols[3] };
+                dialogueWavies.Add(cols[2]);
                 dialogueFaces = new() { cols[1] };
             }
 
-            AddDialogue(dialogueId, dialogueLines, dialogueFaces);
+            AddDialogue(dialogueId, dialogueLines, dialogueFaces, dialogueWavies);
         }
     }
 }

@@ -7,6 +7,8 @@ namespace Infiniscryption.P03KayceeRun
 {
     [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
     [BepInDependency("cyantist.inscryption.api")]
+    [BepInDependency("MADH.inscryption.ActivatedAbilityFix")]
+    [BepInDependency("irie.inscryption.vap")]
     public class P03Plugin : BaseUnityPlugin
     {
 

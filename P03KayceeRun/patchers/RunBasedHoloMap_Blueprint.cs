@@ -522,8 +522,9 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             
             // Do some special sequencing
             DiscoverAndCreateLandmarks(bpBlueprint, retval);
-            DiscoverAndCreateBridge(bpBlueprint, retval, region);
             DiscoverAndCreateBossRoom(bpBlueprint, retval, region);
+            DiscoverAndCreateBridge(bpBlueprint, retval, region);
+
 
             // Add four enemy encounters and rewards
             int seedForChoice = seed * 2 + 10;

@@ -9,11 +9,11 @@ dominantTribes: []
 redundantAbilities: []
 unlockedCardPrerequisites: []
 randomReplacementCards: []
-overclockBlueprint: [D:1/T:0,D:5/T:1,D:3/T:2]
+overclockBlueprint: [D:1/T:0,D:3/T:2]
 AlarmBot -> Shieldbot 6
 NONE -> AlarmBot 6,NONE -> AlarmBot 4
-AlarmBot -> SwapBot 4
-Bombbot,NONE -> Bombbot 4
+AlarmBot -> SwapBot 5
+Bombbot,NONE -> Bombbot 6
 NONE -> AlarmBot 2,NONE -> CloserBot 4
 MineCart,NONE -> Bombbot 2,NONE -> Insectodrone 4
 NONE -> Bombbot 2

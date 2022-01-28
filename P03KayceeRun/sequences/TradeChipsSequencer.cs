@@ -293,7 +293,7 @@ namespace Infiniscryption.P03KayceeRun.Sequences
             cards.RemoveAll((CardInfo x) => x.onePerDeck && Part3SaveData.Data.deck.Cards.Exists((CardInfo y) => y.name == x.name));
 
 			int numberOfCards = tier == RARE_CARD_TIER ? NUM_RARE_CARDS : NUM_CARDS;
-			int randomSeed = P03AscensionSaveData.RandomSeed;
+			int randomSeed = P03AscensionSaveData.RandomSeed + 100 * tier;
             List<CardInfo> result = CardLoader.GetDistinctCardsFromPool(randomSeed, numberOfCards, cards).Select(CustomCards.ModifyCardForAscension).ToList();
 
 			if (tier == 1)
@@ -301,7 +301,11 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 				foreach (CardInfo info in result)
 				{
 					CardModificationInfo mod = new CardModificationInfo();
-					mod.abilities.Add(AbilitiesUtil.GetRandomLearnedAbility(randomSeed++, false, 0, 5, AbilityMetaCategory.Part3Rulebook));
+					Ability ability = AbilitiesUtil.GetRandomLearnedAbility(randomSeed++, false, 0, 5, AbilityMetaCategory.Part3Modular);
+					while (info.HasAbility(ability))
+						ability = AbilitiesUtil.GetRandomLearnedAbility(randomSeed++, false, 0, 5, AbilityMetaCategory.Part3Modular);
+
+					mod.abilities.Add(ability);
 					info.mods.Add(mod);
 				}
 			}

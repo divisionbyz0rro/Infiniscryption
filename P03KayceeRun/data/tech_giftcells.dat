@@ -9,13 +9,13 @@ dominantTribes: []
 redundantAbilities: []
 unlockedCardPrerequisites: []
 randomReplacementCards: []
-overclockBlueprint: [D:3/T:1,D:5/T:0,D:1/T:2]
-AttackConduit,NullConduit
+overclockBlueprint: []
+AttackConduit,NullConduit -> AttackConduit 3,CellGift
 CellGift -> Shieldbot 6,CellGift
-NullConduit,NONE -> CellGift 2,NONE -> FactoryConduit 3
+NullConduit,NONE -> CellGift 2,NONE -> FactoryConduit 3,NONE -> AttackConduit 5
 CellGift -> Automaton 1,NONE -> Bombbot 6
-NONE -> Insectodrone 6
-NONE -> AttackConduit 4,AttackConduit,NONE -> Insectodrone 6
-NONE -> CellBuff 4
-GiftBot -> CellGift 2,LeapBot -> MineCart 4
+NONE -> Insectodrone 5,CellGift
+NONE -> AttackConduit 4,AttackConduit,NONE -> Insectodrone 2
+CellGift -> CellBuff 4
+GiftBot -> CellGift 2,LeapBot -> MineCart 4,NONE -> AttackConduit 3
 NONE -> CloserBot 6

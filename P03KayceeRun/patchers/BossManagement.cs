@@ -192,7 +192,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 			{
 				text = "AI";
 			}
-			opponent.AI = (Activator.CreateInstance(CustomType.GetType("DiskCardGame", text)) as AI);
+			opponent.AI = opponentType == P03AscensionOpponent.ID ? new P03FinalBossOpponentAI() : (Activator.CreateInstance(CustomType.GetType("DiskCardGame", text)) as AI);
 			opponent.NumLives = opponent.StartingLives;
 			opponent.OpponentType = opponentType;
 			opponent.TurnPlan = opponent.ModifyTurnPlan(encounterData.opponentTurnPlan);

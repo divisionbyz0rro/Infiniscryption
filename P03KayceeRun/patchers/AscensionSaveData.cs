@@ -102,7 +102,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                         //output.Flush();            
                     }
                     string json = Encoding.Unicode.GetString(output.ToArray());
-                    P03Plugin.Log.LogInfo($"SAVE JSON for {SaveKey}: {json}");
+                    //P03Plugin.Log.LogInfo($"SAVE JSON for {SaveKey}: {json}");
                     return SaveManager.FromJSON<T>(json);
                 }
             }
@@ -204,6 +204,16 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 
                 __instance.deck.AddCard(CardLoader.GetCardByName(CustomCards.DRAFT_TOKEN));
                 __instance.deck.AddCard(CardLoader.GetCardByName(CustomCards.DRAFT_TOKEN));
+
+                /*
+                __instance.deck.AddCard(CardLoader.GetCardByName(CustomCards.UNC_TOKEN));
+                __instance.deck.AddCard(CardLoader.GetCardByName(CustomCards.UNC_TOKEN));
+                __instance.deck.AddCard(CardLoader.GetCardByName(CustomCards.UNC_TOKEN));
+
+                __instance.deck.AddCard(CardLoader.GetCardByName(CustomCards.RARE_DRAFT_TOKEN));
+                __instance.deck.AddCard(CardLoader.GetCardByName(CustomCards.RARE_DRAFT_TOKEN));
+                __instance.deck.AddCard(CardLoader.GetCardByName(CustomCards.RARE_DRAFT_TOKEN));
+                */
 
                 __instance.sideDeckAbilities.Add(Ability.ConduitNull);
 

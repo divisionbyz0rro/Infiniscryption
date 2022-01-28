@@ -5,6 +5,7 @@ using System.Linq;
 using System;
 using System.Collections.Generic;
 using InscryptionAPI.Guid;
+using Infiniscryption.P03KayceeRun.Sequences;
 
 namespace Infiniscryption.P03KayceeRun.Patchers
 {
@@ -18,6 +19,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         public static readonly StoryEvent GOLLY_NFT = (StoryEvent)GuidManager.GetEnumValue<StoryEvent>(P03Plugin.PluginGuid, "GollyNFTIntro");
         public static readonly StoryEvent DEFEATED_P03 = (StoryEvent)GuidManager.GetEnumValue<StoryEvent>(P03Plugin.PluginGuid, "DefeatedP03");    
         public static readonly StoryEvent ONLY_ONE_BOSS_LIFE = (StoryEvent)GuidManager.GetEnumValue<StoryEvent>(P03Plugin.PluginGuid, "P03AscensionOneBossLife");    
+        public static readonly StoryEvent OVERCLOCK_CHANGES = (StoryEvent)GuidManager.GetEnumValue<StoryEvent>(P03Plugin.PluginGuid, "P03AscensionOverclock");   
 
         public const string GAME_OVER = "GameOverZone";
 
@@ -25,7 +27,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         {
             SAW_P03_INTRODUCTION,
             GOLLY_NFT,
-            ONLY_ONE_BOSS_LIFE
+            ONLY_ONE_BOSS_LIFE,
+            OVERCLOCK_CHANGES
         };
 
         public static readonly MechanicsConcept[] P03_MECHANICS = new MechanicsConcept[]
@@ -51,6 +54,16 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             MechanicsConcept.PhotographerTakeSnapshot
         };
 
+        private static readonly Dictionary<HoloMapNode.NodeDataType, float> CostAdjustments = new ()
+        {
+            { HoloMapNode.NodeDataType.AddCardAbility, 0f },
+            { HoloMapNode.NodeDataType.BuildACard, 1f },
+            { UnlockAscensionItemNodeData.UnlockItemsAscension, 0.5f },
+            { HoloMapNode.NodeDataType.CreateTransformer, -1f },
+            { HoloMapNode.NodeDataType.OverclockCard, -1f },
+            { AscensionRecycleCardNodeData.AscensionRecycleCard, -2f }
+        };
+
         public static int EncounterDifficulty
         {
             get
@@ -61,15 +74,53 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             }
         }
 
-        public static int UpgradePrice
+        [HarmonyPatch(typeof(Part3SaveData), nameof(Part3SaveData.GetDifficultyModifier))]
+        [HarmonyPrefix]
+        public static bool AscensionDifficultyModifierWorksDifferently(ref int __result)
         {
-            get
+            if (SaveFile.IsAscension)
             {
-                return 6 + (AscensionSaveData.Data.ChallengeIsActive(AscensionChallenge.ExpensivePelts) ? 2 + 2 * CompletedZones.Count: CompletedZones.Count);
+                __result = 0;
+                return false;
+            }
+            return true;
+        }
+
+        [HarmonyPatch(typeof(RunState), nameof(RunState.DifficultyModifier), MethodType.Getter)]
+        [HarmonyPostfix]
+        public static void AscensionRunStateDifficultyModifierWorksDifference(ref int __result)
+        {
+            if (SaveFile.IsAscension && P03AscensionSaveData.IsP03Run)
+            {
+                __result = 0;
             }
         }
 
-        public readonly static Tuple<int, int> CURRENCY_GAIN_RANGE = new(5, 10);
+        public static int UpgradePrice(HoloMapNode.NodeDataType nodeType)
+        {
+            float baseCost = 7 + (AscensionSaveData.Data.ChallengeIsActive(AscensionChallenge.ExpensivePelts) ? 3f + 2f * CompletedZones.Count: 1f * CompletedZones.Count);
+
+            if (CostAdjustments.ContainsKey(nodeType))
+            {
+                float adj = CostAdjustments[nodeType];
+                if (adj != 0 && Math.Abs(adj) < 0)
+                    baseCost *= adj; 
+                else
+                    baseCost += CostAdjustments[nodeType];
+            }
+
+            return UnityEngine.Mathf.RoundToInt(baseCost);
+        }
+
+        public static Tuple<int, int> CurrencyGainRange
+        {
+            get
+            {
+                int low = 4 + CompletedZones.Count;
+                int high = 8 + CompletedZones.Count;
+                return new(low, high);
+            }
+        }
 
         public static int NumberOfLivesRemaining
         {

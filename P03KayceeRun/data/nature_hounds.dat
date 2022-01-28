@@ -9,7 +9,7 @@ dominantTribes: []
 redundantAbilities: []
 unlockedCardPrerequisites: []
 randomReplacementCards: []
-overclockBlueprint: [D:1/T:1,D:3/T:0,D:5/T:2]
+overclockBlueprint: [D:1/T:1,D:3/T:0,D:5/T:6]
 XformerPorcupineBeast -> XformerPorcupineBot 2
 BoltHound,NONE -> AlarmBot 4
 NONE -> XformerBatBot 2,NONE -> Bombbot 4

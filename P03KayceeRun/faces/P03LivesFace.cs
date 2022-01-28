@@ -7,6 +7,7 @@ using HarmonyLib;
 using System.Collections.Generic;
 using Infiniscryption.Core.Helpers;
 using Infiniscryption.P03KayceeRun.Patchers;
+using InscryptionAPI.Guid;
 
 namespace Infiniscryption.P03KayceeRun.Faces
 {
@@ -17,7 +18,7 @@ namespace Infiniscryption.P03KayceeRun.Faces
 
         public static P03LivesFace Instance { get; private set; }
 
-        public const P03AnimationController.Face LivesFace = (P03AnimationController.Face)11735;
+        public static readonly P03AnimationController.Face LivesFace = GuidManager.GetEnumValue<P03AnimationController.Face>(P03Plugin.PluginGuid, "P03LivesFace");
 
 		public IEnumerator ShowLives(int currentLives, int newLives)
 		{

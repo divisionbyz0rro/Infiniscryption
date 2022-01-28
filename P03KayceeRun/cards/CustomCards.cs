@@ -28,6 +28,11 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         public const string NFT = "P03_NFT";
         public const string OLD_DATA = "P03_OLD_DATA";
         public const string VIRUS_SCANNER = "P03_VIRUS_SCANNER";
+        public const string CODE_BLOCK = "P03_CODE_BLOCK";
+        public const string CODE_BUG = "P03_CODE_BUG";
+        public const string PROGRAMMER = "P03_PROGRAMMER";
+        public const string ARTIST = "P03_ARTIST";
+        public const string FIREWALL = "P03_FIREWALL";
 
         private readonly static List<CardMetaCategory> GBC_RARE_PLAYABLES = new() { CardMetaCategory.GBCPack, CardMetaCategory.GBCPlayable, CardMetaCategory.Rare, CardMetaCategory.ChoiceNode };
 
@@ -84,7 +89,11 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             ConduitSpawnCrypto.Register();
             HighResAlternatePortrait.Register();
             RandomStupidAssApePortrait.Register();
+            ForceRevolverAppearance.Register();
             LoseOnDeath.Register();
+            NewPermaDeath.Register();
+            Artist.Register();
+            Programmer.Register();
 
             // Load the custom cards from the CSV database
             string database = AssetHelper.GetResourceString("card_database", "csv");
@@ -101,6 +110,9 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 .AddAppearances(HighResAlternatePortrait.ID)
                 .SetAltPortrait(AssetHelper.LoadTexture("portrait_triplemox_color"));
 
+            CardManager.BaseGameCards.CardByName("PlasmaGunner")
+                .AddAppearances(ForceRevolverAppearance.ID);
+
             // This creates all the sprites behind the scenes so we're ready to go
             RandomStupidAssApePortrait.RandomApePortrait.GenerateApeSprites();
 
@@ -112,6 +124,19 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             AbilityManager.AllAbilityInfos.AbilityByID(Ability.RandomAbility).SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_random"));
             AbilityManager.AllAbilityInfos.AbilityByID(Ability.DrawRandomCardOnDeath).SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_randomcard"));
             AbilityManager.AllAbilityInfos.AbilityByID(Ability.LatchDeathShield).SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_shieldlatch"));
+            AbilityManager.AllAbilityInfos.AbilityByID(Ability.CellTriStrike).SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_cell_tristrike"));
+            AbilityManager.AllAbilityInfos.AbilityByID(Ability.CellBuffSelf).SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_cell_buffself"));
+            AbilityManager.AllAbilityInfos.AbilityByID(Ability.Transformer).SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_evolve"));
+            AbilityManager.AllAbilityInfos.AbilityByID(Ability.ShieldGems).SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_shieldgems"));
+
+            AbilityManager.AllAbilityInfos.AbilityByID(Ability.ActivatedDealDamage).SetPixelAbilityIcon(AssetHelper.LoadTexture("ActivatedDealDamage"));
+            AbilityManager.AllAbilityInfos.AbilityByID(Ability.ActivatedRandomPowerEnergy).SetPixelAbilityIcon(AssetHelper.LoadTexture("ActivatedRandomPowerEnergy"));
+            AbilityManager.AllAbilityInfos.AbilityByID(Ability.ActivatedStatsUpEnergy).SetPixelAbilityIcon(AssetHelper.LoadTexture("ActivatedStatsUpEnergy"));
+            AbilityManager.AllAbilityInfos.AbilityByID(Ability.BombSpawner).SetPixelAbilityIcon(AssetHelper.LoadTexture("BombSpawner"));
+            AbilityManager.AllAbilityInfos.AbilityByID(Ability.ConduitEnergy).SetPixelAbilityIcon(AssetHelper.LoadTexture("ConduitEnergy"));
+            AbilityManager.AllAbilityInfos.AbilityByID(Ability.ConduitFactory).SetPixelAbilityIcon(AssetHelper.LoadTexture("ConduitFactory"));
+            AbilityManager.AllAbilityInfos.AbilityByID(Ability.ConduitHeal).SetPixelAbilityIcon(AssetHelper.LoadTexture("ConduitHeal"));
+            AbilityManager.AllAbilityInfos.AbilityByID(Ability.GainGemTriple).SetPixelAbilityIcon(AssetHelper.LoadTexture("GainGemTriple"));
 
             CardManager.New(DRAFT_TOKEN, "Basic Token", 0, 1)
                 .SetPortrait(AssetHelper.LoadTexture("portrait_drafttoken"))
@@ -141,43 +166,32 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 .SetPortrait(Resources.Load<Texture2D>("art/cards/part 3 portraits/portrait_captivefile"))
                 .AddAbilities(LoseOnDeath.AbilityID);
 
+            CardManager.New(CODE_BLOCK, "Code Snippet", 1, 2)
+                .SetPortrait(AssetHelper.LoadTexture("portrait_code"))
+                .AddTraits(Programmer.CodeTrait);
+
+            CardManager.New(CODE_BUG, "Bug", 2, 1)
+                .SetPortrait(AssetHelper.LoadTexture("portrait_bug"))
+                .AddTraits(Programmer.CodeTrait)
+                .AddAbilities(Ability.Brittle); 
+
             CardManager.New(VIRUS_SCANNER, "VIRSCAN.EXE", 1, 7)
                 .SetPortrait(AssetHelper.LoadTexture("portrait_virusscanner"))
                 .AddAbilities(Ability.Deathtouch, Ability.StrafeSwap);
 
-            // Community tribute cards
-            CardManager.New("MADH95_LEFT", "MADH95", 0, 4)
-                .SetAltPortrait(AssetHelper.LoadTexture("madh95-left", FilterMode.Trilinear))
-                .AddAbilities(Ability.ConduitBuffAttack, Ability.Sentry)
-                .AddAppearances(HighResAlternatePortrait.ID);
+            CardManager.New(PROGRAMMER, "Programmer", 0, 2)
+                .SetPortrait(AssetHelper.LoadTexture("portrait_codemonkey"))
+                .AddAbilities(Programmer.AbilityID);
 
-            CardManager.New("MADH95_RIGHT", "MADH95", 0, 4)
-                .SetAltPortrait(AssetHelper.LoadTexture("madh95-right", FilterMode.Trilinear))
-                .AddAbilities(Ability.ConduitNull, Ability.Sentry)
-                .AddAppearances(HighResAlternatePortrait.ID);
+            CardManager.New(ARTIST, "Artist", 1, 2)
+                .SetPortrait(AssetHelper.LoadTexture("portrait_artist"))
+                .AddAbilities(Artist.AbilityID);
 
-            CardManager.New("KOPIE_SMALL", "Kopie", 2, 2)
-                .SetAltPortrait(AssetHelper.LoadTexture("kopie", FilterMode.Trilinear))
-                .AddAppearances(HighResAlternatePortrait.ID);
+            CardManager.New(FIREWALL, "Firewall", 0, 3)
+                .SetPortrait(AssetHelper.LoadTexture("portrait_firewall"))
+                .AddAbilities(Ability.PreventAttack);
 
-            CardManager.New("KOPIE", "Kopie", 0, 6)
-                .SetAltPortrait(AssetHelper.LoadTexture("kopie", FilterMode.Trilinear))
-                .AddAbilities(Ability.IceCube, Ability.WhackAMole)
-                .SetIceCube("KOPIE_SMALL")
-                .AddAppearances(HighResAlternatePortrait.ID);
-
-            CardManager.New("TRIBUTE", "Tribute", 0, 1)
-                .AddAppearances(HighResAlternatePortrait.ID);
-        }
-
-        [HarmonyPatch(typeof(PermaDeath), nameof(PermaDeath.OnDie))]
-        [HarmonyPrefix]
-        public static bool EasterEggFecundityNoPermadie(ref PermaDeath __instance)
-        {
-            if (SaveFile.IsAscension && (__instance.Card.HasAbility(Ability.DrawCopy) || __instance.Card.HasAbility(Ability.DrawCopyOnDeath)))
-                return false;
-
-            return true;
+            
         }
     }
 }

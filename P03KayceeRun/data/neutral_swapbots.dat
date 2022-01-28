@@ -9,8 +9,8 @@ dominantTribes: []
 redundantAbilities: []
 unlockedCardPrerequisites: []
 randomReplacementCards: [Automaton,Bombbot,MineCart]
-overclockBlueprint: [D:1/T:0,D:5/T:1,D:3/T:2]
-SentryBot,NONE -> SwapBot 4,SentryBot -> Automaton 2
+overclockBlueprint: [D:5/T:3,D:3/T:5]
+SentryBot,NONE -> SwapBot 4,NONE -> SentryBot 1
 SwapBot -> CloserBot 6,NONE -> Bombbot 4
 Automaton,LeapBot -> Automaton 2,Automaton -> SwapBot 4
 NONE -> Automaton 2

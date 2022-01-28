@@ -17,8 +17,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             Ability.GainGemTriple,
             Ability.LatchBrittle,
             Ability.LatchDeathShield,
-            Ability.RandomAbility,
-            Ability.Tutor
+            Ability.RandomAbility
         };
 
         [HarmonyPatch(typeof(BuildACardInfo), nameof(BuildACardInfo.GetValidAbilities))]

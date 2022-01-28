@@ -108,7 +108,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                     this.objectRandoms = new string[] {  };
                     this.terrain = new string[][] {
                         new string[] { null, null, null, null, null, null, null, "ConduitTower", null, null},
-                        new string[] { "ConduitTower", null, null, null, "ConduitTower", "ConduitTower", null, null, null, "ConduitTower"}
+                        new string[] { null, null, null, null, null, null, null, null, null, null }
                     };
                     this.lightColor = new Color(0.6934f, 0.9233f, 1f);
                     this.mainColor = new Color(0.4413f, 0.5221f, 0.5472f);
