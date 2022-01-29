@@ -12,28 +12,28 @@ randomReplacementCards: [Automaton,Thickbot,AlarmBot,Insectodrone]
 overclockBlueprint: []
 SentryBot,RoboSkeleton,SentryBot,RoboSkeleton
 LatcherBrittle,Thickbot,Steambot
-GiftBot,GiftBot,GiftBot
+RoboSkeleton,RoboSkeleton
 Steambot,Thickbot
 Automaton -> RANDOM 100%
 Automaton -> RANDOM 100%,Automaton -> RANDOM 100%
 GemRipper
 CloserBot
-GiftBot,GiftBot
+RoboSkeleton,RoboSkeleton
 Automaton -> RANDOM 100%
 Automaton -> RANDOM 100%,Automaton -> RANDOM 100%
 GemRipper
 CloserBot
-GiftBot,GiftBot
+RoboSkeleton,RoboSkeleton
 Automaton -> RANDOM 100%
 Automaton -> RANDOM 100%,Automaton -> RANDOM 100%
 GemRipper
 CloserBot
-GiftBot,GiftBot
+RoboSkeleton,RoboSkeleton
 Automaton -> RANDOM 100%
 Automaton -> RANDOM 100%,Automaton -> RANDOM 100%
 GemRipper
 CloserBot
-GiftBot,GiftBot
+RoboSkeleton,RoboSkeleton
 Automaton -> RANDOM 100%
 Automaton -> RANDOM 100%,Automaton -> RANDOM 100%
 GemRipper

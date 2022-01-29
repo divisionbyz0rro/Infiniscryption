@@ -210,8 +210,15 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             {
                 List<Ability> allP3Abs = cards.Where(c => c.temple == CardTemple.Tech).SelectMany(c => c.abilities).Distinct().ToList();
                 foreach (AbilityInfo ab in AbilityManager.AllAbilityInfos)
+                {
                     if (allP3Abs.Contains(ab.ability))
-                        ab.SetDefaultPart3Ability();
+                    {
+                        if (ab.metaCategories == null)
+                            ab.metaCategories = new ();
+
+                        ab.metaCategories.Add(AbilityMetaCategory.Part3Rulebook);
+                    }
+                }
 
                 return cards;
             };
