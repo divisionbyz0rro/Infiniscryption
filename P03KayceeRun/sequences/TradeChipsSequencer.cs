@@ -263,9 +263,6 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 
 		public static bool IsValidDraftCard(CardInfo card)
 		{
-			if (card.temple != CardTemple.Tech)
-				return false;
-
 			foreach (CardMetaCategory cat in card.metaCategories)
 			{
 				if (cat == CustomCards.NeutralRegion) return true;
@@ -273,7 +270,7 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 				if (cat == CustomCards.TechRegion) return true;
 				if (cat == CustomCards.UndeadRegion) return true;
 				if (cat == CustomCards.NatureRegion) return true;
-				if (cat == CardMetaCategory.ChoiceNode) return true;
+				if (cat == CardMetaCategory.ChoiceNode && card.temple == CardTemple.Tech) return true;
 			}
 
 			return false;

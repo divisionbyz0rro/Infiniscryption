@@ -93,7 +93,7 @@ namespace Infiniscryption.SideDecks.UserInterface
                 if (card.Info.name == SideDeckManager.SelectedSideDeck)
                 {
                     this.selectedBorder.SetActive(true);
-                    this.selectedBorder.transform.SetParent(card.transform.Find("Base/PixelSnap"));
+                    this.selectedBorder.transform.SetParent(card.transform.Find("Base/PixelSnap"), false);
                     return;
                 }
             }

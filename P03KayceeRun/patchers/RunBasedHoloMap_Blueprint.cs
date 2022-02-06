@@ -58,6 +58,15 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                        .Select(p => map[x + p[0], y + p[1]]);
         }
 
+        private static Tuple<int, int> GetAdjacentLocation(this HoloMapBlueprint node, int direction)
+        {
+            int x = direction == WEST ? node.x - 1 : direction == EAST ? node.x + 1 : node.x;
+            int y = direction == NORTH ? node.y - 1 : direction == SOUTH ? node.y + 1 : node.y;
+            if (x <= 0 || x >= 6 || y <= 0 || y >= 6)
+                return null;
+            return new(x, y);
+        }
+
         private static HoloMapBlueprint GetAdjacentNode(this HoloMapBlueprint node, HoloMapBlueprint[,] map, int direction)
         {
             int x = direction == WEST ? node.x - 1 : direction == EAST ? node.x + 1 : node.x;
@@ -293,6 +302,86 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             }
         }
 
+        private static bool DiscoverAndCreateTrade(HoloMapBlueprint[,] map, List<HoloMapBlueprint> nodes)
+        {
+            // The goal here is to find battles that exist in hallways; that is, battles where the room that
+            // are in when you click the arrow to fight only has one way in.
+            // Then we make the entrace to THAT room force you to trade your way in
+
+            // So again: the room must have a 'special' arrow, the type must be enemy, and there can be only two arrows
+            // One would be the special direction, and one would be the path backward
+            List<HoloMapBlueprint> possibles = nodes.Where(bp => bp.specialDirection != 0 && bp.specialDirectionType == 0 && bp.NumberOfArrows == 2).ToList();
+
+            if (possibles.Count == 0)
+                return false; // This means we couldn't find a spot for the
+
+            HoloMapBlueprint battleNode = possibles[UnityEngine.Random.Range(0, possibles.Count)];
+
+            // Find the way back. It's the arrow directions with the special direction removed
+            int directionBack = battleNode.arrowDirections & ~battleNode.specialDirection;
+            
+            // Find the node in that direction
+            HoloMapBlueprint prevNode = GetAdjacentNode(battleNode, map, directionBack);
+
+            // Set the special direction and special type
+            prevNode.specialDirection = OppositeDirection(directionBack);
+            prevNode.specialDirectionType = HoloMapBlueprint.TRADE;
+
+            return true;
+        }
+
+        private static bool ForceTrade(HoloMapBlueprint[,] map, List<HoloMapBlueprint> nodes)
+        {
+            // This gets called when we couldn't naturally fit a trade in the map
+            // Here, we pick a random encounter from the map and move it to make room for a trade
+            List<HoloMapBlueprint> possibles = nodes.Where(bp => bp.specialDirection != 0 && bp.specialDirectionType == 0 && bp.color != 1).ToList();
+
+            while (possibles.Count > 0)
+            {
+                HoloMapBlueprint oldBattleNode = possibles[UnityEngine.Random.Range(0, possibles.Count)];
+                possibles.Remove(oldBattleNode);
+
+                // Find the node that the battle leads you to
+                HoloMapBlueprint newBattleNode = GetAdjacentNode(oldBattleNode, map, oldBattleNode.specialDirection);
+
+                // Find a location in any direction that is null
+                foreach (int dir in DIR_LOOKUP.Keys)
+                {
+                    Tuple<int, int> xy = GetAdjacentLocation(newBattleNode, dir);
+
+                    if (xy == null)
+                        continue;
+
+                    if (map[xy.Item1, xy.Item2] == null)
+                    {
+                        // Good. We found a spot
+                        HoloMapBlueprint brandNewNode = new(newBattleNode.randomSeed + 1000);
+                        brandNewNode.x = xy.Item1;
+                        brandNewNode.y = xy.Item2;
+
+                        nodes.Add(brandNewNode);
+                        map[xy.Item1, xy.Item2] = brandNewNode;
+
+                        // Give the new node the upgrade that was hiding behind the battle
+                        brandNewNode.upgrade = newBattleNode.upgrade;
+                        newBattleNode.upgrade = HoloMapNode.NodeDataType.MoveArea;
+
+                        // Make all arrows match up
+                        brandNewNode.arrowDirections = brandNewNode.DirTo(newBattleNode);
+                        newBattleNode.arrowDirections |= newBattleNode.DirTo(brandNewNode);
+                        newBattleNode.specialDirection = newBattleNode.DirTo(brandNewNode);
+
+                        // Make the old battle node into trade node
+                        oldBattleNode.specialDirectionType = HoloMapBlueprint.TRADE;
+                        
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
         private static bool DiscoverAndCreateEnemyEncounter(HoloMapBlueprint[,] map, List<HoloMapBlueprint> nodes, int tier, int region, HoloMapSpecialNode.NodeDataType reward, int color = -1)
         {
             // The goal here is to find four rooms that have only one entrance
@@ -352,9 +441,9 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         {
             // We need two spaces vertically to make this work.
             HoloMapBlueprint bossIntroRoom = null;
-            for(int i = map.GetLength(0) - 1; i >= 0; i--)
+            for (int j = map.GetLength(1) - 1; j >= 2; j--)
             {
-                for (int j = map.GetLength(1) - 1; j >= 2; j--)
+                for(int i = map.GetLength(0) - 1; i >= 0; i--)
                 {
                     if (map[i,j] != null && map[i,j-1] == null && map[i,j-2] == null)
                     {
@@ -447,6 +536,100 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             }  
         }
 
+        public static void ShapeMapForRegion(HoloMapBlueprint[,] bpBlueprint, int region)
+        {
+            int x, y;
+            if (region == TECH)
+            {
+                // Set the corners empty
+                bpBlueprint[0,0] = bpBlueprint[0,1] = bpBlueprint[1,0] = null;
+                bpBlueprint[0,4] = bpBlueprint[0,5] = bpBlueprint[1,5] = null;
+                bpBlueprint[4,0] = bpBlueprint[5,0] = bpBlueprint[5,1] = null;
+                bpBlueprint[4,5] = bpBlueprint[5,5] = bpBlueprint[5,4] = null;
+                
+                // Randomly chop some rooms
+                // Chop one of the middle rooms
+                bpBlueprint[UnityEngine.Random.Range(2,4), UnityEngine.Random.Range(2,4)] = null;
+                
+                // Randomly chop a corner
+                int[] corners = new int[] { 1, 4 };
+                bpBlueprint[corners[UnityEngine.Random.Range(0, 2)], corners[UnityEngine.Random.Range(0, 2)]] = null;
+
+                // Randomly chop an interior side
+                x = UnityEngine.Random.Range(1, 5);
+                y = x == 1 || x == 4 ? UnityEngine.Random.Range(2, 4) : corners[UnityEngine.Random.Range(0, 2)];
+                bpBlueprint[x, y] = null;
+            }
+            if (region == MAGIC)
+            {
+                // Take off the entire top two rows
+                for (int i = 0; i < 6; i++)
+                    bpBlueprint[i, 0] = bpBlueprint[i, 1] = null;
+
+                // Take out one of the middle two segments
+                x = UnityEngine.Random.value < 0.5f ? 2 : 3;
+                bpBlueprint[x, 3] = bpBlueprint[x, 4] = null;
+
+                // Take out a corner
+                x = UnityEngine.Random.value < 0.5f ? 0 : 5;
+                y = x == 0 ? 5 : UnityEngine.Random.value < 0.5f ? 2 : 5;
+                bpBlueprint[x, y] = null;
+            }
+            if (region == NATURE)
+            {
+                int offset = UnityEngine.Random.Range(0, 4);
+                for (int i = 0; i < 3; i++)
+                {
+                    bpBlueprint[0, i + offset] = null;
+                    if (i == 1)
+                    {
+                        bpBlueprint[1, i + offset] = null;
+                        if (UnityEngine.Random.value < 0.5f)
+                            bpBlueprint[1, i + offset - 1] = null;
+                        else
+                            bpBlueprint[1, i + offset + 1] = null;
+                    }
+                }
+                if (offset <= 1)
+                    bpBlueprint[5, 0] = null;
+                else
+                    bpBlueprint[0, 0] = null;
+
+                offset = offset <= 1 ? 2 : 0;
+                offset = UnityEngine.Random.value < 0.5f ? offset : offset + 1;
+
+                for (int i = 0; i < 3; i++)
+                {
+                    bpBlueprint[5, i + offset] = null;
+                    if (i == 1)
+                    {
+                        bpBlueprint[4, i + offset] = null;
+                        if (UnityEngine.Random.value < 0.5f)
+                            bpBlueprint[4, i + offset - 1] = null;
+                        else
+                            bpBlueprint[4, i + offset + 1] = null;
+                    }
+                }
+                if (offset <= 1)
+                    bpBlueprint[5, 5] = null;
+                else
+                    bpBlueprint[0, 5] = null;                
+            }
+            if (region == UNDEAD)
+            {
+                bool pointUp = UnityEngine.Random.value < 0.5f;
+
+                int[] ys = pointUp ? new int[] { 5, 4, 1, 0 } : new int[] { 0, 1, 4, 5 }; 
+
+                bpBlueprint[1, ys[0]] = bpBlueprint[2, ys[0]] = bpBlueprint[3, ys[0]] = bpBlueprint[4, ys[0]] =  null;
+                bpBlueprint[2, ys[1]] = bpBlueprint[3, ys[1]] = null;
+                bpBlueprint[0, ys[2]] = bpBlueprint[5, ys[2]] = null;
+                bpBlueprint[0, ys[3]] = bpBlueprint[1, ys[3]] = bpBlueprint[4, ys[3]] = bpBlueprint[5, ys[3]] = null;
+
+                bpBlueprint[UnityEngine.Random.Range(2, 4), pointUp ? 2 : 3] = null;
+            }
+        }
+
         private static List<HoloMapBlueprint> BuildBlueprint(int order, int region, int seed, int stackDepth = 0)
         {
             string blueprintKey = $"ascensionBlueprint{order}{region}";
@@ -468,24 +651,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 for (int j = 0; j < 6; j ++)
                     bpBlueprint[i, j] = new HoloMapBlueprint(seed + 10*i + 100*j) { x = i, y = j, arrowDirections = BLANK };
 
-            // Set the corners empty
-            bpBlueprint[0,0] = bpBlueprint[0,1] = bpBlueprint[1,0] = null;
-            bpBlueprint[0,4] = bpBlueprint[0,5] = bpBlueprint[1,5] = null;
-            bpBlueprint[4,0] = bpBlueprint[5,0] = bpBlueprint[5,1] = null;
-            bpBlueprint[4,5] = bpBlueprint[5,5] = bpBlueprint[5,4] = null;
-            
-            // Randomly chop some rooms
-            // Chop one of the middle rooms
-            bpBlueprint[UnityEngine.Random.Range(2,4), UnityEngine.Random.Range(2,4)] = null;
-            
-            // Randomly chop a corner
-            int[] corners = new int[] { 1, 4 };
-            bpBlueprint[corners[UnityEngine.Random.Range(0, 2)], corners[UnityEngine.Random.Range(0, 2)]] = null;
-
-            // Randomly chop an interior side
-            x = UnityEngine.Random.Range(1, 5);
-            y = x == 1 || x == 4 ? UnityEngine.Random.Range(2, 4) : corners[UnityEngine.Random.Range(0, 2)];
-            bpBlueprint[x, y] = null;
+            // Reshape for region
+            ShapeMapForRegion(bpBlueprint, region);
 
             // Paint each quadrant
             PaintQuadrant(bpBlueprint, 1, 1, 1);
@@ -512,9 +679,6 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 for (int j = 0; j < bpBlueprint.GetLength(1); j ++)
                     if (bpBlueprint[i, j] != null && bpBlueprint[i, j] != startSpace)
                         retval.Add(bpBlueprint[i, j]);
-
-            // Trim the map
-            DiscoverAndTrimDeadEnds(bpBlueprint, retval);
 
             // Make sure that the tech zone adds the conduit to the side deck
             //if (region == TECH)
@@ -547,6 +711,16 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                     numberOfEncountersAdded += 1;
 
             P03Plugin.Log.LogInfo($"I have created {numberOfEncountersAdded} enemy encounters");
+
+            // Add one trade node
+            bool traded = DiscoverAndCreateTrade(bpBlueprint, retval);
+            P03Plugin.Log.LogInfo($"Created a trade node? {traded}");
+
+            if (!traded)
+            {
+                traded = ForceTrade(bpBlueprint, retval);
+                P03Plugin.Log.LogInfo($"Forcing a trade. Successful? {traded}");
+            }
 
             // Add four card choice nodes
             P03Plugin.Log.LogInfo($"Adding upgrades");
@@ -634,7 +808,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             }
 
             // Make sure there are four enemy nodes
-            if (blueprint.Where(bp => bp.specialDirection != 0).Count() < 4)
+            if (blueprint.Where(bp => bp.specialDirection != 0 && bp.specialDirectionType == HoloMapBlueprint.BATTLE).Count() < 4)
             {
                 P03Plugin.Log.LogInfo("Map failed validation - not enough enemy encounters");
                 return false;

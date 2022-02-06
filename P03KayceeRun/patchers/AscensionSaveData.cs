@@ -70,6 +70,9 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
         private static string ToCompressedJSON(object data)
         {
+            if (data == null)
+                return default(string);
+
             string value = SaveManager.ToJSON(data);
             //InfiniscryptionP03Plugin.Log.LogInfo($"JSON SAVE: {value}");
             var bytes = Encoding.Unicode.GetBytes(value);
@@ -91,6 +94,9 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
         private static T FromCompressedJSON<T>(string data)
         {
+            if (string.IsNullOrEmpty(data))
+                return default(T);
+
             var bytes = Convert.FromBase64String(data);
             using(MemoryStream input = new MemoryStream(bytes))
             {
@@ -140,19 +146,43 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             ModdedSaveManager.SaveData.SetValue(P03Plugin.PluginGuid, SaveKey, ToCompressedJSON(SaveManager.SaveFile.part3Data));
         }
 
+        [HarmonyPatch(typeof(SaveManager), nameof(SaveManager.TestSaveFileCorrupted))]
+        [HarmonyPrefix]
+        public static void RepairMissingPart3Data(SaveFile file)
+        {
+            if (file.part3Data == null)
+            {
+                file.part3Data = new Part3SaveData();
+                file.part3Data.Initialize();
+            }
+        }
+
         [HarmonyPatch(typeof(SaveManager), "LoadFromFile")]
         [HarmonyPostfix]
         [HarmonyAfter(new string[] { "cyantist.inscryption.api" })]
         public static void LoadPart3AscensionSaveData()
         {
             string part3Data = ModdedSaveManager.SaveData.GetValue(P03Plugin.PluginGuid, SaveKey);
-            if (part3Data != default(string))
+            Part3SaveData data = FromCompressedJSON<Part3SaveData>(part3Data);
+
+            if (data == default(Part3SaveData))
             {
-                Part3SaveData data = FromCompressedJSON<Part3SaveData>(part3Data);
-                if (data != null)
-                {
-                    SaveManager.SaveFile.part3Data = data;
-                }
+                data = new Part3SaveData();
+                data.Initialize();
+            }
+
+            SaveManager.SaveFile.part3Data = data;
+        }
+
+        [HarmonyPatch(typeof(AscensionSaveData), nameof(AscensionSaveData.NewRun))]
+        [HarmonyPostfix]
+        public static void InitializePart3Save()
+        {
+            if (IsP03Run)
+            {
+                Part3SaveData data = new Part3SaveData();
+                data.Initialize();
+                SaveManager.SaveFile.part3Data = data;
             }
         }
 
@@ -167,11 +197,30 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             }
         }
 
+        [HarmonyPatch(typeof(AscensionSaveData), nameof(AscensionSaveData.EndRun))]
+        [HarmonyPrefix]
+        public static void ClearP03SaveOnEndRun()
+        {
+            SaveManager.SaveFile.part3Data = null;
+            ModdedSaveManager.SaveData.SetValue(P03Plugin.PluginGuid, ASCENSION_SAVE_KEY, default(string));
+        }
+
+        [HarmonyPatch(typeof(RunState), nameof(RunState.Run), MethodType.Getter)]
+        [HarmonyPostfix]
+        public static void RunIsNullForP03(ref RunState __result)
+        {
+            if (IsP03Run)
+            {
+                __result = __result ?? new ();
+                __result.regionTier = EventManagement.CompletedZones.Count;
+            }
+        }
+
         [HarmonyPatch(typeof(Part3SaveData), "Initialize")]
         [HarmonyPostfix]
         private static void RewritePart3IntroSequence(ref Part3SaveData __instance)
         {
-            if (SaveFile.IsAscension)
+            if (SaveFile.IsAscension && AscensionSaveData.Data.currentRun != null)
             {
                 string worldId = RunBasedHoloMap.GetAscensionWorldID(RunBasedHoloMap.NEUTRAL);
                 Tuple<int, int> pos = RunBasedHoloMap.GetStartingSpace(RunBasedHoloMap.NEUTRAL);
@@ -200,7 +249,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 }
 
                 foreach(CardInfo info in starterDeckCards)
-                    __instance.deck.AddCard(info);
+                    __instance.deck.AddCard(CustomCards.ModifyCardForAscension(info));
                 
                 __instance.deck.AddCard(CardLoader.GetCardByName(CustomCards.DRAFT_TOKEN));
                 __instance.deck.AddCard(CardLoader.GetCardByName(CustomCards.DRAFT_TOKEN));

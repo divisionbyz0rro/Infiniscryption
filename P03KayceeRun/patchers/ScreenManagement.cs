@@ -11,7 +11,21 @@ namespace Infiniscryption.P03KayceeRun.Patchers
     [HarmonyPatch]
     public static class ScreenManagement
     {
-        public static Opponent.Type ScreenState { get; set; } = Opponent.Type.Default;
+        public static Opponent.Type ScreenState 
+        { 
+            get
+            {
+                string value = ModdedSaveManager.SaveData.GetValue(P03Plugin.PluginGuid, "ScreenState");
+                if (string.IsNullOrEmpty(value))
+                    return Opponent.Type.Default;
+
+                return (Opponent.Type)Enum.Parse(typeof(Opponent.Type), value);
+            }
+            set
+            {
+                ModdedSaveManager.SaveData.SetValue(P03Plugin.PluginGuid, "ScreenState", value);
+            }
+        }
 
         [HarmonyPatch(typeof(AscensionMenuScreens), "TransitionToGame")]
         [HarmonyPrefix]
@@ -24,9 +38,6 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                     // Ensure the old part 3 save data gets saved if it needs to be
                     P03AscensionSaveData.EnsureRegularSave();
                     P03AscensionSaveData.IsP03Run = true;
-                    Part3SaveData data = new Part3SaveData();
-                    data.Initialize();
-                    SaveManager.SaveFile.part3Data = data;
                     SaveManager.SaveToFile();
                 }
                 else
@@ -50,21 +61,21 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 			return true;
         }
 
-        [HarmonyPatch(typeof(AscensionStartScreen), "RunExists", MethodType.Getter)]
-        [HarmonyPrefix]
-        public static bool DoesP03RunExist(ref bool __result)
-        {
-            // If we have a Part 3 Ascension Run saved, then yes - a P03 run exists
-            if (!string.IsNullOrEmpty(ModdedSaveManager.SaveData.GetValue(P03Plugin.PluginGuid, P03AscensionSaveData.ASCENSION_SAVE_KEY)))
-            {
-                if (Part3SaveData.Data.checkpointPos.worldId == EventManagement.GAME_OVER)
-                    __result = false;
-                else
-                    __result = true;
-                return false;
-            }
-            return true;
-        }
+        // [HarmonyPatch(typeof(AscensionStartScreen), "RunExists", MethodType.Getter)]
+        // [HarmonyPrefix]
+        // public static bool DoesP03RunExist(ref bool __result)
+        // {
+        //     // If we have a Part 3 Ascension Run saved, then yes - a P03 run exists
+        //     if (!string.IsNullOrEmpty(ModdedSaveManager.SaveData.GetValue(P03Plugin.PluginGuid, P03AscensionSaveData.ASCENSION_SAVE_KEY)))
+        //     {
+        //         if (Part3SaveData.Data.checkpointPos.worldId == EventManagement.GAME_OVER)
+        //             __result = false;
+        //         else
+        //             __result = true;
+        //         return false;
+        //     }
+        //     return true;
+        // }
 
         private static void ClearP03Data()
         {

@@ -9,12 +9,16 @@ using System.Collections.Generic;
 using Infiniscryption.P03KayceeRun.Sequences;
 using Infiniscryption.P03KayceeRun.Faces;
 using Infiniscryption.Core.Helpers;
+using InscryptionAPI.Encounters;
 
 namespace Infiniscryption.P03KayceeRun.Patchers
 {
     [HarmonyPatch]
     public static class BossManagement
     {
+        public static readonly string P03FinalBossAI = AIManager.Add(P03Plugin.PluginGuid, "P03FinalBossAI", typeof(P03FinalBossOpponentAI)).Id;
+        public static Opponent.Type P03FinalBossOpponent { get; private set; }
+
         [HarmonyPatch(typeof(Part3BossOpponent), nameof(Part3BossOpponent.IntroSequence))]
         [HarmonyPostfix]
         public static IEnumerator ReduceLivesOnBossNode(IEnumerator sequence)
@@ -109,98 +113,20 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             yield break;
         }
 
-        private static void AddBossSequencer<T>(TurnManager manager) where T : SpecialBattleSequencer
+        public static void RegisterBosses()
         {
-            GameObject.Destroy(manager.SpecialSequencer);
-            SpecialBattleSequencer sequencer = manager.gameObject.AddComponent<T>();
-            Traverse trav = Traverse.Create(manager);
-            trav.Property("SpecialSequencer").SetValue(sequencer);
-        }
+            OpponentManager.BaseGameOpponents.OpponentById(Opponent.Type.CanvasBoss)
+                .SetNewSequencer(P03Plugin.PluginGuid, "AscensionCanvasSequencer", typeof(CanvasAscensionSequencer));
 
-        [HarmonyPatch(typeof(TurnManager), "UpdateSpecialSequencer")]
-        [HarmonyPrefix]
-        public static bool ReplaceSequencers(string specialBattleId, ref TurnManager __instance)
-        {
-            if (SaveFile.IsAscension && P03AscensionSaveData.IsP03Run)
-            {
-                if (specialBattleId == BossBattleSequencer.GetSequencerIdForBoss(Opponent.Type.TelegrapherBoss))
-                {
-                    AddBossSequencer<TelegrapherAscensionSequencer>(__instance);
-                    return false;
-                }
+            OpponentManager.BaseGameOpponents.OpponentById(Opponent.Type.ArchivistBoss).Opponent = typeof(ArchivistAscensionOpponent);
 
-                if (specialBattleId == P03FinalBossSequencer.SequenceID)
-                {
-                    AddBossSequencer<P03FinalBossSequencer>(__instance);
-                    return false;
-                }
+            OpponentManager.BaseGameOpponents.OpponentById(Opponent.Type.TelegrapherBoss)
+                .SetOpponent(typeof(TelegrapherAscensionOpponent))
+                .SetNewSequencer(P03Plugin.PluginGuid, "AscensionTelgrapherSequencer", typeof(TelegrapherAscensionSequencer));
 
-                if (specialBattleId == BossBattleSequencer.GetSequencerIdForBoss(Opponent.Type.CanvasBoss))
-                {
-                    AddBossSequencer<CanvasAscensionSequencer>(__instance);
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        private static Opponent.Type[] SUPPORTED_OPPONENTS = new Opponent.Type[] { 
-            Opponent.Type.TelegrapherBoss,
-            P03AscensionOpponent.ID,
-            Opponent.Type.ArchivistBoss
-        };
-
-        [HarmonyPatch(typeof(BossBattleSequencer), nameof(BossBattleSequencer.GetSequencerIdForBoss))]
-        [HarmonyPrefix]
-        public static bool GetP03ID(ref string __result, Opponent.Type bossType)
-        {
-            if (bossType == P03AscensionOpponent.ID)
-            {
-                __result = P03FinalBossSequencer.SequenceID;
-                return false;
-            }
-            return true;
-        }
-
-        [HarmonyPatch(typeof(Opponent), "SpawnOpponent")]
-        [HarmonyPrefix]
-        public static bool ReplaceOpponent(EncounterData encounterData, ref Opponent __result)
-        {
-            if (!(SaveFile.IsAscension && P03AscensionSaveData.IsP03Run))
-                return true;
-
-            if (!SUPPORTED_OPPONENTS.Contains(encounterData.opponentType))
-                return true;
-
-            GameObject gameObject = new GameObject();
-			gameObject.name = "Opponent";
-			Opponent.Type opponentType = encounterData.opponentType;
-			Opponent opponent;
-
-			if (opponentType == Opponent.Type.TelegrapherBoss)
-                opponent = gameObject.AddComponent<TelegrapherAscensionOpponent>();
-			else if(opponentType == P03AscensionOpponent.ID)
-                opponent = gameObject.AddComponent<P03AscensionOpponent>();
-            else if (opponentType == Opponent.Type.ArchivistBoss)
-                opponent = gameObject.AddComponent<ArchivistAscensionOpponent>();
-            else
-                throw new InvalidOperationException("Somehow got into a patch for ascension opponents that's not supported");
-
-			string text = encounterData.aiId;
-			if (string.IsNullOrEmpty(text))
-			{
-				text = "AI";
-			}
-			opponent.AI = opponentType == P03AscensionOpponent.ID ? new P03FinalBossOpponentAI() : (Activator.CreateInstance(CustomType.GetType("DiskCardGame", text)) as AI);
-			opponent.NumLives = opponent.StartingLives;
-			opponent.OpponentType = opponentType;
-			opponent.TurnPlan = opponent.ModifyTurnPlan(encounterData.opponentTurnPlan);
-			opponent.Blueprint = encounterData.Blueprint;
-			opponent.Difficulty = encounterData.Difficulty;
-			opponent.ExtraTurnsToSurrender = SeededRandom.Range(0, 3, SaveManager.SaveFile.GetCurrentRandomSeed());
-			__result = opponent;
-            return false;
+            P03FinalBossOpponent = OpponentManager.Add(P03Plugin.PluginGuid, "P03AscensionFinalBoss", string.Empty, typeof(P03AscensionOpponent))
+                .SetNewSequencer(P03Plugin.PluginGuid, "P03FinalBossSequencer", typeof(P03FinalBossSequencer))
+                .Id;
         }
     }
 }

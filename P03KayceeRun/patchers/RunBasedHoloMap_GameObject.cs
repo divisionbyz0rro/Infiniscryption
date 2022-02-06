@@ -27,10 +27,10 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         private static GameObject defaultPrefab;
         private static GameObject neutralHoloPrefab;
 
-        private static Dictionary<Opponent.Type, GameObject> bossPrefabs = new();
-        private static Dictionary<HoloMapNode.NodeDataType, GameObject> specialNodePrefabs = new();
-        private static Dictionary<int, GameObject[]> specialTerrainPrefabs = new();
-        private static Dictionary<int, GameObject> arrowPrefabs = new();
+        private static Dictionary<Opponent.Type, GameObject> BossPrefabs = new();
+        public static Dictionary<HoloMapNode.NodeDataType, GameObject> SpecialNodePrefabs = new();
+        private static Dictionary<int, GameObject[]> SpecialTerrainPrefabs = new();
+        private static Dictionary<int, GameObject> ArrowPrefabs = new();
         
         public const int NEUTRAL = 0;
         public const int TECH = 1;
@@ -158,43 +158,43 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             P03Plugin.Log.LogInfo($"Default prefab is {defaultPrefab}");
 
             // Boss prefabs
-            bossPrefabs.AddReplace(Opponent.Type.ArchivistBoss, () => Resources.Load<GameObject>("prefabs/map/holomapareas/HoloMapArea_TempleUndeadBoss"));
-            bossPrefabs.AddReplace(Opponent.Type.PhotographerBoss, () => Resources.Load<GameObject>("prefabs/map/holomapareas/HoloMapArea_TempleNatureBoss"));
-            bossPrefabs.AddReplace(Opponent.Type.TelegrapherBoss, () => Resources.Load<GameObject>("prefabs/map/holomapareas/HoloMapArea_TempleTech_1"));
-            bossPrefabs.AddReplace(Opponent.Type.CanvasBoss, () => Resources.Load<GameObject>("prefabs/map/holomapareas/HoloMapArea_TempleWizardBoss"));
+            BossPrefabs.AddReplace(Opponent.Type.ArchivistBoss, () => Resources.Load<GameObject>("prefabs/map/holomapareas/HoloMapArea_TempleUndeadBoss"));
+            BossPrefabs.AddReplace(Opponent.Type.PhotographerBoss, () => Resources.Load<GameObject>("prefabs/map/holomapareas/HoloMapArea_TempleNatureBoss"));
+            BossPrefabs.AddReplace(Opponent.Type.TelegrapherBoss, () => Resources.Load<GameObject>("prefabs/map/holomapareas/HoloMapArea_TempleTech_1"));
+            BossPrefabs.AddReplace(Opponent.Type.CanvasBoss, () => Resources.Load<GameObject>("prefabs/map/holomapareas/HoloMapArea_TempleWizardBoss"));
 
             // Special node prefabs
-            specialNodePrefabs.AddReplace(HoloMapSpecialNode.NodeDataType.CardChoice, () => GetGameObject("StartingIslandJunction", "Nodes/CardChoiceNode3D"));
-            specialNodePrefabs.AddReplace(HoloMapSpecialNode.NodeDataType.AddCardAbility, () => GetGameObject("Shop", "Nodes/ShopNode3D_AddAbility"));
-            specialNodePrefabs.AddReplace(HoloMapSpecialNode.NodeDataType.OverclockCard, () => GetGameObject("Shop", "Nodes/ShopNode3D_Overclock"));
-            specialNodePrefabs.AddReplace(HoloMapSpecialNode.NodeDataType.CreateTransformer, () => GetGameObject("Shop", "Nodes/ShopNode3D_Transformer"));
-            specialNodePrefabs.AddReplace(HoloMapSpecialNode.NodeDataType.AttachGem, () => GetGameObject("Shop", "Nodes/ShopNode3D_AttachGem"));
-            specialNodePrefabs.AddReplace(HoloMapSpecialNode.NodeDataType.RecycleCard, () => GetGameObject("NeutralWestMain_1", "Nodes/RecycleCardNode3D"));
-            specialNodePrefabs.AddReplace(HoloMapSpecialNode.NodeDataType.BuildACard, () => GetGameObject("Shop", "Nodes/ShopNode3D_BuildACard"));
-            specialNodePrefabs.AddReplace(HoloMapSpecialNode.NodeDataType.GainCurrency, () => GetGameObject("NatureMainPath_3", "Nodes/CurrencyGainNode3D"));
-            specialNodePrefabs.AddReplace(HoloMapSpecialNode.NodeDataType.ModifySideDeckConduit, () => GetGameObject("TechEntrance", "Nodes/ModifySideDeckNode3D"));
-            specialNodePrefabs.AddReplace(TradeChipsNodeData.TradeChipsForCards, () => GetDraftNode());
-            specialNodePrefabs.AddReplace(UnlockAscensionItemNodeData.UnlockItemsAscension, () => GetItemNode());
-            specialNodePrefabs.AddReplace(AscensionRecycleCardNodeData.AscensionRecycleCard, () => GetRecycleNode());
-            specialNodePrefabs.AddReplace(HoloMapSpecialNode.NodeDataType.BossBattle, () => GetGameObject("TempleWizardBoss", "Nodes/BossNode3D"));
+            SpecialNodePrefabs.AddReplace(HoloMapSpecialNode.NodeDataType.CardChoice, () => GetGameObject("StartingIslandJunction", "Nodes/CardChoiceNode3D"));
+            SpecialNodePrefabs.AddReplace(HoloMapSpecialNode.NodeDataType.AddCardAbility, () => GetGameObject("Shop", "Nodes/ShopNode3D_AddAbility"));
+            SpecialNodePrefabs.AddReplace(HoloMapSpecialNode.NodeDataType.OverclockCard, () => GetGameObject("Shop", "Nodes/ShopNode3D_Overclock"));
+            SpecialNodePrefabs.AddReplace(HoloMapSpecialNode.NodeDataType.CreateTransformer, () => GetGameObject("Shop", "Nodes/ShopNode3D_Transformer"));
+            SpecialNodePrefabs.AddReplace(HoloMapSpecialNode.NodeDataType.AttachGem, () => GetGameObject("Shop", "Nodes/ShopNode3D_AttachGem"));
+            SpecialNodePrefabs.AddReplace(HoloMapSpecialNode.NodeDataType.RecycleCard, () => GetGameObject("NeutralWestMain_1", "Nodes/RecycleCardNode3D"));
+            SpecialNodePrefabs.AddReplace(HoloMapSpecialNode.NodeDataType.BuildACard, () => GetGameObject("Shop", "Nodes/ShopNode3D_BuildACard"));
+            SpecialNodePrefabs.AddReplace(HoloMapSpecialNode.NodeDataType.GainCurrency, () => GetGameObject("NatureMainPath_3", "Nodes/CurrencyGainNode3D"));
+            SpecialNodePrefabs.AddReplace(HoloMapSpecialNode.NodeDataType.ModifySideDeckConduit, () => GetGameObject("TechEntrance", "Nodes/ModifySideDeckNode3D"));
+            SpecialNodePrefabs.AddReplace(TradeChipsNodeData.TradeChipsForCards, () => GetDraftNode());
+            SpecialNodePrefabs.AddReplace(UnlockAscensionItemNodeData.UnlockItemsAscension, () => GetItemNode());
+            SpecialNodePrefabs.AddReplace(AscensionRecycleCardNodeData.AscensionRecycleCard, () => GetRecycleNode());
+            SpecialNodePrefabs.AddReplace(HoloMapSpecialNode.NodeDataType.BossBattle, () => GetGameObject("TempleWizardBoss", "Nodes/BossNode3D"));
 
             // Special terrain prefabs
-            specialTerrainPrefabs.AddReplace(HoloMapBlueprint.RIGHT_BRIDGE, () => new GameObject[] { GetGameObject("UndeadMainPath_4", "Scenery/HoloBridge_Entrance") });
-            specialTerrainPrefabs.AddReplace(HoloMapBlueprint.LEFT_BRIDGE, () => new GameObject[] { GetGameObject("UndeadMainPath_3", "Scenery/HoloBridge_Entrance") });
-            specialTerrainPrefabs.AddReplace(HoloMapBlueprint.FULL_BRIDGE, () => new GameObject[] { GetGameObject("NeutralEastMain_2", "Scenery") });
-            specialTerrainPrefabs.AddReplace(HoloMapBlueprint.NORTH_BUILDING_ENTRANCE, () => GetGameObject(new string[] { "UndeadMainPath_4/Scenery/SM_Bld_Wall_Exterior_04", "UndeadMainPath_4/Scenery/SM_Bld_Wall_Exterior_04 (1)", "UndeadMainPath_4/Scenery/SM_Bld_Wall_Doorframe_02" }));
-            specialTerrainPrefabs.AddReplace(HoloMapBlueprint.NORTH_GATEWAY, () => new GameObject[] { GetGameObject("NatureMainPath_2", "Scenery/HoloGateway") });
-            specialTerrainPrefabs.AddReplace(HoloMapBlueprint.NORTH_CABIN, () => new GameObject[] { GetGameObject("TempleNature_4", "Scenery/Cabin")});
+            SpecialTerrainPrefabs.AddReplace(HoloMapBlueprint.RIGHT_BRIDGE, () => new GameObject[] { GetGameObject("UndeadMainPath_4", "Scenery/HoloBridge_Entrance") });
+            SpecialTerrainPrefabs.AddReplace(HoloMapBlueprint.LEFT_BRIDGE, () => new GameObject[] { GetGameObject("UndeadMainPath_3", "Scenery/HoloBridge_Entrance") });
+            SpecialTerrainPrefabs.AddReplace(HoloMapBlueprint.FULL_BRIDGE, () => new GameObject[] { GetGameObject("NeutralEastMain_2", "Scenery") });
+            SpecialTerrainPrefabs.AddReplace(HoloMapBlueprint.NORTH_BUILDING_ENTRANCE, () => GetGameObject(new string[] { "UndeadMainPath_4/Scenery/SM_Bld_Wall_Exterior_04", "UndeadMainPath_4/Scenery/SM_Bld_Wall_Exterior_04 (1)", "UndeadMainPath_4/Scenery/SM_Bld_Wall_Doorframe_02" }));
+            SpecialTerrainPrefabs.AddReplace(HoloMapBlueprint.NORTH_GATEWAY, () => new GameObject[] { GetGameObject("NatureMainPath_2", "Scenery/HoloGateway") });
+            SpecialTerrainPrefabs.AddReplace(HoloMapBlueprint.NORTH_CABIN, () => new GameObject[] { GetGameObject("TempleNature_4", "Scenery/Cabin")});
 
             // Let's instantiate the battle arrow prefabs
-            arrowPrefabs = new();
-            arrowPrefabs.AddReplace(EAST | ENEMY, () => GetGameObject("neutraleastmain_3", "Nodes/MoveArea_E"));
-            arrowPrefabs.AddReplace(SOUTH | ENEMY, () => GetGameObject("UndeadEntrance", "Nodes/MoveArea_S"));
-            arrowPrefabs.AddReplace(NORTH | ENEMY, () => GetGameObject("naturemainpath_2", "Nodes/MoveArea_N"));
-            arrowPrefabs.AddReplace(WEST | ENEMY, () => GetGameObject("neutralwestmain_2", "Nodes/MoveArea_W"));
+            ArrowPrefabs = new();
+            ArrowPrefabs.AddReplace(EAST | ENEMY, () => GetGameObject("neutraleastmain_3", "Nodes/MoveArea_E"));
+            ArrowPrefabs.AddReplace(SOUTH | ENEMY, () => GetGameObject("UndeadEntrance", "Nodes/MoveArea_S"));
+            ArrowPrefabs.AddReplace(NORTH | ENEMY, () => GetGameObject("naturemainpath_2", "Nodes/MoveArea_N"));
+            ArrowPrefabs.AddReplace(WEST | ENEMY, () => GetGameObject("neutralwestmain_2", "Nodes/MoveArea_W"));
 
-            arrowPrefabs.AddReplace(WEST | COUNTDOWN, () => GetGameObject("natureentrance", "Nodes/MoveArea_W"));
-            arrowPrefabs.AddReplace(SOUTH | COUNTDOWN, () => GetGameObject("wizardmainpath_3", "Nodes/MoveArea_S"));
+            ArrowPrefabs.AddReplace(WEST | COUNTDOWN, () => GetGameObject("natureentrance", "Nodes/MoveArea_W"));
+            ArrowPrefabs.AddReplace(SOUTH | COUNTDOWN, () => GetGameObject("wizardmainpath_3", "Nodes/MoveArea_S"));
 
             // This generates 'pseudo-prefab' objects
             // We will have one for each zone
@@ -270,33 +270,48 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
             // Turn this into a trade node
             HoloMapSpecialNode nodeData = retval.GetComponent<HoloMapSpecialNode>();
-            Traverse nodeTraverse = Traverse.Create(nodeData);
-            nodeTraverse.Field("nodeType").SetValue(TradeChipsNodeData.TradeChipsForCards);
-            nodeTraverse.Field("repeatable").SetValue(true);
+            nodeData.nodeType = TradeChipsNodeData.TradeChipsForCards;
+            nodeData.repeatable = true;
+
+            retval.transform.Find("RendererParent/Renderer_2").gameObject.SetActive(false);
+
+            GameObject card = retval.transform.Find("RendererParent/Renderer").gameObject;
+            card.transform.localPosition = new(-.1f, .051f, -.35f);
+            card.transform.localScale = new (1.25f, 1.25f, 1f);
+            card.transform.localEulerAngles = new(325f, 124.5f, 77.25f);
+
+            GameObject second = GameObject.Instantiate(card, card.transform.parent);
+            second.transform.localPosition = new(.25f, 0f, -.2f);
+            nodeData.nodeRenderers.Add(second.GetComponent<Renderer>());
+
+            GameObject third = GameObject.Instantiate(card, card.transform.parent);
+            third.transform.localPosition = new(-0.3f, -0.5f, -0.5f);
+            nodeData.nodeRenderers.Add(third.GetComponent<Renderer>());
 
             // Add an 'active only if' flag
             ActiveIfStoryFlag flag = retval.AddComponent<ActiveIfStoryFlag>();
             Traverse.Create(flag).Field("storyFlag").SetValue(EventManagement.HAS_DRAFT_TOKEN);
             Traverse.Create(flag).Field("activeIfConditionMet").SetValue(true);
 
+
             // Change the colors
             // This borrows the logic from HoloGameMap.SetNodeColor
-            Color halfMain = GameColors.Instance.darkPurple;
-            halfMain.a = 0.5f;
-            foreach (Renderer renderer in retval.GetComponentsInChildren<Renderer>())
-            {
-                foreach (Material material in renderer.materials)
-                {
-                    if (material.HasProperty("_MainColor"))
-                        material.SetColor("_MainColor", GameColors.Instance.darkPurple);
-                    if (material.HasProperty("_RimColor"))
-                        material.SetColor("_RimColor", GameColors.Instance.purple);
-                    if (material.HasProperty("_Color"))
-                        material.SetColor("_Color", halfMain);
+            // Color halfMain = GameColors.Instance.darkPurple;
+            // halfMain.a = 0.5f;
+            // foreach (Renderer renderer in retval.GetComponentsInChildren<Renderer>())
+            // {
+            //     foreach (Material material in renderer.materials)
+            //     {
+            //         if (material.HasProperty("_MainColor"))
+            //             material.SetColor("_MainColor", GameColors.Instance.darkPurple);
+            //         if (material.HasProperty("_RimColor"))
+            //             material.SetColor("_RimColor", GameColors.Instance.purple);
+            //         if (material.HasProperty("_Color"))
+            //             material.SetColor("_Color", halfMain);
                     
-                }
-            }
-            retval.tag = "HoloMapFixedColor"; // This is used to make sure the colors aren't overwritten.
+            //     }
+            // }
+            // retval.tag = "HoloMapFixedColor"; // This is used to make sure the colors aren't overwritten.
 
             retval.SetActive(false);
 
@@ -311,12 +326,12 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
         private static HoloMapNode BuildSpecialNode(HoloMapNode.NodeDataType dataType, int specialTerrain, int regionId, Transform parent, Transform sceneryParent, float x, float z)
         {
-            if (!specialNodePrefabs.ContainsKey(dataType))
+            if (!SpecialNodePrefabs.ContainsKey(dataType))
                 return null;
 
             P03Plugin.Log.LogInfo($"Adding {dataType.ToString()} at {x},{z}");
 
-            GameObject defaultNode = specialNodePrefabs[dataType];
+            GameObject defaultNode = SpecialNodePrefabs[dataType];
 
             P03Plugin.Log.LogInfo($"node is{defaultNode}");
             GameObject newNode = GameObject.Instantiate(defaultNode, parent);
@@ -381,10 +396,11 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
             bossNode.lootNodes = new();
             bossNode.bossAnim = null;
-            bossNode.specialEncounterId = P03FinalBossSequencer.SequenceID;
+            bossNode.specialEncounterId = BossBattleSequencer.GetSequencerIdForBoss(BossManagement.P03FinalBossOpponent);
 
             P03Plugin.Log.LogInfo("Setting boss type");
-            (bossNode.Data as CardBattleNodeData).specialBattleId = P03FinalBossSequencer.SequenceID;
+            CardBattleNodeData data = bossNode.Data as CardBattleNodeData;
+            data.specialBattleId = BossBattleSequencer.GetSequencerIdForBoss(BossManagement.P03FinalBossOpponent);
 
             area.bossNode = bossNode;
             area.activateBossOnEnter = true;
@@ -501,12 +517,14 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
             if (bp.opponent == Opponent.Type.P03Boss)
             {
-                return BuildP03BossNode();
+                GameObject retval = BuildP03BossNode();
+                retval.name = $"ProceduralMapArea_{regionId}_{bp.x}_{bp.y})";
+                return retval;
             }
 
             if (bp.opponent != Opponent.Type.Default)
             {
-                GameObject retval = GameObject.Instantiate(bossPrefabs[bp.opponent]);
+                GameObject retval = GameObject.Instantiate(BossPrefabs[bp.opponent]);
                 if (bp.opponent == Opponent.Type.TelegrapherBoss)
                 {
                     retval.transform.Find("Nodes/MoveArea_E").gameObject.SetActive(false);
@@ -515,10 +533,19 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 }
 
                 FlyBackToCenterIfBossDefeated returnToCenter = retval.AddComponent<FlyBackToCenterIfBossDefeated>();
-                HoloMapArea bossArea = retval.GetComponent<HoloMapArea>();
-                Traverse.Create(bossArea).Field("specialSequencer").SetValue(returnToCenter);
+                retval.GetComponent<HoloMapArea>().specialSequencer = returnToCenter;
+
+                // This is a bit of a CYA
+                // We want to make sure the battle id and the opponent always match - this can get out of sync with some of our custom patches
+                HoloMapBossNode bossNode = retval.GetComponentInChildren<HoloMapBossNode>();
+                bossNode.specialEncounterId = BossBattleSequencer.GetSequencerIdForBoss(bp.opponent);
+                CardBattleNodeData bossData = bossNode.Data as CardBattleNodeData;
+                bossData.specialBattleId = BossBattleSequencer.GetSequencerIdForBoss(bp.opponent);
+
+                P03Plugin.Log.LogInfo($"Setting special battle id {bossData.specialBattleId} for opponent {bp.opponent.ToString()}");
 
                 retval.SetActive(false);
+                retval.name = $"ProceduralMapArea_{regionId}_{bp.x}_{bp.y})";
                 return retval;
             }
 
@@ -537,31 +564,39 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
             if (DIR_LOOKUP.ContainsKey(bp.specialDirection))
             {
-                P03Plugin.Log.LogInfo($"Finding arrow to destroy");
-                GameObject arrowToReplace = area.transform.Find($"Nodes/MoveArea_{DIR_LOOKUP[bp.specialDirection]}").gameObject;
-                P03Plugin.Log.LogInfo($"Destroying arrow");
-                GameObject.DestroyImmediate(arrowToReplace);
-                
-                P03Plugin.Log.LogInfo($"Copying arrow");
-                GameObject newArrow = GameObject.Instantiate(arrowPrefabs[bp.specialDirection | ENEMY], nodes.transform);
-                newArrow.name = $"MoveArea_{DIR_LOOKUP[bp.specialDirection]}";
-                HoloMapNode node = newArrow.GetComponent<HoloMapNode>();
-                Traverse nodeTraverse = Traverse.Create(node);
-                nodeTraverse.Field("blueprintData").SetValue(GetBlueprintForRegion(regionId, bp.color));
-                nodeTraverse.Field("encounterDifficulty").SetValue(bp.encounterDifficulty);
-                if ((bp.specialTerrain & HoloMapBlueprint.FULL_BRIDGE) != 0)
-                    nodeTraverse.Field("bridgeBattle").SetValue(true);
-                
-                if (bp.battleTerrainIndex > 0 && (bp.specialTerrain & HoloMapBlueprint.FULL_BRIDGE) == 0)
+                if (bp.specialDirectionType == HoloMapBlueprint.TRADE)
                 {
-                    string[] terrain = REGION_DATA[regionId].terrain[bp.battleTerrainIndex - 1];
-                    nodeTraverse.Field("playerTerrain").SetValue(terrain.Take(5).Select(s => s == default(string) ? null : CardLoader.GetCardByName(s)).ToArray());
-                    nodeTraverse.Field("opponentTerrain").SetValue(terrain.Skip(5).Select(s => s == default(string) ? null : CardLoader.GetCardByName(s)).ToArray());
+                    GameObject arrowToReplace = area.transform.Find($"Nodes/MoveArea_{DIR_LOOKUP[bp.specialDirection]}").gameObject;
+                    arrowToReplace.GetComponent<HoloMapNode>().nodeType = HoloMapNode.NodeDataType.MoveAreaTrade;
                 }
-                else
+                if (bp.specialDirectionType == HoloMapBlueprint.BATTLE)
                 {
-                    nodeTraverse.Field("playerTerrain").SetValue(new CardInfo[5]);
-                    nodeTraverse.Field("opponentTerrain").SetValue(new CardInfo[5]);
+                    P03Plugin.Log.LogInfo($"Finding arrow to destroy");
+                    GameObject arrowToReplace = area.transform.Find($"Nodes/MoveArea_{DIR_LOOKUP[bp.specialDirection]}").gameObject;
+                    P03Plugin.Log.LogInfo($"Destroying arrow");
+                    GameObject.DestroyImmediate(arrowToReplace);
+                    
+                    P03Plugin.Log.LogInfo($"Copying arrow");
+                    GameObject newArrow = GameObject.Instantiate(ArrowPrefabs[bp.specialDirection | ENEMY], nodes.transform);
+                    newArrow.name = $"MoveArea_{DIR_LOOKUP[bp.specialDirection]}";
+                    HoloMapNode node = newArrow.GetComponent<HoloMapNode>();
+                    Traverse nodeTraverse = Traverse.Create(node);
+                    nodeTraverse.Field("blueprintData").SetValue(GetBlueprintForRegion(regionId, bp.color));
+                    nodeTraverse.Field("encounterDifficulty").SetValue(bp.encounterDifficulty);
+                    if ((bp.specialTerrain & HoloMapBlueprint.FULL_BRIDGE) != 0)
+                        nodeTraverse.Field("bridgeBattle").SetValue(true);
+                    
+                    if (bp.battleTerrainIndex > 0 && (bp.specialTerrain & HoloMapBlueprint.FULL_BRIDGE) == 0)
+                    {
+                        string[] terrain = REGION_DATA[regionId].terrain[bp.battleTerrainIndex - 1];
+                        nodeTraverse.Field("playerTerrain").SetValue(terrain.Take(5).Select(s => s == default(string) ? null : CardLoader.GetCardByName(s)).ToArray());
+                        nodeTraverse.Field("opponentTerrain").SetValue(terrain.Skip(5).Select(s => s == default(string) ? null : CardLoader.GetCardByName(s)).ToArray());
+                    }
+                    else
+                    {
+                        nodeTraverse.Field("playerTerrain").SetValue(new CardInfo[5]);
+                        nodeTraverse.Field("opponentTerrain").SetValue(new CardInfo[5]);
+                    }
                 }
             }
 
@@ -652,9 +687,9 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             }
 
             P03Plugin.Log.LogInfo($"Generating special terrain");
-            foreach (int key in specialTerrainPrefabs.Keys)
+            foreach (int key in SpecialTerrainPrefabs.Keys)
                 if ((bp.specialTerrain & key) != 0)
-                    foreach (GameObject obj in specialTerrainPrefabs[key])
+                    foreach (GameObject obj in SpecialTerrainPrefabs[key])
                         GameObject.Instantiate(obj, scenery);
 
             P03Plugin.Log.LogInfo($"Setting grid data");
@@ -671,9 +706,9 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 BlockDirections(area, areaTrav, bp.blockedDirections, EventManagement.ALL_ZONE_ENEMIES_KILLED);
 
             // Give every node a unique id
-            int nodeId = 1;
+            int nodeId = 10;
             foreach (MapNode node in area.GetComponentsInChildren<MapNode>())
-                node.nodeId = nodeId++;
+                node.nodeId = node is MoveHoloMapAreaNode ? nodeId++ - 10 : nodeId++;
 
             area.SetActive(false);
             return area;
@@ -737,7 +772,14 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             data.areas = new HoloMapWorldData.AreaData[xDimension, yDimension];
 
             foreach(HoloMapBlueprint bp in blueprints)
-                data.areas[bp.x, bp.y] = new() { prefab = BuildMapAreaPrefab(regionCode, bp) };
+            {
+                GameObject mapArea = BuildMapAreaPrefab(regionCode, bp);
+
+                if (regionCode != NEUTRAL)
+                    Minimap.CreateMinimap(mapArea.transform, blueprints, $"ProceduralMapArea_{regionCode}");
+                
+                data.areas[bp.x, bp.y] = new() { prefab = mapArea };
+            }
 
             // The second pass creates relationships between everything
             foreach(HoloMapBlueprint bp in blueprints)
@@ -781,21 +823,21 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             
             worldDataCache.Clear();
 
-            foreach(var entry in specialNodePrefabs)
+            foreach(var entry in SpecialNodePrefabs)
                 if (entry.Value != null && !objectLookups.Values.Contains(entry.Value))
                     GameObject.DestroyImmediate(entry.Value);
-            specialNodePrefabs.Clear();
+            SpecialNodePrefabs.Clear();
 
-            foreach(var entry in arrowPrefabs)
+            foreach(var entry in ArrowPrefabs)
                 if (entry.Value != null && !objectLookups.Values.Contains(entry.Value))
                     GameObject.DestroyImmediate(entry.Value);
-            arrowPrefabs.Clear();
+            ArrowPrefabs.Clear();
 
-            foreach(var entry in specialTerrainPrefabs)
+            foreach(var entry in SpecialTerrainPrefabs)
                 foreach (GameObject obj in entry.Value)
                     if (obj != null && !objectLookups.Values.Contains(obj))
                         GameObject.DestroyImmediate(obj);
-            specialTerrainPrefabs.Clear();        
+            SpecialTerrainPrefabs.Clear();        
         }
 
         [HarmonyPatch(typeof(HoloMapDataLoader), "GetWorldById")]

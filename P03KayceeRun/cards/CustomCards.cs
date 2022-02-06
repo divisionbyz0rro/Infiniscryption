@@ -119,6 +119,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
             // Update the librarian to display its size
             CardManager.BaseGameCards.CardByName("Librarian").AddAppearances(LibrarianSizeTitle.ID);
+            CardManager.BaseGameCards.CardByName("EnergyRoller").AddMetaCategories(CardMetaCategory.Rare); // Sorry, this card is just too damn good and needs to be rare
 
             AbilityManager.AllAbilityInfos.AbilityByID(Ability.DrawVesselOnHit).SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_drawvessel"));
             AbilityManager.AllAbilityInfos.AbilityByID(Ability.Sniper).SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_sniper"));
@@ -195,10 +196,10 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 .AddAbilities(Programmer.AbilityID)
                 .temple = CardTemple.Tech;
 
-            CardManager.New(ARTIST, "Artist", 1, 2)
-                .SetPortrait(AssetHelper.LoadTexture("portrait_artist"))
-                .AddAbilities(Artist.AbilityID)
-                .temple = CardTemple.Tech;
+            // CardManager.New(ARTIST, "Artist", 1, 2)
+            //     .SetPortrait(AssetHelper.LoadTexture("portrait_artist"))
+            //     .AddAbilities(Artist.AbilityID)
+            //     .temple = CardTemple.Tech;
 
             CardManager.New(FIREWALL, "Firewall", 0, 3)
                 .SetPortrait(AssetHelper.LoadTexture("portrait_firewall"))
@@ -222,6 +223,34 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
                 return cards;
             };
+        }
+
+        public static CardInfo SetNeutralP03Card(this CardInfo info)
+        {
+            info.AddMetaCategories(CardMetaCategory.ChoiceNode);
+            info.AddMetaCategories(NeutralRegion);
+            return info;
+        }
+
+        public static CardInfo SetRegionalP03Card(this CardInfo info, CardTemple region)
+        {
+            info.AddMetaCategories(CardMetaCategory.ChoiceNode);
+            switch (region)
+            {
+                case CardTemple.Nature:
+                    info.AddMetaCategories(NatureRegion);
+                    break;
+                case CardTemple.Undead:
+                    info.AddMetaCategories(UndeadRegion);
+                    break;
+                case CardTemple.Tech:
+                    info.AddMetaCategories(TechRegion);
+                    break;
+                case CardTemple.Wizard:
+                    info.AddMetaCategories(WizardRegion);
+                    break;
+            }
+            return info;
         }
     }
 }

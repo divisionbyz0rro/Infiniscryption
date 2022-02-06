@@ -6,8 +6,6 @@ using DiskCardGame;
 using HarmonyLib;
 using System.Collections.Generic;
 using System;
-using Infiniscryption.Core.Helpers;
-using Infiniscryption.SideDecks.Sequences;
 using InscryptionAPI.Saves;
 using InscryptionAPI.Card;
 using System.Linq;
@@ -33,9 +31,16 @@ namespace Infiniscryption.SideDecks.Patchers
             set { ModdedSaveManager.SaveData.SetValue(SideDecksPlugin.PluginGuid, "SideDeck.SelectedDeck", value.ToString()); }
         }
 
-        private static bool IsP03Run
-        {
-            get { return ModdedSaveManager.SaveData.GetValueAsBoolean("zorro.inscryption.infiniscryption.p03kayceerun", "IsP03Run"); }
+        public static Opponent.Type ScreenState 
+        { 
+            get
+            {
+                string value = ModdedSaveManager.SaveData.GetValue("zorro.inscryption.infiniscryption.p03kayceerun", "ScreenState");
+                if (string.IsNullOrEmpty(value))
+                    return Opponent.Type.Default;
+
+                return (Opponent.Type)Enum.Parse(typeof(Opponent.Type), value);
+            }
         }
 
         public const int SIDE_DECK_SIZE = 10;
@@ -54,27 +59,37 @@ namespace Infiniscryption.SideDecks.Patchers
         {
             if (!AscensionSaveData.Data.ChallengeIsActive(AscensionChallenge.SubmergeSquirrels))
             {
-                if (!IsP03Run)
+                if (ScreenState == Opponent.Type.Default)
                 {
-                    return CardManager.AllCardsCopy.Where(card => card.metaCategories.Contains(SIDE_DECK))
+                    return CardManager.AllCardsCopy.Where(card => card.metaCategories.Contains(SIDE_DECK) && card.temple == CardTemple.Nature)
                                                .Select(card => card.name).ToList();
                 }
-                else
+                else if (ScreenState == Opponent.Type.P03Boss)
                 {
                     return new() { "EmptyVessel" };
+                }
+                else if (ScreenState == Opponent.Type.GrimoraBoss)
+                {
+                    return new() { "Skeleton" };
                 }
             }
             else
             {
-                if (!IsP03Run)
+                if (ScreenState == Opponent.Type.Default)
                 {
                     return new() { "AquaSquirrel" };
                 }
-                else
+                else if (ScreenState == Opponent.Type.P03Boss)
                 {
                     return new() { "EmptyVessel" };
                 }
+                else if (ScreenState == Opponent.Type.GrimoraBoss)
+                {
+                    return new() { "Skeleton" };
+                }
             }
+
+            return new() { "Squirrel" };
         }
 
         [HarmonyPatch(typeof(Part1CardDrawPiles), "SideDeckData", MethodType.Getter)]
@@ -87,63 +102,6 @@ namespace Infiniscryption.SideDecks.Patchers
                 __result.Add(CardLoader.GetCardByName(selectedDeck));
 
             return false;
-        }
-
-        [HarmonyPatch(typeof(DialogueDataUtil), "ReadDialogueData")]
-        [HarmonyPostfix]
-        public static void CurseDialogue()
-        {
-            // Here, we replace dialogue from Leshy based on the starter decks plugin being installed
-            // And add new dialogue
-            DialogueHelper.AddOrModifySimpleDialogEvent("SideDeckIntro", new string []
-            {
-                "here you must choose the creatures that will make up your [c:bR]side deck[c:]"
-            });
-        }
-
-        [HarmonyPatch(typeof(PaperGameMap), "TryInitializeMapData")]
-        [HarmonyPrefix]
-        [HarmonyAfter(new string[] { 
-            "porta.inscryption.traderstart", 
-            "zorro.inscryption.infiniscryption.starterdecks"
-        })]
-        [HarmonyBefore(new string[] { "zorro.inscryption.infiniscryption.curses", "cyantist.inscryption.extendedmap" })]
-        public static void StartWithCurseSelection(ref PaperGameMap __instance)
-        {
-            // This patch ensures that the map always contains a side deck selector node.
-
-            // Be a good citizen - if you haven't completed the tutorial, this should have no effect:
-            if (StoryEventsData.EventCompleted(StoryEvent.TutorialRunCompleted))
-            {
-                SideDecksPlugin.Log.LogInfo($"Testing to add sdiedeck node");
-                if (RunState.Run.map == null) // Only do this when the map is empty
-                {
-                    SideDecksPlugin.Log.LogInfo($"Map is null - adding sidedeck node");
-                    // Let's start by seeing if we have predefined nodes already
-                    // It's unfortunately private
-                    Traverse paperMapTraverse = Traverse.Create(__instance);
-                    PredefinedNodes predefinedNodes = paperMapTraverse.Method("get_PredefinedNodes").GetValue<PredefinedNodes>();
-                    if (predefinedNodes != null)
-                    {
-                        SideDecksPlugin.Log.LogInfo($"Inserting the sidedeck node at the end");
-                        predefinedNodes.nodeRows.Add(new List<NodeData>() { CustomNodeHelper.GetNodeData<SideDeckSelectionSequencer>("animated_sidedeck") });
-                    } else {
-                        SideDecksPlugin.Log.LogInfo($"Adding the sidedeck node to start");
-                        PredefinedNodes nodes = ScriptableObject.CreateInstance<PredefinedNodes>();
-                        nodes.nodeRows.Add(new List<NodeData>() { new NodeData() });
-                        nodes.nodeRows.Add(new List<NodeData>() { CustomNodeHelper.GetNodeData<SideDeckSelectionSequencer>("animated_sidedeck") });
-                        __instance.PredefinedNodes = nodes;
-                    }
-                }
-            }
-        }
-
-        [HarmonyPatch(typeof(RunState), "Initialize")]
-        [HarmonyPostfix]
-        public static void NoTotemTops(ref RunState __instance) 
-        {
-            // No totem tops for you! That's too freaking easy.
-            __instance.totemTops.Clear();
         }
     }
 }

@@ -10,11 +10,9 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 {
     public class P03FinalBossSequencer : BossBattleSequencer
     {
-        public override Opponent.Type BossType => P03AscensionOpponent.ID;
+        public override Opponent.Type BossType => BossManagement.P03FinalBossOpponent;
 
         public override StoryEvent DefeatedStoryEvent => EventManagement.DEFEATED_P03;
-
-        public const string SequenceID = "p03ascensionFinalBossSequence";
 
         public static readonly string[] MODS = new string[] { "Kopie's Hammer Mod", "Porta's Drafting Mod", "Cyantist's API", "Sinai Unity Explorer" };
 
@@ -24,6 +22,13 @@ namespace Infiniscryption.P03KayceeRun.Sequences
             {
                 return TurnManager.Instance.opponent as P03AscensionOpponent;
             }
+        }
+
+        public override EncounterData BuildCustomEncounter(CardBattleNodeData nodeData)
+        {
+            EncounterData data = base.BuildCustomEncounter(nodeData);
+            data.aiId = BossManagement.P03FinalBossAI;
+            return data;
         }
 
         private int upkeepCounter = -1;
@@ -100,6 +105,7 @@ namespace Infiniscryption.P03KayceeRun.Sequences
                 scrybes.leshy.SetEyesAnimated(true);
                 yield return TextDisplayer.Instance.PlayDialogueEvent("LeshyFinalBossDialogue", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
                 yield return new WaitForSeconds(0.5f);
+                StoryEventsData.SetEventCompleted(EventManagement.HAS_DEFEATED_P03);
                 EventManagement.FinishAscension(true);
             }
             else

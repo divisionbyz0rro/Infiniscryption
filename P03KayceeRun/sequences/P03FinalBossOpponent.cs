@@ -16,8 +16,6 @@ namespace Infiniscryption.P03KayceeRun.Sequences
     [HarmonyPatch]
     public class P03AscensionOpponent : Part3BossOpponent
     {
-        public static Opponent.Type ID = GuidManager.GetEnumValue<Opponent.Type>(P03Plugin.PluginGuid, "P03AscensionFinalBoss");
-
         public override string PreIntroDialogueId => "";
 
         public override string PostDefeatedDialogueId => "P03AscensionDefeated";
@@ -30,11 +28,15 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 
 		private static readonly HighlightedInteractable OpponentQueueSlotPrefab = ResourceBank.Get<HighlightedInteractable>("Prefabs/Cards/QueueSlot");
 
+        private bool FasterEvents = false;
+
         private List<Color> slotColors;
         private List<Color> queueSlotColors;
 
         private void InitializeCards()
         {
+            FasterEvents = StoryEventsData.EventCompleted(EventManagement.HAS_DEFEATED_P03);
+
             PhaseTwoBlocker = CardLoader.GetCardByName("MoleMan");
 
             int difficulty = AscensionSaveData.Data.GetNumChallengesOfTypeActive(AscensionChallenge.BaseDifficulty);
@@ -132,15 +134,19 @@ namespace Infiniscryption.P03KayceeRun.Sequences
                 yield return TextDisplayer.Instance.PlayDialogueEvent("P03PhaseTwoWeirdCards", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
                 yield return new WaitForSeconds(1f);
 
-                ViewManager.Instance.SwitchToView(View.BoneTokens, false, false);
-                GameObject prefab = Resources.Load<GameObject>("prefabs/cardbattle/CardBattle").GetComponentInChildren<Part1ResourcesManager>().gameObject;
-                GameObject part1ResourceManager = GameObject.Instantiate(prefab, Part3ResourcesManager.Instance.gameObject.transform.parent);
-                WeirdManager = part1ResourceManager.GetComponent<Part1ResourcesManager>();
-                
-                yield return WeirdManager.AddBones(50);
-                yield return TextDisplayer.Instance.PlayDialogueEvent("P03PhaseTwoBones", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
-                
-                yield return new WaitForSeconds(1f);
+                if (!FasterEvents)
+                {
+                    ViewManager.Instance.SwitchToView(View.BoneTokens, false, false);
+                    GameObject prefab = Resources.Load<GameObject>("prefabs/cardbattle/CardBattle").GetComponentInChildren<Part1ResourcesManager>().gameObject;
+                    GameObject part1ResourceManager = GameObject.Instantiate(prefab, Part3ResourcesManager.Instance.gameObject.transform.parent);
+                    WeirdManager = part1ResourceManager.GetComponent<Part1ResourcesManager>();
+                    
+                    yield return WeirdManager.AddBones(50);
+                    yield return TextDisplayer.Instance.PlayDialogueEvent("P03PhaseTwoBones", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
+                    
+                    yield return new WaitForSeconds(1f);
+                }
+
                 ViewManager.Instance.SwitchToView(View.Board, false, false);
 
                 foreach(CardSlot slot in BoardManager.Instance.OpponentSlotsCopy)
@@ -244,6 +250,14 @@ namespace Infiniscryption.P03KayceeRun.Sequences
             else
                 slot.SetColors(slotColors[0], slotColors[1], slotColors[2]);
 
+            if (FasterEvents)
+            {
+                slot.OnCursorEnter();
+                yield return new WaitForSeconds(0.05f);    
+                slot.OnCursorExit();
+                yield break;
+            }
+
             GameObject lightning = Object.Instantiate<GameObject>(ResourceBank.Get<GameObject>("Prefabs/Environment/TableEffects/LightningBolt"));
             lightning.GetComponent<LightningBoltScript>().EndObject = slot.gameObject;
             Object.Destroy(lightning, 0.65f);
@@ -276,15 +290,15 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 
             List<AudioHelper.AudioState> audioState = AudioHelper.PauseAllLoops();
 
-            yield return new WaitForSeconds(1.5f);
+            yield return new WaitForSeconds(FasterEvents ? 0.6f : 1.5f);
             P03AnimationController.Instance.SwitchToFace(P03AnimationController.Face.Happy, true, true);
             yield return TextDisplayer.Instance.PlayDialogueEvent("P03PhaseThreeStartShowingOff", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
             P03AnimationController.Instance.SwitchToFace(P03AnimationController.Face.Thinking, true, true);
-            yield return new WaitForSeconds(2f);
+            yield return new WaitForSeconds(FasterEvents ? 1f : 2f);
             PhaseTwoEffects();
-            yield return new WaitForSeconds(2f);
+            yield return new WaitForSeconds(FasterEvents ? 1f : 2f);
 
-            float durationOfEffect = 6.5f;
+            float durationOfEffect = FasterEvents ? 3f: 6.5f;
 
             CameraEffects.Instance.Shake(0.05f, 100f); // Essentially just shake forever; I'll manually stop the shake later
             AudioSource source = AudioController.Instance.PlaySound2D("glitch_escalation", MixerGroup.TableObjectsSFX, volume: 0.4f);

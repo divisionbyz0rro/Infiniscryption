@@ -20,6 +20,9 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 
         public override bool RespondsToUpkeep(bool playerUpkeep)
         {
+            if (!SaveFile.IsAscension)
+                return base.RespondsToUpkeep(playerUpkeep);
+
             return !playerUpkeep && BoardManager.Instance.OpponentSlotsCopy.Any(s => s.Card != null && s.Card.Info.name == CustomCards.GOLLYCOIN);
         }
 
@@ -44,6 +47,12 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 
         public override IEnumerator OnUpkeep(bool playerUpkeep)
         {
+            if (!SaveFile.IsAscension)
+            {
+                yield return base.OnUpkeep(playerUpkeep);
+                yield break;
+            }
+            
             // Here, we spend a gollycoin on an NFT.
             
 
@@ -98,26 +107,41 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 
         public override IEnumerator OnOtherCardDie(PlayableCard card, CardSlot deathSlot, bool fromCombat, PlayableCard killer)
         {
+            if (!SaveFile.IsAscension)
+                yield return base.OnOtherCardDie(card, deathSlot, fromCombat, killer);
+
             yield break; // Do nothing here; I just don't want to tell the network manager anything anymore
         }
 
         public override IEnumerator OnOtherCardResolve(PlayableCard otherCard)
         {
+            if (!SaveFile.IsAscension)
+                yield return base.OnOtherCardResolve(otherCard);
+
             yield break; // Do nothing here; I just don't want to tell the network manager anything anymore
         }
 
         public override IEnumerator PlayerUpkeep()
         {
+            if (!SaveFile.IsAscension)
+                yield return base.PlayerUpkeep();
+
             yield break; // Again, I don't want to do anything network related
         }
 
         public override bool RespondsToOtherCardDie(PlayableCard card, CardSlot deathSlot, bool fromCombat, PlayableCard killer)
         {
+            if (!SaveFile.IsAscension)
+                return base.RespondsToOtherCardDie(card, deathSlot, fromCombat, killer);
+
             return false;
         }
 
         public override bool RespondsToOtherCardResolve(PlayableCard otherCard)
         {
+            if (!SaveFile.IsAscension)
+                return base.RespondsToOtherCardResolve(otherCard);
+
             return false;
         }
 

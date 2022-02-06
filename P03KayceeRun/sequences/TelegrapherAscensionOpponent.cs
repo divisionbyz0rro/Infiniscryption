@@ -72,6 +72,12 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 
         public override IEnumerator QueueNewCards(bool doTween = true, bool changeView = true)
         {
+            if (!SaveFile.IsAscension)
+            {
+                yield return base.QueueNewCards(doTween, changeView);
+                yield break;
+            }
+
             if (this.NumLives == this.StartingLives)
             {
                 yield return base.QueueNewCards(doTween, changeView);

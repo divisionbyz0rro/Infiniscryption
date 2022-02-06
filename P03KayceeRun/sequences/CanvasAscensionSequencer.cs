@@ -18,11 +18,17 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 
         public override IEnumerator PreHandDraw()
         {
-            // This skips the part of the battle where you pick the boss face.
-            if (!Part3SaveData.Data.ValidCanvasBossFace)
+            P03Plugin.Log.LogInfo($"Ascension Canvas Sequencer - is Ascension {SaveFile.IsAscension}");
+            if (SaveFile.IsAscension)
             {
-                Part3SaveData.Data.canvasBossEyeIndex = INDICES[UnityEngine.Random.Range(0, INDICES.Length)];
-                Part3SaveData.Data.canvasBossMouthIndex = INDICES[UnityEngine.Random.Range(0, INDICES.Length)];
+                // This skips the part of the battle where you pick the boss face.
+                if (!Part3SaveData.Data.ValidCanvasBossFace)
+                {
+                    this.canvasFace = P03AnimationController.Instance.SwitchToFace(P03AnimationController.Face.CanvasBlank, true, true).GetComponent<P03CanvasFace>();
+                    Part3SaveData.Data.canvasBossEyeIndex = INDICES[UnityEngine.Random.Range(0, INDICES.Length)];
+                    Part3SaveData.Data.canvasBossMouthIndex = INDICES[UnityEngine.Random.Range(0, INDICES.Length)];
+                    this.canvasFace.UpdateFace();
+                }
             }
             yield return base.PreHandDraw();
         }
@@ -39,8 +45,8 @@ namespace Infiniscryption.P03KayceeRun.Sequences
         }
 
         private bool chooseFirstRule = EventManagement.CompletedZones.Count <= 3;
-        private bool chooseSecondRule = EventManagement.CompletedZones.Count <= 2;
-        private bool haveThirdRule = EventManagement.CompletedZones.Count >= 1;
+        private bool chooseSecondRule = EventManagement.CompletedZones.Count <= 1;
+        private bool haveThirdRule = EventManagement.CompletedZones.Count >= 2;
 
         private void ShowArrowButtons(bool upperActive, Action leftUpperPressedCallback, Action rightUpperPressedCallback, Action leftLowerPressedCallback, Action rightLowerPressedCallback)
 		{
@@ -122,6 +128,12 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 
         public override IEnumerator OnUpkeep(bool playerUpkeep)
 		{
+            if (!SaveFile.IsAscension)
+            {
+                yield return base.OnUpkeep(playerUpkeep);
+                yield break;
+            }
+
 			if (TurnManager.Instance.TurnNumber > 0 && TurnManager.Instance.Opponent.NumLives == 2 && this.rulesHandler.NumRules == 0)
 			{
                 if (chooseFirstRule)

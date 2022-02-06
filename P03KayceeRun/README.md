@@ -1,20 +1,8 @@
 # P03 Kaycee's Mod
 
-This mod is in a beta state! You should back up your save file before running it; I'm about 99% sure it won't break your existing Act 3 save, but that's not 100%.
+If you enjoyed the energy-based robotic gameplay of Inscryption Act 3 and wished it was available as part of Kaycee's Mod, then this is the mod for you.
 
-Also, *please* turn on logging before running this mod. Open up your BepInEx.cfg file and set the following:
-
-```
-[Logging.Disk]
-
-WriteUnityLog = true
-
-AppendLog = false
-
-Enabled = true
-
-LogLevels = All
-```
+Installing this mod will give you the option to play against either Leshy or P03 when you start a new run. Selecting Leshy will give you the standard game you're used to, but selecting P03 will send you to the land of Botopia, where you will draft robotic cards, explore procedurally generated maps, fight off bounty hunters, and purchase upgrades with your hard-earned robobucks. And at the end of it all, P03 is waiting for you in an all-new boss fight.
 
 ## Feedback
 
@@ -53,23 +41,40 @@ Some events play the same in this mod as they did the first time you played thro
 - **Items**: You can buy an item like you would in Act 1. However, you can only get one item from each shop.
 - **Overclock**: This is significantly different. As before, the overclocked card gets +1 attack. However, when an overclocked card dies, it is not just removed from your deck. It is replaced with an Exeskeleton with the same set of abilities as the original card. So if you overclock a Sniper and it dies, you will get an Exeskeleton with the Sniper sigil.
 - **Recycle**: Instead of getting robobucks back for your recycled card, you get a draft token. Normal cards get you a standard Token. Cards that have been upgraded at least once give you an Improved Token. Rare cards get you a Rare token.
-- **Transformer**: Currently, this behaves as before - however, this is actively under development.
+- **Transformer**: Currently, this behaves as normal.
 
 ### Challenges
 
 Some challenges simply don't work in this context. Any challenge that doesn't work will be 'locked' and you won't be able to select it.
 
-## What is on the to-do list?
-- Figure out how to make the Beast Transformer event not lame.
-- Add more rare cards
-- Figure out how to balance the Energy Conduit - this thing is ridiculous
+## Adding more cards to the pool
 
-## Known Issues
-- Canvas' face doesn't display right. I'm trying to streamline the bosses, so I'm skipping the "choose face" part of the boss fight, but something is preventing a randomly generated face from showing.
+If you want to add more cards to the pool for use in this mod, you need to add one of five new unique metacategories to your cards. These metacategories control which regions the cards can appear in choice nodes. For example, a card that has the 'TechRegionCards' can only show up in the draft node at the hub of the map, or in choice nodes in the Tech region ("Resplendent Bastion").
+
+All of these metacategories have this plugin's GUID: 'zorro.inscryption.infiniscryption.p03kayceerun'
+
+The five metacategories are:
+
+- **NeutralRegionCards**: For cards that can appear in any region.
+- **WizardRegionCards**: For cards that should appear in the Wizard region (these cards should be gem-related)
+- **TechRegionCards**: For cards that should appear in the Tech region (these cards should be conduit-related)
+- **NatureRegionCards**: For cards that should appear in the Nature region (these cards should be beast/animal related)
+- **UndeadRegionCards**: For cards that should appear in the Undead region (these cards should be death-related)
+
+Note that this does not control which battles/encounters the cards appear in.
+
+Here is an example of how to do this in code.
+
+```c#
+public static readonly CardMetaCategory WizardRegion = (CardMetaCategory)GuidManager.GetEnumValue<CardMetaCategory>("zorro.inscryption.infiniscryption.p03kayceerun", "WizardRegionCards");
+
+CardInfo myCard = (...);
+myCard.AddMetaCategories(WizardRegion);
+```
 
 ## Credits
 
-The pixel/GBC card arts are taken from the [Act II Recreated](https://inscryption.thunderstore.io/package/Sire/RecreatedAct2Cards/) Mod, with art by Sire, SyntaxEvasion, ExtraOrdiNora, TheGreenDigi and DragonSlayr.
+The pixel/GBC card arts used in the starer decks screen are taken from the [Act II Recreated](https://inscryption.thunderstore.io/package/Sire/RecreatedAct2Cards/) Mod, with art by SyntaxEvasion.
 
 ## Requirements
 

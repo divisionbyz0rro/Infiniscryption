@@ -6,22 +6,25 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 {
     public class HoloMapBlueprint
     {
-        public static int NO_SPECIAL = 0;
-        public static int LEFT_BRIDGE = 1;
-        public static int RIGHT_BRIDGE = 2;
-        public static int FULL_BRIDGE = 4;
-        public static int NORTH_BUILDING_ENTRANCE = 8;
-        public static int NORTH_GATEWAY = 16;
-        public static int NORTH_CABIN = 32;
-        public static int LOWER_TOWER_ROOM = 64;
-        public static int LANDMARKER = 128;
+        public static readonly int NO_SPECIAL = 0;
+        public static readonly int LEFT_BRIDGE = 1;
+        public static readonly int RIGHT_BRIDGE = 2;
+        public static readonly int FULL_BRIDGE = 4;
+        public static readonly int NORTH_BUILDING_ENTRANCE = 8;
+        public static readonly int NORTH_GATEWAY = 16;
+        public static readonly int NORTH_CABIN = 32;
+        public static readonly int LOWER_TOWER_ROOM = 64;
+        public static readonly int LANDMARKER = 128;
+
+        public static readonly int BATTLE = 0;
+        public static readonly int TRADE = 1;
 
         public int randomSeed;
         public int x;
         public int y;
         public int arrowDirections;
         public int specialDirection;
-        public int enemyType;
+        public int specialDirectionType;
         public Opponent.Type opponent;
         public HoloMapNode.NodeDataType upgrade;
         public int specialTerrain;
@@ -35,7 +38,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
         public override string ToString()
         {
-            return $"[{randomSeed},{x},{y},{arrowDirections},{specialDirection},{enemyType},{encounterDifficulty},{(int)opponent},{(int)upgrade},{specialTerrain},{blockedDirections},{(int)blockEvent},{battleTerrainIndex},{color}]";
+            return $"[{randomSeed},{x},{y},{arrowDirections},{specialDirection},{specialDirectionType},{encounterDifficulty},{(int)opponent},{(int)upgrade},{specialTerrain},{blockedDirections},{(int)blockEvent},{battleTerrainIndex},{color}]";
         }
 
         public HoloMapBlueprint(int randomSeed) { this.randomSeed = randomSeed; this.upgrade = HoloMapSpecialNode.NodeDataType.MoveArea; }
@@ -48,7 +51,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             y = int.Parse(split[2]);
             arrowDirections = int.Parse(split[3]);
             specialDirection = int.Parse(split[4]);
-            enemyType = int.Parse(split[5]);
+            specialDirectionType = int.Parse(split[5]);
             encounterDifficulty = int.Parse(split[6]);
             opponent = (Opponent.Type)int.Parse(split[7]);
             upgrade = (HoloMapSpecialNode.NodeDataType)int.Parse(split[8]);
@@ -101,6 +104,14 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 retval.Add((this.arrowDirections & RunBasedHoloMap.SOUTH) != 0 ? "| | |" : "|   |");
                 retval.Add("#---#");
                 return retval;
+            }
+        }
+
+        public string KeyCode
+        {
+            get
+            {
+                return $"{x},{y}";
             }
         }
     }

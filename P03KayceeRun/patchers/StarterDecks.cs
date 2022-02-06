@@ -38,12 +38,13 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             StarterDeckReference = new Dictionary<Opponent.Type, List<StarterDeckInfo>>();
             StarterDeckReference.Add(Opponent.Type.Default, new () {
                 StarterDecksUtil.GetInfo("Vanilla"),
-                StarterDecksUtil.GetInfo("Bones"),
+                StarterDecksUtil.GetInfo("MooseBlood"),
                 StarterDecksUtil.GetInfo("Ants"),
                 StarterDecksUtil.GetInfo("MantisGod"),
-                StarterDecksUtil.GetInfo("MooseBlood"),
+                StarterDecksUtil.GetInfo("SubmergeBirds"),
+                StarterDecksUtil.GetInfo("Bones"),
                 StarterDecksUtil.GetInfo("FreeReptiles"),
-                StarterDecksUtil.GetInfo("Tentacles"),
+                StarterDecksUtil.GetInfo("HydraEggs"),
             });
 
             StarterDeckReference.Add(Opponent.Type.P03Boss, new () {

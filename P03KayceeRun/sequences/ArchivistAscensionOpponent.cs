@@ -39,13 +39,17 @@ namespace Infiniscryption.P03KayceeRun.Sequences
         {
             yield return base.IntroSequence(encounter);
 
-            ViewManager.Instance.SwitchToView(View.P03Face, false, false);
-            int index = EventManagement.CompletedZones.Count;
-			int damage = damages[index];
+            if (SaveFile.IsAscension)
+            {
 
-            yield return TextDisplayer.Instance.PlayDialogueEvent($"ArchivistLibrarianDamage{damage}", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
-            yield return new WaitForSeconds(0.25f);
-            ViewManager.Instance.SwitchToView(View.Default, false, false);
+                ViewManager.Instance.SwitchToView(View.P03Face, false, false);
+                int index = EventManagement.CompletedZones.Count;
+                int damage = damages[index];
+
+                yield return TextDisplayer.Instance.PlayDialogueEvent($"ArchivistLibrarianDamage{damage}", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
+                yield return new WaitForSeconds(0.25f);
+                ViewManager.Instance.SwitchToView(View.Default, false, false);
+            }
         }
 
         private CardInfo GetPhaseTwoBlocker()

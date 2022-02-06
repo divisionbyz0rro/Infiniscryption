@@ -14,6 +14,9 @@ namespace Infiniscryption.P03KayceeRun.Sequences
     {
         public override EncounterData BuildCustomEncounter(CardBattleNodeData nodeData)
         {
+            if (!SaveFile.IsAscension)
+                return base.BuildCustomEncounter(nodeData);
+
             EncounterData encounterData = base.BuildCustomEncounter(nodeData);
             EncounterBlueprintData blueprint = (new EncounterBlueprintHelper(AssetHelper.GetResourceString("PhotographerBossP1", "dat"))).AsBlueprint();
             encounterData.opponentTurnPlan = EncounterBuilder.BuildOpponentTurnPlan(blueprint, EventManagement.EncounterDifficulty, false);

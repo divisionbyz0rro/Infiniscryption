@@ -7,8 +7,6 @@ namespace Infiniscryption.P03KayceeRun
 {
     [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
     [BepInDependency("cyantist.inscryption.api")]
-    [BepInDependency("MADH.inscryption.ActivatedAbilityFix")]
-    [BepInDependency("irie.inscryption.vap")]
     public class P03Plugin : BaseUnityPlugin
     {
 
@@ -24,7 +22,10 @@ namespace Infiniscryption.P03KayceeRun
 
             Harmony harmony = new Harmony(PluginGuid);
             harmony.PatchAll();
+            
             CustomCards.RegisterCustomCards(harmony);
+
+            BossManagement.RegisterBosses();
 
             Logger.LogInfo($"Plugin {PluginName} is loaded!");
         }

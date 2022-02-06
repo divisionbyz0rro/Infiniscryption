@@ -20,6 +20,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         public static readonly StoryEvent DEFEATED_P03 = (StoryEvent)GuidManager.GetEnumValue<StoryEvent>(P03Plugin.PluginGuid, "DefeatedP03");    
         public static readonly StoryEvent ONLY_ONE_BOSS_LIFE = (StoryEvent)GuidManager.GetEnumValue<StoryEvent>(P03Plugin.PluginGuid, "P03AscensionOneBossLife");    
         public static readonly StoryEvent OVERCLOCK_CHANGES = (StoryEvent)GuidManager.GetEnumValue<StoryEvent>(P03Plugin.PluginGuid, "P03AscensionOverclock");   
+        public static readonly StoryEvent HAS_DEFEATED_P03 = (StoryEvent)GuidManager.GetEnumValue<StoryEvent>(P03Plugin.PluginGuid, "HasDefeatedP03");   
 
         public const string GAME_OVER = "GameOverZone";
 
@@ -28,7 +29,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             SAW_P03_INTRODUCTION,
             GOLLY_NFT,
             ONLY_ONE_BOSS_LIFE,
-            OVERCLOCK_CHANGES
+            OVERCLOCK_CHANGES,
+            HAS_DEFEATED_P03
         };
 
         public static readonly MechanicsConcept[] P03_MECHANICS = new MechanicsConcept[]
@@ -103,7 +105,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             if (CostAdjustments.ContainsKey(nodeType))
             {
                 float adj = CostAdjustments[nodeType];
-                if (adj != 0 && Math.Abs(adj) < 0)
+                if (adj != 0 && Math.Abs(adj) < 1)
                     baseCost *= adj; 
                 else
                     baseCost += CostAdjustments[nodeType];
