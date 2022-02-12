@@ -21,7 +21,8 @@ namespace Infiniscryption.SideDecks.Patchers
             INF_Ant_Worker = 3,
             INF_Puppy = 4,
             INF_Spare_Tentacle = 5,
-            INF_One_Eyed_Goat = 6
+            INF_One_Eyed_Goat = 6,
+            INF_Amalgam_Egg = 7
         }
 
         private static void RegisterCustomAbilities(Harmony harmony)
@@ -42,7 +43,7 @@ namespace Infiniscryption.SideDecks.Patchers
             CardManager.BaseGameCards.CardByName("AquaSquirrel").SetPixelPortrait(AssetHelper.LoadTexture("pixelportrait_aquasquirrel"));
             CardManager.BaseGameCards.CardByName("PeltHare").SetPixelPortrait(AssetHelper.LoadTexture("pixelportrait_pelthare"));
             CardManager.BaseGameCards.CardByName("PeltWolf").SetPixelPortrait(AssetHelper.LoadTexture("pixelportrait_peltwolf"));
-            AbilityManager.AllAbilityInfos.AbilityByID(Ability.TailOnHit).SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_tailonhit"));
+            AbilityManager.BaseGameAbilities.AbilityByID(Ability.TailOnHit).Info.SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_tailonhit"));
 
             // Update all of the old style side deck cards
             CardManager.ModifyCardList += delegate(List<CardInfo> cards)
@@ -75,29 +76,26 @@ namespace Infiniscryption.SideDecks.Patchers
                 .AddAbilities(Ability.Flying, Ability.Brittle)
                 .AddTribes(Tribe.Insect);
 
-            //Create the Ant
-            // var antHealthAbility = HealthForAnts.HarmonyInit.antHealthSpecialAbility;
-            // antHealthAbility.statIconInfo.pixelIconGraphic = Sprite.Create(
-            //     Resources.Load<Texture2D>("art/gbc/cards/pixel_special_stat_icons"),
-            //     new Rect(0f, 27f, 16f, 8f),
-            //     new Vector2(0.5f, 0.5f)
-            // );
-            // antHealthAbility.statIconInfo.gbcDescription = "The health of [creature] is equal to the number of Ants that the owner has on their side of the table.";
-            // NewCard.Add(
-            //     CustomCards.SideDecks.INF_Ant_Worker.ToString(),
-            //     "Ant Drone",
-            //     0, 0,
-            //     new List<CardMetaCategory>() { },
-            //     CardComplexity.Vanilla,
-            //     CardTemple.Nature,
-            //     "It's not much, but it's an ant.",
-            //     defaultTex: AssetHelper.LoadTexture("worker_ant"),
-            //     pixelTex: AssetHelper.LoadTexture("pixelportrait_ant_worker"),
-            //     tribes: new List<Tribe>() { Tribe.Insect },
-            //     traits: new List<Trait>() { Trait.Ant, BACKWARDS_COMPATIBLE_SIDE_DECK_MARKER },
-            //     specialStatIcon: antHealthAbility.statIconInfo.iconType,
-            //     specialAbilitiesIdsParam: new List<SpecialAbilityIdentifier>() { antHealthAbility.id }
-            // );
+
+            SpecialStatIcon antHealth = GuidManager.GetEnumValue<SpecialStatIcon>("julianperge.inscryption.cards.healthForAnts", "Ants (Health)");
+
+            CardManager.New(CustomCards.SideDecks.INF_Ant_Worker.ToString(),
+                    "Ant Drone", 0, 0, "It's not much, but it's an ant.")
+                .SetSideDeck(CardTemple.Nature)
+                .SetPortrait(AssetHelper.LoadTexture("worker_ant"))
+                .SetPixelPortrait(AssetHelper.LoadTexture("pixelportrait_ant_worker"))
+                .AddTraits(Trait.Ant)
+                .AddTribes(Tribe.Insect)
+                .specialStatIcon = antHealth;
+
+            foreach (StatIconInfo info in StatIconManager.AllStatIconInfos)
+                SideDecksPlugin.Log.LogInfo($"Stat Icon: {info.rulebookName} ({info.iconType}), looking for {antHealth}");
+
+            StatIconManager.AllStatIconInfos.First(si => si.iconType == antHealth).pixelIconGraphic = Sprite.Create(
+                    Resources.Load<Texture2D>("art/gbc/cards/pixel_special_stat_icons"),
+                    new Rect(0f, 27f, 16f, 8f),
+                    new Vector2(0.5f, 0.5f)
+                );
 
             // Create the Puppy
             CardManager.New(CustomCards.SideDecks.INF_Puppy.ToString(),
@@ -135,6 +133,26 @@ namespace Infiniscryption.SideDecks.Patchers
                 .SetPixelPortrait(AssetHelper.LoadTexture("pixelportrait_one_eyed_goat"))
                 .AddAbilities(DoubleTeeth.AbilityID, DoubleBlood.AbilityID)
                 .temple = CardTemple.Nature;
+
+            CardManager.New(CustomCards.SideDecks.INF_Amalgam_Egg.ToString(),
+                    "Amalgam Egg", 0, 1, "I didn't realize this thing came from eggs")
+                .SetSideDeck(CardTemple.Nature)
+                .SetPortrait(AssetHelper.LoadTexture("egg"))
+                .SetPixelPortrait(AssetHelper.LoadTexture("pixel_egg"))
+                .temple = CardTemple.Nature;
+
+            // Delay adding tribes in case another mod comes along and adds a tribe
+            // This is just future proofing
+            CardManager.ModifyCardList += delegate(List<CardInfo> cards)
+            {
+                CardInfo amalgamEgg = cards.CardByName(CustomCards.SideDecks.INF_Amalgam_Egg.ToString());
+                if (amalgamEgg != null)
+                    amalgamEgg.AddTribes(GuidManager.GetValues<Tribe>().ToArray());
+                amalgamEgg.evolveParams = new() { evolution = cards.CardByName("Amalgam"), turnsToEvolve = 1 };
+                amalgamEgg.iceCubeParams = new() { creatureWithin = cards.CardByName("Amalgam") };
+
+                return cards;
+            };
         }
     }
 }

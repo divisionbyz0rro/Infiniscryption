@@ -8,7 +8,7 @@ using InscryptionAPI.Guid;
 using System.Linq;
 using Infiniscryption.P03KayceeRun.Cards;
 using InscryptionAPI.Card;
-using Infiniscryption.P03KayceeRun.Sequences;
+using Infiniscryption.PackManagement;
 
 namespace Infiniscryption.P03KayceeRun.Patchers
 {
@@ -84,6 +84,43 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 card.decals = new() { AssetHelper.LoadTexture(decalTextureKey) };
         }
 
+        private static void WriteP03PackInner(List<string> cardNames)
+        {
+            // Start by creating the pack:
+            PackInfo packInfo = new PackInfo();
+            packInfo.Title = "Inscryption: Techno Card Expansion Pack";
+            packInfo.Description = "The original set of robotic cards, exclusively using the energy mechanic. Featuring [randomcard], [randomcard], and the occasional [randomcard].";
+            packInfo.SetTexture(AssetHelper.LoadTexture("tech"));
+            packInfo.ValidFor = new List<Opponent.Type>() { Opponent.Type.Default, Opponent.Type.P03Boss };
+            packInfo.Cards = new List<string>(cardNames);
+            PackManager.Add(P03Plugin.PluginGuid, packInfo);
+
+            // Awesome! Since there hasn't been an error, I can start modifying cards:
+            CardManager.ModifyCardList += delegate(List<CardInfo> cards)
+            {
+                if (ScreenManagement.ScreenState == Opponent.Type.Default && PackManager.GetActivePacks().Contains(packInfo))
+                    foreach (CardInfo card in cards)
+                        if (packInfo.Cards.Contains(card.name, StringComparer.OrdinalIgnoreCase))
+                            if (!card.metaCategories.Contains(CardMetaCategory.Rare))
+                                card.AddMetaCategories(CardMetaCategory.ChoiceNode, CardMetaCategory.TraderOffer);
+
+                return cards;
+            };
+        }
+
+        internal static void WriteP03Pack(List<string> cardNames)
+        {
+            try
+            {
+                WriteP03PackInner(cardNames);
+            } 
+            catch (Exception ex)
+            {
+                P03Plugin.Log.LogError("Failed to write the pack information. This probably means that the pack plugin doesn't exist; if that's the case, you can ignore this error.");
+                P03Plugin.Log.LogError(ex);
+            }
+        }
+
         internal static void RegisterCustomCards(Harmony harmony)
         {
             // Register all the custom ability
@@ -97,6 +134,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             Programmer.Register();
 
             // Load the custom cards from the CSV database
+            List<string> cardNames = new();
             string database = AssetHelper.GetResourceString("card_database", "csv");
             string[] lines = database.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (string line in lines.Skip(1))
@@ -104,7 +142,12 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 string[] cols = line.Split(new char[] { ',' }, StringSplitOptions.None);
                 //InfiniscryptionP03Plugin.Log.LogInfo($"I see line {string.Join(";", cols)}");
                 UpdateExistingCard(cols[0], cols[1], cols[2], cols[3], cols[4]);
+
+                if (cols[5] == "Y")
+                    cardNames.Add(cols[0]);
             }
+
+            WriteP03Pack(cardNames);
 
             // Handle the triplemox portrait special
             CardManager.BaseGameCards.CardByName("TechMoxTriple")
@@ -121,24 +164,24 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             CardManager.BaseGameCards.CardByName("Librarian").AddAppearances(LibrarianSizeTitle.ID);
             CardManager.BaseGameCards.CardByName("EnergyRoller").AddMetaCategories(CardMetaCategory.Rare); // Sorry, this card is just too damn good and needs to be rare
 
-            AbilityManager.AllAbilityInfos.AbilityByID(Ability.DrawVesselOnHit).SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_drawvessel"));
-            AbilityManager.AllAbilityInfos.AbilityByID(Ability.Sniper).SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_sniper"));
-            AbilityManager.AllAbilityInfos.AbilityByID(Ability.RandomAbility).SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_random"));
-            AbilityManager.AllAbilityInfos.AbilityByID(Ability.DrawRandomCardOnDeath).SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_randomcard"));
-            AbilityManager.AllAbilityInfos.AbilityByID(Ability.LatchDeathShield).SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_shieldlatch"));
-            AbilityManager.AllAbilityInfos.AbilityByID(Ability.CellTriStrike).SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_cell_tristrike"));
-            AbilityManager.AllAbilityInfos.AbilityByID(Ability.CellBuffSelf).SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_cell_buffself"));
-            AbilityManager.AllAbilityInfos.AbilityByID(Ability.Transformer).SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_evolve"));
-            AbilityManager.AllAbilityInfos.AbilityByID(Ability.ShieldGems).SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_shieldgems"));
+            AbilityManager.BaseGameAbilities.AbilityByID(Ability.DrawVesselOnHit).Info.SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_drawvessel"));
+            AbilityManager.BaseGameAbilities.AbilityByID(Ability.Sniper).Info.SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_sniper"));
+            AbilityManager.BaseGameAbilities.AbilityByID(Ability.RandomAbility).Info.SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_random"));
+            AbilityManager.BaseGameAbilities.AbilityByID(Ability.DrawRandomCardOnDeath).Info.SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_randomcard"));
+            AbilityManager.BaseGameAbilities.AbilityByID(Ability.LatchDeathShield).Info.SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_shieldlatch"));
+            AbilityManager.BaseGameAbilities.AbilityByID(Ability.CellTriStrike).Info.SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_cell_tristrike"));
+            AbilityManager.BaseGameAbilities.AbilityByID(Ability.CellBuffSelf).Info.SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_cell_buffself"));
+            AbilityManager.BaseGameAbilities.AbilityByID(Ability.Transformer).Info.SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_evolve"));
+            AbilityManager.BaseGameAbilities.AbilityByID(Ability.ShieldGems).Info.SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_shieldgems"));
 
-            AbilityManager.AllAbilityInfos.AbilityByID(Ability.ActivatedDealDamage).SetIcon(AssetHelper.LoadTexture("ActivatedDealDamage"));
-            AbilityManager.AllAbilityInfos.AbilityByID(Ability.ActivatedRandomPowerEnergy).SetIcon(AssetHelper.LoadTexture("ActivatedRandomPowerEnergy"));
-            AbilityManager.AllAbilityInfos.AbilityByID(Ability.ActivatedStatsUpEnergy).SetIcon(AssetHelper.LoadTexture("ActivatedStatsUpEnergy"));
-            AbilityManager.AllAbilityInfos.AbilityByID(Ability.BombSpawner).SetIcon(AssetHelper.LoadTexture("BombSpawner"));
-            AbilityManager.AllAbilityInfos.AbilityByID(Ability.ConduitEnergy).SetIcon(AssetHelper.LoadTexture("ConduitEnergy"));
-            AbilityManager.AllAbilityInfos.AbilityByID(Ability.ConduitFactory).SetIcon(AssetHelper.LoadTexture("ConduitFactory"));
-            AbilityManager.AllAbilityInfos.AbilityByID(Ability.ConduitHeal).SetIcon(AssetHelper.LoadTexture("ConduitHeal"));
-            AbilityManager.AllAbilityInfos.AbilityByID(Ability.GainGemTriple).SetIcon(AssetHelper.LoadTexture("GainGemTriple"));
+            AbilityManager.BaseGameAbilities.AbilityByID(Ability.ActivatedDealDamage).SetIcon(AssetHelper.LoadTexture("ActivatedDealDamage"));
+            AbilityManager.BaseGameAbilities.AbilityByID(Ability.ActivatedRandomPowerEnergy).SetIcon(AssetHelper.LoadTexture("ActivatedRandomPowerEnergy"));
+            AbilityManager.BaseGameAbilities.AbilityByID(Ability.ActivatedStatsUpEnergy).SetIcon(AssetHelper.LoadTexture("ActivatedStatsUpEnergy"));
+            AbilityManager.BaseGameAbilities.AbilityByID(Ability.BombSpawner).SetIcon(AssetHelper.LoadTexture("BombSpawner"));
+            AbilityManager.BaseGameAbilities.AbilityByID(Ability.ConduitEnergy).SetIcon(AssetHelper.LoadTexture("ConduitEnergy"));
+            AbilityManager.BaseGameAbilities.AbilityByID(Ability.ConduitFactory).SetIcon(AssetHelper.LoadTexture("ConduitFactory"));
+            AbilityManager.BaseGameAbilities.AbilityByID(Ability.ConduitHeal).SetIcon(AssetHelper.LoadTexture("ConduitHeal"));
+            AbilityManager.BaseGameAbilities.AbilityByID(Ability.GainGemTriple).SetIcon(AssetHelper.LoadTexture("GainGemTriple"));
 
             CardManager.New(DRAFT_TOKEN, "Basic Token", 0, 1)
                 .SetPortrait(AssetHelper.LoadTexture("portrait_drafttoken"))

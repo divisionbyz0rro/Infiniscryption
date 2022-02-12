@@ -34,7 +34,7 @@ namespace Infiniscryption.SideDecks.Sigils
                 AssetHelper.LoadTexture("ability_gelatinous")
             ).Id;
 
-            harmony.PatchAll(typeof(DoubleTeeth));
+            harmony.PatchAll(typeof(Gelatinous));
         }
 
         [HarmonyPatch(typeof(ResourcesManager), "AddBones")]

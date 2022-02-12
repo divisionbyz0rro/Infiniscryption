@@ -27,6 +27,8 @@ namespace Infiniscryption.P03KayceeRun
 
             BossManagement.RegisterBosses();
 
+            var test = StarterDecks.StarterDeckReference;
+
             Logger.LogInfo($"Plugin {PluginName} is loaded!");
         }
     }

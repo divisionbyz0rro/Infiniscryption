@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>Infiniscryption.P03KayceeRun</AssemblyName>
-    <Description>Infinite Inscryption - P03 in Kaycee's Mod</Description>
+    <AssemblyName>Infiniscryption.PackManager</AssemblyName>
+    <Description>Infinite Inscryption - Pack Manager</Description>
     <Version>1.0.0</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>9.0</LangVersion>
@@ -21,7 +21,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />
-    <ProjectReference Include="..\PackManager\PackManager.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -59,20 +58,18 @@
   <ItemGroup>
     <EmbeddedResource Include="$(ProjectDir)\assets\*.png" />
     <EmbeddedResource Include="$(ProjectDir)\assets\*.wav" />
-    <EmbeddedResource Include="$(ProjectDir)\data\*.csv" />
-    <EmbeddedResource Include="$(ProjectDir)\data\*.dat" />
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="xcopy /Y $(ProjectDir)\..\lib\*.dll $(TargetDir)" />
     <Exec Command="xcopy /Y $(ProjectDir)\..\lib\beta\*.dll $(TargetDir)" />
-    <Exec Command="$(PkgILRepack)\tools\ILRepack /out:$(ProjectDir)\Compiled\Infiniscryption.P03KayceeRun.dll $(TargetPath) $(ProjectDir)../Core/Compiled/Infiniscryption.Core.dll /lib:$(TargetDir)" />
-    <Exec Command="xcopy /Y $(ProjectDir)\Compiled\Infiniscryption.P03KayceeRun.dll &quot;C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins&quot;" />
+    <Exec Command="$(PkgILRepack)\tools\ILRepack /out:$(ProjectDir)\Compiled\Infiniscryption.PackManager.dll $(TargetPath) $(ProjectDir)../Core/Compiled/Infiniscryption.Core.dll /lib:$(TargetDir)" />
+    <Exec Command="xcopy /Y $(ProjectDir)\Compiled\Infiniscryption.PackManager.dll &quot;C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins&quot;" />
     <!--
     <Exec Command="xcopy /Y $(ProjectDir)\assets\*.png &quot;C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins\Infiniscryption\assets&quot;" />
     <Exec Command="xcopy /Y $(ProjectDir)\assets\*.wav &quot;C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins\Infiniscryption\assets&quot;" />
     -->
-    <Exec Command="xcopy /Y $(ProjectDir)\Compiled\Infiniscryption.P03KayceeRun.dll $(ProjectDir)\package" />
+    <Exec Command="xcopy /Y $(ProjectDir)\Compiled\Infiniscryption.PackManager.dll $(ProjectDir)\package" />
     <!--
     <Exec Command="xcopy /Y $(ProjectDir)\assets\*.png $(ProjectDir)\package\BepInEx\plugins\Infiniscryption\assets" />
     <Exec Command="xcopy /Y $(ProjectDir)\assets\*.wav $(ProjectDir)\package\BepInEx\plugins\Infiniscryption\assets" />
