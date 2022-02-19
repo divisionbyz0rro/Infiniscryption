@@ -27,7 +27,7 @@ namespace Infiniscryption.Curses.Cards
             info.metaCategories = new List<AbilityMetaCategory>() { };
 
             Bitten.AbilityID = AbilityManager.Add(
-                InfiniscryptionCursePlugin.PluginGuid,
+                CursePlugin.PluginGuid,
                 info,
                 typeof(Bitten),
                 Resources.Load<Texture2D>("art/cards/abilityicons/ability_deathtouch")

@@ -28,7 +28,7 @@ namespace Infiniscryption.Curses.Cards
 
         public static void Register()
         {
-            CardAppearanceBehaviourManager.Add(InfiniscryptionCursePlugin.PluginGuid, "BittenByShark", typeof(BittenCardAppearance));
+            CardAppearanceBehaviourManager.Add(CursePlugin.PluginGuid, "BittenByShark", typeof(BittenCardAppearance));
         }
     }
 }

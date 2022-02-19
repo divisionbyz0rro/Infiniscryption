@@ -34,7 +34,7 @@ namespace Infiniscryption.Curses.Cards
             info.metaCategories = new List<AbilityMetaCategory>() { AbilityMetaCategory.Part1Rulebook };
 
             Dynamite.AbilityID = AbilityManager.Add(
-                InfiniscryptionCursePlugin.PluginGuid,
+                CursePlugin.PluginGuid,
                 info,
                 typeof(Dynamite),
                 AssetHelper.LoadTexture("ability_dynamite")

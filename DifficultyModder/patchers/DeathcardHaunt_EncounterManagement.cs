@@ -25,7 +25,7 @@ namespace Infiniscryption.Curses.Patchers
         {
             ID = ChallengeManager.Add
             (
-                InfiniscryptionCursePlugin.PluginGuid,
+                CursePlugin.PluginGuid,
                 "Haunted Past",
                 "Deathcards will sometimes attack you in battle",
                 5,
@@ -54,7 +54,7 @@ namespace Infiniscryption.Curses.Patchers
         public static void ResetPlayerHauntLevelWhenBattleLost(ref TurnManager __instance)
         {
             bool playerWon = __instance.Opponent.NumLives <= 0 || __instance.Opponent.Surrendered; // Can't use __instance.PlayerWon because it hasn't been set yet
-            InfiniscryptionCursePlugin.Log.LogInfo($"Battle over. Player Won = {playerWon}");
+            CursePlugin.Log.LogInfo($"Battle over. Player Won = {playerWon}");
             if (playerWon)
             {
                 if (_sawDeathcard)
@@ -73,12 +73,12 @@ namespace Infiniscryption.Curses.Patchers
             // Always clear the audio state
             if (_pausedState != null)
             {
-                InfiniscryptionCursePlugin.Log.LogInfo($"Resuming audio");
+                CursePlugin.Log.LogInfo($"Resuming audio");
                 AudioController.Instance.StopAllLoops();
                 AudioHelper.ResumeAllLoops(_pausedState);
                 _pausedState = null;
             } else {
-                InfiniscryptionCursePlugin.Log.LogInfo($"No audio info to resume");
+                CursePlugin.Log.LogInfo($"No audio info to resume");
             }
 
             _sawDeathcard = false;
@@ -109,13 +109,13 @@ namespace Infiniscryption.Curses.Patchers
             if (nodeData is BossBattleNodeData)
                 return;
 
-            InfiniscryptionCursePlugin.Log.LogInfo("Checking to see if we should add a deathcard...");
+            CursePlugin.Log.LogInfo("Checking to see if we should add a deathcard...");
 
             // And let's check the haunt
             if (!RollForDeathcard())
                 return;
 
-            InfiniscryptionCursePlugin.Log.LogInfo("Adding a deathcard...");
+            CursePlugin.Log.LogInfo("Adding a deathcard...");
 
             // Let's make sure the deathcard shows up in the first four turns of the game
             // But not on the very first turn
@@ -157,7 +157,7 @@ namespace Infiniscryption.Curses.Patchers
             SetHauntedCardSlot(deathcard, weakestIndex);
 
             // And we're done! The weakest card in the ideal turn now has a deathcard insted.
-            InfiniscryptionCursePlugin.Log.LogInfo($"Added a deathcard in turn {idealTurn} in slot {weakestIndex}");
+            CursePlugin.Log.LogInfo($"Added a deathcard in turn {idealTurn} in slot {weakestIndex}");
         }
 
         [HarmonyPatch(typeof(Opponent), "CanOfferSurrender")]
@@ -213,7 +213,7 @@ namespace Infiniscryption.Curses.Patchers
                 AssetHelper.LoadAudioClip(DEATHCARD_INTRO_CLIP);
             } catch (Exception e)
             {
-                InfiniscryptionCursePlugin.Log.LogError(e);
+                CursePlugin.Log.LogError(e);
             }
         }
 
@@ -227,7 +227,7 @@ namespace Infiniscryption.Curses.Patchers
         [HarmonyPostfix]
         public static IEnumerator PlayDeathcardIntro(IEnumerator sequenceEvent, CardInfo cardInfo, CardSlot slot)
         {
-            InfiniscryptionCursePlugin.Log.LogInfo("In QueueCard");
+            CursePlugin.Log.LogInfo("In QueueCard");
 
             sequenceEvent.MoveNext();
             yield return sequenceEvent.Current;
@@ -239,7 +239,7 @@ namespace Infiniscryption.Curses.Patchers
             {
                 _sawDeathcard = true;
 
-                InfiniscryptionCursePlugin.Log.LogInfo("Playing animation");
+                CursePlugin.Log.LogInfo("Playing animation");
                 View oldView = ViewManager.Instance.CurrentView;
                 ViewManager.Instance.SwitchToView(View.P03Face);
 
@@ -275,12 +275,12 @@ namespace Infiniscryption.Curses.Patchers
             
             if (_pausedState != null)
             {   
-                InfiniscryptionCursePlugin.Log.LogInfo($"Resuming audio");
+                CursePlugin.Log.LogInfo($"Resuming audio");
                 AudioController.Instance.StopAllLoops();
                 AudioHelper.ResumeAllLoops(_pausedState);
                 _pausedState = null;
             } else {
-                InfiniscryptionCursePlugin.Log.LogInfo($"No audio info to resume");
+                CursePlugin.Log.LogInfo($"No audio info to resume");
             }
 
             IncreaseHaunt(-1); // Killing a deathcard decreases the haunt

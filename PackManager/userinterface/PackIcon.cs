@@ -2,6 +2,7 @@ using UnityEngine;
 using DiskCardGame;
 using System;
 using InscryptionAPI.Card;
+using System.Collections.Generic;
 
 namespace Infiniscryption.PackManagement.UserInterface
 {
@@ -11,7 +12,7 @@ namespace Infiniscryption.PackManagement.UserInterface
         {
             IconRenderer.sprite = info.PackArt;
             Info = info;
-            Selected = PackManager.GetActivePacks().Contains(info);
+            Selected = !PackManager.RetrievePackList(false).Contains(info);
             CoveredRenderer.gameObject.SetActive(!Selected);
         }
 
@@ -34,9 +35,26 @@ namespace Infiniscryption.PackManagement.UserInterface
         public override void OnCursorSelectEnd()
         {
             base.OnCursorSelectEnd();
+
+            List<PackInfo> activePacks = PackManager.RetrievePackList(true);
+            List<PackInfo> inactivePacks = PackManager.RetrievePackList(false);
+            
+            if (Selected)
+            {
+                activePacks.Remove(this.Info);
+                inactivePacks.Add(this.Info);
+            }
+            else
+            {
+                activePacks.Add(this.Info);
+                inactivePacks.Remove(this.Info);
+            }
+
+            PackManager.SavePackList(activePacks, true);
+            PackManager.SavePackList(inactivePacks, false);
+
             Selected = !Selected;
             CoveredRenderer.gameObject.SetActive(!Selected);
-            PackManager.SetActive(this.Info, Selected);
         }
 
         private string RandomCardName()

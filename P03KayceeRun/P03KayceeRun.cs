@@ -24,10 +24,9 @@ namespace Infiniscryption.P03KayceeRun
             harmony.PatchAll();
             
             CustomCards.RegisterCustomCards(harmony);
-
+            StarterDecks.RegisterStarterDecks();
+            AscensionChallengeManagement.UpdateP03Challenges();
             BossManagement.RegisterBosses();
-
-            var test = StarterDecks.StarterDeckReference;
 
             Logger.LogInfo($"Plugin {PluginName} is loaded!");
         }

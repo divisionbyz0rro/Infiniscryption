@@ -29,7 +29,7 @@ namespace Infiniscryption.Curses.Patchers
                 // Your haunt level is the base haunt level (which increases by winning, gets reset to 0 by losing, and 
                 // decreases whenever you kill an opposing deathcard) plus a whopping 3 if you have killed the survivors,
                 // plus 1 for even 'minor starting bones' in your boons and 2 for every 'starting bones' in your boons.
-                return ModdedSaveManager.RunState.GetValueAsInt(InfiniscryptionCursePlugin.PluginGuid, "Curse.BaseHauntLevel")
+                return ModdedSaveManager.RunState.GetValueAsInt(CursePlugin.PluginGuid, "Curse.BaseHauntLevel")
                 + (RunState.Run.survivorsDead ? 3 : 0)
                 + (RunState.Run.playerDeck.Boons.FindAll(boon => boon.type == BoonData.Type.MinorStartingBones).Count)
                 + (RunState.Run.playerDeck.Boons.FindAll(boon => boon.type == BoonData.Type.StartingBones).Count * 2);
@@ -38,16 +38,16 @@ namespace Infiniscryption.Curses.Patchers
 
         public static void ResetHaunt(int value=0)
         {
-            InfiniscryptionCursePlugin.Log.LogInfo($"Resetting haunt to {value}");
-            ModdedSaveManager.RunState.SetValue(InfiniscryptionCursePlugin.PluginGuid, "Curse.BaseHauntLevel", value);
+            CursePlugin.Log.LogInfo($"Resetting haunt to {value}");
+            ModdedSaveManager.RunState.SetValue(CursePlugin.PluginGuid, "Curse.BaseHauntLevel", value);
         }
 
         public static void IncreaseHaunt(int by=1)
         {
             // Make sure the haunt level 
-            int newHauntLevel = Mathf.Clamp(ModdedSaveManager.RunState.GetValueAsInt(InfiniscryptionCursePlugin.PluginGuid, "Curse.BaseHauntLevel") + by, 0, MAX_HAUNT_LEVEL);
-            InfiniscryptionCursePlugin.Log.LogInfo($"Updated haunt by {by} to {newHauntLevel}");
-            ModdedSaveManager.RunState.SetValue(InfiniscryptionCursePlugin.PluginGuid, "Curse.BaseHauntLevel", newHauntLevel.ToString());
+            int newHauntLevel = Mathf.Clamp(ModdedSaveManager.RunState.GetValueAsInt(CursePlugin.PluginGuid, "Curse.BaseHauntLevel") + by, 0, MAX_HAUNT_LEVEL);
+            CursePlugin.Log.LogInfo($"Updated haunt by {by} to {newHauntLevel}");
+            ModdedSaveManager.RunState.SetValue(CursePlugin.PluginGuid, "Curse.BaseHauntLevel", newHauntLevel.ToString());
         }
 
         private static List<GameObject> _orbitingFace = null;
@@ -57,7 +57,7 @@ namespace Infiniscryption.Curses.Patchers
 
         private static void BuildOrbiters(AnimatedGameMapMarker marker)
         {
-            InfiniscryptionCursePlugin.Log.LogInfo("Adding rotating sprite");
+            CursePlugin.Log.LogInfo("Adding rotating sprite");
 
             _orbitingFace = new List<GameObject>();
 
@@ -121,7 +121,7 @@ namespace Infiniscryption.Curses.Patchers
             }
 
             int hauntLevel = HauntLevel;
-            InfiniscryptionCursePlugin.Log.LogInfo($"Setting orbit for haunt level {hauntLevel}");
+            CursePlugin.Log.LogInfo($"Setting orbit for haunt level {hauntLevel}");
 
             if (!_orbitingFace[2].activeSelf && hauntLevel >= 8 ||
                 !_orbitingFace[1].activeSelf && hauntLevel >= 5 ||
@@ -137,10 +137,10 @@ namespace Infiniscryption.Curses.Patchers
         [HarmonyPostfix]
         public static void SetActiveOrbiters(ref AnimatedGameMapMarker __instance)
         {
-            InfiniscryptionCursePlugin.Log.LogInfo("Showing map marker");
+            CursePlugin.Log.LogInfo("Showing map marker");
             if (AscensionSaveData.Data.ChallengeIsActive(ID) && __instance is PlayerMarker)
             {
-                InfiniscryptionCursePlugin.Log.LogInfo("Is player marker");
+                CursePlugin.Log.LogInfo("Is player marker");
                 if (_orbitingFace != null)
                 {
                     SyncOrbiters(__instance);
@@ -154,8 +154,8 @@ namespace Infiniscryption.Curses.Patchers
 
         private static bool HasExplainedHaunt
         {
-            get { return ModdedSaveManager.SaveData.GetValueAsBoolean(InfiniscryptionCursePlugin.PluginGuid, "Curses.HauntExplanation"); }
-            set { ModdedSaveManager.SaveData.SetValue(InfiniscryptionCursePlugin.PluginGuid, "Curses.HauntExplanation", value); }
+            get { return ModdedSaveManager.SaveData.GetValueAsBoolean(CursePlugin.PluginGuid, "Curses.HauntExplanation"); }
+            set { ModdedSaveManager.SaveData.SetValue(CursePlugin.PluginGuid, "Curses.HauntExplanation", value); }
         }
 
         [HarmonyPatch(typeof(DialogueDataUtil), "ReadDialogueData")]

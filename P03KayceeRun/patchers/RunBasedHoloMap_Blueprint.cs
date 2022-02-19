@@ -101,42 +101,42 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             return map.AdjacentTo(node.x, node.y);
         }
 
-        private static void PaintQuadrant(HoloMapBlueprint[,] map, int x, int y, int color)
-        {
-            if (map[x, y] == null)
-            {
-                foreach (HoloMapBlueprint adjNode in map.AdjacentTo(x, y))
-                {
-                    if (adjNode != null)
-                    {
-                        PaintQuadrant(map, adjNode.x, adjNode.y, color);
-                        return;
-                    }
-                }
-            }
+        // private static void PaintQuadrant(HoloMapBlueprint[,] map, int x, int y, int color)
+        // {
+        //     if (map[x, y] == null)
+        //     {
+        //         foreach (HoloMapBlueprint adjNode in map.AdjacentTo(x, y))
+        //         {
+        //             if (adjNode != null)
+        //             {
+        //                 PaintQuadrant(map, adjNode.x, adjNode.y, color);
+        //                 return;
+        //             }
+        //         }
+        //     }
 
-            // Staying within the given quadrant, paint all adjacent nodes the same color as you
-            map[x, y].color = color;
+        //     // Staying within the given quadrant, paint all adjacent nodes the same color as you
+        //     map[x, y].color = color;
 
-            foreach (HoloMapBlueprint adjNode in map.AdjacentToQuadrant(x, y))
-                if (adjNode != null && adjNode.color == 0)
-                    PaintQuadrant(map, adjNode.x, adjNode.y, color);
-        }
+        //     foreach (HoloMapBlueprint adjNode in map.AdjacentToQuadrant(x, y))
+        //         if (adjNode != null && adjNode.color == 0)
+        //             PaintQuadrant(map, adjNode.x, adjNode.y, color);
+        // }
 
-        private static void FixPaint(HoloMapBlueprint[,] map, int x, int y)
-        {
-            if (map[x,y] != null && map[x,y].color <= 0)
-            {
-                foreach (HoloMapBlueprint adj in map.AdjacentTo(x, y))
-                {
-                    if (adj != null && adj.color > 0)
-                    {
-                        map[x,y].color = adj.color;
-                        return;
-                    }
-                }
-            }
-        }
+        // private static void FixPaint(HoloMapBlueprint[,] map, int x, int y)
+        // {
+        //     if (map[x,y] != null && map[x,y].color <= 0)
+        //     {
+        //         foreach (HoloMapBlueprint adj in map.AdjacentTo(x, y))
+        //         {
+        //             if (adj != null && adj.color > 0)
+        //             {
+        //                 map[x,y].color = adj.color;
+        //                 return;
+        //             }
+        //         }
+        //     }
+        // }
 
         private static int DirTo(this HoloMapBlueprint start, HoloMapBlueprint end)
         {
@@ -580,18 +580,18 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 int offset = UnityEngine.Random.Range(0, 4);
                 for (int i = 0; i < 3; i++)
                 {
-                    bpBlueprint[0, i + offset] = null;
+                    bpBlueprint[i + offset, 0] = null;
                     if (i == 1)
                     {
-                        bpBlueprint[1, i + offset] = null;
+                        bpBlueprint[i + offset, 1] = null;
                         if (UnityEngine.Random.value < 0.5f)
-                            bpBlueprint[1, i + offset - 1] = null;
+                            bpBlueprint[i + offset - 1, 1] = null;
                         else
-                            bpBlueprint[1, i + offset + 1] = null;
+                            bpBlueprint[i + offset + 1, 1] = null;
                     }
                 }
                 if (offset <= 1)
-                    bpBlueprint[5, 0] = null;
+                    bpBlueprint[0, 5] = null;
                 else
                     bpBlueprint[0, 0] = null;
 
@@ -600,20 +600,20 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
                 for (int i = 0; i < 3; i++)
                 {
-                    bpBlueprint[5, i + offset] = null;
+                    bpBlueprint[i + offset, 5] = null;
                     if (i == 1)
                     {
-                        bpBlueprint[4, i + offset] = null;
+                        bpBlueprint[i + offset, 4] = null;
                         if (UnityEngine.Random.value < 0.5f)
-                            bpBlueprint[4, i + offset - 1] = null;
+                            bpBlueprint[i + offset - 1, 4] = null;
                         else
-                            bpBlueprint[4, i + offset + 1] = null;
+                            bpBlueprint[i + offset + 1, 4] = null;
                     }
                 }
                 if (offset <= 1)
                     bpBlueprint[5, 5] = null;
                 else
-                    bpBlueprint[0, 5] = null;                
+                    bpBlueprint[5, 0] = null;                
             }
             if (region == UNDEAD)
             {
@@ -628,6 +628,12 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
                 bpBlueprint[UnityEngine.Random.Range(2, 4), pointUp ? 2 : 3] = null;
             }
+
+            int v = region == TECH ? 2 : 3;
+            for (int i = 0; i < bpBlueprint.GetLength(0); i++)
+                for (int j = 0; j < bpBlueprint.GetLength(1); j++)
+                    if (bpBlueprint[i,j] != null)
+                        bpBlueprint[i,j].color = i < 3 ? j < v ? 1 : 2 : j < v ? 3 : 4;
         }
 
         private static List<HoloMapBlueprint> BuildBlueprint(int order, int region, int seed, int stackDepth = 0)
@@ -653,17 +659,6 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
             // Reshape for region
             ShapeMapForRegion(bpBlueprint, region);
-
-            // Paint each quadrant
-            PaintQuadrant(bpBlueprint, 1, 1, 1);
-            PaintQuadrant(bpBlueprint, 1, 4, 2);
-            PaintQuadrant(bpBlueprint, 4, 1, 3);
-            PaintQuadrant(bpBlueprint, 4, 4, 4);
-
-            // Make sure all rooms are painted
-            for (int i = 0; i < bpBlueprint.GetLength(0); i++)
-                for (int j = 0; j < bpBlueprint.GetLength(1); j++)
-                    FixPaint(bpBlueprint, i, j);
 
             // Crawl and mark each quadrant.
             for (int i = 1; i <= 4; i++)

@@ -79,7 +79,7 @@ namespace Infiniscryption.Curses.Cards
 
         public static void Register()
         {
-            ID = CardAppearanceBehaviourManager.Add(InfiniscryptionCursePlugin.PluginGuid, "MegaSharkAppearance", typeof(MegaSharkAppearance)).Id;
+            ID = CardAppearanceBehaviourManager.Add(CursePlugin.PluginGuid, "MegaSharkAppearance", typeof(MegaSharkAppearance)).Id;
         }
     }
 }

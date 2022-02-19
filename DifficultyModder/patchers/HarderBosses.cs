@@ -25,7 +25,7 @@ namespace Infiniscryption.Curses.Patchers
         {
             ID = ChallengeManager.Add
             (
-                InfiniscryptionCursePlugin.PluginGuid,
+                CursePlugin.PluginGuid,
                 "Boss Revenge",
                 "Each boss has an additional phase",
                 10,
@@ -178,7 +178,7 @@ namespace Infiniscryption.Curses.Patchers
                 AssetHelper.LoadAudioClip(Digester.GULP_SOUND, group: "SFX");
             } catch (Exception e)
             {
-                InfiniscryptionCursePlugin.Log.LogError(e);
+                CursePlugin.Log.LogError(e);
             }
         }
 

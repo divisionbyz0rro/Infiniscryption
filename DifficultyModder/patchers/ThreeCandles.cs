@@ -15,7 +15,7 @@ namespace Infiniscryption.Curses.Patchers
         {
             ID = ChallengeManager.Add
             (
-                InfiniscryptionCursePlugin.PluginGuid,
+                CursePlugin.PluginGuid,
                 "Extra Candle",
                 "You are given an extra life",
                 -30,

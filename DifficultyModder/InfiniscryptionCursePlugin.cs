@@ -15,7 +15,7 @@ namespace Infiniscryption.Curses
     [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
     [BepInDependency("cyantist.inscryption.api")]
     [BepInDependency("zorro.inscryption.infiniscryption.spells")]
-    public class InfiniscryptionCursePlugin : BaseUnityPlugin
+    public class CursePlugin : BaseUnityPlugin
     {
 
         internal const string PluginGuid = "zorro.inscryption.infiniscryption.curses";
@@ -34,9 +34,7 @@ namespace Infiniscryption.Curses
             DeathcardHaunt.Register(harmony);
             ThreeCandles.Register(harmony);
             GoldenPeltStart.Register(harmony);
-
-            // Initialize the RunStateHelper
-            CustomNodeHelper.Initialize(harmony, Log);
+            StarterDecks.Register(harmony);
 
             Logger.LogInfo($"Plugin {PluginName} is loaded!");
         }

@@ -3,6 +3,7 @@ using BepInEx.Logging;
 using HarmonyLib;
 using Infiniscryption.Core.Helpers;
 using Infiniscryption.SideDecks.Patchers;
+using Infiniscryption.SideDecks.Sequences;
 using Infiniscryption.SideDecks.UserInterface;
 using InscryptionAPI.Ascension;
 
@@ -32,7 +33,7 @@ namespace Infiniscryption.SideDecks
             harmony.PatchAll(typeof(SideDeckSelectorScreen));
             AscensionScreenManager.RegisterScreen<SideDeckSelectorScreen>();
 
-            CustomNodeHelper.Initialize(harmony, Log);
+            SideDeckSelectionSequencer.Register();
 
             Logger.LogInfo($"Plugin {PluginName} is loaded!");
         }

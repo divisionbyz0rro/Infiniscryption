@@ -162,26 +162,14 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
             // Update the librarian to display its size
             CardManager.BaseGameCards.CardByName("Librarian").AddAppearances(LibrarianSizeTitle.ID);
-            CardManager.BaseGameCards.CardByName("EnergyRoller").AddMetaCategories(CardMetaCategory.Rare); // Sorry, this card is just too damn good and needs to be rare
 
-            AbilityManager.BaseGameAbilities.AbilityByID(Ability.DrawVesselOnHit).Info.SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_drawvessel"));
-            AbilityManager.BaseGameAbilities.AbilityByID(Ability.Sniper).Info.SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_sniper"));
-            AbilityManager.BaseGameAbilities.AbilityByID(Ability.RandomAbility).Info.SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_random"));
-            AbilityManager.BaseGameAbilities.AbilityByID(Ability.DrawRandomCardOnDeath).Info.SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_randomcard"));
-            AbilityManager.BaseGameAbilities.AbilityByID(Ability.LatchDeathShield).Info.SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_shieldlatch"));
-            AbilityManager.BaseGameAbilities.AbilityByID(Ability.CellTriStrike).Info.SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_cell_tristrike"));
-            AbilityManager.BaseGameAbilities.AbilityByID(Ability.CellBuffSelf).Info.SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_cell_buffself"));
-            AbilityManager.BaseGameAbilities.AbilityByID(Ability.Transformer).Info.SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_evolve"));
-            AbilityManager.BaseGameAbilities.AbilityByID(Ability.ShieldGems).Info.SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_shieldgems"));
+            CardManager.ModifyCardList += delegate(List<CardInfo> cards)
+            {
+                if (P03AscensionSaveData.IsP03Run)
+                    cards.CardByName("EnergyRoller").AddMetaCategories(CardMetaCategory.Rare);
 
-            AbilityManager.BaseGameAbilities.AbilityByID(Ability.ActivatedDealDamage).SetIcon(AssetHelper.LoadTexture("ActivatedDealDamage"));
-            AbilityManager.BaseGameAbilities.AbilityByID(Ability.ActivatedRandomPowerEnergy).SetIcon(AssetHelper.LoadTexture("ActivatedRandomPowerEnergy"));
-            AbilityManager.BaseGameAbilities.AbilityByID(Ability.ActivatedStatsUpEnergy).SetIcon(AssetHelper.LoadTexture("ActivatedStatsUpEnergy"));
-            AbilityManager.BaseGameAbilities.AbilityByID(Ability.BombSpawner).SetIcon(AssetHelper.LoadTexture("BombSpawner"));
-            AbilityManager.BaseGameAbilities.AbilityByID(Ability.ConduitEnergy).SetIcon(AssetHelper.LoadTexture("ConduitEnergy"));
-            AbilityManager.BaseGameAbilities.AbilityByID(Ability.ConduitFactory).SetIcon(AssetHelper.LoadTexture("ConduitFactory"));
-            AbilityManager.BaseGameAbilities.AbilityByID(Ability.ConduitHeal).SetIcon(AssetHelper.LoadTexture("ConduitHeal"));
-            AbilityManager.BaseGameAbilities.AbilityByID(Ability.GainGemTriple).SetIcon(AssetHelper.LoadTexture("GainGemTriple"));
+                return cards;
+            };
 
             CardManager.New(DRAFT_TOKEN, "Basic Token", 0, 1)
                 .SetPortrait(AssetHelper.LoadTexture("portrait_drafttoken"))
@@ -250,21 +238,16 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 .temple = CardTemple.Tech;
 
             // This should patch the rulebook
-            CardManager.ModifyCardList += delegate(List<CardInfo> cards)
+            AbilityManager.ModifyAbilityList += delegate(List<AbilityManager.FullAbility> abilities)
             {
-                List<Ability> allP3Abs = cards.Where(c => c.temple == CardTemple.Tech).SelectMany(c => c.abilities).Distinct().ToList();
-                foreach (AbilityInfo ab in AbilityManager.AllAbilityInfos)
+                List<Ability> allP3Abs = CardManager.AllCardsCopy.Where(c => c.temple == CardTemple.Tech).SelectMany(c => c.abilities).Distinct().ToList();
+
+                foreach (AbilityManager.FullAbility ab in abilities)
                 {
-                    if (allP3Abs.Contains(ab.ability))
-                    {
-                        if (ab.metaCategories == null)
-                            ab.metaCategories = new ();
-
-                        ab.metaCategories.Add(AbilityMetaCategory.Part3Rulebook);
-                    }
+                    if (allP3Abs.Contains(ab.Id))
+                        ab.Info.AddMetaCategories(AbilityMetaCategory.Part3Rulebook);
                 }
-
-                return cards;
+                return abilities;
             };
         }
 

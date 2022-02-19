@@ -13,8 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SideDecks", "SideDecks\Side
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spells", "Spells\Spells.csproj", "{A3E5DBDB-3FC8-46D8-9D11-AA6BEE48A19F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StackableSigils", "StackableSigils\StackableSigils.csproj", "{5A6B7EF5-0E80-4171-88A8-F60169611451}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VanillaStackable", "VanillaStackable\VanillaStackable.csproj", "{36399D2F-4E01-4179-B42D-F87899DF500E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "P03KayceeRun", "P03KayceeRun\P03KayceeRun.csproj", "{7D801F11-7BA5-44EF-954F-81EE8092EBA1}"

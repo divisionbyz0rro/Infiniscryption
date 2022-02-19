@@ -1,21 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
 using DiskCardGame;
 using HarmonyLib;
 using Infiniscryption.Core.Helpers;
 using Infiniscryption.PackManagement.Patchers;
 using InscryptionAPI.Card;
-using InscryptionAPI.Guid;
-using InscryptionAPI.Helpers;
 using InscryptionAPI.Saves;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Infiniscryption.PackManagement
 {
@@ -26,6 +19,12 @@ namespace Infiniscryption.PackManagement
         private static HashSet<CardInfo> ProcessedCards = new();
         public readonly static ReadOnlyCollection<PackInfo> BaseGamePacks = new(GenBaseGamePackList());
         private readonly static ObservableCollection<PackInfo> NewPacks = new();
+
+        private static List<CardMetaCategory> protectedMetacategories = new();
+        public static void AddProtectedMetacategory(CardMetaCategory category)
+        {
+            protectedMetacategories.Add(category);
+        }
 
         public static Opponent.Type ScreenState 
         { 
@@ -87,53 +86,37 @@ namespace Infiniscryption.PackManagement
 
         private static List<Ability> ActiveAbilities = new();
 
+        internal static void SavePackList(List<PackInfo> packs, bool activeList, Opponent.Type state = Opponent.Type.Default)
+        {
+            if (state == Opponent.Type.Default)
+                state = ScreenState;
+
+            string packString = string.Join("|", packs.Select(pi => pi.Name));
+            string packKey = activeList ? $"AscensionData_ActivePackList" : $"{state.ToString()}_InactivePackList";
+
+            ModdedSaveManager.SaveData.SetValue(PackPlugin.PluginGuid, packKey, packString);
+        }
+
+        internal static List<PackInfo> RetrievePackList(bool activeList, Opponent.Type state = Opponent.Type.Default)
+        {
+            if (state == Opponent.Type.Default)
+                state = ScreenState;
+
+            string packKey = activeList ? $"AscensionData_ActivePackList" : $"{state.ToString()}_InactivePackList";
+            string packString = ModdedSaveManager.SaveData.GetValue(PackPlugin.PluginGuid, packKey);
+
+            if (packString == default(string))
+                return new();
+
+            return packString.Split('|').Select(k => AllPacks.FirstOrDefault(pi => pi.Name == k)).Where(pi => pi != null).ToList();
+        }
+
         public static List<PackInfo> GetActivePacks()
         {
-            List<PackInfo> retval = new List<PackInfo>();
-
-            string packList = ModdedSaveManager.SaveData.GetValue(PackPlugin.PluginGuid, $"{ScreenState.ToString()}_BlockedPacks");
-            if (string.IsNullOrEmpty(packList))
-            {
-                retval.AddRange(AllPacks);
-                SaveActivePacks(retval);
-                return retval;
-            }
-
-            string[] packNames = packList.Split('|');
-            List<PackInfo> blockedPacks = new ();
-            foreach (string name in packNames)
-            {
-                PackInfo info = AllPacks.FirstOrDefault(pi => pi.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-                if (info != null)
-                    blockedPacks.Add(info);
-            }
-
-            retval.AddRange(AllPacks.Where(pi => !blockedPacks.Contains(pi) && ValidPacks.Contains(pi)));
-            return retval;
+            return RetrievePackList(true);
         }
-
-        private static void SaveActivePacks(List<PackInfo> packs)
-        {
-            string packList = string.Join("|", AllPacks.Where(pi => !packs.Contains(pi)).Select(pi => pi.Name));
-            ModdedSaveManager.SaveData.SetValue(PackPlugin.PluginGuid, $"{ScreenState.ToString()}_BlockedPacks", packList);
-        }
-
-        private static void ResetActivePacks()
-        {
-            SaveActivePacks(new(AllPacks));
-        }
-
-        public static void SetActive(this PackInfo info, bool active)
-        {
-            List<PackInfo> activePacks = GetActivePacks();
-            if (active && !activePacks.Contains(info))
-                activePacks.Add(info);
-            if (!active && activePacks.Contains(info))
-                activePacks.Remove(info);
-            SaveActivePacks(activePacks);
-        }
-
-        public static List<CardInfo> SyncPackCardLists(List<CardInfo> cards)
+        
+        internal static List<CardInfo> SyncPackCardLists(List<CardInfo> cards)
         {
             foreach (CardInfo card in cards.Where(c => !ProcessedCards.Contains(c)))
             {
@@ -165,9 +148,9 @@ namespace Infiniscryption.PackManagement
             }
         }
 
-        public static List<CardInfo> FilterCardsInPacks(List<CardInfo> cards)
+        internal static List<CardInfo> FilterCardsInPacks(List<CardInfo> cards)
         {
-            List<PackInfo> activePacks = GetActivePacks();
+            List<PackInfo> activePacks = RetrievePackList(true);
             ActiveCards = new();
             ActiveAbilities = new();
 
@@ -189,13 +172,13 @@ namespace Infiniscryption.PackManagement
                 if (ActiveCards.Contains(card.name))
                     card.temple = GetTempleForActiveOpponent();
                 else
-                    card.metaCategories = new();
+                    card.metaCategories.RemoveAll(c => !protectedMetacategories.Contains(c));
             }
 
             return cards;
         }
 
-        public static List<AbilityManager.FullAbility> FilterAbilitiesInPacks(List<AbilityManager.FullAbility> abilities)
+        internal static List<AbilityManager.FullAbility> FilterAbilitiesInPacks(List<AbilityManager.FullAbility> abilities)
         {
             // If the ability doesn't appear on any of the cards, 
             // it shouldn't appear anywhere
@@ -208,7 +191,7 @@ namespace Infiniscryption.PackManagement
 
         [HarmonyPatch(typeof(AscensionMenuScreens), nameof(AscensionMenuScreens.TransitionToGame))]
         [HarmonyPrefix]
-        public static void FilterCardAndAbilityList()
+        internal static void FilterCardAndAbilityList()
         {
             if (HasAddedFiltersToEvent)
             {
@@ -226,7 +209,7 @@ namespace Infiniscryption.PackManagement
 
         [HarmonyPatch(typeof(AscensionMenuScreens), nameof(AscensionMenuScreens.Start))]
         [HarmonyPrefix]
-        public static void UnfilterCardAndAbilityList()
+        internal static void UnfilterCardAndAbilityList()
         {
             if (HasAddedFiltersToEvent)
             {

@@ -15,7 +15,7 @@ namespace Infiniscryption.Curses.Patchers
         {
             ID = ChallengeManager.Add
             (
-                InfiniscryptionCursePlugin.PluginGuid,
+                CursePlugin.PluginGuid,
                 "Golden Beginnings",
                 "Start the game with a golden pelt in your deck",
                 -10,

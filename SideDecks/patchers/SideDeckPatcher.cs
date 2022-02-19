@@ -10,6 +10,7 @@ using InscryptionAPI.Saves;
 using InscryptionAPI.Card;
 using System.Linq;
 using InscryptionAPI.Guid;
+using Infiniscryption.Core.Helpers;
 
 namespace Infiniscryption.SideDecks.Patchers
 {
@@ -59,36 +60,37 @@ namespace Infiniscryption.SideDecks.Patchers
         {
             if (!AscensionSaveData.Data.ChallengeIsActive(AscensionChallenge.SubmergeSquirrels))
             {
-                if (ScreenState == Opponent.Type.Default)
+                if (SceneLoader.ActiveSceneName.ToLowerInvariant().Contains("part1") || ScreenState == Opponent.Type.Default || ScreenState == Opponent.Type.LeshyBoss)
                 {
+                    SideDecksPlugin.Log.LogInfo($"Getting cards: Screenstate {ScreenState}, IsPart1 {SceneLoader.ActiveSceneName.ToLowerInvariant().Contains("part1")}");
                     return CardManager.AllCardsCopy.Where(card => card.metaCategories.Contains(SIDE_DECK) && card.temple == CardTemple.Nature)
                                                .Select(card => card.name).ToList();
                 }
-                else if (ScreenState == Opponent.Type.P03Boss)
+                else if (SaveManager.saveFile.IsPart3 || ScreenState == Opponent.Type.P03Boss)
                 {
                     return new() { "EmptyVessel" };
                 }
-                else if (ScreenState == Opponent.Type.GrimoraBoss)
+                else if (SaveManager.saveFile.IsGrimora || ScreenState == Opponent.Type.GrimoraBoss)
                 {
                     return new() { "Skeleton" };
                 }
             }
             else
             {
-                if (ScreenState == Opponent.Type.Default)
+                if (SceneLoader.ActiveSceneName.ToLowerInvariant().Contains("part1") || ScreenState == Opponent.Type.Default || ScreenState == Opponent.Type.LeshyBoss)
                 {
                     return new() { "AquaSquirrel" };
                 }
-                else if (ScreenState == Opponent.Type.P03Boss)
+                else if (SaveManager.saveFile.IsPart3 || ScreenState == Opponent.Type.P03Boss)
                 {
                     return new() { "EmptyVessel" };
                 }
-                else if (ScreenState == Opponent.Type.GrimoraBoss)
+                else if (SaveManager.saveFile.IsGrimora || ScreenState == Opponent.Type.GrimoraBoss)
                 {
                     return new() { "Skeleton" };
                 }
             }
-
+            SideDecksPlugin.Log.LogInfo($"Fallback: giving only a squirrel. Screenstate {ScreenState}, IsPart1 {SaveManager.saveFile.IsPart1}");
             return new() { "Squirrel" };
         }
 
@@ -102,6 +104,18 @@ namespace Infiniscryption.SideDecks.Patchers
                 __result.Add(CardLoader.GetCardByName(selectedDeck));
 
             return false;
+        }
+
+        [HarmonyPatch(typeof(DialogueDataUtil), "ReadDialogueData")]
+        [HarmonyPostfix]
+        public static void CurseDialogue()
+        {
+            // Here, we replace dialogue from Leshy based on the starter decks plugin being installed
+            // And add new dialogue
+            DialogueHelper.AddOrModifySimpleDialogEvent("SideDeckIntro", new string []
+            {
+                "Here you may replace the creatures in your [c:bR]side deck[c:]"
+            });
         }
     }
 }

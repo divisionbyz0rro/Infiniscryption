@@ -22,7 +22,7 @@ namespace Infiniscryption.Curses.Cards
 
         public static void Register()
         {
-            ID = CardAppearanceBehaviourManager.Add(InfiniscryptionCursePlugin.PluginGuid, "DynamiteAppearance", typeof(DynamiteAppearance)).Id;
+            ID = CardAppearanceBehaviourManager.Add(CursePlugin.PluginGuid, "DynamiteAppearance", typeof(DynamiteAppearance)).Id;
         }
     }
 }

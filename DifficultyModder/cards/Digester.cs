@@ -51,7 +51,7 @@ namespace Infiniscryption.Curses.Cards
         public static void RegisterCardAndAbilities(Harmony harmony)
         {
             MegaSharkAppearance.Register();
-            ID = SpecialTriggeredAbilityManager.Add(InfiniscryptionCursePlugin.PluginGuid, "Swallow Whole", typeof(Digester)).Id;
+            ID = SpecialTriggeredAbilityManager.Add(CursePlugin.PluginGuid, "Swallow Whole", typeof(Digester)).Id;
 
             CardManager.New("Angler_Shark", "Mega Shark", 3, 5)
                 .AddTraits(Trait.Uncuttable)
@@ -250,7 +250,7 @@ namespace Infiniscryption.Curses.Cards
         public override IEnumerator OnUpkeep(bool playerUpkeep)
         {
             yield return Digest();
-            InfiniscryptionCursePlugin.Log.LogInfo("Upkeep complete");
+            CursePlugin.Log.LogInfo("Upkeep complete");
         }
 
         public override bool RespondsToSlotTargetedForAttack(CardSlot slot, PlayableCard attacker)

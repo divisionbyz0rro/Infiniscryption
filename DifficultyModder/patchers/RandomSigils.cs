@@ -32,7 +32,7 @@ namespace Infiniscryption.Curses.Patchers
         {
             ID = ChallengeManager.Add
             (
-                InfiniscryptionCursePlugin.PluginGuid,
+                CursePlugin.PluginGuid,
                 "Chaotic Enemies",
                 "Opposing creatures gain random abilities",
                 15,

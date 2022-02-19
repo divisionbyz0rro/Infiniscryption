@@ -109,10 +109,10 @@ namespace Infiniscryption.Curses.Patchers
         [HarmonyPostfix]
         public static void AttachDeathListener(CardInfo info, ref PlayableCard __instance)
         {
-            InfiniscryptionCursePlugin.Log.LogInfo($"In Opponent.CreateCard {info.name}");
+            CursePlugin.Log.LogInfo($"In Opponent.CreateCard {info.name}");
             if (GetHauntedCardFlag(info))
             {
-                InfiniscryptionCursePlugin.Log.LogInfo("Adding ghostdieshandler");
+                CursePlugin.Log.LogInfo("Adding ghostdieshandler");
                 TalkWhenGhostDiesHandler handler = __instance.gameObject.AddComponent<TalkWhenGhostDiesHandler>();
                 AddReceiver(__instance.TriggerHandler, handler);
             }

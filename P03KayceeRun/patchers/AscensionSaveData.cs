@@ -60,6 +60,9 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 if (SceneLoader.ActiveSceneName == "Part3_Cabin")
                     return true;
 
+                if (ScreenManagement.ScreenState == Opponent.Type.P03Boss)
+                    return true;
+
                 return ModdedSaveManager.SaveData.GetValueAsBoolean(P03Plugin.PluginGuid, "IsP03Run");
             }
             set
@@ -281,6 +284,18 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 __instance.reachedCheckpoints.Add("NorthNeutralPath"); // This makes bounty hunters work properly
                                                                        // Without this, your bounty can never reach tier 1
             }
+        }
+
+        [HarmonyPatch(typeof(OilPaintingPuzzle), nameof(OilPaintingPuzzle.GenerateSolution))]
+        [HarmonyPrefix]
+        public static bool ReplaceGenerateForP03(ref List<string> __result)
+        {
+            if (ScreenManagement.ScreenState == Opponent.Type.P03Boss || P03AscensionSaveData.IsP03Run)
+            {
+                __result = new List<string>() { null, null, CustomCards.VIRUS_SCANNER, CustomCards.VIRUS_SCANNER };
+                return false;
+            }
+            return true;
         }
     }
 }

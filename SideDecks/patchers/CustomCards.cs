@@ -8,6 +8,8 @@ using InscryptionAPI.Card;
 using Infiniscryption.SideDecks;
 using System.Collections.Generic;
 using System.Linq;
+using Infiniscryption.PackManagement;
+using System;
 
 namespace Infiniscryption.SideDecks.Patchers
 {
@@ -33,17 +35,36 @@ namespace Infiniscryption.SideDecks.Patchers
             DoubleBlood.Register(harmony);
         }
 
+        private static void RegisterMetacategoriesInner()
+        {
+            PackManager.AddProtectedMetacategory(SideDeckManager.SIDE_DECK);
+        }
+
+        private static void RegisterMetacategories()
+        {
+            try
+            {
+                RegisterMetacategoriesInner();
+            }
+            catch (Exception)
+            {
+                SideDecksPlugin.Log.LogInfo($"Error registering pack manager exception - pack manager plugin not loaded. This is not a problem.");
+            }
+        }
+
         internal static void RegisterCustomCards(Harmony harmony)
         {
             // Register the sigils
             RegisterCustomAbilities(harmony);
+
+            // Register the protected metacategories
+            RegisterMetacategories();
 
             // Modify the squirrel
             CardManager.BaseGameCards.CardByName("Squirrel").metaCategories.Add(SideDeckManager.SIDE_DECK);
             CardManager.BaseGameCards.CardByName("AquaSquirrel").SetPixelPortrait(AssetHelper.LoadTexture("pixelportrait_aquasquirrel"));
             CardManager.BaseGameCards.CardByName("PeltHare").SetPixelPortrait(AssetHelper.LoadTexture("pixelportrait_pelthare"));
             CardManager.BaseGameCards.CardByName("PeltWolf").SetPixelPortrait(AssetHelper.LoadTexture("pixelportrait_peltwolf"));
-            AbilityManager.BaseGameAbilities.AbilityByID(Ability.TailOnHit).Info.SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_tailonhit"));
 
             // Update all of the old style side deck cards
             CardManager.ModifyCardList += delegate(List<CardInfo> cards)
@@ -150,6 +171,7 @@ namespace Infiniscryption.SideDecks.Patchers
                     amalgamEgg.AddTribes(GuidManager.GetValues<Tribe>().ToArray());
                 amalgamEgg.evolveParams = new() { evolution = cards.CardByName("Amalgam"), turnsToEvolve = 1 };
                 amalgamEgg.iceCubeParams = new() { creatureWithin = cards.CardByName("Amalgam") };
+                amalgamEgg.AddTraits(Trait.Ant);
 
                 return cards;
             };

@@ -12,17 +12,15 @@ namespace Infiniscryption.P03KayceeRun.Patchers
     [HarmonyPatch]
     public static class AscensionChallengeManagement
     {
-        public static Dictionary<Opponent.Type, List<AscensionChallengeInfo>> PatchedChallengesReference;
+        public static List<AscensionChallengeInfo> PatchedChallengesReference;
 
-        public static Dictionary<Opponent.Type, List<AscensionChallenge>> ValidChallenges;
+        public static List<AscensionChallenge> ValidChallenges;
 
-        static AscensionChallengeManagement()
+        public static void UpdateP03Challenges()
         {
             PatchedChallengesReference = new();
 
-            PatchedChallengesReference.Add(Opponent.Type.P03Boss, new());
-
-            PatchedChallengesReference[Opponent.Type.P03Boss].Add(new() {
+            PatchedChallengesReference.Add(new() {
                 challengeType = AscensionChallenge.NoHook,
                 title = "No Remote",
                 description = "You do not start with Mrs. Bomb's Remote",
@@ -31,7 +29,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 pointValue = 5
             });
 
-            PatchedChallengesReference[Opponent.Type.P03Boss].Add(new() {
+            PatchedChallengesReference.Add(new() {
                 challengeType = AscensionChallenge.ExpensivePelts,
                 title = "Pricey Upgrades",
                 description = "All upgrades cost more",
@@ -40,8 +38,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 pointValue = 5
             });
 
-            ValidChallenges = new();
-            ValidChallenges.Add(Opponent.Type.P03Boss, new () {
+            ValidChallenges = new() {
                 AscensionChallenge.BaseDifficulty,
                 AscensionChallenge.ExpensivePelts,
                 AscensionChallenge.LessConsumables,
@@ -50,39 +47,41 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 AscensionChallenge.NoHook,
                 AscensionChallenge.StartingDamage,
                 AscensionChallenge.WeakStarterDeck
-            });
-        }
+            };
 
-        [HarmonyPatch(typeof(AscensionChallengesUtil), nameof(AscensionChallengesUtil.GetInfo))]
-        [HarmonyPostfix]
-        public static void ModifyChallengeInfo(ref AscensionChallengeInfo __result)
-        {
-            if (ScreenManagement.ScreenState == Opponent.Type.P03Boss || SceneLoader.ActiveSceneName == "Part3_Cabin")
+            ChallengeManager.ModifyChallenges += delegate(List<AscensionChallengeInfo> challenges)
             {
-                AscensionChallengeInfo orig = __result;
-                AscensionChallengeInfo patch = PatchedChallengesReference[Opponent.Type.P03Boss].FirstOrDefault(ci => ci.challengeType == orig.challengeType);
-                if (patch != null)
-                    __result = patch;
-            }
+                if (P03AscensionSaveData.IsP03Run)
+                {
+                    for (int i = 0; i < challenges.Count; i++)
+                    {
+                        AscensionChallengeInfo patchInfo = PatchedChallengesReference.FirstOrDefault(asci => asci.challengeType == challenges[i].challengeType);
+                        if (patchInfo != null)
+                            challenges[i] = patchInfo;
+                    }
+                }
+
+                return challenges;
+            };
         }
 
-        [HarmonyPatch(typeof(AscensionChallengeScreen), "OnEnable")]
-        [HarmonyPrefix]
-        public static void SetP03Challenges(ref AscensionChallengeScreen __instance)
-        {
-            AscensionChallengePaginator pageController = __instance.gameObject.GetComponent<AscensionChallengePaginator>();
+        // [HarmonyPatch(typeof(AscensionChallengeScreen), "OnEnable")]
+        // [HarmonyPrefix]
+        // public static void SetP03Challenges(ref AscensionChallengeScreen __instance)
+        // {
+        //     AscensionChallengePaginator pageController = __instance.gameObject.GetComponent<AscensionChallengePaginator>();
 
-            pageController.availableChallenges = pageController.availableChallenges.Select(aci => AscensionChallengesUtil.GetInfo(aci.challengeType)).ToList();
-            pageController.pages = pageController.pages.Select(p => p.Select(aci => AscensionChallengesUtil.GetInfo(aci.challengeType)).ToList()).ToList();
-            pageController.ShowVisibleChallenges();
-        }
+        //     pageController.availableChallenges = pageController.availableChallenges.Select(aci => AscensionChallengesUtil.GetInfo(aci.challengeType)).ToList();
+        //     pageController.pages = pageController.pages.Select(p => p.Select(aci => AscensionChallengesUtil.GetInfo(aci.challengeType)).ToList()).ToList();
+        //     pageController.ShowVisibleChallenges();
+        // }
 
         [HarmonyPatch(typeof(AscensionUnlockSchedule), nameof(AscensionUnlockSchedule.ChallengeIsUnlockedForLevel))]
         [HarmonyAfter(new string[] { "cyantist.inscryption.api" })]
         [HarmonyPostfix]
         public static void ValidP03Challenges(ref bool __result, AscensionChallenge challenge)
         {
-            if (ScreenManagement.ScreenState != Opponent.Type.Default && ValidChallenges.ContainsKey(ScreenManagement.ScreenState) && !ValidChallenges[ScreenManagement.ScreenState].Contains(challenge))
+            if (ScreenManagement.ScreenState == Opponent.Type.P03Boss && !ValidChallenges.Contains(challenge))
             {
                 __result = false;
             }
