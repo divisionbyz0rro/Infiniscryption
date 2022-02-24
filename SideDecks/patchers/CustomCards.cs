@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Infiniscryption.PackManagement;
 using System;
+using InscryptionAPI.Helpers;
 
 namespace Infiniscryption.SideDecks.Patchers
 {
@@ -26,6 +27,14 @@ namespace Infiniscryption.SideDecks.Patchers
             INF_One_Eyed_Goat = 6,
             INF_Amalgam_Egg = 7
         }
+
+        public static readonly List<Ability> sideDeckableAbilities = new List<Ability>() {
+            Ability.Reach,
+            Ability.DeathShield,
+            Ability.Sentry,
+            Ability.Sharp,
+            Ability.GainBattery
+        };
 
         private static void RegisterCustomAbilities(Harmony harmony)
         {
@@ -61,7 +70,7 @@ namespace Infiniscryption.SideDecks.Patchers
             RegisterMetacategories();
 
             // Modify the squirrel
-            CardManager.BaseGameCards.CardByName("Squirrel").metaCategories.Add(SideDeckManager.SIDE_DECK);
+            CardManager.BaseGameCards.CardByName("Squirrel").SetSideDeck(CardTemple.Nature, 0);
             CardManager.BaseGameCards.CardByName("AquaSquirrel").SetPixelPortrait(AssetHelper.LoadTexture("pixelportrait_aquasquirrel"));
             CardManager.BaseGameCards.CardByName("PeltHare").SetPixelPortrait(AssetHelper.LoadTexture("pixelportrait_pelthare"));
             CardManager.BaseGameCards.CardByName("PeltWolf").SetPixelPortrait(AssetHelper.LoadTexture("pixelportrait_peltwolf"));
@@ -71,7 +80,7 @@ namespace Infiniscryption.SideDecks.Patchers
             {
                 foreach (CardInfo card in cards.Where(c => c.HasTrait(SideDeckManager.BACKWARDS_COMPATIBLE_SIDE_DECK_MARKER)))
                 {
-                    card.SetSideDeck(card.temple);
+                    card.SetSideDeck(card.temple, 10);
                     card.traits.Remove(SideDeckManager.BACKWARDS_COMPATIBLE_SIDE_DECK_MARKER);
                 }
 
@@ -83,7 +92,7 @@ namespace Infiniscryption.SideDecks.Patchers
                     "Squirrel",
                     0, 1,
                     "It's a squirrel that can block fliers")
-                .SetSideDeck(CardTemple.Nature)
+                .SetSideDeck(CardTemple.Nature, 5)
                 .SetPortrait(Resources.Load<Texture2D>("art/cards/portraits/portrait_squirrel"))
                 .SetPixelPortrait(Resources.Load<Texture2D>("art/gbc/cards/pixelportraits/pixelportrait_squirrel"))
                 .AddAbilities(Ability.Reach);
@@ -91,7 +100,7 @@ namespace Infiniscryption.SideDecks.Patchers
             // Create the Bee
             CardManager.New(CustomCards.SideDecks.INF_Bee_Drone.ToString(),
                     "Bee Drone", 1, 1, "For when you need just one point of damage")
-                .SetSideDeck(CardTemple.Nature)
+                .SetSideDeck(CardTemple.Nature, 10)
                 .SetPortrait(Resources.Load<Texture2D>("art/cards/portraits/portrait_bee"))
                 .SetPixelPortrait(AssetHelper.LoadTexture("pixelportrait_bee"))
                 .AddAbilities(Ability.Flying, Ability.Brittle)
@@ -102,7 +111,7 @@ namespace Infiniscryption.SideDecks.Patchers
 
             CardManager.New(CustomCards.SideDecks.INF_Ant_Worker.ToString(),
                     "Ant Drone", 0, 0, "It's not much, but it's an ant.")
-                .SetSideDeck(CardTemple.Nature)
+                .SetSideDeck(CardTemple.Nature, 5)
                 .SetPortrait(AssetHelper.LoadTexture("worker_ant"))
                 .SetPixelPortrait(AssetHelper.LoadTexture("pixelportrait_ant_worker"))
                 .AddTraits(Trait.Ant)
@@ -121,7 +130,7 @@ namespace Infiniscryption.SideDecks.Patchers
             // Create the Puppy
             CardManager.New(CustomCards.SideDecks.INF_Puppy.ToString(),
                     "Puppy", 0, 1, "This energetic little puppy will dig up a fresh bone every turn")
-                .SetSideDeck(CardTemple.Nature)
+                .SetSideDeck(CardTemple.Nature, 10)
                 .SetPortrait(AssetHelper.LoadTexture("digging_dog"))
                 .SetPixelPortrait(AssetHelper.LoadTexture("pixel_digging_dog"))
                 .AddAbilities(Ability.Strafe, Ability.BoneDigger)
@@ -138,7 +147,7 @@ namespace Infiniscryption.SideDecks.Patchers
             // Create the Squid
             CardInfo tentacle = CardManager.New(CustomCards.SideDecks.INF_Spare_Tentacle.ToString(),
                     "Spare Tentacle", 0, 2, "I've never seen that [c:bR]thing[c:] before, but I can tell there are no bones in it.")
-                .SetSideDeck(CardTemple.Nature)
+                .SetSideDeck(CardTemple.Nature, 10)
                 .SetPortrait(AssetHelper.LoadTexture("squid_grunt"))
                 .SetPixelPortrait(AssetHelper.LoadTexture("pixelportrait_squidgrunt"))
                 .AddAbilities(Ability.TailOnHit, Gelatinous.AbilityID)
@@ -149,15 +158,16 @@ namespace Infiniscryption.SideDecks.Patchers
             // Create the Goat
             CardManager.New(CustomCards.SideDecks.INF_One_Eyed_Goat.ToString(),
                     "One-Eyed Goat", 0, 1, "This goat generates additional blood...for a price")
-                .SetSideDeck(CardTemple.Nature)
+                .SetSideDeck(CardTemple.Nature, 10)
                 .SetPortrait(AssetHelper.LoadTexture("portrait_goat_double"))
                 .SetPixelPortrait(AssetHelper.LoadTexture("pixelportrait_one_eyed_goat"))
                 .AddAbilities(DoubleTeeth.AbilityID, DoubleBlood.AbilityID)
+                .AddTribes(Tribe.Hooved)
                 .temple = CardTemple.Nature;
 
             CardManager.New(CustomCards.SideDecks.INF_Amalgam_Egg.ToString(),
                     "Amalgam Egg", 0, 1, "I didn't realize this thing came from eggs")
-                .SetSideDeck(CardTemple.Nature)
+                .SetSideDeck(CardTemple.Nature, 10)
                 .SetPortrait(AssetHelper.LoadTexture("egg"))
                 .SetPixelPortrait(AssetHelper.LoadTexture("pixel_egg"))
                 .temple = CardTemple.Nature;
@@ -175,6 +185,24 @@ namespace Infiniscryption.SideDecks.Patchers
 
                 return cards;
             };
+
+            CardManager.BaseGameCards.CardByName("EmptyVessel").SetSideDeck(CardTemple.Tech, 0);
+
+            foreach (Ability ability in sideDeckableAbilities)
+            {
+                CardManager.New($"EmptyVessel{ability.ToString()}", "Empty Vessel", 0, 2)
+                    .SetSideDeck(CardTemple.Tech, ability == Ability.GainBattery ? 20 : ability == Ability.Sharp || ability == Ability.Sentry ? 10 : 5)
+                    .SetPortrait(Resources.Load<Texture2D>("art/cards/part 3 portraits/portrait_emptyvessel"))
+                    .SetPixelPortrait(TextureHelper.GetImageAsTexture("pixel_emptyvessel.png", typeof(CustomCards).Assembly))
+                    .SetCost(energyCost: 1)
+                    .AddAbilities(ability);
+            }
+
+            CardManager.New($"EmptyVesselSubmerge", "Emptier Vessel", 0, 2)
+                .SetPortrait(Resources.Load<Texture2D>("art/cards/part 3 portraits/portrait_emptyvessel"))
+                .SetPixelPortrait(TextureHelper.GetImageAsTexture("pixel_emptyvessel.png", typeof(CustomCards).Assembly))
+                .SetCost(energyCost: 1)
+                .AddAbilities(Ability.Submerge);
         }
     }
 }

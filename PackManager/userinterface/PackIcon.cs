@@ -3,34 +3,70 @@ using DiskCardGame;
 using System;
 using InscryptionAPI.Card;
 using System.Collections.Generic;
+using System.Linq;
+using GBC;
 
 namespace Infiniscryption.PackManagement.UserInterface
 {
     public class PackIcon : MainInputInteractable
     {
-        public void AssignPackInfo(PackInfo info)
+        public void AssignPackInfo(PackInfo info, PackContentCache cache)
         {
-            IconRenderer.sprite = info.PackArt;
             Info = info;
             Selected = !PackManager.RetrievePackList(false).Contains(info);
             CoveredRenderer.gameObject.SetActive(!Selected);
+            ActualCards = cache.GetCardsForPack(info);
+            if (info.PackArt != null)
+            {
+                IconRenderer.gameObject.SetActive(true);
+                IconRenderer.sprite = info.PackArt;
+                Text.gameObject.SetActive(false);
+                SampleCardRenderer.gameObject.SetActive(false);
+            }
+            else
+            {
+                IconRenderer.gameObject.SetActive(true);
+                IconRenderer.sprite = PackSelectorScreen.DefaultPackSprite;
+                Text.gameObject.SetActive(true);
+                Text.SetText(info.ModPrefix.Length > 6 ? info.ModPrefix.Substring(0, 6) : info.ModPrefix);
+                SampleCardRenderer.gameObject.SetActive(true);
+                SampleCardRenderer.sprite = IconCard.portraitTex;
+            }
         }
 
         internal SpriteRenderer IconRenderer;
 
         internal SpriteRenderer CoveredRenderer;
 
+        internal PixelText Text;
+
+        internal SpriteRenderer SampleCardRenderer;
+
+        private List<CardInfo> ActualCards { get; set; }
+
+        private CardInfo IconCard
+        {
+            get
+            {
+                int maxPowerLevel = 0;
+                CardInfo maxCard = null;
+                foreach (CardInfo card in ActualCards)
+                {
+                    if (card.PowerLevel > maxPowerLevel)
+                    {
+                        maxPowerLevel = card.PowerLevel;
+                        maxCard = card;
+                    }
+                }
+                return maxCard;
+            }
+        }
+
         public bool Selected { get; private set; }
 
         public PackInfo Info { get; private set; }
 
-        private PackSelectorScreen ScreenParent
-        {
-            get
-            {
-                return base.GetComponentInParent<PackSelectorScreen>();
-            }
-        }
+        private PackSelectorScreen ScreenParent => base.GetComponentInParent<PackSelectorScreen>();
 
         public override void OnCursorSelectEnd()
         {
@@ -57,10 +93,9 @@ namespace Infiniscryption.PackManagement.UserInterface
             CoveredRenderer.gameObject.SetActive(!Selected);
         }
 
-        private string RandomCardName()
-        {
-            return CardManager.AllCardsCopy.CardByName(this.Info.ActualCardList[UnityEngine.Random.Range(0, this.Info.ActualCardList.Count)]).DisplayedNameLocalized;
-        }
+        private string RandomCardName() => ActualCards[UnityEngine.Random.Range(0, ActualCards.Count)].DisplayedNameLocalized;
+
+        private double AveragePowerLevel => ActualCards.Where(ci => ci != null).Select(ci => ci.PowerLevel).Average();
 
         private string ReplaceRandom(string text)
         {
@@ -76,9 +111,9 @@ namespace Infiniscryption.PackManagement.UserInterface
 
         private string FormatString(string description)
         {
-            string repSring = description.Replace("[count]", this.Info.ActualCardList.Count.ToString())
+            string repSring = description.Replace("[count]", ActualCards.Count.ToString())
                                          .Replace("[name]", this.Info.Title)
-                                         .Replace("[powerlevel]", Math.Round(this.Info.AveragePowerLevel, 2).ToString());
+                                         .Replace("[powerlevel]", Math.Round(this.AveragePowerLevel, 2).ToString());
 
             repSring = ReplaceRandom(repSring);
             return Localization.Translate(repSring);

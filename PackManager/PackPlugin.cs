@@ -32,5 +32,10 @@ namespace Infiniscryption.PackManagement
 
             Logger.LogInfo($"Plugin {PluginName} is loaded!");
         }
+
+        private void Start()
+        {
+            PackManager.ForceSyncOfAllPacks();
+        }
     }
 }

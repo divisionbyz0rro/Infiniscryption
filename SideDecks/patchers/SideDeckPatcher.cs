@@ -18,7 +18,7 @@ namespace Infiniscryption.SideDecks.Patchers
     {
         public static Trait BACKWARDS_COMPATIBLE_SIDE_DECK_MARKER = (Trait)5103;
         public static CardMetaCategory SIDE_DECK = GuidManager.GetEnumValue<CardMetaCategory>(SideDecksPlugin.PluginGuid, "SideDeck");
-
+        
         public static string SelectedSideDeck
         {
             get 
@@ -32,15 +32,24 @@ namespace Infiniscryption.SideDecks.Patchers
             set { ModdedSaveManager.SaveData.SetValue(SideDecksPlugin.PluginGuid, "SideDeck.SelectedDeck", value.ToString()); }
         }
 
-        public static Opponent.Type ScreenState 
+        public static int SelectedSideDeckCost
+        {
+            get
+            {
+                CardInfo info = CardManager.AllCardsCopy.CardByName(SelectedSideDeck);
+                return info.GetSideDeckValue();
+            }
+        }
+
+        public static CardTemple ScreenState 
         { 
             get
             {
                 string value = ModdedSaveManager.SaveData.GetValue("zorro.inscryption.infiniscryption.p03kayceerun", "ScreenState");
                 if (string.IsNullOrEmpty(value))
-                    return Opponent.Type.Default;
+                    return CardTemple.Nature;
 
-                return (Opponent.Type)Enum.Parse(typeof(Opponent.Type), value);
+                return (CardTemple)Enum.Parse(typeof(CardTemple), value);
             }
         }
 
@@ -60,32 +69,33 @@ namespace Infiniscryption.SideDecks.Patchers
         {
             if (!AscensionSaveData.Data.ChallengeIsActive(AscensionChallenge.SubmergeSquirrels))
             {
-                if (SceneLoader.ActiveSceneName.ToLowerInvariant().Contains("part1") || ScreenState == Opponent.Type.Default || ScreenState == Opponent.Type.LeshyBoss)
+                if (SceneLoader.ActiveSceneName.ToLowerInvariant().Contains("part1") || ScreenState == CardTemple.Nature)
                 {
                     SideDecksPlugin.Log.LogInfo($"Getting cards: Screenstate {ScreenState}, IsPart1 {SceneLoader.ActiveSceneName.ToLowerInvariant().Contains("part1")}");
                     return CardManager.AllCardsCopy.Where(card => card.metaCategories.Contains(SIDE_DECK) && card.temple == CardTemple.Nature)
                                                .Select(card => card.name).ToList();
                 }
-                else if (SaveManager.saveFile.IsPart3 || ScreenState == Opponent.Type.P03Boss)
+                else if (SaveManager.saveFile.IsPart3 || ScreenState == CardTemple.Tech)
                 {
-                    return new() { "EmptyVessel" };
+                    return CardManager.AllCardsCopy.Where(card => card.metaCategories.Contains(SIDE_DECK) && card.temple == CardTemple.Tech)
+                                               .Select(card => card.name).ToList();
                 }
-                else if (SaveManager.saveFile.IsGrimora || ScreenState == Opponent.Type.GrimoraBoss)
+                else if (SaveManager.saveFile.IsGrimora || ScreenState == CardTemple.Undead)
                 {
                     return new() { "Skeleton" };
                 }
             }
             else
             {
-                if (SceneLoader.ActiveSceneName.ToLowerInvariant().Contains("part1") || ScreenState == Opponent.Type.Default || ScreenState == Opponent.Type.LeshyBoss)
+                if (SceneLoader.ActiveSceneName.ToLowerInvariant().Contains("part1") || ScreenState == CardTemple.Nature)
                 {
                     return new() { "AquaSquirrel" };
                 }
-                else if (SaveManager.saveFile.IsPart3 || ScreenState == Opponent.Type.P03Boss)
+                else if (SaveManager.saveFile.IsPart3 || ScreenState == CardTemple.Tech)
                 {
-                    return new() { "EmptyVessel" };
+                    return new() { "EmptyVesselSubmerge" };
                 }
-                else if (SaveManager.saveFile.IsGrimora || ScreenState == Opponent.Type.GrimoraBoss)
+                else if (SaveManager.saveFile.IsGrimora || ScreenState == CardTemple.Undead)
                 {
                     return new() { "Skeleton" };
                 }
@@ -106,6 +116,13 @@ namespace Infiniscryption.SideDecks.Patchers
             return false;
         }
 
+        [HarmonyPatch(typeof(AscensionSaveData), "GetActiveChallengePoints")]
+        [HarmonyPostfix]
+        public static void ReduceChallengeIfCustomSideDeckSelected(ref int __result)
+        {
+            __result += SelectedSideDeckCost;
+        }
+
         [HarmonyPatch(typeof(DialogueDataUtil), "ReadDialogueData")]
         [HarmonyPostfix]
         public static void CurseDialogue()
@@ -116,6 +133,47 @@ namespace Infiniscryption.SideDecks.Patchers
             {
                 "Here you may replace the creatures in your [c:bR]side deck[c:]"
             });
+        }
+
+        [HarmonyPatch(typeof(Part3SaveData), "Initialize")]
+        [HarmonyPostfix]
+        private static void AddSideDeckAbilitiesWithMesh(ref Part3SaveData __instance)
+        {
+            if (SaveFile.IsAscension && AscensionSaveData.Data.currentRun != null)
+            {
+                CardInfo info = CardManager.AllCardsCopy.CardByName(SelectedSideDeck);
+                foreach(Ability ab in info.Abilities)
+                {
+                    AbilityInfo abInfo = AbilitiesUtil.GetInfo(ab);
+
+                    if (abInfo.mesh3D != null)
+                        __instance.sideDeckAbilities.Add(ab);
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(Part3CardDrawPiles), nameof(Part3CardDrawPiles.AddModsToVessel))]
+        [HarmonyPostfix]
+        private static void AddSideDeckAbilitiesWithoutMesh(CardInfo info)
+        {
+            if (info != null)
+            {
+                CardInfo sideDeckCard = CardManager.AllCardsCopy.CardByName(SelectedSideDeck);
+                foreach(Ability ab in sideDeckCard.Abilities)
+                {
+                    if (info.HasAbility(ab))
+                        continue;
+
+                    AbilityInfo abInfo = AbilitiesUtil.GetInfo(ab);
+
+                    if (abInfo.mesh3D == null)
+                    {
+                        CardModificationInfo abMod = new(ab);
+                        abMod.sideDeckMod = true;
+                        info.mods.Add(abMod);
+                    }
+                }
+            }
         }
     }
 }

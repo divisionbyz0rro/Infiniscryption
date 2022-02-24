@@ -11,15 +11,15 @@ namespace Infiniscryption.P03KayceeRun.Patchers
     [HarmonyPatch]
     public static class ScreenManagement
     {
-        public static Opponent.Type ScreenState 
+        public static CardTemple ScreenState 
         { 
             get
             {
                 string value = ModdedSaveManager.SaveData.GetValue(P03Plugin.PluginGuid, "ScreenState");
                 if (string.IsNullOrEmpty(value))
-                    return Opponent.Type.Default;
+                    return CardTemple.Nature;
 
-                return (Opponent.Type)Enum.Parse(typeof(Opponent.Type), value);
+                return (CardTemple)Enum.Parse(typeof(CardTemple), value);
             }
             set
             {
@@ -33,7 +33,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         {
             if (newRun)
             {
-                if (ScreenState == Opponent.Type.P03Boss)
+                if (ScreenState == CardTemple.Tech)
                 {
                     // Ensure the old part 3 save data gets saved if it needs to be
                     P03AscensionSaveData.EnsureRegularSave();
@@ -79,7 +79,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
         private static void ClearP03Data()
         {
-            ScreenState = Opponent.Type.Default;
+            ScreenState = CardTemple.Nature;
             RunBasedHoloMap.ClearWorldData();
         }
 
@@ -123,7 +123,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             newP03Button.name = "Menu_New_P03";
             AscensionMenuInteractable newP03ButtonController = newP03Button.GetComponent<AscensionMenuInteractable>();
             newP03ButtonController.CursorSelectStarted = delegate (MainInputInteractable i) {
-                ScreenState = Opponent.Type.P03Boss;
+                ScreenState = CardTemple.Tech;
                 newButtonController.CursorSelectStart();
             };
             newP03Button.GetComponentInChildren<PixelText>().SetText("- NEW P03 RUN -");

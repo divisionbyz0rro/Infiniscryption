@@ -11,26 +11,24 @@ namespace Infiniscryption.PackManagement.Patchers
 
         public string Description;
 
-        public string[] Cards;
-
-        public string RegexMatch;
+        public string ModPrefix;
 
         public string PackArt;
 
         public string[] ValidFor;
 
-        public PackInfo Convert()
+        public void Convert()
         {
-            PackInfo info = new PackInfo();
+            PackInfo info = PackManager.GetPackInfo(this.ModPrefix);
             info.Title = Title;
             info.Description = Description;
-            info.Cards = Cards == null ? new() : new(Cards);
-            info.RegexMatch = RegexMatch;
             info.SetTexture(TextureHelper.GetImageAsTexture(PackArt));
-            info.ValidFor = ValidFor == null ? new () : ValidFor.Select(s => (Opponent.Type)Enum.Parse(typeof(Opponent.Type), s)).ToList();
-            if (info.ValidFor.Count == 0)
-                info.ValidFor.Add(Opponent.Type.Default);
-            return info;
+            
+            if (this.ValidFor != null && this.ValidFor.Length > 0)
+            {
+                info.ValidFor.Clear();
+                info.ValidFor.AddRange(this.ValidFor.Select(s => (PackInfo.PackMetacategory)Enum.Parse(typeof(PackInfo.PackMetacategory), s)));
+            }
         }
     }
 }

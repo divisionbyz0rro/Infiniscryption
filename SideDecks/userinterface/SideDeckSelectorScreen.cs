@@ -7,6 +7,7 @@ using System;
 using GBC;
 using InscryptionAPI.Ascension;
 using Infiniscryption.SideDecks.Patchers;
+using InscryptionAPI.Card;
 
 namespace Infiniscryption.SideDecks.UserInterface
 {
@@ -49,14 +50,6 @@ namespace Infiniscryption.SideDecks.UserInterface
             }
         }
 
-        [HarmonyPatch(typeof(AscensionSaveData), "GetActiveChallengePoints")]
-        [HarmonyPostfix]
-        public static void ReduceChallengeIfCustomSideDeckSelected(ref int __result)
-        {
-            if (SideDeckSelectorScreen.Instance != null)
-                __result += SideDeckSelectorScreen.Instance.SideDeckPoints;
-        }
-
         public override void LeftButtonClicked(MainInputInteractable button)
         {
             if (scrollIndex > 0)
@@ -75,15 +68,12 @@ namespace Infiniscryption.SideDecks.UserInterface
             }
         }
 
-        public int SideDeckPoints { get; private set; }
-
         private void VisualUpdate(bool immediate=false)
         {
             CardInfo selectedCard = CardLoader.GetCardByName(SideDeckManager.SelectedSideDeck);
 
             string message = String.Format(Localization.Translate("{0} SELECTED"), Localization.ToUpper(selectedCard.DisplayedNameLocalized));
-            SideDeckPoints = selectedCard.name == sideDeckCards[0].name ? 0 : -10;
-            this.DisplayChallengeInfo(message, SideDeckPoints, immediate);
+            this.DisplayChallengeInfo(message, SideDeckManager.SelectedSideDeckCost, immediate);
 
             this.challengeHeaderDisplay.UpdateText();
 
@@ -134,6 +124,7 @@ namespace Infiniscryption.SideDecks.UserInterface
         {
             SideDecksPlugin.Log.LogInfo($"Setting card infos");
             this.sideDeckCards = SideDeckManager.GetAllValidSideDeckCards().Select(CardLoader.GetCardByName).ToList();
+            this.sideDeckCards.Sort((a, b) => a.GetSideDeckValue() - b.GetSideDeckValue());
 
             // Hide the left and right buttons if the number of available side deck cards is <= the number of card panels
             this.leftButton.gameObject.SetActive(this.cards.Count < this.sideDeckCards.Count);
@@ -155,6 +146,11 @@ namespace Infiniscryption.SideDecks.UserInterface
             }
 
             VisualUpdate(true);
+        }
+
+        public override void CardCursorEntered(PixelSelectableCard card)
+        {
+            this.DisplayCardInfo(card.Info, $"{card.Info.DisplayedNameLocalized} (-{card.Info.GetExtendedPropertyAsInt("SideDeckValue")} points)");
         }
     }
 }

@@ -57,13 +57,19 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         {
             get 
             { 
-                if (SceneLoader.ActiveSceneName == "Part3_Cabin")
+                if (SceneLoader.ActiveSceneName.ToLowerInvariant().Contains("part3"))
                     return true;
 
-                if (ScreenManagement.ScreenState == Opponent.Type.P03Boss)
+                if (ScreenManagement.ScreenState == CardTemple.Tech)
                     return true;
 
-                return ModdedSaveManager.SaveData.GetValueAsBoolean(P03Plugin.PluginGuid, "IsP03Run");
+                if (SceneLoader.ActiveSceneName.ToLowerInvariant().Contains("part1"))
+                    return false;
+
+                if (AscensionSaveData.Data.currentRun != null && AscensionSaveData.Data.currentRun.playerLives > 0)
+                    return ModdedSaveManager.SaveData.GetValueAsBoolean(P03Plugin.PluginGuid, "IsP03Run");
+
+                return false;
             }
             set
             {
@@ -223,6 +229,9 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         [HarmonyPostfix]
         private static void RewritePart3IntroSequence(ref Part3SaveData __instance)
         {
+            if (!P03Plugin.Initialized)
+                return;
+
             if (SaveFile.IsAscension && AscensionSaveData.Data.currentRun != null)
             {
                 string worldId = RunBasedHoloMap.GetAscensionWorldID(RunBasedHoloMap.NEUTRAL);
@@ -290,7 +299,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         [HarmonyPrefix]
         public static bool ReplaceGenerateForP03(ref List<string> __result)
         {
-            if (ScreenManagement.ScreenState == Opponent.Type.P03Boss || P03AscensionSaveData.IsP03Run)
+            if (P03AscensionSaveData.IsP03Run)
             {
                 __result = new List<string>() { null, null, CustomCards.VIRUS_SCANNER, CustomCards.VIRUS_SCANNER };
                 return false;

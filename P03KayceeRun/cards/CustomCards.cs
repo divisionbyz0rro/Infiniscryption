@@ -87,22 +87,23 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         private static void WriteP03PackInner(List<string> cardNames)
         {
             // Start by creating the pack:
-            PackInfo packInfo = new PackInfo();
-            packInfo.Title = "Inscryption: Techno Card Expansion Pack";
-            packInfo.Description = "The original set of robotic cards, exclusively using the energy mechanic. Featuring [randomcard], [randomcard], and the occasional [randomcard].";
-            packInfo.SetTexture(AssetHelper.LoadTexture("tech"));
-            packInfo.ValidFor = new List<Opponent.Type>() { Opponent.Type.Default, Opponent.Type.P03Boss };
-            packInfo.Cards = new List<string>(cardNames);
-            PackManager.Add(P03Plugin.PluginGuid, packInfo);
+            PackInfo packInfo = PackManager.GetDefaultPackInfo(CardTemple.Tech);
+            packInfo.ValidFor.Add(PackInfo.PackMetacategory.LeshyPack);
 
             // Awesome! Since there hasn't been an error, I can start modifying cards:
             CardManager.ModifyCardList += delegate(List<CardInfo> cards)
             {
-                if (ScreenManagement.ScreenState == Opponent.Type.Default && PackManager.GetActivePacks().Contains(packInfo))
-                    foreach (CardInfo card in cards)
-                        if (packInfo.Cards.Contains(card.name, StringComparer.OrdinalIgnoreCase))
-                            if (!card.metaCategories.Contains(CardMetaCategory.Rare))
-                                card.AddMetaCategories(CardMetaCategory.ChoiceNode, CardMetaCategory.TraderOffer);
+                if (P03Plugin.Initialized)
+                {
+                    if (ScreenManagement.ScreenState == CardTemple.Nature && PackManager.GetActivePacks().Contains(packInfo))
+                    {
+                        List<CardInfo> techCards = PackManager.GetDefaultPackInfo(CardTemple.Tech).Cards.ToList();
+                        foreach (CardInfo card in cards)
+                            if (techCards.Exists(ci => ci.name.Equals(card.name, StringComparison.OrdinalIgnoreCase)))
+                                if (!card.metaCategories.Contains(CardMetaCategory.Rare))
+                                    card.AddMetaCategories(CardMetaCategory.ChoiceNode, CardMetaCategory.TraderOffer);
+                    }
+                }
 
                 return cards;
             };

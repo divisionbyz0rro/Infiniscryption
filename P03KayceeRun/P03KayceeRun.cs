@@ -16,6 +16,8 @@ namespace Infiniscryption.P03KayceeRun
 
         internal static ManualLogSource Log;
 
+        internal static bool Initialized = false;
+
         private void Awake()
         {
             Log = base.Logger;
@@ -27,6 +29,8 @@ namespace Infiniscryption.P03KayceeRun
             StarterDecks.RegisterStarterDecks();
             AscensionChallengeManagement.UpdateP03Challenges();
             BossManagement.RegisterBosses();
+
+            Initialized = true;
 
             Logger.LogInfo($"Plugin {PluginName} is loaded!");
         }

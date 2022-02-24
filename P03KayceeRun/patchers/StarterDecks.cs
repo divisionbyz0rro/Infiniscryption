@@ -40,13 +40,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
             StarterDeckManager.ModifyDeckList += delegate(List<StarterDeckManager.FullStarterDeck> decks)
             {
-                CardTemple acceptableTemple = CardTemple.Nature;
-                if (ScreenManagement.ScreenState == Opponent.Type.P03Boss)
-                    acceptableTemple = CardTemple.Tech;
-                if (ScreenManagement.ScreenState == Opponent.Type.MagnificusBoss)
-                    acceptableTemple = CardTemple.Wizard;
-                if (ScreenManagement.ScreenState == Opponent.Type.GrimoraBoss)
-                    acceptableTemple = CardTemple.Undead;
+                CardTemple acceptableTemple = ScreenManagement.ScreenState;
 
                 // Only keep decks where at least one card belongs to this temple
                 decks.RemoveAll(info => info.Info.cards.FirstOrDefault(ci => ci.temple == acceptableTemple) == null);

@@ -14,10 +14,9 @@ namespace Infiniscryption.PackManagement.Patchers
             {
                 try
                 {
-                    string pseudoGuid = fileName.Replace(Paths.PluginPath, "").Replace(Path.PathSeparator, '.');
                     string json = File.ReadAllText(fileName);
                     PackInfoJSON pack = SaveManager.FromJSON<PackInfoJSON>(json);
-                    PackManager.Add(pseudoGuid, pack.Convert());
+                    pack.Convert();
                 }
                 catch (Exception ex)
                 {

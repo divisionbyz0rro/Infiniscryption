@@ -38,15 +38,25 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 pointValue = 5
             });
 
+            PatchedChallengesReference.Add(new() {
+                challengeType = AscensionChallenge.SubmergeSquirrels,
+                title = "Vessel Fish",
+                description = "Your empty vessels have the Waterborne sigil",
+                iconSprite = TextureHelper.ConvertTexture(AssetHelper.LoadTexture("ascensionicon_vesselfish"), TextureHelper.SpriteType.ChallengeIcon),
+                activatedSprite = TextureHelper.ConvertTexture(Resources.Load<Texture2D>("art/ui/ascension/ascensionicon_activated_default"), TextureHelper.SpriteType.ChallengeIcon),
+                pointValue = 20
+            });
+
             ValidChallenges = new() {
                 AscensionChallenge.BaseDifficulty,
                 AscensionChallenge.ExpensivePelts,
                 AscensionChallenge.LessConsumables,
                 AscensionChallenge.LessLives,
                 AscensionChallenge.NoBossRares,
-                AscensionChallenge.NoHook,
+                AscensionChallenge.NoHook, 
                 AscensionChallenge.StartingDamage,
-                AscensionChallenge.WeakStarterDeck
+                AscensionChallenge.WeakStarterDeck,
+                AscensionChallenge.SubmergeSquirrels
             };
 
             ChallengeManager.ModifyChallenges += delegate(List<AscensionChallengeInfo> challenges)
@@ -65,25 +75,29 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             };
         }
 
-        // [HarmonyPatch(typeof(AscensionChallengeScreen), "OnEnable")]
-        // [HarmonyPrefix]
-        // public static void SetP03Challenges(ref AscensionChallengeScreen __instance)
-        // {
-        //     AscensionChallengePaginator pageController = __instance.gameObject.GetComponent<AscensionChallengePaginator>();
-
-        //     pageController.availableChallenges = pageController.availableChallenges.Select(aci => AscensionChallengesUtil.GetInfo(aci.challengeType)).ToList();
-        //     pageController.pages = pageController.pages.Select(p => p.Select(aci => AscensionChallengesUtil.GetInfo(aci.challengeType)).ToList()).ToList();
-        //     pageController.ShowVisibleChallenges();
-        // }
-
         [HarmonyPatch(typeof(AscensionUnlockSchedule), nameof(AscensionUnlockSchedule.ChallengeIsUnlockedForLevel))]
         [HarmonyAfter(new string[] { "cyantist.inscryption.api" })]
         [HarmonyPostfix]
         public static void ValidP03Challenges(ref bool __result, AscensionChallenge challenge)
         {
-            if (ScreenManagement.ScreenState == Opponent.Type.P03Boss && !ValidChallenges.Contains(challenge))
+            if (ScreenManagement.ScreenState == CardTemple.Tech && !ValidChallenges.Contains(challenge))
             {
                 __result = false;
+            }
+        }
+
+        [HarmonyPatch(typeof(Part3CardDrawPiles), nameof(Part3CardDrawPiles.AddModsToVessel))]
+        [HarmonyPostfix]
+        private static void AddSideDeckAbilitiesWithoutMesh(CardInfo info)
+        {
+            if (AscensionSaveData.Data.ChallengeIsActive(AscensionChallenge.SubmergeSquirrels))
+            {
+                if (info != null && !info.HasAbility(Ability.Submerge))
+                {
+                    CardModificationInfo abMod = new(Ability.Submerge);
+                    abMod.sideDeckMod = true;
+                    info.mods.Add(abMod);
+                }
             }
         }
     }

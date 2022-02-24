@@ -19,7 +19,17 @@ namespace Infiniscryption.PackManagement.UserInterface
 
         public static PackSelectorScreen Instance;
 
-        private List<PackInfo> ScreenActivePacks;
+        private static GameObject _textPseudoPrefab;
+        private static GameObject TextPseudoPrefab
+        {
+            get
+            {
+                if (_textPseudoPrefab == null)
+                    _textPseudoPrefab = AscensionMenuScreens.Instance.startScreen.transform.Find("Center/Subtitle/PixelTextLine_DIV").gameObject;
+                
+                return _textPseudoPrefab;
+            }
+        }
 
         private static Sprite _coveredSprite;
         private static Sprite CoveredSprite
@@ -37,13 +47,13 @@ namespace Infiniscryption.PackManagement.UserInterface
         }
 
         private static Sprite _defaultPackSprite;
-        private static Sprite DefaultPackSprite
+        internal static Sprite DefaultPackSprite
         {
             get
             {
                 if (_defaultPackSprite == null)
                 {
-                    _defaultPackSprite = Sprite.Create(AssetHelper.LoadTexture("default"), new Rect(0f, 0f, 46f, 74f), new Vector2(0.5f, 0.5f));
+                    _defaultPackSprite = Sprite.Create(AssetHelper.LoadTexture("default_window"), new Rect(0f, 0f, 46f, 74f), new Vector2(0.5f, 0.5f));
                     _defaultPackSprite.name = "DefaultPackSprite";
                 }
                 
@@ -69,6 +79,22 @@ namespace Infiniscryption.PackManagement.UserInterface
             retval.IconRenderer.sprite = DefaultPackSprite;
             retval.IconRenderer.enabled = true;
             retval.IconRenderer.sortingOrder = 200;
+
+            GameObject title = GameObject.Instantiate(TextPseudoPrefab, obj.transform);
+            retval.Text = title.GetComponentInChildren<PixelText>();
+            retval.Text.SetColor(Color.black);
+            retval.Text.SetSortingOrder(225);
+            title.transform.localPosition = new Vector3(0f, 0.2f, 0f);
+
+            GameObject packIcon = new GameObject("PackCardIcon");
+            packIcon.transform.SetParent(obj.transform);
+            packIcon.layer = LayerMask.NameToLayer("GBCUI");
+            retval.SampleCardRenderer = packIcon.AddComponent<SpriteRenderer>();
+            retval.SampleCardRenderer.sprite = CardLoader.GetCardByName("Grizzly").portraitTex;
+            retval.SampleCardRenderer.enabled = true;
+            retval.SampleCardRenderer.sortingOrder = 230;
+            packIcon.transform.localPosition = new Vector3(0f, -.07f, 0f);
+            packIcon.transform.localScale = new Vector3(0.36f, 0.36f, 0.36f);
 
             GameObject selected = new GameObject("Covered");
             selected.transform.SetParent(obj.transform);
@@ -120,7 +146,7 @@ namespace Infiniscryption.PackManagement.UserInterface
 
         public override void RightButtonClicked(MainInputInteractable button)
         {
-            if ((scrollIndex + 1) * this.PackIcons.Count < ScreenActivePacks.Count)
+            if ((scrollIndex + 1) * this.PackIcons.Count < this.cache.OrderedPacks.Count)
             {
                 scrollIndex += 1;
                 ShowPage();
@@ -133,9 +159,9 @@ namespace Infiniscryption.PackManagement.UserInterface
 
         public void ShowPage()
         {
-            int startIdx = ScreenActivePacks.Count * scrollIndex;
-            int numToShow = Math.Min(this.PackIcons.Count, ScreenActivePacks.Count - startIdx);
-            this.ShowPacks(ScreenActivePacks.GetRange(startIdx, numToShow));
+            int startIdx = this.cache.OrderedPacks.Count * scrollIndex;
+            int numToShow = Math.Min(this.PackIcons.Count, this.cache.OrderedPacks.Count - startIdx);
+            this.ShowPacks(this.cache.OrderedPacks.GetRange(startIdx, numToShow));
         }
 
         public void InitializeCardSelection()
@@ -159,17 +185,23 @@ namespace Infiniscryption.PackManagement.UserInterface
 
             for (int i = 0; i < numToShow; i++)
             {
-                this.PackIcons[i].AssignPackInfo(packsToDisplay[i]);
+                this.PackIcons[i].AssignPackInfo(packsToDisplay[i], this.cache);
                 this.PackIcons[i].gameObject.transform.localPosition = startPos + (float)i * BETWEEN_CARD_OFFSET;
                 this.PackIcons[i].gameObject.SetActive(true);
             }
         }
 
+        private PackContentCache cache;
+
         public override void OnEnable()
         {
             base.OnEnable();
 
-            ScreenActivePacks = PackManager.ValidPacks.Where(pi => pi.ValidFor.Contains(PackManager.ScreenState)).ToList();
+            this.cache = new();
+
+            // Reset active from inactive
+            List<PackInfo> inactivePacks = PackManager.RetrievePackList(false);
+            PackManager.SavePackList(this.cache.OrderedPacks.Where(pi => !inactivePacks.Contains(pi)).ToList(), true);
 
             scrollIndex = 0;
             InitializeCardSelection();

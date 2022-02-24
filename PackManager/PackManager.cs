@@ -12,94 +12,153 @@ using UnityEngine;
 
 namespace Infiniscryption.PackManagement
 {
-
     [HarmonyPatch]
     public static class PackManager
     {
-        private static HashSet<CardInfo> ProcessedCards = new();
-        public readonly static ReadOnlyCollection<PackInfo> BaseGamePacks = new(GenBaseGamePackList());
-        private readonly static ObservableCollection<PackInfo> NewPacks = new();
-
         private static List<CardMetaCategory> protectedMetacategories = new();
         public static void AddProtectedMetacategory(CardMetaCategory category)
         {
             protectedMetacategories.Add(category);
         }
 
-        public static Opponent.Type ScreenState 
+        static PackManager()
+        {
+            AllPacks = new();
+
+            // Add all of the default packs
+            PackInfo beastly = new PackInfo(CardTemple.Nature);
+            beastly.Title = "Inscryption: Beastly Card Expansion Pack";
+            beastly.Description = "The original set of cards featured in Leshy's cabin. Featuring wolves, mantises, and the occasional cockroach.";
+            beastly.SetTexture(AssetHelper.LoadTexture("beastly"));
+            AllPacks.Add(beastly);
+
+            PackInfo techno = new PackInfo(CardTemple.Tech);
+            techno.Title = "Inscryption: Techno Card Expansion Pack";
+            techno.Description = "The original set of robotic cards, exclusively using the energy mechanic.";
+            techno.SetTexture(AssetHelper.LoadTexture("tech"));
+            AllPacks.Add(techno);
+
+            PackInfo undead = new PackInfo(CardTemple.Undead);
+            undead.Title = "Inscryption: Undead Card Expansion Pack";
+            undead.Description = "Powered by the bones of the dead, these cards have come back from the grave to fight for you.";
+            undead.SetTexture(AssetHelper.LoadTexture("undead")); 
+            AllPacks.Add(undead);
+
+            PackInfo wizard = new PackInfo(CardTemple.Wizard);
+            wizard.Title = "Inscryption: Magickal Card Expansion Pack";
+            wizard.Description = "Harness the might of the moxen to summon forth apprentices and fight in the most honorable of duels.";
+            wizard.SetTexture(AssetHelper.LoadTexture("wizard")); 
+            AllPacks.Add(wizard);
+
+            // Add the leftovers pack as well
+            PackInfo leftovers = new PackInfo(true);
+            leftovers.Title = "Miscellaneous Community Cards";
+            leftovers.Description = "The unusual, unsorted, and unruly cards that have been added by mods but not properly sorted into packs.";
+            leftovers.SetTexture(AssetHelper.LoadTexture("leftovers"));
+            AllPacks.Add(leftovers);
+
+            // Temple metacategories
+            TempleMetacategories = new Dictionary<CardTemple, List<CardMetaCategory>>();
+            TempleMetacategories.Add(CardTemple.Nature, new() { CardMetaCategory.ChoiceNode, CardMetaCategory.TraderOffer });
+            TempleMetacategories.Add(CardTemple.Tech, new() { CardMetaCategory.ChoiceNode, CardMetaCategory.Part3Random });
+            TempleMetacategories.Add(CardTemple.Wizard, new() { CardMetaCategory.ChoiceNode });
+            TempleMetacategories.Add(CardTemple.Undead, new() { CardMetaCategory.ChoiceNode });
+        }
+
+        public static Dictionary<CardTemple, List<CardMetaCategory>> TempleMetacategories;
+
+        internal static List<PackInfo> AllPacks;        
+        
+        private static List<string> ActiveCards = new();
+
+        private static List<Ability> ActiveAbilities = new();
+
+        public static IEnumerable<PackInfo> AllRegisteredPacks
+        {
+            get
+            {
+                return AllPacks.Where(pi => pi.IsBaseGameCardPack)
+                       .Concat(AllPacks.Where(pi => pi.IsStandardCardPack))
+                       .Concat(AllPacks.Where(pi => pi.IsLeftoversPack));
+            }
+        }
+
+        public static PackInfo GetDefaultPackInfo(CardTemple temple) => AllPacks.FirstOrDefault(pi => pi.DefaultPackTemple == temple);
+
+        public static PackInfo GetPackInfo(string modPrefix)
+        {
+            PackInfo retval = AllPacks.FirstOrDefault(pi => pi.IsStandardCardPack && modPrefix.Equals(pi.ModPrefix));
+            if (retval == null)
+            {
+                retval = new PackInfo(modPrefix);
+                AllPacks.Add(retval);
+            }
+
+            return retval;
+        }
+
+        public static PackInfo GetLeftoversPack()
+        {
+            return AllPacks.FirstOrDefault(pi => pi.IsLeftoversPack);
+        }
+
+        internal static CardTemple ScreenState 
         { 
             get
             {
                 string value = ModdedSaveManager.SaveData.GetValue("zorro.inscryption.infiniscryption.p03kayceerun", "ScreenState");
                 if (string.IsNullOrEmpty(value))
-                    return Opponent.Type.Default;
+                    return CardTemple.Nature;
 
-                return (Opponent.Type)Enum.Parse(typeof(Opponent.Type), value);
+                return (CardTemple)Enum.Parse(typeof(CardTemple), value);
             }
         }
-        
-        public static List<PackInfo> AllPacks { get; private set; } = BaseGamePacks.ToList();
-        public static List<PackInfo> ValidPacks { get; private set; } = BaseGamePacks.ToList();
 
-        static PackManager()
+        internal static void ForceSyncOfAllPacks()
         {
-            NewPacks.CollectionChanged += static (_, _) =>
+            foreach (var grp in CardManager.AllCardsCopy.Where(ci => !ci.IsBaseGameCard()).GroupBy(ci => ci.GetModPrefix()))
             {
-                AllPacks = BaseGamePacks.Concat(NewPacks).ToList();
-                ValidPacks = AllPacks.Where(pi => pi.ActualCardList.Count > 0).ToList();
-            };
-
-            CardManager.ModifyCardList += SyncPackCardLists;
+                if (string.IsNullOrEmpty(grp.Key))
+                    continue;
+                    
+                if (grp.Count() > 5)
+                    PackManager.GetPackInfo(grp.Key);
+            }
         }
 
-        private static List<PackInfo> GenBaseGamePackList()
-        {           
-            List<PackInfo> baseGame = new();
-
-            // These are the default card packs
-            PackInfo defaultPack = new PackInfo();
-            defaultPack.Name = "Beastly";
-            defaultPack.Title = "Inscryption: Beastly Card Expansion Pack";
-            defaultPack.Description = "The original set of cards. Featuring wolves, mantises, and the occasional cockroach.";
-            defaultPack.SetTexture(AssetHelper.LoadTexture("beastly"));
-            defaultPack.Cards = Resources.LoadAll<CardInfo>("data/cards/nature").Select(c => c.name).Concat(
-                                Resources.LoadAll<CardInfo>("data/cards/specialpart1").Select(c => c.name)).Concat(
-                                Resources.LoadAll<CardInfo>("data/cards/ascensionunlocks").Select(c => c.name)).ToList();
-
-            
-            baseGame.Add(defaultPack);
-
-            return baseGame;
-        }
-
-        public static PackInfo Add(string guid, PackInfo info)
+        internal static bool CardIsValidForScreenState(this CardInfo info)
         {
-            info.Name = guid + "_" + info.Title;
+            try
+            {
+                int x = info.PowerLevel;
 
-            if (!AllPacks.Exists(pi => pi.Name == info.Name)) // Prevent accidentally duplicating packs
-                NewPacks.Add(info);
+                foreach (CardMetaCategory cat in TempleMetacategories[ScreenState])
+                    if (info.metaCategories.Contains(cat))
+                        return true;
 
-            return info;
+                return false;
+            } catch (Exception ex)
+            {
+                PackPlugin.Log.LogError($"Error checking {info.name}");
+                PackPlugin.Log.LogError(ex);
+                return false;
+            }
         }
 
-        private static List<string> ActiveCards = new();
-
-        private static List<Ability> ActiveAbilities = new();
-
-        internal static void SavePackList(List<PackInfo> packs, bool activeList, Opponent.Type state = Opponent.Type.Default)
+        internal static void SavePackList(List<PackInfo> packs, bool activeList, CardTemple state = CardTemple.Nature)
         {
-            if (state == Opponent.Type.Default)
+            if (state == CardTemple.Nature)
                 state = ScreenState;
 
-            string packString = string.Join("|", packs.Select(pi => pi.Name));
+            string packString = string.Join("|", packs.Select(pi => pi.Key));
             string packKey = activeList ? $"AscensionData_ActivePackList" : $"{state.ToString()}_InactivePackList";
 
             ModdedSaveManager.SaveData.SetValue(PackPlugin.PluginGuid, packKey, packString);
         }
 
-        internal static List<PackInfo> RetrievePackList(bool activeList, Opponent.Type state = Opponent.Type.Default)
+        internal static List<PackInfo> RetrievePackList(bool activeList, CardTemple state = CardTemple.Nature)
         {
-            if (state == Opponent.Type.Default)
+            if (state == CardTemple.Nature)
                 state = ScreenState;
 
             string packKey = activeList ? $"AscensionData_ActivePackList" : $"{state.ToString()}_InactivePackList";
@@ -108,44 +167,12 @@ namespace Infiniscryption.PackManagement
             if (packString == default(string))
                 return new();
 
-            return packString.Split('|').Select(k => AllPacks.FirstOrDefault(pi => pi.Name == k)).Where(pi => pi != null).ToList();
+            return packString.Split('|').Select(k => AllPacks.FirstOrDefault(pi => pi.Key == k)).Where(pi => pi != null).ToList();
         }
 
         public static List<PackInfo> GetActivePacks()
         {
             return RetrievePackList(true);
-        }
-        
-        internal static List<CardInfo> SyncPackCardLists(List<CardInfo> cards)
-        {
-            foreach (CardInfo card in cards.Where(c => !ProcessedCards.Contains(c)))
-            {
-                foreach (PackInfo pack in AllPacks)
-                    pack.TryAddCardToPack(card.name);
-
-                ProcessedCards.Add(card);
-            }
-
-            ValidPacks = AllPacks.Where(pi => pi.ActualCardList.Count > 0).ToList();
-
-            return cards;
-        }
-
-        private static bool HasAddedFiltersToEvent = false;
-
-        private static CardTemple GetTempleForActiveOpponent()
-        {
-            switch(ScreenState)
-            {
-                case Opponent.Type.P03Boss:
-                    return CardTemple.Tech;
-                case Opponent.Type.GrimoraBoss:
-                    return CardTemple.Undead;
-                case Opponent.Type.MagnificusBoss:
-                    return CardTemple.Wizard;
-                default:
-                    return CardTemple.Nature;
-            }
         }
 
         internal static List<CardInfo> FilterCardsInPacks(List<CardInfo> cards)
@@ -156,8 +183,9 @@ namespace Infiniscryption.PackManagement
 
             foreach(PackInfo pack in activePacks)
             {
-                ActiveCards.AddRange(pack.ActualCardList);
-                foreach (CardInfo info in CardManager.AllCardsCopy.Where(ci => pack.ActualCardList.Contains(ci.name)))
+                List<CardInfo> cardsInPack = pack.Cards.ToList();
+                ActiveCards.AddRange(cardsInPack.Select(ci => ci.name));
+                foreach (CardInfo info in cardsInPack)
                     foreach(Ability ab in info.Abilities)
                         if (!ActiveAbilities.Contains(ab))
                             ActiveAbilities.Add(ab);
@@ -170,7 +198,7 @@ namespace Infiniscryption.PackManagement
             foreach (CardInfo card in cards)
             {
                 if (ActiveCards.Contains(card.name))
-                    card.temple = GetTempleForActiveOpponent();
+                    card.temple = ScreenState;
                 else
                     card.metaCategories.RemoveAll(c => !protectedMetacategories.Contains(c));
             }
@@ -188,6 +216,8 @@ namespace Infiniscryption.PackManagement
 
             return abilities;
         }
+
+        private static bool HasAddedFiltersToEvent = false;
 
         [HarmonyPatch(typeof(AscensionMenuScreens), nameof(AscensionMenuScreens.TransitionToGame))]
         [HarmonyPrefix]
