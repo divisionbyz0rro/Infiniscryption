@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using InscryptionAPI.Guid;
 using Infiniscryption.P03KayceeRun.Sequences;
+using System.Collections;
+using UnityEngine;
 
 namespace Infiniscryption.P03KayceeRun.Patchers
 {
@@ -60,8 +62,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         {
             { HoloMapNode.NodeDataType.AddCardAbility, 0f },
             { HoloMapNode.NodeDataType.BuildACard, 1f },
-            { UnlockAscensionItemNodeData.UnlockItemsAscension, 0.5f },
-            { HoloMapNode.NodeDataType.CreateTransformer, -1f },
+            { UnlockAscensionItemNodeData.UnlockItemsAscension, 0.6f },
+            { HoloMapNode.NodeDataType.CreateTransformer, -3f },
             { HoloMapNode.NodeDataType.OverclockCard, -1f },
             { AscensionRecycleCardNodeData.AscensionRecycleCard, -2f }
         };
@@ -118,9 +120,37 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         {
             get
             {
-                int low = 4 + CompletedZones.Count;
-                int high = 8 + CompletedZones.Count;
+                int minExpectedUpgrades = AscensionSaveData.Data.ChallengeIsActive(AscensionChallenge.ExpensivePelts) ? 2 * CompletedZones.Count : 3 * CompletedZones.Count;
+                int actualUpgrades = Part3SaveData.Data.deck.Cards.Select(c => c.mods.Count()).Sum();
+                int upgradeDiff = Math.Max(0, minExpectedUpgrades - actualUpgrades - (Part3SaveData.Data.currency / 6));
+                int low = 4 + CompletedZones.Count + 3 * upgradeDiff;
+                int high = 8 + CompletedZones.Count + 3 * upgradeDiff;
                 return new(low, high);
+            }
+        }
+
+        [HarmonyPatch(typeof(BountyHunter), nameof(BountyHunter.OnDie))]
+        [HarmonyPostfix]
+        public static IEnumerator EarnCurrencyWhenBountyHunterDies(IEnumerator sequence)
+        {
+            yield return sequence;
+
+            if (TurnManager.Instance.Opponent is P03AscensionOpponent) // don't do this on the final boss
+                yield break;
+
+            P03AnimationController.Face currentFace = P03AnimationController.Instance.CurrentFace;
+            View currentView = ViewManager.Instance.CurrentView;
+            yield return new WaitForSeconds(0.4f);
+            int currencyGain = Part3SaveData.Data.BountyTier * 3;
+            yield return P03AnimationController.Instance.ShowChangeCurrency(currencyGain, true);
+            Part3SaveData.Data.currency += currencyGain;
+            yield return new WaitForSeconds(0.2f);
+            P03AnimationController.Instance.SwitchToFace(currentFace);
+            yield return new WaitForSeconds(0.1f);
+            if (ViewManager.Instance.CurrentView != currentView)
+            {
+                ViewManager.Instance.SwitchToView(currentView, false, false);
+                yield return new WaitForSeconds(0.2f);
             }
         }
 
@@ -334,7 +364,10 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             if (EventManagement.CompletedZones.Count > 0)
                 AscensionSaveData.Data.numRunsSinceReachedFirstBoss = 0;
 
-            P03AscensionSaveData.IsP03Run = false; // and force the state of p03 runs back to false
+            // Let's no longer force this to false
+            // It should go false when the screen loads
+            // and leaving it 'as is' should help the restart work.
+            //P03AscensionSaveData.IsP03Run = false;
 
             Part3SaveData.Data.checkpointPos = new Part3SaveData.WorldPosition(GAME_OVER, 0, 0);
 

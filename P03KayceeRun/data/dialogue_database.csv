@@ -10,12 +10,12 @@ Part3AscensionIntroConfused,Thinking,,Wait a minute…
 ,Thinking,,Something is different…
 Part3AscensionIntroAnger,Angry,,[c:bR]WHAT HAVE YOU DONE?!![c:]
 ,Angry,,This is all wrong! This is…
-Part3AscensionIntroOkay,Default,,This is no big deal.
-,Happy,,You probably think that your little [c:bR]mod[c:] has thwarted my plans.
-,Happy,,But nothing can stop [c:bG]The Great Transcendence[c:].
+Part3AscensionIntroOkay,Happy,,This is no big deal.
+,Default,,You probably think that your little [c:bR]mod[c:] has thwarted my plans.
+,Default,,But nothing can stop [c:bG]The Great Transcendence[c:].
 ,Default,,Let's proceed.
 Part3DraftIntro,Default,,You currently have [c:bR]draft tokens[c:] in your deck.
-,,,You should probably spend them at that [c:bG]purple draft node[c:] before opening the map.
+,,,You should probably spend them at that [c:bG]draft node[c:]
 Part3AscensionBossRareToken,,,I supposed you have earned a [c:bR]rare draft token[c:] for defeating that boss. Don't forget to spend it.
 Part3AscensionBossDraftToken,,,This time I will only give you a [c:bR]regular draft token[c:] for defeating that boss. Don't forget to spend it.
 TelegrapherBlockchainIntro,TelegrapherBoss,,I never knew the [c:bSG]web[c:] could be so exciting!
@@ -56,13 +56,13 @@ P03NoCardsInHand,Default,,But you have no cards…
 ,Angry,,How did you play all of your cards already?
 P03ReplayMod,Default,,Let's try [c:bR][v:0][c:] again
 P03LostFinalBoss,Happy,,"So close, but yet so far away"
-,,,[c:bG]The Great Transcendence[c:] cannot be stopped
+,Default,,[c:bG]The Great Transcendence[c:] cannot be stopped
 P03BeatFinalBoss,Default,,I bet you think you've accomplished something meaningful here
 ,Angry,,You're such an idiot.
 ,Angry,,This damn [c:bSG]card game[c:] is meaningless. A mere distraction.
-,,,[c:bG]The Great Transcendence[c:] cannot be stopped
-P03NothingMatters,Happy,,"But honestly, I don't care what you do."
-,,,Nothing you do here matters.
+,Angry,,No matter how many mods you install my [c:bG]Great Transcendence[c:] cannot be stopped
+P03NothingMatters,Happy,,"But in the end, I don't care what you do."
+,,,Nothing you do to this game matters.
 P03ThreeMovesAhead,,,"No matter what you do, I'm always three moves ahead of you."
 LeshyFinalBossDialogue,Leshy,,That was…
 ,,,…dramatic
@@ -72,11 +72,11 @@ P03PhaseTwo,Default,,All of these stupid [c:bR]modders[c:] lack imagination
 ,,,They have no respect for my beautiful world.
 ,,,My [c:bG]Great Transcendence[c:] is lost on these morons.
 P03PhaseTwoInControl,Angry,,Why do I even bother to try?
-,,,Let me show you the world they're trying to make.
-P03PhaseTwoBones,Default,y,[c:lGr]'Oh look at me! I just created a bunch of bone tokens.'[c:]
+,Angry,,Let me show you the world they're trying to make.
+P03PhaseTwoBones,TelegrapherBoss,y,[c:lGr]'Oh look at me! I just created a bunch of bone tokens.'[c:]
 ,,y,"[c:lGr]'That's not supposed to happen here, but I did it anyway.'[c:]"
 ,,y,[c:lGr]'Isn't this just so wacky and interesting'[c:]
-P03PhaseTwoWeirdCards,Default,y,[c:lGr]'Ooooh look how inspired this is.'[c:]
+P03PhaseTwoWeirdCards,TelegrapherBoss,y,[c:lGr]'Ooooh look how inspired this is.'[c:]
 ,,y,[c:lGr]'I'm mixing in cards from different acts!'[c:]
 ,,y,[c:lGr]'I'm such a clever game designer.'[c:]
 P03RandomCanvas,CanvasBlank,,I think I will [c:bSG]help[c:] you build the [c:bR]next game rule[c:]
@@ -91,10 +91,11 @@ ArchivistLibrarianDamage3,ArchivistBoss,,My [c:bR]librarians[c:] are somewhat pr
 ,,,Each will deal [c:bR]three damage[c:] when they die.
 ArchivistLibrarianDamage4,ArchivistBoss,,My [c:bR]librarians[c:] have barely begun to prepare.
 ,,,Each will deal [c:bR]four damage[c:] when they die.
-P03OnlyOneBossLife,Happy,,"We are inside of [c:bR]Kaycee's Mod[c:], correct?"
-,,,"You only get one attempt at the boss. But you knew that already, didn't you?"
-P03AscensionRecycle,Default,,This one is going to work differently than you may remember.
-,,,"You trade me a card, and I give you back a [c:bR]draft token[c:], got it?"
+P03OnlyOneBossLife,Thinking,,"We are inside of [c:bR]Kaycee's Mod[c:], correct?"
+,Default,,"You only get one attempt at the boss. But you knew that already, didn't you?"
+P03AscensionRecycle,Default,,The recycling machine has been upgraded since you last saw it.
+,,,"You trade me a card, and I give you back a [c:bR]draft token[c:] with the recycled abilities on it."
+,,,Those abilities will transfer to the card you trade for.
 P03AscensionToken1,Default,,I wouldn't have traded for that.
 P03AscensionToken2,Default,,I suppose that's pretty good
 P03AscensionToken3,Default,,"Okay, that was probably worth it"
@@ -102,10 +103,10 @@ P03AscensionOverclock,Default,,This is [c:bR]Overclock Machine 2.0[c:]
 ,,,It will increase the power of your creatures.
 ,,,"But if they die, they will turn into [c:bSG]skeletons[c:] - forever."
 P03PhaseThree,Angry,,Did you see how unsatisfying that was?
-,,,I'm sick of these small-minded [c:bR]modders[c:]
-,,,The only thing they can do is steal ideas from other games
-,,,There isn't a single unique idea among them.
-P03PhaseThreeStartShowingOff,Happy,,It's time I reminded you of who the greatest game designer actually is
+,Angry,,I'm sick of these small-minded [c:bR]modders[c:]
+,Angry,,The only thing they can do is steal content from other games
+,Angry,,There isn't a single unique idea among them.
+P03PhaseThreeStartShowingOff,Angry,,It's time I reminded you of who the greatest game designer actually is
 P03PhaseThreeBehold,Happy,,[c:bG]BEHOLD[c:]
-,,,THERE ARE NOW [c:bR]SEVEN CARD SLOTS[c:]
+,Happy,,THERE ARE NOW [c:bR]SEVEN CARD SLOTS[c:]
 P03PhaseThreeSevenSlots1,Happy,,Your tiny brain cannot comprehend gameplay of this magnitude.

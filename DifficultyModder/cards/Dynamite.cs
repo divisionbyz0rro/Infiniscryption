@@ -16,6 +16,8 @@ namespace Infiniscryption.Curses.Cards
     {
         public const string EXPLOSION_SOUND = "card_explosion";
 
+        public const string DYNAMITE_CARD_NAME = "Curses_Prospector_Dynamite";
+
 		public override Ability Ability => AbilityID;
         public static Ability AbilityID { get; private set; }
 
@@ -40,7 +42,7 @@ namespace Infiniscryption.Curses.Cards
                 AssetHelper.LoadTexture("ability_dynamite")
             ).Id;
 
-            CardManager.New("Prospector_Dynamite", "Dynamite", 0, 2)
+            CardManager.New(DYNAMITE_CARD_NAME, "Dynamite", 0, 2)
                 .AddTraits(Trait.Terrain)
                 .SetPortrait(AssetHelper.LoadTexture("dynamite_portrait"), AssetHelper.LoadTexture("dynamite_emission"))
                 .AddAbilities(Dynamite.AbilityID)
@@ -59,35 +61,34 @@ namespace Infiniscryption.Curses.Cards
         // In hand, it responds to your upkeep.
         // The 'RespondsToUpkeep' is used by the game under normal circumstances, so it only says 'yes' on opponent's upkeep
 
-        [HarmonyPatch(typeof(TurnManager), "DoUpkeepPhase")]
+        [HarmonyPatch(typeof(TurnManager), "PlayerTurn")]
         [HarmonyPostfix]
-        public static IEnumerator ExplodeOnUpkeep(IEnumerator sequenceEvent, bool playerUpkeep)
+        public static IEnumerator ExplodeAtEndOfTurn(IEnumerator sequenceEvent)
         {
-            while (sequenceEvent.MoveNext())
-                yield return sequenceEvent.Current;
+            yield return sequenceEvent;
 
             // Check for dynamite cards in hand and do it if necessary
-            if (PlayerHand.Instance != null && playerUpkeep)
+            if (PlayerHand.Instance != null)
             {
                 List<PlayableCard> cardsToExplode = PlayerHand.Instance.CardsInHand
                                                     .Where(c => c.Info.Abilities.Any(a => a == Dynamite.AbilityID))
                                                     .ToList();
 
-                object[] upkeepVars = new object[] { playerUpkeep };
+                object[] upkeepVars = new object[] { true };
 
                 foreach (PlayableCard card in cardsToExplode)
-                    yield return card.TriggerHandler.OnTrigger(Trigger.Upkeep, upkeepVars);
+                    yield return card.TriggerHandler.OnTrigger(Trigger.TurnEnd, upkeepVars);
             }
         }
 
-        public override bool RespondsToUpkeep(bool playerUpkeep)
+        public override bool RespondsToTurnEnd(bool playerTurnEnd)
         {
-            return (playerUpkeep && this.Card.InHand) || (!playerUpkeep && this.Card.OnBoard);
+            return playerTurnEnd;
         }
 
-        public override IEnumerator OnUpkeep(bool playerUpkeep)
+        public override IEnumerator OnTurnEnd(bool playerTurnEnd)
         {
-            if (playerUpkeep)
+            if (playerTurnEnd)
             {
                 // Only do this if the card is in the player's hand
                 if (this.Card.InHand)
@@ -123,13 +124,8 @@ namespace Infiniscryption.Curses.Cards
                     yield return new WaitForSeconds(0.5f);
 
                     ViewManager.Instance.SwitchToView(View.Hand);
-
-                }
-            }
-            else
-            {
-                // Only do this if the card is on board still
-                if (this.Card.OnBoard)
+                } 
+                else 
                 {
                     // Focus on the card
                     ViewManager.Instance.SwitchToView(View.BoardCentered);

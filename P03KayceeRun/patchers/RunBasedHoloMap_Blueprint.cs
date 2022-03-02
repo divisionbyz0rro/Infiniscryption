@@ -182,31 +182,32 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             CrawlQuadrant(map, x, y);
         }
 
-        private static void ConnectQuadrants(HoloMapBlueprint[,] map)
+        private static void ConnectQuadrants(HoloMapBlueprint[,] map, int region)
         {
             // This is too hard to generalize, although maybe I'll come up with a way to do it?
+            int v = region == MAGIC ? 3 : 2;
             
             for (int i = 2; i >= 0; i--)
             {
-                if (map[i, 2] != null && map[i, 3] != null)
+                if (map[i, v] != null && map[i, v+1] != null)
                 {
-                    map[i, 2].arrowDirections = map[i, 2].arrowDirections | SOUTH;
-                    map[i, 3].arrowDirections = map[i, 3].arrowDirections | NORTH;
+                    map[i, v].arrowDirections = map[i, v].arrowDirections | SOUTH;
+                    map[i, v+1].arrowDirections = map[i, v+1].arrowDirections | NORTH;
                     break;
                 }
             }
 
             for (int i = 3; i <= 5; i++)
             {
-                if (map[i, 2] != null && map[i, 3] != null)
+                if (map[i, v] != null && map[i, v+1] != null)
                 {
-                    map[i, 2].arrowDirections = map[i, 2].arrowDirections | SOUTH;
-                    map[i, 3].arrowDirections = map[i, 3].arrowDirections | NORTH;
+                    map[i, v].arrowDirections = map[i, v].arrowDirections | SOUTH;
+                    map[i, v+1].arrowDirections = map[i, v+1].arrowDirections | NORTH;
                     break;
                 }
             }
 
-            for (int j = 2; j >= 0; j--)
+            for (int j = v; j >= 0; j--)
             {
                 if (map[2, j] != null && map[3, j] != null)
                 {
@@ -216,7 +217,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 }
             }
 
-            for (int j = 3; j <= 5; j++)
+            for (int j = v+1; j <= 5; j++)
             {
                 if (map[2, j] != null && map[3, j] != null)
                 {
@@ -564,7 +565,12 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             {
                 // Take off the entire top two rows
                 for (int i = 0; i < 6; i++)
-                    bpBlueprint[i, 0] = bpBlueprint[i, 1] = null;
+                {
+                    bpBlueprint[i, 0] = null;
+
+                    if (i != 2 && i != 3)
+                        bpBlueprint[i, 1] = null;
+                }
 
                 // Take out one of the middle two segments
                 x = UnityEngine.Random.value < 0.5f ? 2 : 3;
@@ -629,7 +635,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 bpBlueprint[UnityEngine.Random.Range(2, 4), pointUp ? 2 : 3] = null;
             }
 
-            int v = region == TECH ? 2 : 3;
+            int v = region == MAGIC ? 4 : 3;
             for (int i = 0; i < bpBlueprint.GetLength(0); i++)
                 for (int j = 0; j < bpBlueprint.GetLength(1); j++)
                     if (bpBlueprint[i,j] != null)
@@ -665,7 +671,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 CrawlQuadrant(bpBlueprint, i);
 
             // Set up the connections between quadrants
-            ConnectQuadrants(bpBlueprint);
+            ConnectQuadrants(bpBlueprint, region);
 
             // Figure out the starting space
             HoloMapBlueprint startSpace = bpBlueprint[0, 2];
@@ -677,7 +683,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
             // Make sure that the tech zone adds the conduit to the side deck
             //if (region == TECH)
-            //    startSpace.upgrade = HoloMapSpecialNode.NodeDataType.ModifySideDeckConduit;
+            startSpace.upgrade = TradeChipsNodeData.TradeChipsForCards;
             
             // Do some special sequencing
             DiscoverAndCreateLandmarks(bpBlueprint, retval);

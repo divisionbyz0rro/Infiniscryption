@@ -61,25 +61,11 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 			return true;
         }
 
-        // [HarmonyPatch(typeof(AscensionStartScreen), "RunExists", MethodType.Getter)]
-        // [HarmonyPrefix]
-        // public static bool DoesP03RunExist(ref bool __result)
-        // {
-        //     // If we have a Part 3 Ascension Run saved, then yes - a P03 run exists
-        //     if (!string.IsNullOrEmpty(ModdedSaveManager.SaveData.GetValue(P03Plugin.PluginGuid, P03AscensionSaveData.ASCENSION_SAVE_KEY)))
-        //     {
-        //         if (Part3SaveData.Data.checkpointPos.worldId == EventManagement.GAME_OVER)
-        //             __result = false;
-        //         else
-        //             __result = true;
-        //         return false;
-        //     }
-        //     return true;
-        // }
-
         private static void ClearP03Data()
         {
-            ScreenState = CardTemple.Nature;
+            if (!AscensionMenuScreens.ReturningFromFailedRun && !AscensionMenuScreens.ReturningFromSuccessfulRun)
+                ScreenState = CardTemple.Nature;
+
             RunBasedHoloMap.ClearWorldData();
         }
 
@@ -93,13 +79,18 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             }
         }
 
+        [HarmonyPatch(typeof(AscensionMenuScreens), "Start")]
+        [HarmonyPrefix]
+        public static void ClearScreenStatePrefix()
+        {
+            ClearP03Data();
+        }
+
         private static readonly string[] menuItems = new string[] { "Menu_New", "Continue", "Menu_Stats", "Menu_Unlocks", "Menu_Exit", "Menu_QuitApp" };
         [HarmonyPatch(typeof(AscensionMenuScreens), "Start")]
         [HarmonyPostfix]
         public static void AddP03StartOption()
         {
-            ClearP03Data();
-
             Traverse menuScreens = Traverse.Create(AscensionMenuScreens.Instance);
             GameObject startScreen = menuScreens.Field("startScreen").GetValue<GameObject>();
 

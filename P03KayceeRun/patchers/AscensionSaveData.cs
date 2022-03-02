@@ -295,6 +295,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             }
         }
 
+        // This keeps the oil painting puzzle from breaking the game
         [HarmonyPatch(typeof(OilPaintingPuzzle), nameof(OilPaintingPuzzle.GenerateSolution))]
         [HarmonyPrefix]
         public static bool ReplaceGenerateForP03(ref List<string> __result)

@@ -9,6 +9,7 @@ using System.Linq;
 using Infiniscryption.P03KayceeRun.Cards;
 using InscryptionAPI.Card;
 using Infiniscryption.PackManagement;
+using System.Collections;
 
 namespace Infiniscryption.P03KayceeRun.Patchers
 {
@@ -54,7 +55,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             return info;
         }
 
-        private static void UpdateExistingCard(string name, string textureKey, string pixelTextureKey, string regionCode, string decalTextureKey)
+        private static void UpdateExistingCard(string name, string textureKey, string pixelTextureKey, string regionCode, string decalTextureKey, string colorPortraitKey)
         {
             if (string.IsNullOrEmpty(name))
                 return;
@@ -70,6 +71,12 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
             if (!string.IsNullOrEmpty(textureKey))
                 card.SetPortrait(AssetHelper.LoadTexture(textureKey));
+
+            if (!string.IsNullOrEmpty(colorPortraitKey))
+            {
+                card.SetAltPortrait(AssetHelper.LoadTexture(colorPortraitKey));
+                card.AddAppearances(HighResAlternatePortrait.ID);
+            }
 
             if (!string.IsNullOrEmpty(pixelTextureKey))
                 card.SetPixelPortrait(AssetHelper.LoadTexture(pixelTextureKey));
@@ -94,16 +101,12 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             CardManager.ModifyCardList += delegate(List<CardInfo> cards)
             {
                 if (P03Plugin.Initialized)
-                {
                     if (ScreenManagement.ScreenState == CardTemple.Nature && PackManager.GetActivePacks().Contains(packInfo))
-                    {
-                        List<CardInfo> techCards = PackManager.GetDefaultPackInfo(CardTemple.Tech).Cards.ToList();
                         foreach (CardInfo card in cards)
-                            if (techCards.Exists(ci => ci.name.Equals(card.name, StringComparison.OrdinalIgnoreCase)))
+                            if (card.temple == CardTemple.Tech)
                                 if (!card.metaCategories.Contains(CardMetaCategory.Rare))
-                                    card.AddMetaCategories(CardMetaCategory.ChoiceNode, CardMetaCategory.TraderOffer);
-                    }
-                }
+                                    if (cardNames.Contains(card.name))
+                                        card.AddMetaCategories(CardMetaCategory.ChoiceNode, CardMetaCategory.TraderOffer);
 
                 return cards;
             };
@@ -133,6 +136,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             NewPermaDeath.Register();
             Artist.Register();
             Programmer.Register();
+            RareDiscCardAppearance.Register();
 
             // Load the custom cards from the CSV database
             List<string> cardNames = new();
@@ -142,18 +146,13 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             {
                 string[] cols = line.Split(new char[] { ',' }, StringSplitOptions.None);
                 //InfiniscryptionP03Plugin.Log.LogInfo($"I see line {string.Join(";", cols)}");
-                UpdateExistingCard(cols[0], cols[1], cols[2], cols[3], cols[4]);
+                UpdateExistingCard(cols[0], cols[1], cols[2], cols[3], cols[4], cols[6]);
 
                 if (cols[5] == "Y")
                     cardNames.Add(cols[0]);
             }
 
             WriteP03Pack(cardNames);
-
-            // Handle the triplemox portrait special
-            CardManager.BaseGameCards.CardByName("TechMoxTriple")
-                .AddAppearances(HighResAlternatePortrait.ID)
-                .SetAltPortrait(AssetHelper.LoadTexture("portrait_triplemox_color"));
 
             CardManager.BaseGameCards.CardByName("PlasmaGunner")
                 .AddAppearances(ForceRevolverAppearance.ID);
@@ -250,6 +249,14 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 }
                 return abilities;
             };
+
+            CardManager.ModifyCardList += delegate(List<CardInfo> cards)
+            {
+                foreach (CardInfo ci in cards.Where(ci => ci.temple == CardTemple.Tech && ci.metaCategories.Contains(CardMetaCategory.Rare)))
+                    ci.AddAppearances(RareDiscCardAppearance.ID);
+
+                return cards;
+            };
         }
 
         public static CardInfo SetNeutralP03Card(this CardInfo info)
@@ -278,6 +285,34 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                     break;
             }
             return info;
+        }
+
+        [HarmonyPatch(typeof(CardSpawner), nameof(CardSpawner.SpawnCardToHand), typeof(CardInfo), typeof(List<CardModificationInfo>), typeof(Vector3), typeof(float), typeof(Action<PlayableCard>))]
+        [HarmonyPrefix]
+        public static void LogCardToDraw(CardInfo info, List<CardModificationInfo> temporaryMods, Vector3 spawnOffset, float onDrawnTriggerDelay, Action<PlayableCard> cardSpawnedCallback = null)
+        {
+            P03Plugin.Log.LogInfo($"CardSpawner: {info.name}");
+        }
+
+        [HarmonyPatch(typeof(DrawRandomCardOnDeath), nameof(DrawRandomCardOnDeath.CardToDraw), MethodType.Getter)]
+        [HarmonyPostfix]
+        public static void LogCardToGenerate(ref CardInfo __result)
+        {
+            P03Plugin.Log.LogInfo($"DrawRandomCardOnDeath: {__result}");
+        }
+
+        [HarmonyPatch(typeof(DrawRandomCardOnDeath), nameof(DrawRandomCardOnDeath.OnDie))]
+        [HarmonyPrefix]
+        public static void OnDie(ref DrawRandomCardOnDeath __instance)
+        {
+            P03Plugin.Log.LogInfo($"Card died {__instance.Card.name}, abilities [{String.Join(",", __instance.Card.Info.Abilities.Select(ab => ab.ToString()))}]");
+        }
+
+        [HarmonyPatch(typeof(DrawCreatedCard), nameof(DrawCreatedCard.CreateDrawnCard))]
+        [HarmonyPrefix]
+        public static void DrawPrefix()
+        {
+            P03Plugin.Log.LogInfo($"Card draw");
         }
     }
 }

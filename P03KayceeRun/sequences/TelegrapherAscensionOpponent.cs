@@ -39,7 +39,6 @@ namespace Infiniscryption.P03KayceeRun.Sequences
             ViewManager.Instance.SwitchToView(View.P03Face);
             yield return TextDisplayer.Instance.PlayDialogueEvent("TelegrapherBlockchainIntro", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
             ViewManager.Instance.SwitchToView(View.Board);
-            VideoCameraRig.Instance.VOPlayer.PlayVoiceOver("Shit.", "VO_shit");
 
             // Clear out the queue and the board
             yield return this.ClearQueue();

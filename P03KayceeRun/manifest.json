@@ -6,7 +6,6 @@
     "dependencies": [
         "BepInEx-BepInExPack_Inscryption-5.4.1701",
         "API_dev-API-1.12.1",
-        "UnofficialScrybePatches-Inscryption_Unofficial_Patch-1.5.1",
-        "Irie-VanillaAbilitiesPatch-0.4.4"
+        "UnofficialScrybePatches-Inscryption_Unofficial_Patch-1.5.1"
     ]
 }

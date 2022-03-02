@@ -11,7 +11,7 @@ unlockedCardPrerequisites: []
 randomReplacementCards: []
 overclockBlueprint: []
 AttackConduit,NullConduit -> AttackConduit 3,CellGift
-CellGift -> Shieldbot 6,CellGift
+CellGift -> Shieldbot 6
 NullConduit,NONE -> CellGift 2,NONE -> FactoryConduit 3,NONE -> AttackConduit 5
 CellGift -> Automaton 1,NONE -> Bombbot 6
 NONE -> Insectodrone 5,CellGift

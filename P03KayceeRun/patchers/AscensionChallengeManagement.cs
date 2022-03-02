@@ -38,15 +38,6 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 pointValue = 5
             });
 
-            PatchedChallengesReference.Add(new() {
-                challengeType = AscensionChallenge.SubmergeSquirrels,
-                title = "Vessel Fish",
-                description = "Your empty vessels have the Waterborne sigil",
-                iconSprite = TextureHelper.ConvertTexture(AssetHelper.LoadTexture("ascensionicon_vesselfish"), TextureHelper.SpriteType.ChallengeIcon),
-                activatedSprite = TextureHelper.ConvertTexture(Resources.Load<Texture2D>("art/ui/ascension/ascensionicon_activated_default"), TextureHelper.SpriteType.ChallengeIcon),
-                pointValue = 20
-            });
-
             ValidChallenges = new() {
                 AscensionChallenge.BaseDifficulty,
                 AscensionChallenge.ExpensivePelts,
@@ -55,8 +46,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 AscensionChallenge.NoBossRares,
                 AscensionChallenge.NoHook, 
                 AscensionChallenge.StartingDamage,
-                AscensionChallenge.WeakStarterDeck,
-                AscensionChallenge.SubmergeSquirrels
+                AscensionChallenge.WeakStarterDeck
             };
 
             ChallengeManager.ModifyChallenges += delegate(List<AscensionChallengeInfo> challenges)

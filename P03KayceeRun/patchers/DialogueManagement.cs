@@ -10,23 +10,52 @@ namespace Infiniscryption.P03KayceeRun.Patchers
     [HarmonyPatch]
     public static class DialogueManagement
     {
+        private static Emotion FaceEmotion(this P03AnimationController.Face face)
+        {
+            if (face == P03AnimationController.Face.Angry)
+                return Emotion.Anger;
+            if (face == P03AnimationController.Face.Thinking)
+                return Emotion.Curious;
+            if (face == P03AnimationController.Face.Happy)
+                return Emotion.Laughter;
+            return Emotion.Neutral;
+        }
+
+        private static P03AnimationController.Face ParseFace(this string face)
+        {
+            return (P03AnimationController.Face)Enum.Parse(typeof(P03AnimationController.Face), (String.IsNullOrEmpty(face) ? "NoChange" : face));
+        }
+
         private static void AddDialogue(string id, List<string> lines, List<string> faces, List<string> dialogueWavies)
         {
-            P03Plugin.Log.LogInfo($"Creating dialogue {id}, {string.Join(",", lines)}");
+            //P03Plugin.Log.LogInfo($"Creating dialogue {id}, {string.Join(",", lines)}");
 
             bool leshy = faces.Any(s => s.ToLowerInvariant() == "leshy");
+
+            DialogueEvent.Speaker speaker = DialogueEvent.Speaker.P03;
+            if (leshy)
+                speaker = DialogueEvent.Speaker.Leshy;
+            else if (faces.Exists(s => s.ToLowerInvariant().Contains("telegrapher")))
+                speaker = DialogueEvent.Speaker.P03Telegrapher;
+            else if (faces.Exists(s => s.ToLowerInvariant().Contains("archivist")))
+                speaker = DialogueEvent.Speaker.P03Archivist;
+            else if (faces.Exists(s => s.ToLowerInvariant().Contains("photographer")))
+                speaker = DialogueEvent.Speaker.P03Photographer;
+            else if (faces.Exists(s => s.ToLowerInvariant().Contains("canvas")))
+                speaker = DialogueEvent.Speaker.P03Canvas;
 
             if (string.IsNullOrEmpty(id))
                 return;
 
             DialogueDataUtil.Data.events.Add(new DialogueEvent() {
                 id = id,
-                speakers = new List<DialogueEvent.Speaker>() { DialogueEvent.Speaker.Single, (leshy ? DialogueEvent.Speaker.Leshy : DialogueEvent.Speaker.P03) },
+                speakers = new List<DialogueEvent.Speaker>() { DialogueEvent.Speaker.Single, speaker },
                 mainLines = new(faces.Zip(lines, (face, line) => new DialogueEvent.Line() {
                     text = line,
                     specialInstruction = "",
-                    p03Face = leshy ? (P03AnimationController.Face)0 : (P03AnimationController.Face)Enum.Parse(typeof(P03AnimationController.Face), (String.IsNullOrEmpty(face) ? "NoChange" : face)),
-                    speakerIndex = 1
+                    p03Face = leshy ? (P03AnimationController.Face)0 : ParseFace(face),
+                    speakerIndex = 1,
+                    emotion = leshy ? Emotion.Neutral : ParseFace(face).FaceEmotion()
                 })
                 .Zip(dialogueWavies, delegate(DialogueEvent.Line line, string wavy) {
                     if (!string.IsNullOrEmpty(wavy) && wavy.ToLowerInvariant() == "y")

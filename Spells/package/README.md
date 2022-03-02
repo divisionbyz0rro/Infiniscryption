@@ -15,13 +15,9 @@ There are two types of spells:
 
 **Global Spells:** These have an immediate, global effect when played. If you attach a sigil that expects to be in a specific slot on board, there may be unexpected behavior. For example, the Beaver's dam ability will more than likely give Leshy a free dam.
 
-## Kaycee's Mod is imminent...
-
-Because Kaycee's Mod (the free expansion for Inscryption) is imminent, no more development will be done on any of my mods until that expansion hits. I will fix breaking bugs, however.
-
 ## Credits
 
-This mod would not be possible without signifcant contributions from @Kopie in the Inscryption Modding discord channel.
+This mod would not be possible without signifcant contributions from the Inscryption Modding discord channel.
 
 Pixel icons were contributed by [Arakulele](https://inscryption.thunderstore.io/package/Arackulele/).
 
@@ -71,13 +67,13 @@ If you are adding sigils that are intended to be used on targeted spells, you ne
 
 So far we have the following:
 
-- **Draw Twice** (GUID: "zorro.infiniscryption.sigils.drawtwocards"): Draw the top card of your main deck and the top card of your side deck when this card dies.
-- **Cataclysm** (GUID: "zorro.infiniscryption.sigils.cataclysm"): Kill every card on board when this card dies.
-- **Direct Damage** (GUID: "zorro.infiniscryption.sigils.directdamage"): Deals one damage to the targeted card slot. This ability stacks, so if you put two on a card, it will deal two damage. This only targets opponent cards.
-- **Direct Healing** (GUID: "zorro.infiniscryption.sigils.directheal"): Heals the targeted card for one. This can overheal. This ability stacks. This only targets player cards.
-- **Attack Up** (GUID: "zorro.infiniscryption.sigils.attackup"): Increases the targeted card's attack by one for the rest of the batle. This only targets player cards.
-- **Attack Down** (GUID: "zorro.infiniscryption.sigils.attackdown"): Decreases the targeted card's attack by one for the rest of the batle. This only targets opponent cards.
-- **Gain Control** (GUID: "zorro.infiniscryption.sigils.fishhook"): Gains control of the targeted creature, but only if there is an empy slot for that creature to move into. Functionally similar to the fishook item.
+- **Draw Twice** ("zorro.inscryption.infiniscryption.spells.Draw Twice"): Draw the top card of your main deck and the top card of your side deck when this card dies.
+- **Cataclysm** ("zorro.inscryption.infiniscryption.spells.Cataclysm"): Kill every card on board when this card dies.
+- **Direct Damage** ("zorro.inscryption.infiniscryption.spells.Direct Damage"): Deals one damage to the targeted card slot. This ability stacks, so if you put two on a card, it will deal two damage. This only targets opponent cards.
+- **Direct Healing** ("zorro.inscryption.infiniscryption.spells.Direct Heal"): Heals the targeted card for one. This can overheal. This ability stacks. This only targets player cards.
+- **Attack Up** ("zorro.inscryption.infiniscryption.spells.Attack Up"): Increases the targeted card's attack by one for the rest of the batle. This only targets player cards.
+- **Attack Down** ("zorro.inscryption.infiniscryption.spells.Attack Down"): Decreases the targeted card's attack by one for the rest of the batle. This only targets opponent cards.
+- **Gain Control** ("zorro.inscryption.infiniscryption.spells.Gain Control"): Gains control of the targeted creature, but only if there is an empy slot for that creature to move into. Functionally similar to the fishook item.
 
 ## Split, Tri, and All Strike
 These sigils do **nothing** for global spells, but behave as you would expect for targeted spells. Be careful when putting Split Strike on a targeted spell, as it will behave exactly as expected, which is not necessarily intuitive. Rather than affecting the targeted space, it will affect the spaces on either side.
@@ -91,116 +87,48 @@ So, for example:
 
 ## Adding a spell through the API
 
-To add a spell using the API, you need to add both a 'special ability' and a 'stat icon'. 
+The best way to add a spell using the API is to also create a reference to this mod's DLL in your project and use the custom extension method helpers "SetGlobalSpell()" or "SetTargetedSpell()" to turn a card into a spell:
 
-The plugin will take care of adding all of the necessary card appearance behaviors for you.
-
-```
-using APIPlugin;
+```c#
+using InscryptionAPI;
 using Infiniscryption.Spells.Sigils;
 
-NewCard.Add(
-    "Kettle_of_Avarice",
-    "Kettle of Avarice",
-    0, 0,
-    new List<CardMetaCategory>() { CardMetaCategory.ChoiceNode, CardMetaCategory.TraderOffer },
-    CardComplexity.Advanced,
-    CardTemple.Nature,
-    "It allows you to draw two more cards",
-    bloodCost: 1,
-    hideAttackAndHealth: true,
-    defaultTex: AssetHelper.LoadTexture("kettle_of_avarice"),
-    specialStatIcon: GlobalSpellAbility.Instance.statIconInfo.iconType,
-    specialAbilitiesIdsParam: new List<SpecialAbilityIdentifier>() { GlobalSpellAbility.Instance.id },
-    abilityIdsParam: new List<AbilityIdentifier>() { DrawTwoCards.Identifier }
-);
+CardManager.New("Spell_Kettle_of_Avarice", "Kettle of Avarice", 0, 0, "It allows you to draw two more cards")
+           .SetDefaultPart1Card()
+           .SetPortrait(AssetHelper.LoadTexture("kettle_of_avarice"))
+           .SetGlobalSpell() // Makes this card into a global spell
+           .SetCost(bloodCost: 1)
+           .AddAbilities(DrawTwoCards.AbilityID);
 
-NewCard.Add(
-    "Lightning",
-    "Lightning",
-    0, 0,
-    new List<CardMetaCategory>() { CardMetaCategory.ChoiceNode, CardMetaCategory.TraderOffer },
-    CardComplexity.Advanced,
-    CardTemple.Nature,
-    "A perfectly serviceable amount of damage",
-    bloodCost: 1,
-    hideAttackAndHealth: true,
-    defaultTex: AssetHelper.LoadTexture("lightning_bolt"),
-    specialStatIcon: TargetedSpellAbility.Instance.statIconInfo.iconType,
-    specialAbilitiesIdsParam: new List<SpecialAbilityIdentifier>() { TargetedSpellAbility.Instance.id },
-    abilityIdsParam: new List<AbilityIdentifier>() { DirectDamage.Identifier, DirectDamage.Identifier }
-);
+CardManager.New("Spell_Lightning", "Lightning", 0, 0, "A perfectly serviceable amount of damage")
+           .SetDefaultPart1Card()
+           .SetPortrait(AssetHelper.LoadTexture("lightning_bolt"))
+           .SetTargetedSpell() // Makes this card into a targeted spell
+           .SetCost(bloodCost: 1)
+           .AddAbilities(DirectDamage.AbilityID, DirectDamage.AbilityID);
 ```
 
 ## Adding a spell through JSON Loader
 
-To add a spell using JSON loader, you need to know the GUID and name of the special ability. See below for an example:
+To add a spell using JSON loader, you simply need to add either the global spell or the targeted spell special ability to the card:
 
-```
+```json
 {
-  "name": "Kettle_of_Avarice",
-  "displayedName": "Kettle of Avarice",
-  "description": "It allows you to draw two more cards",
-  "metaCategories": [
-    "ChoiceNode",
-    "TraderOffer"
-  ],
-  "cardComplexity": "Advanced",
-  "temple": "Nature",
-  "baseAttack": 0,
-  "baseHealth": 0,
-  "bloodCost": 1,
-  "customAbilities": [
-    {
-      "name": "Draw Twice",
-      "GUID": "zorro.infiniscryption.sigils.drawtwocards"
-    }
-  ],
-  "texture": "kettle_of_avarice.png",
-  "customSpecialAbilities": [
-	{
-      "name": "Spell (Global)",
-      "GUID": "zorro.infiniscryption.sigils.globalspell"
-	}
-  ]
+  "specialAbilities": [ "zorro.inscryption.infiniscryption.spells.Spell (Global)" ]
 }
 
 {
-  "name": "Lightning",
-  "displayedName": "Lightning",
-  "description": "A perfectly serviceable amount of damage",
-  "metaCategories": [
-    "ChoiceNode",
-    "TraderOffer"
-  ],
-  "cardComplexity": "Advanced",
-  "temple": "Nature",
-  "baseAttack": 0,
-  "baseHealth": 0,
-  "bloodCost": 1,
-  "customAbilities": [
-    {
-      "name": "Direct Damage",
-      "GUID": "zorro.infiniscryption.sigils.directdamage"
-    }
-  ],
-  "texture": "lightning_Bolt.png",
-  "customSpecialAbilities": [
-	{
-      "name": "Spell (Targeted)",
-      "GUID": "zorro.infiniscryption.sigils.targetedspell"
-	}
-  ]
+  "specialAbilities": [ "zorro.inscryption.infiniscryption.spells.Spell (Targeted)" ]
 }
 ```
-## A note on stackable sigils
-
-As of this release, the API has a defect that will not allow custom sigils to stack. This mod includes a fix for that defect, but will only patch versions of the API below 1.12.1.
 
 ## Changelog
 
 <details>
 <summary>Changelog</summary>
+
+2.0
+- Updated documentation for Kaycee's Mond API and required that API as a dependency.
 
 1.2.7
 - Added pixel icons for compatibility with GBC mode

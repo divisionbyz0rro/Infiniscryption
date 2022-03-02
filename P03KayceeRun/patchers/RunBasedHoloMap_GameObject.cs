@@ -217,6 +217,22 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             }
         }
 
+        private static float DistanceFromCenter(this Tuple<float, float> p)
+        {
+            return Mathf.Sqrt(Mathf.Pow(p.Item1, 2) + Mathf.Pow(p.Item2, 2));
+        }
+
+        private static int DistanceComparer(Tuple<float, float> a, Tuple<float, float> b)
+        {
+            float da = a.DistanceFromCenter();
+            float db = b.DistanceFromCenter();
+            if (da == db)
+                return 0;
+            if (da > db)
+                return 1;
+            return -1;
+        }
+
         private static float[] MULTIPLIERS = new float[] { 0.33f, 0.66f };
         private static List<Tuple<float, float>> GetSpotsForQuadrant(int quadrant)
         {
@@ -229,6 +245,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             foreach (float m in MULTIPLIERS)
                 foreach (float n in MULTIPLIERS)
                     retval.Add(new(minX + m * (maxX - minX) - .025f + .05f * UnityEngine.Random.value, minZ + n * (maxZ - minZ) - .025f + .05f * UnityEngine.Random.value));
+
+            retval.Sort(DistanceComparer);
 
             return retval;
         }
@@ -274,44 +292,25 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             nodeData.repeatable = true;
 
             retval.transform.Find("RendererParent/Renderer_2").gameObject.SetActive(false);
+            retval.transform.localEulerAngles = new (0f, 0f, 0f);
 
             GameObject card = retval.transform.Find("RendererParent/Renderer").gameObject;
-            card.transform.localPosition = new(-.1f, .051f, -.35f);
-            card.transform.localScale = new (1.25f, 1.25f, 1f);
-            card.transform.localEulerAngles = new(325f, 124.5f, 77.25f);
+            card.transform.localPosition = new(-0.1f, 0.05f, -0.3f);
+            card.transform.localScale = new (1f, 1f, .8f);
+            card.transform.localEulerAngles = new(271f, 191f, 9f);
 
             GameObject second = GameObject.Instantiate(card, card.transform.parent);
-            second.transform.localPosition = new(.25f, 0f, -.2f);
+            second.transform.localPosition = new(0.13f, -0.1f, -0.3f);
             nodeData.nodeRenderers.Add(second.GetComponent<Renderer>());
 
             GameObject third = GameObject.Instantiate(card, card.transform.parent);
-            third.transform.localPosition = new(-0.3f, -0.5f, -0.5f);
+            third.transform.localPosition = new(0f, -0.01f, -0.3f);
             nodeData.nodeRenderers.Add(third.GetComponent<Renderer>());
 
             // Add an 'active only if' flag
-            ActiveIfStoryFlag flag = retval.AddComponent<ActiveIfStoryFlag>();
-            Traverse.Create(flag).Field("storyFlag").SetValue(EventManagement.HAS_DRAFT_TOKEN);
-            Traverse.Create(flag).Field("activeIfConditionMet").SetValue(true);
-
-
-            // Change the colors
-            // This borrows the logic from HoloGameMap.SetNodeColor
-            // Color halfMain = GameColors.Instance.darkPurple;
-            // halfMain.a = 0.5f;
-            // foreach (Renderer renderer in retval.GetComponentsInChildren<Renderer>())
-            // {
-            //     foreach (Material material in renderer.materials)
-            //     {
-            //         if (material.HasProperty("_MainColor"))
-            //             material.SetColor("_MainColor", GameColors.Instance.darkPurple);
-            //         if (material.HasProperty("_RimColor"))
-            //             material.SetColor("_RimColor", GameColors.Instance.purple);
-            //         if (material.HasProperty("_Color"))
-            //             material.SetColor("_Color", halfMain);
-                    
-            //     }
-            // }
-            // retval.tag = "HoloMapFixedColor"; // This is used to make sure the colors aren't overwritten.
+            // ActiveIfStoryFlag flag = retval.AddComponent<ActiveIfStoryFlag>();
+            // Traverse.Create(flag).Field("storyFlag").SetValue(EventManagement.HAS_DRAFT_TOKEN);
+            // Traverse.Create(flag).Field("activeIfConditionMet").SetValue(true);
 
             retval.SetActive(false);
 
@@ -641,8 +640,9 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                     GameObject.Instantiate(GetGameObject(objId), scenery);
 
             // Add the normal scenery
-            List<int> directions = GetDirections(bp.arrowDirections, false).ToList();
-            bool firstQuadrant = true;
+            // For each section of the board that doesn't have an arrow on it
+            List<int> directions = GetDirections(bp.arrowDirections, false).ToList(); 
+            bool firstQuadrant = true; 
             while(directions.Count > 0)
             {
                 int dir = directions[UnityEngine.Random.Range(0, directions.Count)];
@@ -653,7 +653,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 bool firstObject = true;
                 while (sceneryLocations.Count > 0)
                 {
-                    int spIdx = UnityEngine.Random.Range(0, sceneryLocations.Count);
+                    int spIdx = firstObject ? 0 : UnityEngine.Random.Range(0, sceneryLocations.Count);
                     Tuple<float, float> specialLocation = sceneryLocations[spIdx];
                     sceneryLocations.RemoveAt(spIdx);
 

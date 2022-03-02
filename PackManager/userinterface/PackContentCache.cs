@@ -22,7 +22,7 @@ namespace Infiniscryption.PackManagement.UserInterface
     {
         public List<PackInfo> OrderedPacks { get; private set; }
 
-        private Dictionary<string, List<CardInfo>> PackMapper;
+        private Dictionary<string, List<string>> PackMapper;
 
         public PackContentCache()
         {
@@ -33,13 +33,16 @@ namespace Infiniscryption.PackManagement.UserInterface
                                              .ToList();
 
             // This could be faster but I think this will be good enough
-            PackMapper = OrderedPacks.ToDictionary(pi => pi.Key, pi => new List<CardInfo>(pi.Cards.Where(ci => ci.CardIsValidForScreenState())));
+            PackMapper = OrderedPacks.ToDictionary(pi => pi.Key, pi => new List<string>(pi.Cards.Where(ci => ci.CardIsValidForScreenState()).Select(ci => ci.name)));
+
+            foreach (var item in PackMapper)
+                PackPlugin.Log.LogInfo($"Pack {item.Key} has {item.Value.Count} cards in it");
 
             // And now we remove everything that doesn't have cards!
             OrderedPacks.RemoveAll(pi => PackMapper[pi.Key].Count == 0);
         }
 
-        public List<CardInfo> GetCardsForPack(PackInfo pack)
+        public List<string> GetCardsForPack(PackInfo pack)
         {
             if (!PackMapper.ContainsKey(pack.Key))
                 throw new KeyNotFoundException($"I do not recognize pack {pack.Title}");

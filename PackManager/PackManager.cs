@@ -78,8 +78,8 @@ namespace Infiniscryption.PackManagement
             get
             {
                 return AllPacks.Where(pi => pi.IsBaseGameCardPack)
-                       .Concat(AllPacks.Where(pi => pi.IsStandardCardPack))
-                       .Concat(AllPacks.Where(pi => pi.IsLeftoversPack));
+                               .Concat(AllPacks.Where(pi => pi.IsStandardCardPack))
+                               .Concat(AllPacks.Where(pi => pi.IsLeftoversPack));
             }
         }
 
@@ -177,6 +177,9 @@ namespace Infiniscryption.PackManagement
 
         internal static List<CardInfo> FilterCardsInPacks(List<CardInfo> cards)
         {
+            if (!ShouldFilterCards)
+                return cards;
+
             List<PackInfo> activePacks = RetrievePackList(true);
             ActiveCards = new();
             ActiveAbilities = new();
@@ -185,10 +188,6 @@ namespace Infiniscryption.PackManagement
             {
                 List<CardInfo> cardsInPack = pack.Cards.ToList();
                 ActiveCards.AddRange(cardsInPack.Select(ci => ci.name));
-                foreach (CardInfo info in cardsInPack)
-                    foreach(Ability ab in info.Abilities)
-                        if (!ActiveAbilities.Contains(ab))
-                            ActiveAbilities.Add(ab);
             }
 
             ActiveCards = ActiveCards.Distinct().ToList();
@@ -200,39 +199,68 @@ namespace Infiniscryption.PackManagement
                 if (ActiveCards.Contains(card.name))
                     card.temple = ScreenState;
                 else
-                    card.metaCategories.RemoveAll(c => !protectedMetacategories.Contains(c));
+                    card.metaCategories = new(card.metaCategories.Where(c => protectedMetacategories.Contains(c)));
+
+                if (card.temple == ScreenState)
+                    foreach(Ability ab in card.Abilities)
+                        if (!ActiveAbilities.Contains(ab))
+                            ActiveAbilities.Add(ab);
             }
 
             return cards;
         }
 
+        private static AbilityMetaCategory GetRulebookMetacategory(this CardTemple temple)
+        {
+            if (temple == CardTemple.Nature)
+                return AbilityMetaCategory.Part1Rulebook;
+            if (temple == CardTemple.Tech)
+                return AbilityMetaCategory.Part3Rulebook;
+            if (temple == CardTemple.Wizard)
+                return AbilityMetaCategory.MagnificusRulebook;
+            if (temple == CardTemple.Undead)
+                return AbilityMetaCategory.GrimoraRulebook;
+
+            return AbilityMetaCategory.Part1Rulebook;
+        }
+
         internal static List<AbilityManager.FullAbility> FilterAbilitiesInPacks(List<AbilityManager.FullAbility> abilities)
         {
+            if (!ShouldFilterCards)
+                return abilities;
+
             // If the ability doesn't appear on any of the cards, 
             // it shouldn't appear anywhere
             foreach(var fab in abilities)
+            {
                 if (!ActiveAbilities.Contains(fab.Id))
                     fab.Info.metaCategories = new();
+                else
+                {
+                    fab.Info.metaCategories = new List<AbilityMetaCategory>(fab.Info.metaCategories);
+                    fab.Info.AddMetaCategories(ScreenState.GetRulebookMetacategory());
+                }
+            }
 
             return abilities;
         }
 
         private static bool HasAddedFiltersToEvent = false;
+        private static bool ShouldFilterCards = false;
 
         [HarmonyPatch(typeof(AscensionMenuScreens), nameof(AscensionMenuScreens.TransitionToGame))]
         [HarmonyPrefix]
         internal static void FilterCardAndAbilityList()
         {
-            if (HasAddedFiltersToEvent)
+            PackPlugin.Log.LogInfo($"Filtering card list");
+            if (!HasAddedFiltersToEvent)
             {
-                CardManager.ModifyCardList -= FilterCardsInPacks;
-                AbilityManager.ModifyAbilityList -= FilterAbilitiesInPacks;
+                CardManager.ModifyCardList += FilterCardsInPacks;
+                AbilityManager.ModifyAbilityList += FilterAbilitiesInPacks;
+                HasAddedFiltersToEvent = true;
             }
 
-            CardManager.ModifyCardList += FilterCardsInPacks;
-            AbilityManager.ModifyAbilityList += FilterAbilitiesInPacks;
-            HasAddedFiltersToEvent = true;
-
+            ShouldFilterCards = true;
             CardManager.SyncCardList();
             AbilityManager.SyncAbilityList();
         }
@@ -241,15 +269,11 @@ namespace Infiniscryption.PackManagement
         [HarmonyPrefix]
         internal static void UnfilterCardAndAbilityList()
         {
-            if (HasAddedFiltersToEvent)
-            {
-                CardManager.ModifyCardList -= FilterCardsInPacks;
-                AbilityManager.ModifyAbilityList -= FilterAbilitiesInPacks;
-                HasAddedFiltersToEvent = false;
-            }
+            PackPlugin.Log.LogInfo($"Unfiltering card list");
 
             JSONLoader.LoadFromJSON();
 
+            ShouldFilterCards = false;
             CardManager.SyncCardList();
             AbilityManager.SyncAbilityList();
         }

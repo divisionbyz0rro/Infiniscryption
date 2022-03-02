@@ -98,9 +98,18 @@ namespace Infiniscryption.P03KayceeRun.Sequences
         {
             if (this.selectedCardValue == 3)
                 return CardLoader.GetCardByName(CustomCards.RARE_DRAFT_TOKEN);
-            if (this.selectedCardValue == 2)
-                return CardLoader.GetCardByName(CustomCards.UNC_TOKEN);
-            return CardLoader.GetCardByName(CustomCards.DRAFT_TOKEN);
+
+            CardInfo baseCard = CardLoader.GetCardByName(CustomCards.DRAFT_TOKEN);
+            
+            List<Ability> abilities = this.selectedCardInfo.Abilities;
+            if (abilities.Count > 0)
+            {
+                CardModificationInfo cardMod = new();
+                cardMod.abilities = new List<Ability>(abilities);
+                baseCard.mods.Add(cardMod);
+            }
+
+            return baseCard;
         }
 
         public IEnumerator RecycleCardForDraftTokenSequence()
@@ -117,7 +126,9 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 
             GameObject cardGO = UnityEngine.Object.Instantiate<GameObject>(this.SelectableCardPrefab);
             SelectableCard card = cardGO.GetComponent<SelectableCard>();
+            
             CardInfo cardInfo = GetCardInfo();
+
             card.Initialize(cardInfo);
             card.SetEnabled(false);
             card.SetInteractionEnabled(false);

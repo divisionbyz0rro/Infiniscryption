@@ -83,6 +83,7 @@ namespace Infiniscryption.PackManagement.UserInterface
             GameObject title = GameObject.Instantiate(TextPseudoPrefab, obj.transform);
             retval.Text = title.GetComponentInChildren<PixelText>();
             retval.Text.SetColor(Color.black);
+            retval.Text.GetComponentInChildren<Canvas>().sortingLayerName = retval.IconRenderer.sortingLayerName;
             retval.Text.SetSortingOrder(225);
             title.transform.localPosition = new Vector3(0f, 0.2f, 0f);
 

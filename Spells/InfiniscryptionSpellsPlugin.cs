@@ -16,7 +16,6 @@ namespace Infiniscryption.Spells
 {
     [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
     [BepInDependency("cyantist.inscryption.api")]
-    [BepInDependency("zorro.inscryption.infiniscryption.stackablesigils")]
     public class InfiniscryptionSpellsPlugin : BaseUnityPlugin
     {
 

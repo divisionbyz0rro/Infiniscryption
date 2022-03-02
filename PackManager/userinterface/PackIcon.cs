@@ -42,7 +42,7 @@ namespace Infiniscryption.PackManagement.UserInterface
 
         internal SpriteRenderer SampleCardRenderer;
 
-        private List<CardInfo> ActualCards { get; set; }
+        private List<string> ActualCards { get; set; }
 
         private CardInfo IconCard
         {
@@ -50,7 +50,7 @@ namespace Infiniscryption.PackManagement.UserInterface
             {
                 int maxPowerLevel = 0;
                 CardInfo maxCard = null;
-                foreach (CardInfo card in ActualCards)
+                foreach (CardInfo card in CardManager.AllCardsCopy.Where(ci => ActualCards.Contains(ci.name)))
                 {
                     if (card.PowerLevel > maxPowerLevel)
                     {
@@ -73,6 +73,10 @@ namespace Infiniscryption.PackManagement.UserInterface
             base.OnCursorSelectEnd();
 
             List<PackInfo> activePacks = PackManager.RetrievePackList(true);
+
+            if (Selected && activePacks.Count == 1)
+                return; // You cannot unselect the last active pack
+
             List<PackInfo> inactivePacks = PackManager.RetrievePackList(false);
             
             if (Selected)
@@ -93,9 +97,9 @@ namespace Infiniscryption.PackManagement.UserInterface
             CoveredRenderer.gameObject.SetActive(!Selected);
         }
 
-        private string RandomCardName() => ActualCards[UnityEngine.Random.Range(0, ActualCards.Count)].DisplayedNameLocalized;
+        private string RandomCardName() => CardManager.AllCardsCopy.CardByName(ActualCards[UnityEngine.Random.Range(0, ActualCards.Count)]).DisplayedNameLocalized;
 
-        private double AveragePowerLevel => ActualCards.Where(ci => ci != null).Select(ci => ci.PowerLevel).Average();
+        private double AveragePowerLevel => CardManager.AllCardsCopy.Where(ci => ActualCards.Contains(ci.name)).Where(ci => ci != null).Select(ci => ci.PowerLevel).Average();
 
         private string ReplaceRandom(string text)
         {

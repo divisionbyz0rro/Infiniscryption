@@ -120,7 +120,7 @@ namespace Infiniscryption.SideDecks.Patchers
         [HarmonyPostfix]
         public static void ReduceChallengeIfCustomSideDeckSelected(ref int __result)
         {
-            __result += SelectedSideDeckCost;
+            __result -= SelectedSideDeckCost;
         }
 
         [HarmonyPatch(typeof(DialogueDataUtil), "ReadDialogueData")]

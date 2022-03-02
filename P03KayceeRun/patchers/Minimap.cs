@@ -183,6 +183,9 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                     material.globalIlluminationFlags = MaterialGlobalIlluminationFlags.None;
                     material.EnableKeyword("_EMISSION");
 
+                    // _METALLICGLOSSMAP
+                    // _DETAIL_MULX2
+
                     if (material.HasProperty("_EmissionColor"))
                         material.SetColor("_EmissionColor", color * 0.5f);
 

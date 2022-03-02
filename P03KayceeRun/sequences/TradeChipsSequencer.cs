@@ -48,7 +48,7 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 			yield return new WaitForSeconds(0.5f); // TODO: Write some snarky P03 dialogue about trading here
 
             P03Plugin.Log.LogInfo("Getting trade tiers");
-			List<int> tradingTiers = this.GetTradingTiers();
+			List<List<CardInfo>> tradingTiers = this.GetTradingTiers();
 			bool hasPelts = tradingTiers.Count > 0;
 			if (hasPelts)
 			{
@@ -61,7 +61,7 @@ namespace Infiniscryption.P03KayceeRun.Sequences
                 this.deckPile.transform.localPosition = DECK_LOCATION;
 				yield return this.deckPile.SpawnCards(Part3SaveData.Data.deck.Cards.Count, 0.75f);
 
-				foreach (int tier in tradingTiers)
+				foreach (List<CardInfo> tier in tradingTiers)
 				{
                     P03Plugin.Log.LogInfo("Clearing");
 					this.tradeCards.Clear();
@@ -73,7 +73,7 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 
                     P03Plugin.Log.LogInfo("Creating trade cards");
 					yield return new WaitForSeconds(0.15f);
-					yield return this.CreateTradeCards(this.GetTradeCardInfos(tier), CARDS_PER_ROW, tier == RARE_CARD_TIER);
+					yield return this.CreateTradeCards(this.GetTradeCardInfos(tier[0]), CARDS_PER_ROW, tier[0].name.Equals(CustomCards.RARE_DRAFT_TOKEN));
 
                     P03Plugin.Log.LogInfo("Adding rulebook");
 					TableRuleBook.Instance.SetOnBoard(true);
@@ -157,17 +157,14 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 			yield break;
 		}
 
-		private IEnumerator CreateTokenCards(int tier)
+		private IEnumerator CreateTokenCards(List<CardInfo> cardInfos)
 		{
-			string tierName = tier == RARE_CARD_TIER ? CustomCards.RARE_DRAFT_TOKEN : tier == 1 ? CustomCards.UNC_TOKEN : CustomCards.DRAFT_TOKEN;
-			List<CardInfo> cardInfos = Part3SaveData.Data.deck.Cards.FindAll((CardInfo x) => x.name == tierName);
-			int numPelts = Mathf.Min((tier == RARE_CARD_TIER) ? NUM_RARE_CARDS : NUM_CARDS, cardInfos.Count);
-			for (int i = 0; i < numPelts; i++)
+			for (int i = 0; i < cardInfos.Count; i++)
 			{
 				this.deckPile.Draw();
 				yield return new WaitForSeconds(0.15f);
 			}
-			for (int j = 0; j < numPelts; j++)
+			for (int j = 0; j < cardInfos.Count; j++)
 			{
                 P03Plugin.Log.LogInfo("Instantiating prefab");
 				GameObject cardObj = GameObject.Instantiate<GameObject>(this.selectableCardPrefab, base.transform);
@@ -247,18 +244,41 @@ namespace Infiniscryption.P03KayceeRun.Sequences
             yield break;
 		}
 
-		private List<int> GetTradingTiers()
+		private static string AbilitiesKey(List<Ability> abilities)
+		{
+			List<string> strings = abilities.Select(a => a.ToString()).ToList();
+			strings.Sort();
+			return string.Join(",", strings);
+		}
+
+		private List<List<CardInfo>> GroupTokens(List<CardInfo> tokens)
+		{
+			List<List<CardInfo>> retval = new();
+
+			List<CardInfo> emptyTokens = tokens.Where(t => t.Abilities.Count == 0).ToList();
+			retval.Add(emptyTokens);
+
+			foreach (var grp in tokens.Where(t => !emptyTokens.Contains(t)).GroupBy(ci => AbilitiesKey(ci.Abilities)))
+				retval.Add(grp.ToList());
+			
+			return retval;
+		}
+
+		private List<List<CardInfo>> GetTradingTiers()
 		{
             // When copied from the pelt trader, there was a notion of multiple trading tiers
             // I'm going to leave that in, in case I decide to try to make the whole 'rare' chip thing work
-			List<int> list = new List<int>();
-            if (Part3SaveData.Data.deck.Cards.Any(c => c.name == CustomCards.DRAFT_TOKEN))
-                list.Add(0);
-			if (Part3SaveData.Data.deck.Cards.Any(c => c.name == CustomCards.UNC_TOKEN))
-                list.Add(1);
-			if (Part3SaveData.Data.deck.Cards.Any(c => c.name == CustomCards.RARE_DRAFT_TOKEN))
-                list.Add(RARE_CARD_TIER);
-			return list;
+			List<List<CardInfo>> list = new List<List<CardInfo>>();
+
+			// Find all of the regular draft tokens
+			foreach (string name in new string[] { CustomCards.DRAFT_TOKEN, CustomCards.UNC_TOKEN, CustomCards.RARE_DRAFT_TOKEN })
+			{
+				List<List<CardInfo>> group = GroupTokens(Part3SaveData.Data.deck.Cards.Where(c => c.name.Equals(name)).ToList());
+				if (group.Count > 0)
+					list.AddRange(group);
+			}
+
+			return list.Where(c => c.Count > 0).ToList();
 		}
 
 		public static bool IsValidDraftCard(CardInfo card)
@@ -276,24 +296,27 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 			return false;
 		}
 
-		private List<CardInfo> GetTradeCardInfos(int tier)
+		private int randomSeedSegment = 1;
+
+		private List<CardInfo> GetTradeCardInfos(CardInfo token)
 		{
             // Any part 3 card is fair game in this case
             // I don't care about unlocks or temples right now
             List<CardInfo> cards = ScriptableObjectLoader<CardInfo>.AllData.FindAll(IsValidDraftCard);
 
-			if (tier != RARE_CARD_TIER)
+			if (token.name != CustomCards.RARE_DRAFT_TOKEN)
 				cards.RemoveAll(c => c.metaCategories.Contains(CardMetaCategory.Rare));
-			if (tier == RARE_CARD_TIER)
+			if (token.name == CustomCards.RARE_DRAFT_TOKEN)
 				cards.RemoveAll(c => !c.metaCategories.Contains(CardMetaCategory.Rare));
 
-            cards.RemoveAll((CardInfo x) => x.onePerDeck && Part3SaveData.Data.deck.Cards.Exists((CardInfo y) => y.name == x.name));
+			cards.RemoveAll(x => x.name == "EmptyVessel");
+            cards.RemoveAll(x => x.onePerDeck && Part3SaveData.Data.deck.Cards.Exists((CardInfo y) => y.name == x.name));
 
-			int numberOfCards = tier == RARE_CARD_TIER ? NUM_RARE_CARDS : NUM_CARDS;
-			int randomSeed = P03AscensionSaveData.RandomSeed + 100 * tier;
+			int numberOfCards = token.name == CustomCards.RARE_DRAFT_TOKEN ? NUM_RARE_CARDS : NUM_CARDS;
+			int randomSeed = P03AscensionSaveData.RandomSeed + 100 * randomSeedSegment++;
             List<CardInfo> result = CardLoader.GetDistinctCardsFromPool(randomSeed, numberOfCards, cards).Select(CustomCards.ModifyCardForAscension).ToList();
 
-			if (tier == 1)
+			if (token.name == CustomCards.UNC_TOKEN) // The uncommon token adds a random ability to the card
 			{
 				foreach (CardInfo info in result)
 				{
@@ -307,12 +330,20 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 				}
 			}
 
-			return result;
-		}
+			// If the token has abilities, transfer those to the cards
+			if (token.Abilities.Count > 0)
+			{
+				foreach (CardInfo info in result)
+				{
+					foreach (Ability ab in token.Abilities.Where(a => !info.HasAbility(a)))
+					{
+						if (info.Abilities.Count < 4)
+							info.mods.Add(new (ab));
+					}	
+				}
+			}
 
-		private string GetTierName(int tier)
-		{
-			return "Draft Token";
+			return result;
 		}
 
 		private List<SelectableCard> tradeCards = new List<SelectableCard>();
