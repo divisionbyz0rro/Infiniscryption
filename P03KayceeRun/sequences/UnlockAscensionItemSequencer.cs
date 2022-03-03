@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using DiskCardGame;
 using HarmonyLib;
 using Infiniscryption.P03KayceeRun.Patchers;
@@ -72,22 +73,28 @@ namespace Infiniscryption.P03KayceeRun.Sequences
             return true;
         }
 
+        private List<ConsumableItemData> GetItems()
+        {
+            int randomSeed = P03AscensionSaveData.RandomSeed;
+            List<string> items = new() { "Battery", "ShieldGenerator", "BombRemote", "PocketWatch" };
+            while (items.Count > 3)
+                items.RemoveAt(SeededRandom.Range(0, items.Count, randomSeed++));
+
+            return items.Select(ItemsUtil.GetConsumableByName).ToList();
+        }
+
 		public IEnumerator SelectItem(UnlockAscensionItemNodeData nodeData)
 		{
 			ViewManager.Instance.SwitchToView(View.Default, false, true);
 
 			yield return new WaitForSeconds(0.1f);
             SelectableItemSlot selectedSlot = (SelectableItemSlot) null;
-            List<ConsumableItemData> data = new() {
-                ItemsUtil.GetConsumableByName("Battery"),
-                ItemsUtil.GetConsumableByName("ShieldGenerator"),
-                ItemsUtil.GetConsumableByName("BombRemote"),
-            };
+            List<ConsumableItemData> data = GetItems();
             
             foreach (SelectableItemSlot slot in this.slots)
             {
                 ConsumableItemData item = data[this.slots.IndexOf(slot)];
-                P03Plugin.Log.LogInfo($"Putting {item}[{item.name}] into slot {slot}[{this.slots.IndexOf(slot)}]");
+                //P03Plugin.Log.LogInfo($"Putting {item}[{item.name}] into slot {slot}[{this.slots.IndexOf(slot)}]");
                 slot.gameObject.SetActive(true);
                 slot.CreateItem((ItemData) item, false);
                 slot.CursorSelectStarted += (Action<MainInputInteractable>) (i => selectedSlot = i as SelectableItemSlot);

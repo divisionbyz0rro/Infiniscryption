@@ -45,49 +45,6 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             }
         }
 
-        private static Dictionary<HoloMapNode.NodeDataType, Sprite> typeSprites = new()
-        {
-            {HoloMapSpecialNode.NodeDataType.CardChoice, GetSpriteFromKey(HoloMapSpecialNode.NodeDataType.CardChoice)},
-            {HoloMapSpecialNode.NodeDataType.AddCardAbility, GetSpriteFromKey(HoloMapSpecialNode.NodeDataType.AddCardAbility)},
-            {HoloMapSpecialNode.NodeDataType.OverclockCard, GetSpriteFromKey(HoloMapSpecialNode.NodeDataType.OverclockCard)},
-            {HoloMapSpecialNode.NodeDataType.CreateTransformer, GetSpriteFromKey(HoloMapSpecialNode.NodeDataType.CreateTransformer)},
-            {HoloMapSpecialNode.NodeDataType.AttachGem, GetSpriteFromKey(HoloMapSpecialNode.NodeDataType.AttachGem)},
-            {HoloMapSpecialNode.NodeDataType.BuildACard, GetSpriteFromKey(HoloMapSpecialNode.NodeDataType.BuildACard)},
-            {HoloMapSpecialNode.NodeDataType.GainCurrency, GetSpriteFromKey(HoloMapSpecialNode.NodeDataType.GainCurrency)},
-            {UnlockAscensionItemNodeData.UnlockItemsAscension, GetSpriteFromKey(UnlockAscensionItemNodeData.UnlockItemsAscension)},
-            {AscensionRecycleCardNodeData.AscensionRecycleCard, GetSpriteFromKey(AscensionRecycleCardNodeData.AscensionRecycleCard)},
-            {HoloMapSpecialNode.NodeDataType.BossBattle, GetSpriteFromKey(HoloMapSpecialNode.NodeDataType.BossBattle)}
-        };
-
-        private static Dictionary<int, Sprite> dirSprites = new Dictionary<int, Sprite>()
-        {
-            {RunBasedHoloMap.NEUTRAL, GetSpriteFromKey(RunBasedHoloMap.NEUTRAL)},
-            {RunBasedHoloMap.NORTH, GetSpriteFromKey(RunBasedHoloMap.NORTH)},
-            {RunBasedHoloMap.SOUTH, GetSpriteFromKey(RunBasedHoloMap.SOUTH)},
-            {RunBasedHoloMap.EAST, GetSpriteFromKey(RunBasedHoloMap.EAST)},
-            {RunBasedHoloMap.WEST, GetSpriteFromKey(RunBasedHoloMap.WEST)},
-        };
-
-        private static Sprite GetSpriteFromKey(HoloMapNode.NodeDataType ndt)
-        {
-            string key = "";
-            if (ndt == UnlockAscensionItemNodeData.UnlockItemsAscension)
-                key = "unlockitem";
-            else if (ndt == AscensionRecycleCardNodeData.AscensionRecycleCard)
-                key = "recyclecard";
-            else
-                key = ndt.ToString();
-
-            Texture2D txt = AssetHelper.LoadTexture($"minimap_base_{key}");
-            return Sprite.Create(txt, new Rect(0f, 0f, txt.width, txt.height), new Vector2(0.5f, 0.5f));
-        }
-
-        private static Sprite GetSpriteFromKey(int key)
-        {
-            Texture2D txt = AssetHelper.LoadTexture($"minimap_base{key}");
-            return Sprite.Create(txt, new Rect(0f, 0f, txt.width, txt.height), new Vector2(0.5f, 0.5f));
-        }
-
         private static GameObject FindRendererParent(GameObject obj)
         {
             if (obj.name == "RendererParent")
