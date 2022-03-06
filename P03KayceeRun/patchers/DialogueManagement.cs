@@ -16,8 +16,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 return Emotion.Anger;
             if (face == P03AnimationController.Face.Thinking)
                 return Emotion.Curious;
-            if (face == P03AnimationController.Face.Happy)
-                return Emotion.Laughter;
+            // if (face == P03AnimationController.Face.Happy)
+            //     return Emotion.Laughter;
             return Emotion.Neutral;
         }
 

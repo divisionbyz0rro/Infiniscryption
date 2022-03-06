@@ -28,7 +28,7 @@ namespace Infiniscryption.Curses.Cards
 
             AbilityInfo info = ScriptableObject.CreateInstance<AbilityInfo>();
             info.rulebookName = "Booby Trap";
-            info.rulebookDescription = "If this is in your hand at the beginning of your turn, it explodes. If it is on the board at the beginning of your opponent's turn, it explodes. Either way, it explodes.";
+            info.rulebookDescription = "If this is in your hand at the end of your turn, it explodes. If it is on the board at the end of your opponent's turn, it explodes. Either way, it explodes.";
             info.canStack = true;
             info.powerLevel = -2;
             info.opponentUsable = false;

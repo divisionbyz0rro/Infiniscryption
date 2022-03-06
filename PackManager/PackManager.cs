@@ -7,6 +7,7 @@ using HarmonyLib;
 using Infiniscryption.Core.Helpers;
 using Infiniscryption.PackManagement.Patchers;
 using InscryptionAPI.Card;
+using InscryptionAPI.Regions;
 using InscryptionAPI.Saves;
 using UnityEngine;
 
@@ -69,9 +70,9 @@ namespace Infiniscryption.PackManagement
 
         internal static List<PackInfo> AllPacks;        
         
-        private static List<string> ActiveCards = new();
+        private static HashSet<string> ActiveCards = new();
 
-        private static List<Ability> ActiveAbilities = new();
+        private static HashSet<Ability> ActiveAbilities = new();
 
         public static IEnumerable<PackInfo> AllRegisteredPacks
         {
@@ -187,10 +188,9 @@ namespace Infiniscryption.PackManagement
             foreach(PackInfo pack in activePacks)
             {
                 List<CardInfo> cardsInPack = pack.Cards.ToList();
-                ActiveCards.AddRange(cardsInPack.Select(ci => ci.name));
+                foreach (string cardName in cardsInPack.Select(ci => ci.name))
+                    ActiveCards.Add(cardName);
             }
-
-            ActiveCards = ActiveCards.Distinct().ToList();
 
             PackPlugin.Log.LogInfo($"The final card pool has {ActiveCards.Count} cards and {ActiveAbilities.Count} abilities");
 
@@ -245,6 +245,47 @@ namespace Infiniscryption.PackManagement
             return abilities;
         }
 
+        private static bool EncounterValid(EncounterBlueprintData data)
+        {
+            foreach (CardInfo c in data.turns.SelectMany(l => l).Select(cb => cb.card)
+                                   .Concat(data.turns.SelectMany(l => l).Select(cb => cb.replacement))
+                                   .Concat(data.randomReplacementCards)
+                                   .Where(ci => ci != null))
+            {
+                if (!ActiveCards.Contains(c.name))
+                    return false;
+            }
+            return true;
+        }
+
+        private static bool EncounterAllDefault(EncounterBlueprintData data)
+        {
+            foreach (CardInfo c in data.turns.SelectMany(l => l).Select(cb => cb.card)
+                                   .Concat(data.turns.SelectMany(l => l).Select(cb => cb.replacement))
+                                   .Concat(data.randomReplacementCards)
+                                   .Where(ci => ci != null))
+            {
+                if (!c.IsBaseGameCard())
+                    return false;
+            }
+            return true;
+        }
+
+        internal static List<RegionData> FilterEncountersInRegions(List<RegionData> regions)
+        {
+            if (ShouldFilterCards)
+            {
+                foreach (RegionData region in regions)
+                {
+                    List<EncounterBlueprintData> activeBps = region.encounters.Where(bp => EncounterValid(bp)).ToList();
+                    if (activeBps.Count == 0)
+                        activeBps = region.encounters.Where(bp => EncounterAllDefault(bp)).ToList();
+                    region.encounters = activeBps;
+                }
+            }
+            return regions;
+        }
+
         private static bool HasAddedFiltersToEvent = false;
         private static bool ShouldFilterCards = false;
 
@@ -257,12 +298,14 @@ namespace Infiniscryption.PackManagement
             {
                 CardManager.ModifyCardList += FilterCardsInPacks;
                 AbilityManager.ModifyAbilityList += FilterAbilitiesInPacks;
+                RegionManager.ModifyRegionsList += FilterEncountersInRegions;
                 HasAddedFiltersToEvent = true;
             }
 
             ShouldFilterCards = true;
             CardManager.SyncCardList();
             AbilityManager.SyncAbilityList();
+            RegionManager.SyncRegionList();
         }
 
         [HarmonyPatch(typeof(AscensionMenuScreens), nameof(AscensionMenuScreens.Start))]
@@ -276,6 +319,7 @@ namespace Infiniscryption.PackManagement
             ShouldFilterCards = false;
             CardManager.SyncCardList();
             AbilityManager.SyncAbilityList();
+            RegionManager.SyncRegionList();
         }
     }
 }

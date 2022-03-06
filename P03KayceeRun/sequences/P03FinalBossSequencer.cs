@@ -14,7 +14,7 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 
         public override StoryEvent DefeatedStoryEvent => EventManagement.DEFEATED_P03;
 
-        public static readonly string[] MODS = new string[] { "Kopie's Hammer Mod", "Porta's Drafting Mod", "Cyantist's API", "Sinai Unity Explorer" };
+        public static readonly string[] MODS = new string[] { "Special Hammer Mod", "Incredible Drafting Mod", "The Community API", "Super-Duper Unity Editor" };
 
         public P03AscensionOpponent P03AscensionOpponent
         {

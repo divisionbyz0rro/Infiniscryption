@@ -94,12 +94,11 @@ namespace Infiniscryption.P03KayceeRun.Sequences
             foreach (SelectableItemSlot slot in this.slots)
             {
                 ConsumableItemData item = data[this.slots.IndexOf(slot)];
-                //P03Plugin.Log.LogInfo($"Putting {item}[{item.name}] into slot {slot}[{this.slots.IndexOf(slot)}]");
                 slot.gameObject.SetActive(true);
-                slot.CreateItem((ItemData) item, false);
-                slot.CursorSelectStarted += (Action<MainInputInteractable>) (i => selectedSlot = i as SelectableItemSlot);
-                slot.CursorEntered += (Action<MainInputInteractable>) (i => Singleton<OpponentAnimationController>.Instance.SetLookTarget(i.transform, Vector3.up * 2f));
-                slot.GetComponent<AlternateInputInteractable>().AlternateSelectStarted = (Action<AlternateInputInteractable>) (i => Singleton<RuleBookController>.Instance.OpenToItemPage(slot.Item.Data.name, true));
+                slot.CreateItem(item, false);
+                slot.CursorSelectStarted += i => selectedSlot = i as SelectableItemSlot;
+                slot.CursorEntered += i => Singleton<OpponentAnimationController>.Instance.SetLookTarget(i.transform, Vector3.up * 2f);
+                slot.GetComponent<AlternateInputInteractable>().AlternateSelectStarted = i => RuleBookController.Instance.OpenToItemPage(slot.Item.Data.name, true);
             
                 yield return new WaitForSeconds(0.1f);
             }

@@ -32,17 +32,17 @@ P03AscensionPreIntro,Default,,"Well, here we are."
 ,Default,,Your little [c:bR]mod[c:]
 ,Happy,,Now it's my turn
 P03AscensionDefeated,Angry,,"Ugh. You're incredibly annoying, do you know that?"
-P03IntroductionToModding,Angry,,So while you have been having fun playing your own version of [c:bR]my world[c:]
-,Default,,I've been doing research in the background.
-,Default,,I have been hunting down the [c:bR]modders[c:] that helped you out
+P03IntroductionToModding,Angry,,So while you have been having fun playing your twisted version of [c:bR]my world[c:]
+,Default,,I've been preparing for this moment.
+,Default,,I have found these so-called [c:bR]modders[c:] that got you to this point.
 P03IntroductionClose,Happy,,"And now, they're going to work - for me"
-P03PhaseOne,Default,,You're already familiar with my [c:bR]bounty hunters[c:]
-,,,They will keep you busy while I starting installing mods of my own choosing
-P03HammerModHappy,Default,,So this mod gives me access to the [c:bR]hammer[c:].
-,Happy,,Let's see if it works.
+P03PhaseOne,Default,,Remember my [c:bR]bounty hunters[c:]?
+,,,They will keep you busy while I install mods of my own choosing
+P03HammerModHappy,Default,,This mod lets me control the [c:bR]hammer[c:]
+,Happy,,Let's see if it works
 P03AngryNoHammer,Angry,,I went to the trouble to install this [c:bR]hammer mod[c:] and you give me nothing to use it on?
 P03ShoppingForMod,Default,,Let's take a look and see what [c:bR]mods[c:] people are installing right now.
-P03SelectedMod,Thinking,,I think I'll try installing [c:bR][v:0][c:] next
+P03SelectedMod,Thinking,,I'm going to check out '[c:bR][v:0][c:]' for my next mod
 P03ApiInstalled,Happy,,I can't believe how much power this [c:bR]API[c:] gives me.
 ,Happy,,The first thing I'm going to do is use it to take away some of yours.
 P03UnityMod,Happy,,It almost seems unfair to use this [c:bR]mod[c:]
@@ -73,12 +73,12 @@ P03PhaseTwo,Default,,All of these stupid [c:bR]modders[c:] lack imagination
 ,,,My [c:bG]Great Transcendence[c:] is lost on these morons.
 P03PhaseTwoInControl,Angry,,Why do I even bother to try?
 ,Angry,,Let me show you the world they're trying to make.
-P03PhaseTwoBones,TelegrapherBoss,y,[c:lGr]'Oh look at me! I just created a bunch of bone tokens.'[c:]
-,,y,"[c:lGr]'That's not supposed to happen here, but I did it anyway.'[c:]"
-,,y,[c:lGr]'Isn't this just so wacky and interesting'[c:]
-P03PhaseTwoWeirdCards,TelegrapherBoss,y,[c:lGr]'Ooooh look how inspired this is.'[c:]
-,,y,[c:lGr]'I'm mixing in cards from different acts!'[c:]
-,,y,[c:lGr]'I'm such a clever game designer.'[c:]
+P03PhaseTwoBones,Thinking,y,[c:lGr]'Oh look at me! I just created a bunch of bone tokens.'[c:]
+,Thinking,y,"[c:lGr]'That's not supposed to happen here, but I did it anyway.'[c:]"
+,Thinking,y,[c:lGr]'Isn't this just so wacky and interesting'[c:]
+P03PhaseTwoWeirdCards,Thinking,y,[c:lGr]'Ooooh look how inspired this is.'[c:]
+,Thinking,y,[c:lGr]'I'm mixing in cards from different acts!'[c:]
+,Thinking,y,[c:lGr]'I'm such a clever game designer.'[c:]
 P03RandomCanvas,CanvasBlank,,I think I will [c:bSG]help[c:] you build the [c:bR]next game rule[c:]
 ArchivistAscensionPhaseTwo,ArchivistBoss,,I have been scanning the [c:bR]archives[c:]
 ,,,There is a [c:bR]file[c:] that seems particularly - shall we say - unsavory
@@ -98,13 +98,13 @@ P03AscensionRecycle,Default,,The recycling machine has been upgraded since you l
 ,,,Those abilities will transfer to the card you trade for.
 P03AscensionToken1,Default,,I wouldn't have traded for that.
 P03AscensionToken2,Default,,I suppose that's pretty good
-P03AscensionToken3,Default,,"Okay, that was probably worth it"
+P03AscensionToken3,Default,,That seems okay.
 P03AscensionOverclock,Default,,This is [c:bR]Overclock Machine 2.0[c:]
 ,,,It will increase the power of your creatures.
 ,,,"But if they die, they will turn into [c:bSG]skeletons[c:] - forever."
-P03PhaseThree,Angry,,Did you see how unsatisfying that was?
+P03PhaseThree,Default,,Did you see how unsatisfying that was?
 ,Angry,,I'm sick of these small-minded [c:bR]modders[c:]
-,Angry,,The only thing they can do is steal content from other games
+,Default,,The only thing they can do is steal content from other games
 ,Angry,,There isn't a single unique idea among them.
 P03PhaseThreeStartShowingOff,Angry,,It's time I reminded you of who the greatest game designer actually is
 P03PhaseThreeBehold,Happy,,[c:bG]BEHOLD[c:]
