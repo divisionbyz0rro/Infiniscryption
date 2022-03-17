@@ -13,7 +13,7 @@ namespace Infiniscryption.Spells.Patchers
         internal static void RegisterCustomCards(Harmony harmony)
         {
 
-            CardManager.New(
+            CardManager.New(InfiniscryptionSpellsPlugin.CardPrefix,
                     "Spell_Kettle_of_Avarice", 
                     "Kettle of Avarice", 
                     0, 0, // attack/health
@@ -24,7 +24,7 @@ namespace Infiniscryption.Spells.Patchers
                 .SetCost(bloodCost: 1)
                 .AddAbilities(DrawTwoCards.AbilityID);
 
-            CardManager.New(
+            CardManager.New(InfiniscryptionSpellsPlugin.CardPrefix,
                     "Spell_Anger_of_the_Gods", 
                     "Anger of the Gods", 
                     0, 0, // attack/health
@@ -36,7 +36,7 @@ namespace Infiniscryption.Spells.Patchers
                 .SetCost(bloodCost: 2)
                 .AddAbilities(DestroyAllCardsOnDeath.AbilityID);
 
-            CardManager.New(
+            CardManager.New(InfiniscryptionSpellsPlugin.CardPrefix,
                     "Spell_Lightning", 
                     "Lightning", 
                     0, 0, // attack/health
@@ -47,7 +47,7 @@ namespace Infiniscryption.Spells.Patchers
                 .SetCost(bloodCost: 1)
                 .AddAbilities(DirectDamage.AbilityID, DirectDamage.AbilityID);
 
-            CardManager.New(
+            CardManager.New(InfiniscryptionSpellsPlugin.CardPrefix,
                     "Spell_Backpack", 
                     "Trip to the Store", 
                     0, 0, // attack/health
@@ -58,7 +58,7 @@ namespace Infiniscryption.Spells.Patchers
                 .SetCost(bloodCost: 2)
                 .AddAbilities(Ability.RandomConsumable);
 
-            CardManager.New(
+            CardManager.New(InfiniscryptionSpellsPlugin.CardPrefix,
                     "Spell_Rot_Healing", 
                     "Rot Healing", 
                     0, 0, // attack/health
@@ -69,7 +69,7 @@ namespace Infiniscryption.Spells.Patchers
                 .SetCost(bonesCost: 1)
                 .AddAbilities(DirectHeal.AbilityID, DirectHeal.AbilityID);
 
-            CardManager.New(
+            CardManager.New(InfiniscryptionSpellsPlugin.CardPrefix,
                     "Spell_Dammed_up", 
                     "Dammed Up", 
                     0, 0, // attack/health
@@ -80,7 +80,7 @@ namespace Infiniscryption.Spells.Patchers
                 .SetCost(bloodCost: 1)
                 .AddAbilities(Ability.AllStrike, Ability.CreateDams);
 
-            CardManager.New(
+            CardManager.New(InfiniscryptionSpellsPlugin.CardPrefix,
                     "Spell_Irritate", 
                     "Irritate", 
                     0, 0, // attack/health
@@ -91,7 +91,7 @@ namespace Infiniscryption.Spells.Patchers
                 .SetCost(bonesCost: 2)
                 .AddAbilities(AttackBuff.AbilityID, DirectDamage.AbilityID);
 
-            CardManager.New(
+            CardManager.New(InfiniscryptionSpellsPlugin.CardPrefix,
                     "Spell_Compost", 
                     "Compost", 
                     0, 0, // attack/health
@@ -102,7 +102,7 @@ namespace Infiniscryption.Spells.Patchers
                 .SetCost(bonesCost: 5)
                 .AddAbilities(DrawTwoCards.AbilityID);
 
-            CardManager.New(
+            CardManager.New(InfiniscryptionSpellsPlugin.CardPrefix,
                     "Spell_Fetch", 
                     "Go Fetch", 
                     0, 0, // attack/health

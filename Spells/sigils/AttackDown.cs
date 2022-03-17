@@ -25,7 +25,7 @@ namespace Infiniscryption.Spells.Sigils
             info.SetPixelAbilityIcon(AssetHelper.LoadTexture("attack_down_pixel"));
 
             AttackNerf.AbilityID = AbilityManager.Add(
-                InfiniscryptionSpellsPlugin.PluginGuid,
+                InfiniscryptionSpellsPlugin.OriginalPluginGuid,
                 info,
                 typeof(AttackNerf),
                 AssetHelper.LoadTexture("ability_attack_down")

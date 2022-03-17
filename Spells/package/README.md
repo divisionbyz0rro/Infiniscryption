@@ -23,7 +23,7 @@ Pixel icons were contributed by [Arakulele](https://inscryption.thunderstore.io/
 
 ## Does this pack add any cards?
 
-It can, but it doesn't by default. If you want my example cards added to the card pool, go to the config file 'zorro.inscryption.infiniscryption.spells.cfg' and set 'AddCards' to true.
+It can, but it doesn't by default. If you want my example cards added to the card pool, go to the config file 'zorro.infiniscryption.sigils.cfg' and set 'AddCards' to true.
 
 This will add the following cards:
 
@@ -67,13 +67,13 @@ If you are adding sigils that are intended to be used on targeted spells, you ne
 
 So far we have the following:
 
-- **Draw Twice** ("zorro.inscryption.infiniscryption.spells.Draw Twice"): Draw the top card of your main deck and the top card of your side deck when this card dies.
-- **Cataclysm** ("zorro.inscryption.infiniscryption.spells.Cataclysm"): Kill every card on board when this card dies.
-- **Direct Damage** ("zorro.inscryption.infiniscryption.spells.Direct Damage"): Deals one damage to the targeted card slot. This ability stacks, so if you put two on a card, it will deal two damage. This only targets opponent cards.
-- **Direct Healing** ("zorro.inscryption.infiniscryption.spells.Direct Heal"): Heals the targeted card for one. This can overheal. This ability stacks. This only targets player cards.
-- **Attack Up** ("zorro.inscryption.infiniscryption.spells.Attack Up"): Increases the targeted card's attack by one for the rest of the batle. This only targets player cards.
-- **Attack Down** ("zorro.inscryption.infiniscryption.spells.Attack Down"): Decreases the targeted card's attack by one for the rest of the batle. This only targets opponent cards.
-- **Gain Control** ("zorro.inscryption.infiniscryption.spells.Gain Control"): Gains control of the targeted creature, but only if there is an empy slot for that creature to move into. Functionally similar to the fishook item.
+- **Draw Twice** ("zorro.infiniscryption.sigils.Draw Twice"): Draw the top card of your main deck and the top card of your side deck when this card dies.
+- **Cataclysm** ("zorro.infiniscryption.sigils.Cataclysm"): Kill every card on board when this card dies.
+- **Direct Damage** ("zorro.infiniscryption.sigils.Direct Damage"): Deals one damage to the targeted card slot. This ability stacks, so if you put two on a card, it will deal two damage. This only targets opponent cards.
+- **Direct Healing** ("zorro.infiniscryption.sigils.Direct Heal"): Heals the targeted card for one. This can overheal. This ability stacks. This only targets player cards.
+- **Attack Up** ("zorro.infiniscryption.sigils.Attack Up"): Increases the targeted card's attack by one for the rest of the batle. This only targets player cards.
+- **Attack Down** ("zorro.infiniscryption.sigils.Attack Down"): Decreases the targeted card's attack by one for the rest of the batle. This only targets opponent cards.
+- **Gain Control** ("zorro.infiniscryption.sigils.Gain Control"): Gains control of the targeted creature, but only if there is an empy slot for that creature to move into. Functionally similar to the fishook item.
 
 ## Split, Tri, and All Strike
 These sigils do **nothing** for global spells, but behave as you would expect for targeted spells. Be careful when putting Split Strike on a targeted spell, as it will behave exactly as expected, which is not necessarily intuitive. Rather than affecting the targeted space, it will affect the spaces on either side.
@@ -84,6 +84,8 @@ So, for example:
 - A spell with All Strike and Create Dams will attempt to put a beaver dam in every space on the boad.
 - A spell with Tri Strike and Direct Damage will deal one damage to the targeted space and both adjacent spaces.
 - A spell with Split Strike and Explode On Death will only explode once.
+
+Note that custom "strike" abilities are not supported - only Split, Tri, and All.
 
 ## Adding a spell through the API
 
@@ -114,11 +116,11 @@ To add a spell using JSON loader, you simply need to add either the global spell
 
 ```json
 {
-  "specialAbilities": [ "zorro.inscryption.infiniscryption.spells.Spell (Global)" ]
+  "specialAbilities": [ "zorro.infiniscryption.sigils.Spell (Global)" ]
 }
 
 {
-  "specialAbilities": [ "zorro.inscryption.infiniscryption.spells.Spell (Targeted)" ]
+  "specialAbilities": [ "zorro.infiniscryption.sigils.Spell (Targeted)" ]
 }
 ```
 
@@ -128,7 +130,7 @@ To add a spell using JSON loader, you simply need to add either the global spell
 <summary>Changelog</summary>
 
 2.0
-- Updated documentation for Kaycee's Mond API and required that API as a dependency.
+- Updated documentation for Kaycee's Mod API and required that API as a dependency.
 
 1.2.7
 - Added pixel icons for compatibility with GBC mode

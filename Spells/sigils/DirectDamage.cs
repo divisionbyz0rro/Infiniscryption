@@ -24,7 +24,7 @@ namespace Infiniscryption.Spells.Sigils
             info.SetPixelAbilityIcon(AssetHelper.LoadTexture("damage_pixel"));
 
             DirectDamage.AbilityID = AbilityManager.Add(
-                InfiniscryptionSpellsPlugin.PluginGuid,
+                InfiniscryptionSpellsPlugin.OriginalPluginGuid,
                 info,
                 typeof(DirectDamage),
                 AssetHelper.LoadTexture("ability_damage")

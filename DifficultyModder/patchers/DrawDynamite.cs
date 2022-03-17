@@ -2,6 +2,7 @@ using DiskCardGame;
 using HarmonyLib;
 using Infiniscryption.Core.Helpers;
 using Infiniscryption.Curses.Cards;
+using Infiniscryption.Curses.Sequences;
 using InscryptionAPI.Ascension;
 
 namespace Infiniscryption.Curses.Patchers
@@ -15,9 +16,9 @@ namespace Infiniscryption.Curses.Patchers
             ID = ChallengeManager.Add
             (
                 CursePlugin.PluginGuid,
-                "Dangerous Decks",
+                "Exploding Cards",
                 "Dynamite is added to your deck after every boss battle",
-                15,
+                5,
                 AssetHelper.LoadTexture("challenge_dynamite"),
                 AssetHelper.LoadTexture("activated_challenge_dynamite")
             ).challengeType;
@@ -31,7 +32,7 @@ namespace Infiniscryption.Curses.Patchers
         {
             if (AscensionSaveData.Data.ChallengeIsActive(ID) && TurnManager.Instance.opponent is Part1BossOpponent && TurnManager.Instance.PlayerIsWinner())
             {
-                AscensionSaveData.Data.currentRun.playerDeck.AddCard(CardLoader.GetCardByName(Dynamite.DYNAMITE_CARD_NAME));
+                AscensionSaveData.Data.currentRun.playerDeck.AddCard(CardLoader.GetCardByName(ProspectorBossHardOpponent.DYNAMITE));
             }
         }
     }

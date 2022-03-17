@@ -9,6 +9,8 @@ namespace Infiniscryption.Curses.Sequences
 {
     public class AnglerBossHardOpponent : AnglerBossOpponent
     {
+        public static readonly string MEGA_SHARK = $"{CursePlugin.CardPrefix}_Angler_Shark";
+
         public override int StartingLives => 3;
 
         // The harder version lights an extra candle
@@ -50,7 +52,7 @@ namespace Infiniscryption.Curses.Sequences
             for (int i = 0; i < numberOfSharks; i++)
             {
                 int slotNum = i == 0 ? 1 : i == 1 ? 3 : i == 2 ? 2 : 0;
-                CardInfo shark = CardLoader.GetCardByName("Angler_Shark");
+                CardInfo shark = CardLoader.GetCardByName(MEGA_SHARK);
 
                 if (SaveFile.IsAscension && AscensionSaveData.Data.currentRun.regionTier == 2)
                     shark.mods.Add(new CardModificationInfo(1, 1));

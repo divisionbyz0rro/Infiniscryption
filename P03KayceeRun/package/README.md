@@ -25,9 +25,9 @@ There are also some changes from the way P03's gameplay worked the first time th
 2) There is a final boss fight against P03. He has...some thoughts about what you're doing.
 3) Some events work differently (see below).
 
-However the runs are still similar in significant ways:
+The runs are still similar to Leshy in significant ways:
 
-1) You will still start with a draft. **Warning:** The game will not force you to complete the draft - don't forget to click that purple draft node whenever you're back at the hub!
+1) You will still start with a draft.
 2) There are a number of starter decks that you can pick from to help guide your selections through the rest of the game.
 3) You must complete four battles against enemies before facing the boss. Once you beat the boss, you're done with that zone and can't go back.
 4) There are now rare cards available to you. You will be given a Rare Token for completing a boss, which you can spend at the draft node to get a rare for your deck.
@@ -40,7 +40,7 @@ Some events play the same in this mod as they did the first time you played thro
 - **Gemify Cards**: This behaves the same as before.
 - **Items**: You can buy an item like you would in Act 1. However, you can only get one item from each shop.
 - **Overclock**: This is significantly different. As before, the overclocked card gets +1 attack. However, when an overclocked card dies, it is not just removed from your deck. It is replaced with an Exeskeleton with the same set of abilities as the original card. So if you overclock a Sniper and it dies, you will get an Exeskeleton with the Sniper sigil.
-- **Recycle**: Instead of getting robobucks back for your recycled card, you get a draft token. Normal cards get you a standard Token. Cards that have been upgraded at least once give you an Improved Token. Rare cards get you a Rare token.
+- **Recycle**: Instead of getting robobucks back for your recycled card, you get a draft token. Normal cards get you a standard Token, with all of the card's abilities imprinted on the token. Those abilities will transfer to the card you draft with it. Rare cards get you a Rare token, which can be exchanged for another rare card.
 - **Transformer**: Currently, this behaves as normal.
 
 ### Challenges
@@ -72,12 +72,15 @@ CardInfo myCard = (...);
 myCard.AddMetaCategories(WizardRegion);
 ```
 
+## Modding encounters
+
+Unfortunately, custom encounters and regions are not currently supported by this mod.
+
 ## Credits
 
 The pixel/GBC card arts used in the starer decks screen are taken from the [Act II Recreated](https://inscryption.thunderstore.io/package/Sire/RecreatedAct2Cards/) Mod, with art by SyntaxEvasion.
 
 ## Requirements
 
-As with most mods, you need [BepInEx](https://inscryption.thunderstore.io/package/BepInEx/BepInExPack_Inscryption/) installed. 
-
-You will also need the [API](https://inscryption.thunderstore.io/package/API_dev/API/) installed.
+- [BepInEx](https://inscryption.thunderstore.io/package/BepInEx/BepInExPack_Inscryption/)
+- [API](https://inscryption.thunderstore.io/package/API_dev/API/)

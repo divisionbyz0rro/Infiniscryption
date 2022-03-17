@@ -21,6 +21,7 @@ namespace Infiniscryption.Curses
         internal const string PluginGuid = "zorro.inscryption.infiniscryption.curses";
 		internal const string PluginName = "Infiniscryption Curses";
 		internal const string PluginVersion = "0.1";
+        internal const string CardPrefix = "CURSES";
 
         internal static ManualLogSource Log;
 

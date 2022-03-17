@@ -7,7 +7,6 @@ namespace Infiniscryption.PackManagement.Patchers
         public static void CreatePacksForOtherMods()
         {
             // Create a pack for Eri's
-            // currently testing jlpk
             PackInfo erisPack = PackManager.GetPackInfo("eri");
             erisPack.Title = "Eri Card Expansion";
             erisPack.SetTexture(AssetHelper.LoadTexture("eris_pack"));
@@ -22,6 +21,11 @@ namespace Infiniscryption.PackManagement.Patchers
             araExpansion.Title = "Ara's Card Expansion";
             araExpansion.SetTexture(AssetHelper.LoadTexture("aras_packs"));
             araExpansion.Description = "This expansion contains [count] cards that offer a unique twist on Inscryption's core gameplay. Cards like [randomcard] and [randomcard] will give a little additional spice to your next run.";
+
+            PackInfo hePack = PackManager.GetPackInfo("HE");
+            hePack.Title = "Hallownest Expansion";
+            hePack.SetTexture(AssetHelper.LoadTexture("he_pack"));
+            hePack.Description = "A large expansion containing [count] creatures from Hollow Knight. Up from peaceful Crossroads, down into the Abyss.";
         }
     }
 }

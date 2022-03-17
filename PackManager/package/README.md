@@ -4,13 +4,19 @@ Have you installed too many card mods and want your runs through Kaycee's Mod to
 
 This mod adds a screen to the setup of each run through Kaycee's Mod. It allows you to toggle which cards will or will not appear in the upcoming run through the use of 'packs.' Mods that use this API can register themselves as packs, and players can turn each pack on or off as they wish.
 
-This mod uses the official API's concept of a "mod prefix" on each card to identify which card belongs to which pack.
+This mod uses the API's concept of a "mod prefix" on each card to identify which card belongs to which pack.
+
+## What happens when a pack is "turned off?"
+
+When you deactivate a pack for a run through Kaycee's Mod, this mod will temporarily remove all metacategories from all cards in that pack. This will prevent the card from appearing in card choice nodes, trader nodes, rare card selection nodes, etc. However, other references to these cards (such as Evolve or Ice Cube) will remain.
+
+This mod will also try to remove encounters from each region that contain excluded cards. However, most card pack mods don't come with encounters, which means that a lot of pack combinations will result in not having any valid encounters. In this situation, the mod reverts to using the game's default encounters.
 
 ## Requirements
 
 As with most mods, you need [BepInEx](https://inscryption.thunderstore.io/package/BepInEx/BepInExPack_Inscryption/) installed. 
 
-You will also need the [API](https://inscryption.thunderstore.io/package/API_dev/API/) installed, and the super helpful [Health for Ants](https://inscryption.thunderstore.io/package/JulianMods/HealthForAnts/) mod as well.
+You will also need the [API](https://inscryption.thunderstore.io/package/API_dev/API/) installed.
 
 ## Installation
 
@@ -18,12 +24,15 @@ The zip file should be structured in the same way as your Inscryption root direc
 
 # How do I make my cards compatible with the Pack Manager?
 
+## Make sure all of your cards use the same mod prefix
+This cannot be stressed enough. This mod relies on the mod prefix to sort out which cards belong to which pack, so it is your responsibility to make sure that you've selected a mod prefix for your cards and that all your cards use it.
+
 ## JSON Loader Cards
 If you use [JSON Loader](https://inscryption.thunderstore.io/package/MADH95Mods/JSONCardLoader/) to build your cards, it's really easy to add a pack definition to your mod. Here's what you need to do:
 
 1. Make sure all of your cards have the "modPrefix" attribute properly set. All cards from your mod should have the same mod prefix, which identifies them as belonging to the same card pack.
     - This alone is enough to make the pack manager function properly with your mod. It will autogenerate a pack for you, but it will not have a bespoke description or pack art. It will just be a blank pack icon that displays the card art of the card with the highest power level in your mod.
-2. Include a JSON pack file in your mod. This is a JSON file with the file extension *.jlpk that will contain the description of your mod pack, the title, and a custom pack art:
+2. Include a pack file in your mod. This is a JSON file with the file extension *.jlpk that will contain the description of your mod pack, the title, and a custom pack art:
 
 ```json
 {
@@ -36,7 +45,7 @@ If you use [JSON Loader](https://inscryption.thunderstore.io/package/MADH95Mods/
 ```
 
 ## Using the API directly
-You can also create a card pack using this API directly. 
+You can also create a card pack using this API directly. All you need to do is ask the PackManager to create a PackInfo object for the mod prefix associated with your cards.
 
 ```c#
 using Infiniscryption.PackManager;
@@ -79,7 +88,7 @@ You can put the following placeholders into the description of your pack to help
 
 ## Pack validity
 
-Each pack has a completely optional "ValidFor" property, which is a list of CardTemples. This is meant to allow you to indicate which zones/biomes the card pack is valid for. By default, the game only has a single zone available in Kaycee's Mod. That zone is Leshy's Cabin, which is the Nature zone. However, other mods, such as my P03 KCM mod, may add other playable zones. The pack definition includes the idea of "ValidFor" in order to provide some amount of future-proofing.
+Each pack has a completely optional "ValidFor" property, which is a list of CardTemples. This is meant to allow you to indicate which zones/biomes the card pack is valid for. By default, the game only has a single zone available in Kaycee's Mod. That zone is Leshy's Cabin, which is the Nature zone. However, other mods, such as the "P03 for Kaycee's Mod" mod, may add other playable zones. The pack definition includes the idea of "ValidFor" in order to provide some amount of future-proofing.
 
 ## Creating Pack Art
 

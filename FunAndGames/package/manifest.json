@@ -1,0 +1,11 @@
+{
+    "name": "Curses",
+    "version_number": "0.4.3",
+    "website_url": "https://github.com/divisionbyz0rro/Infiniscryption",
+    "description": "Now with extra spookiness, fewer teeth, and harder bosses! For those looking for a greater challenge: take on curses (difficulty modifiers) to increase the difficulty of your runs and improve replayability.",
+    "dependencies": [
+        "BepInEx-BepInExPack_Inscryption-5.4.1701",
+        "API_dev-API-1.13.0",
+        "Infiniscryption-Spell_Card_Toolkit-1.2.4"
+    ]
+}

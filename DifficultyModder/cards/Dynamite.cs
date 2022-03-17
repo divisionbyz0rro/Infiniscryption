@@ -9,14 +9,13 @@ using System.Collections.Generic;
 using Infiniscryption.Core.Helpers;
 using System.Linq;
 using InscryptionAPI.Card;
+using Infiniscryption.Curses.Sequences;
 
 namespace Infiniscryption.Curses.Cards
 {
     public class Dynamite : AbilityBehaviour
     {
         public const string EXPLOSION_SOUND = "card_explosion";
-
-        public const string DYNAMITE_CARD_NAME = "Curses_Prospector_Dynamite";
 
 		public override Ability Ability => AbilityID;
         public static Ability AbilityID { get; private set; }
@@ -42,7 +41,7 @@ namespace Infiniscryption.Curses.Cards
                 AssetHelper.LoadTexture("ability_dynamite")
             ).Id;
 
-            CardManager.New(DYNAMITE_CARD_NAME, "Dynamite", 0, 2)
+            CardManager.New(CursePlugin.CardPrefix, ProspectorBossHardOpponent.DYNAMITE, "Dynamite", 0, 2)
                 .AddTraits(Trait.Terrain)
                 .SetPortrait(AssetHelper.LoadTexture("dynamite_portrait"), AssetHelper.LoadTexture("dynamite_emission"))
                 .AddAbilities(Dynamite.AbilityID)

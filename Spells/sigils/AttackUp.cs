@@ -25,7 +25,7 @@ namespace Infiniscryption.Spells.Sigils
             info.SetPixelAbilityIcon(AssetHelper.LoadTexture("attack_up_pixel"));
 
             AttackBuff.AbilityID = AbilityManager.Add(
-                InfiniscryptionSpellsPlugin.PluginGuid,
+                InfiniscryptionSpellsPlugin.OriginalPluginGuid,
                 info,
                 typeof(AttackBuff),
                 AssetHelper.LoadTexture("ability_attack_up")

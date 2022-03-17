@@ -17,10 +17,16 @@ namespace Infiniscryption.PackManagement
     public static class PackManager
     {
         private static List<CardMetaCategory> protectedMetacategories = new();
-        public static void AddProtectedMetacategory(CardMetaCategory category)
+        private static List<AbilityMetaCategory> protectedAbilityMetacategories = new () 
         {
-            protectedMetacategories.Add(category);
-        }
+            AbilityMetaCategory.Part1Rulebook,
+            AbilityMetaCategory.Part3Rulebook,
+            AbilityMetaCategory.GrimoraRulebook,
+            AbilityMetaCategory.MagnificusRulebook
+        };
+
+        public static void AddProtectedMetacategory(CardMetaCategory category) => protectedMetacategories.Add(category);
+        public static void AddProtectedMetacategory(AbilityMetaCategory category) => protectedAbilityMetacategories.Add(category);
 
         static PackManager()
         {
@@ -201,7 +207,7 @@ namespace Infiniscryption.PackManagement
                 else
                     card.metaCategories = new(card.metaCategories.Where(c => protectedMetacategories.Contains(c)));
 
-                if (card.temple == ScreenState)
+                if (ActiveCards.Contains(card.name))
                     foreach(Ability ab in card.Abilities)
                         if (!ActiveAbilities.Contains(ab))
                             ActiveAbilities.Add(ab);
@@ -234,7 +240,7 @@ namespace Infiniscryption.PackManagement
             foreach(var fab in abilities)
             {
                 if (!ActiveAbilities.Contains(fab.Id))
-                    fab.Info.metaCategories = new();
+                    fab.Info.metaCategories = new(fab.Info.metaCategories.Where(c => protectedAbilityMetacategories.Contains(c)));
                 else
                 {
                     fab.Info.metaCategories = new List<AbilityMetaCategory>(fab.Info.metaCategories);

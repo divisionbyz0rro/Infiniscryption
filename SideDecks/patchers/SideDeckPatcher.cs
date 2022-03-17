@@ -25,7 +25,7 @@ namespace Infiniscryption.SideDecks.Patchers
             { 
                 string sideDeck = ModdedSaveManager.SaveData.GetValue(SideDecksPlugin.PluginGuid, "SideDeck.SelectedDeck");
                 if (String.IsNullOrEmpty(sideDeck))
-                    return CustomCards.SideDecks.Squirrel.ToString();
+                    return "Squirrel";
 
                 return sideDeck; 
             }
@@ -93,7 +93,7 @@ namespace Infiniscryption.SideDecks.Patchers
                 }
                 else if (SaveManager.saveFile.IsPart3 || ScreenState == CardTemple.Tech)
                 {
-                    return new() { "EmptyVesselSubmerge" };
+                    return new() { SideDecksPlugin.CardPrefix + "_EmptyVesselSubmerge" };
                 }
                 else if (SaveManager.saveFile.IsGrimora || ScreenState == CardTemple.Undead)
                 {

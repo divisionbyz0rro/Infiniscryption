@@ -23,7 +23,7 @@ namespace Infiniscryption.Spells.Sigils
             info.SetPixelAbilityIcon(AssetHelper.LoadTexture("direct_heal_pixel"));
 
             DirectHeal.AbilityID = AbilityManager.Add(
-                InfiniscryptionSpellsPlugin.PluginGuid,
+                InfiniscryptionSpellsPlugin.OriginalPluginGuid,
                 info,
                 typeof(DirectHeal),
                 AssetHelper.LoadTexture("ability_health_up")

@@ -9,6 +9,8 @@ namespace Infiniscryption.Curses.Sequences
 {
     public class ProspectorBossHardOpponent : ProspectorBossOpponent
     {
+        public static readonly string DYNAMITE = $"{CursePlugin.CardPrefix}_Prospector_Dynamite";
+
         public override int StartingLives => 3;
 
         // The harder version lights an extra candle

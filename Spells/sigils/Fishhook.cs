@@ -24,7 +24,7 @@ namespace Infiniscryption.Spells.Sigils
             info.SetPixelAbilityIcon(AssetHelper.LoadTexture("fishhook_pixel"));
 
             Fishhook.AbilityID = AbilityManager.Add(
-                InfiniscryptionSpellsPlugin.PluginGuid,
+                InfiniscryptionSpellsPlugin.OriginalPluginGuid,
                 info,
                 typeof(Fishhook),
                 AssetHelper.LoadTexture("ability_fishhook")

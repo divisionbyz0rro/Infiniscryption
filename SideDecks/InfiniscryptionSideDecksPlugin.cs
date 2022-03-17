@@ -18,6 +18,7 @@ namespace Infiniscryption.SideDecks
         public const string PluginGuid = "zorro.inscryption.infiniscryption.sidedecks";
 		public const string PluginName = "Infiniscryption Side Decks";
 		public const string PluginVersion = "1.0";
+        public const string CardPrefix = "ZSDD";
 
         internal static ManualLogSource Log;
 

@@ -15,9 +15,9 @@ There's also a hook to allow you or others to add more sidedeck cards to the poo
 
 ## Requirements
 
-As with most mods, you need [BepInEx](https://inscryption.thunderstore.io/package/BepInEx/BepInExPack_Inscryption/) installed. 
-
-You will also need the [API](https://inscryption.thunderstore.io/package/API_dev/API/) installed, and the super helpful [Health for Ants](https://inscryption.thunderstore.io/package/JulianMods/HealthForAnts/) mod as well.
+- [BepInEx](https://inscryption.thunderstore.io/package/BepInEx/BepInExPack_Inscryption/)
+- [API](https://inscryption.thunderstore.io/package/API_dev/API/)
+- [HealthForAnts](https://inscryption.thunderstore.io/package/JulianMods/HealthForAnts/)
 
 ## Installation
 

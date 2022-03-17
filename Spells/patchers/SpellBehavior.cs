@@ -15,7 +15,7 @@ namespace Infiniscryption.Spells.Patchers
     {
         public class SpellBackgroundAppearance : CardAppearanceBehaviour
         {
-            public static CardAppearanceBehaviour.Appearance ID = CardAppearanceBehaviourManager.Add(InfiniscryptionSpellsPlugin.PluginGuid, "SpellBackground", typeof(SpellBackgroundAppearance)).Id;
+            public static CardAppearanceBehaviour.Appearance ID = CardAppearanceBehaviourManager.Add(InfiniscryptionSpellsPlugin.OriginalPluginGuid, "SpellBackground", typeof(SpellBackgroundAppearance)).Id;
             private static Texture _emptySpell = AssetHelper.LoadTexture("card_empty_spell");
             public override void ApplyAppearance()
             {
@@ -25,7 +25,7 @@ namespace Infiniscryption.Spells.Patchers
 
         public class RareSpellBackgroundAppearance : CardAppearanceBehaviour
         {
-            public static CardAppearanceBehaviour.Appearance ID = CardAppearanceBehaviourManager.Add(InfiniscryptionSpellsPlugin.PluginGuid, "RareSpellBackground", typeof(RareSpellBackgroundAppearance)).Id;
+            public static CardAppearanceBehaviour.Appearance ID = CardAppearanceBehaviourManager.Add(InfiniscryptionSpellsPlugin.OriginalPluginGuid, "RareSpellBackground", typeof(RareSpellBackgroundAppearance)).Id;
             private static Texture _emptySpell = AssetHelper.LoadTexture("card_empty_spell_rare");
             public override void ApplyAppearance()
             {

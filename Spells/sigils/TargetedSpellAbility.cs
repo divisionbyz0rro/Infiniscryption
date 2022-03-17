@@ -34,7 +34,7 @@ namespace Infiniscryption.Spells.Sigils
             info.SetDefaultPart1Ability();
 
             TargetedSpellAbility._icon = StatIconManager.Add(
-                InfiniscryptionSpellsPlugin.PluginGuid,
+                InfiniscryptionSpellsPlugin.OriginalPluginGuid,
                 info,
                 typeof(TargetedSpellAbility)
             ).Id;
@@ -42,7 +42,7 @@ namespace Infiniscryption.Spells.Sigils
             // Honestly, this should be a trait or something.
             // But for backwards compatibility, I'm leaving it.
             TargetedSpellAbility._id = SpecialTriggeredAbilityManager.Add(
-                InfiniscryptionSpellsPlugin.PluginGuid,
+                InfiniscryptionSpellsPlugin.OriginalPluginGuid,
                 info.rulebookName,
                 typeof(TargetedSpellAbility)
             ).Id;

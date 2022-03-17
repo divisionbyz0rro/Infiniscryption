@@ -11,6 +11,11 @@ namespace Infiniscryption.Curses.Sequences
 {
     public class TrapperTraderBossHardOpponent : TrapperTraderBossOpponent
     {
+        public static readonly string LEAPING_TRAP = "Trap";
+        public static readonly string BOW_CARD = $"{CursePlugin.CardPrefix}_Trapper_Bow";
+        public static readonly string CAPTURE_CARD = $"{CursePlugin.CardPrefix}_Trapper_Capture";
+        public static readonly string SPIKE_TRAP_CARD = $"{CursePlugin.CardPrefix}_Trapper_Spike_Trap";
+
         public override int StartingLives => 3;
 
         private static Vector3 BOSS_CARD_RECEIVE_OFFSET = new Vector3(0f, 2f, 8f);
@@ -57,10 +62,10 @@ namespace Infiniscryption.Curses.Sequences
             // Start with two of everything
             for (int i = 0; i < 2; i++)
             {
-                retval.Add(CardLoader.GetCardByName("Trap"));
-                retval.Add(CardLoader.GetCardByName("Trapper_Spike_Trap"));
-                retval.Add(CardLoader.GetCardByName("Trapper_Capture"));
-                retval.Add(CardLoader.GetCardByName("Trapper_Bow"));
+                retval.Add(CardLoader.GetCardByName(LEAPING_TRAP));
+                retval.Add(CardLoader.GetCardByName(SPIKE_TRAP_CARD));
+                retval.Add(CardLoader.GetCardByName(CAPTURE_CARD));
+                retval.Add(CardLoader.GetCardByName(BOW_CARD));
             }
 
             // Let's figure out which cards in the opponent's deck aren't "covered"
@@ -89,7 +94,7 @@ namespace Infiniscryption.Curses.Sequences
                 CardInfo spikeable = uncovered.Find(spikePred.Invoke);
                 if (spikeable != null)
                 {
-                    retval.Add(CardLoader.GetCardByName("Trapper_Spike_Trap"));
+                    retval.Add(CardLoader.GetCardByName(SPIKE_TRAP_CARD));
                     uncovered.Remove(spikeable);
                 }
             }
@@ -98,7 +103,7 @@ namespace Infiniscryption.Curses.Sequences
             List<CardInfo> bowKills = uncovered.Where(card => card.Health <= 2).ToList();
             foreach (CardInfo card in bowKills)
             {
-                retval.Add(CardLoader.GetCardByName("Trapper_Bow"));
+                retval.Add(CardLoader.GetCardByName(BOW_CARD));
                 uncovered.Remove(card);
             }
 
@@ -106,35 +111,35 @@ namespace Infiniscryption.Curses.Sequences
             CardInfo twoBowKills = uncovered.Find(bowPred.Invoke);
             if (twoBowKills != null)
             {
-                retval.Add(CardLoader.GetCardByName("Trapper_Bow"));
-                retval.Add(CardLoader.GetCardByName("Trapper_Bow"));
+                retval.Add(CardLoader.GetCardByName(BOW_CARD));
+                retval.Add(CardLoader.GetCardByName(BOW_CARD));
                 uncovered.Remove(twoBowKills);
             }
 
             // The rest in traps
             for (int i = 0; i < uncovered.Count; i++)
-                retval.Add(CardLoader.GetCardByName("Trap"));
+                retval.Add(CardLoader.GetCardByName(LEAPING_TRAP));
 
             // If you have no fishooks, add another capture card
             if (!RunState.Run.consumables.Any(c => c.ToLowerInvariant() == "fishhook"))
-                retval.Add(CardLoader.GetCardByName("Trapper_Capture"));
+                retval.Add(CardLoader.GetCardByName(CAPTURE_CARD));
 
             // If you have no scissors, add another leaping trap
             if (!RunState.Run.consumables.Any(c => c.ToLowerInvariant() == "scissors"))
-                retval.Add(CardLoader.GetCardByName("Trap"));
+                retval.Add(CardLoader.GetCardByName(LEAPING_TRAP));
 
             // Add a trap for each card in the original list with ice cube
             int iceCubes = trapperDeck.Where(card => card.HasAbility(Ability.IceCube)).Count();
             for (int i = 0; i < iceCubes; i++)
-                retval.Add(CardLoader.GetCardByName("Trap"));
+                retval.Add(CardLoader.GetCardByName(LEAPING_TRAP));
 
             // Adding two more bows for safety
-            retval.Add(CardLoader.GetCardByName("Trapper_Bow"));
-            retval.Add(CardLoader.GetCardByName("Trapper_Bow"));
+            retval.Add(CardLoader.GetCardByName(BOW_CARD));
+            retval.Add(CardLoader.GetCardByName(BOW_CARD));
 
             // If this is the first region, add another capture
             if (RunState.CurrentRegionTier == 0)
-                retval.Add(CardLoader.GetCardByName("Trapper_Capture"));
+                retval.Add(CardLoader.GetCardByName(CAPTURE_CARD));
 
             return retval;
         }
@@ -165,13 +170,13 @@ namespace Infiniscryption.Curses.Sequences
 
             // And draw a specific opening hand
             drawPiles.Pile.Draw();
-            yield return drawPiles.DrawCardFromDeck(drawPiles.Deck.GetCardByName("Trap"));
+            yield return drawPiles.DrawCardFromDeck(drawPiles.Deck.GetCardByName(LEAPING_TRAP));
             drawPiles.Pile.Draw();
-            yield return drawPiles.DrawCardFromDeck(drawPiles.Deck.GetCardByName("Trapper_Spike_Trap"));
+            yield return drawPiles.DrawCardFromDeck(drawPiles.Deck.GetCardByName(SPIKE_TRAP_CARD));
             drawPiles.Pile.Draw();
-            yield return drawPiles.DrawCardFromDeck(drawPiles.Deck.GetCardByName("Trapper_Bow"));
+            yield return drawPiles.DrawCardFromDeck(drawPiles.Deck.GetCardByName(BOW_CARD));
             drawPiles.Pile.Draw();
-            yield return drawPiles.DrawCardFromDeck(drawPiles.Deck.GetCardByName("Trapper_Bow"));
+            yield return drawPiles.DrawCardFromDeck(drawPiles.Deck.GetCardByName(BOW_CARD));
 
             yield break;
         }

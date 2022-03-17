@@ -24,7 +24,7 @@ namespace Infiniscryption.Spells.Sigils
             info.SetPixelAbilityIcon(AssetHelper.LoadTexture("nuke_pixel"));
 
             DestroyAllCardsOnDeath.AbilityID = AbilityManager.Add(
-                InfiniscryptionSpellsPlugin.PluginGuid,
+                InfiniscryptionSpellsPlugin.OriginalPluginGuid,
                 info,
                 typeof(DestroyAllCardsOnDeath),
                 AssetHelper.LoadTexture("ability_nuke")

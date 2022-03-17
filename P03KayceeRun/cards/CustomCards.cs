@@ -22,19 +22,19 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         public static readonly CardMetaCategory NatureRegion = (CardMetaCategory)GuidManager.GetEnumValue<CardMetaCategory>(P03Plugin.PluginGuid, "NatureRegionCards");
         public static readonly CardMetaCategory UndeadRegion = (CardMetaCategory)GuidManager.GetEnumValue<CardMetaCategory>(P03Plugin.PluginGuid, "UndeadRegionCards");
 
-        public const string DRAFT_TOKEN = "P03_Draft_Token";
-        public const string UNC_TOKEN = "P03_Draft_Token_Uncommon";
-        public const string RARE_DRAFT_TOKEN = "P03_Draft_Token_Rare";
-        public const string GOLLYCOIN = "P03_GollyCoin";
-        public const string BLOCKCHAIN = "P03_Blockchain";
-        public const string NFT = "P03_NFT";
-        public const string OLD_DATA = "P03_OLD_DATA";
-        public const string VIRUS_SCANNER = "P03_VIRUS_SCANNER";
-        public const string CODE_BLOCK = "P03_CODE_BLOCK";
-        public const string CODE_BUG = "P03_CODE_BUG";
-        public const string PROGRAMMER = "P03_PROGRAMMER";
-        public const string ARTIST = "P03_ARTIST";
-        public const string FIREWALL = "P03_FIREWALL";
+        public const string DRAFT_TOKEN = "P03KCM_Draft_Token";
+        public const string UNC_TOKEN = "P03KCM_Draft_Token_Uncommon";
+        public const string RARE_DRAFT_TOKEN = "P03KCM_Draft_Token_Rare";
+        public const string GOLLYCOIN = "P03KCM_GollyCoin";
+        public const string BLOCKCHAIN = "P03KCM_Blockchain";
+        public const string NFT = "P03KCM_NFT";
+        public const string OLD_DATA = "P03KCM_OLD_DATA";
+        public const string VIRUS_SCANNER = "P03KCM_VIRUS_SCANNER";
+        public const string CODE_BLOCK = "P03KCM_CODE_BLOCK";
+        public const string CODE_BUG = "P03KCM_CODE_BUG";
+        public const string PROGRAMMER = "P03KCM_PROGRAMMER";
+        public const string ARTIST = "P03KCM_ARTIST";
+        public const string FIREWALL = "P03KCM_FIREWALL";
 
         private readonly static List<CardMetaCategory> GBC_RARE_PLAYABLES = new() { CardMetaCategory.GBCPack, CardMetaCategory.GBCPlayable, CardMetaCategory.Rare, CardMetaCategory.ChoiceNode };
 
@@ -171,58 +171,58 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 return cards;
             };
 
-            CardManager.New(DRAFT_TOKEN, "Basic Token", 0, 1)
+            CardManager.New(P03Plugin.CardPrefx, DRAFT_TOKEN, "Basic Token", 0, 1)
                 .SetPortrait(AssetHelper.LoadTexture("portrait_drafttoken"))
                 .SetPixelPortrait(AssetHelper.LoadTexture("pixel_drafttoken"))
                 .temple = CardTemple.Tech;
 
-            CardManager.New(UNC_TOKEN, "Improved Token", 0, 2)
+            CardManager.New(P03Plugin.CardPrefx, UNC_TOKEN, "Improved Token", 0, 2)
                 .SetPortrait(AssetHelper.LoadTexture("portrait_drafttoken_plus"))
                 .SetPixelPortrait(AssetHelper.LoadTexture("pixel_drafttoken_plus"))
                 .temple = CardTemple.Tech;
 
-            CardManager.New(RARE_DRAFT_TOKEN, "Rare Token", 0, 3)
+            CardManager.New(P03Plugin.CardPrefx, RARE_DRAFT_TOKEN, "Rare Token", 0, 3)
                 .SetPortrait(AssetHelper.LoadTexture("portrait_drafttoken_plusplus"))
                 .SetPixelPortrait(AssetHelper.LoadTexture("pixel_drafttoken"))
                 .temple = CardTemple.Tech;
 
-            CardManager.New(BLOCKCHAIN, "Blockchain", 0, 5)
+            CardManager.New(P03Plugin.CardPrefx, BLOCKCHAIN, "Blockchain", 0, 5)
                 .SetAltPortrait(AssetHelper.LoadTexture("portrait_blockchain"), FilterMode.Trilinear)
                 .AddAbilities(Ability.ConduitNull, ConduitSpawnCrypto.AbilityID)
                 .AddAppearances(HighResAlternatePortrait.ID)
                 .temple = CardTemple.Tech;
 
-            CardManager.New(GOLLYCOIN, "GollyCoin", 0, 2)
+            CardManager.New(P03Plugin.CardPrefx, GOLLYCOIN, "GollyCoin", 0, 2)
                 .SetAltPortrait(AssetHelper.LoadTexture("portrait_gollycoin"), FilterMode.Trilinear)
                 .AddAppearances(HighResAlternatePortrait.ID)
                 .temple = CardTemple.Tech;
 
-            CardManager.New(NFT, "Stupid-Ass Ape", 0, 1)
+            CardManager.New(P03Plugin.CardPrefx, NFT, "Stupid-Ass Ape", 0, 1)
                 .AddAppearances(RandomStupidAssApePortrait.ID)
                 .temple = CardTemple.Tech;
 
-            CardManager.New(OLD_DATA, "UNSAFE.DAT", 0, 1)
+            CardManager.New(P03Plugin.CardPrefx, OLD_DATA, "UNSAFE.DAT", 0, 1)
                 .SetPortrait(Resources.Load<Texture2D>("art/cards/part 3 portraits/portrait_captivefile"))
                 .AddAbilities(LoseOnDeath.AbilityID)
                 .temple = CardTemple.Tech;
 
-            CardManager.New(CODE_BLOCK, "Code Snippet", 1, 2)
+            CardManager.New(P03Plugin.CardPrefx, CODE_BLOCK, "Code Snippet", 1, 2)
                 .SetPortrait(AssetHelper.LoadTexture("portrait_code"))
                 .AddTraits(Programmer.CodeTrait)
                 .temple = CardTemple.Tech;
 
-            CardManager.New(CODE_BUG, "Bug", 2, 1)
+            CardManager.New(P03Plugin.CardPrefx, CODE_BUG, "Bug", 2, 1)
                 .SetPortrait(AssetHelper.LoadTexture("portrait_bug"))
                 .AddTraits(Programmer.CodeTrait)
                 .AddAbilities(Ability.Brittle)
                 .temple = CardTemple.Tech;
 
-            CardManager.New(VIRUS_SCANNER, "VIRSCAN.EXE", 1, 7)
+            CardManager.New(P03Plugin.CardPrefx, VIRUS_SCANNER, "VIRSCAN.EXE", 1, 7)
                 .SetPortrait(AssetHelper.LoadTexture("portrait_virusscanner"))
                 .AddAbilities(Ability.Deathtouch, Ability.StrafeSwap)
                 .temple = CardTemple.Tech;
 
-            CardManager.New(PROGRAMMER, "Programmer", 0, 2)
+            CardManager.New(P03Plugin.CardPrefx, PROGRAMMER, "Programmer", 0, 2)
                 .SetPortrait(AssetHelper.LoadTexture("portrait_codemonkey"))
                 .AddAbilities(Programmer.AbilityID)
                 .temple = CardTemple.Tech;
@@ -232,7 +232,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             //     .AddAbilities(Artist.AbilityID)
             //     .temple = CardTemple.Tech;
 
-            CardManager.New(FIREWALL, "Firewall", 0, 3)
+            CardManager.New(P03Plugin.CardPrefx, FIREWALL, "Firewall", 0, 3)
                 .SetPortrait(AssetHelper.LoadTexture("portrait_firewall"))
                 .AddAbilities(Ability.PreventAttack)
                 .temple = CardTemple.Tech;

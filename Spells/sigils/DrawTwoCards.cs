@@ -23,7 +23,7 @@ namespace Infiniscryption.Spells.Sigils
             info.SetPixelAbilityIcon(AssetHelper.LoadTexture("drawtwocardsondeath_pixel"));
 
             DrawTwoCards.AbilityID = AbilityManager.Add(
-                InfiniscryptionSpellsPlugin.PluginGuid,
+                InfiniscryptionSpellsPlugin.OriginalPluginGuid,
                 info,
                 typeof(DrawTwoCards),
                 AssetHelper.LoadTexture("ability_drawtwocardsondeath")

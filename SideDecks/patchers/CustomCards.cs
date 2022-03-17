@@ -16,18 +16,6 @@ namespace Infiniscryption.SideDecks.Patchers
 {
     public static class CustomCards
     {
-        public enum SideDecks
-        {
-            Squirrel = 0,
-            INF_Squirrel_Reach = 1,
-            INF_Bee_Drone = 2,
-            INF_Ant_Worker = 3,
-            INF_Puppy = 4,
-            INF_Spare_Tentacle = 5,
-            INF_One_Eyed_Goat = 6,
-            INF_Amalgam_Egg = 7
-        }
-
         public static readonly List<Ability> sideDeckableAbilities = new List<Ability>() {
             Ability.Reach,
             Ability.DeathShield,
@@ -88,7 +76,8 @@ namespace Infiniscryption.SideDecks.Patchers
             };
 
             // Create the squirrel
-            CardManager.New(CustomCards.SideDecks.INF_Squirrel_Reach.ToString(),
+            CardManager.New(SideDecksPlugin.CardPrefix,
+                    "TreeSquirrel",
                     "Squirrel",
                     0, 1,
                     "It's a squirrel that can block fliers")
@@ -98,7 +87,8 @@ namespace Infiniscryption.SideDecks.Patchers
                 .AddAbilities(Ability.Reach);
 
             // Create the Bee
-            CardManager.New(CustomCards.SideDecks.INF_Bee_Drone.ToString(),
+            CardManager.New(SideDecksPlugin.CardPrefix,
+                    "BeeDrone",
                     "Bee Drone", 1, 1, "For when you need just one point of damage")
                 .SetSideDeck(CardTemple.Nature, 10)
                 .SetPortrait(Resources.Load<Texture2D>("art/cards/portraits/portrait_bee"))
@@ -109,7 +99,8 @@ namespace Infiniscryption.SideDecks.Patchers
 
             SpecialStatIcon antHealth = GuidManager.GetEnumValue<SpecialStatIcon>("julianperge.inscryption.cards.healthForAnts", "Ants (Health)");
 
-            CardManager.New(CustomCards.SideDecks.INF_Ant_Worker.ToString(),
+            CardManager.New(SideDecksPlugin.CardPrefix,
+                    "AntDrone",
                     "Ant Drone", 0, 0, "It's not much, but it's an ant.")
                 .SetSideDeck(CardTemple.Nature, 5)
                 .SetPortrait(AssetHelper.LoadTexture("worker_ant"))
@@ -128,7 +119,8 @@ namespace Infiniscryption.SideDecks.Patchers
                 );
 
             // Create the Puppy
-            CardManager.New(CustomCards.SideDecks.INF_Puppy.ToString(),
+            CardManager.New(SideDecksPlugin.CardPrefix,
+                    "Puppy",
                     "Puppy", 0, 1, "This energetic little puppy will dig up a fresh bone every turn")
                 .SetSideDeck(CardTemple.Nature, 10)
                 .SetPortrait(AssetHelper.LoadTexture("digging_dog"))
@@ -137,7 +129,8 @@ namespace Infiniscryption.SideDecks.Patchers
                 .AddTribes(Tribe.Canine);
 
             // Create the Squid Tail
-            CardInfo tail = CardManager.New(CustomCards.SideDecks.INF_Spare_Tentacle.ToString() + "_Tail",
+            CardInfo tail = CardManager.New(SideDecksPlugin.CardPrefix,
+                    "SpareTentacle_Tail",
                     "Tentacle", 0, 2)
                 .SetPortrait(AssetHelper.LoadTexture("squid_tail"))
                 .AddAbilities(Gelatinous.AbilityID);
@@ -145,18 +138,20 @@ namespace Infiniscryption.SideDecks.Patchers
             tail.titleGraphic = Resources.Load<Texture2D>("art/cards/special/squid_title");
 
             // Create the Squid
-            CardInfo tentacle = CardManager.New(CustomCards.SideDecks.INF_Spare_Tentacle.ToString(),
+            CardInfo tentacle = CardManager.New(SideDecksPlugin.CardPrefix,
+                    "SpareTentacle",
                     "Spare Tentacle", 0, 2, "I've never seen that [c:bR]thing[c:] before, but I can tell there are no bones in it.")
                 .SetSideDeck(CardTemple.Nature, 10)
                 .SetPortrait(AssetHelper.LoadTexture("squid_grunt"))
                 .SetPixelPortrait(AssetHelper.LoadTexture("pixelportrait_squidgrunt"))
                 .AddAbilities(Ability.TailOnHit, Gelatinous.AbilityID)
-                .SetTail(CustomCards.SideDecks.INF_Spare_Tentacle.ToString() + "_Tail", AssetHelper.LoadTexture("squid_grunt_taillost"));
+                .SetTail(tail.name, AssetHelper.LoadTexture("squid_grunt_taillost"));
             tentacle.temple = CardTemple.Nature;
             tentacle.titleGraphic = Resources.Load<Texture2D>("art/cards/special/squid_title");
 
             // Create the Goat
-            CardManager.New(CustomCards.SideDecks.INF_One_Eyed_Goat.ToString(),
+            CardManager.New(SideDecksPlugin.CardPrefix,
+                    "OneEyedGoat",
                     "One-Eyed Goat", 0, 1, "This goat generates additional blood...for a price")
                 .SetSideDeck(CardTemple.Nature, 10)
                 .SetPortrait(AssetHelper.LoadTexture("portrait_goat_double"))
@@ -165,18 +160,21 @@ namespace Infiniscryption.SideDecks.Patchers
                 .AddTribes(Tribe.Hooved)
                 .temple = CardTemple.Nature;
 
-            CardManager.New(CustomCards.SideDecks.INF_Amalgam_Egg.ToString(),
+            CardInfo egg = CardManager.New(SideDecksPlugin.CardPrefix,
+                    "AmalgamEgg",
                     "Amalgam Egg", 0, 1, "I didn't realize this thing came from eggs")
                 .SetSideDeck(CardTemple.Nature, 10)
                 .SetPortrait(AssetHelper.LoadTexture("egg"))
-                .SetPixelPortrait(AssetHelper.LoadTexture("pixel_egg"))
-                .temple = CardTemple.Nature;
+                .SetPixelPortrait(AssetHelper.LoadTexture("pixel_egg"));
+            egg.temple = CardTemple.Nature;
+
+            string eggName = egg.name;
 
             // Delay adding tribes in case another mod comes along and adds a tribe
             // This is just future proofing
             CardManager.ModifyCardList += delegate(List<CardInfo> cards)
             {
-                CardInfo amalgamEgg = cards.CardByName(CustomCards.SideDecks.INF_Amalgam_Egg.ToString());
+                CardInfo amalgamEgg = cards.CardByName(eggName);
                 if (amalgamEgg != null)
                     amalgamEgg.AddTribes(GuidManager.GetValues<Tribe>().ToArray());
                 amalgamEgg.evolveParams = new() { evolution = cards.CardByName("Amalgam"), turnsToEvolve = 1 };
@@ -190,7 +188,8 @@ namespace Infiniscryption.SideDecks.Patchers
 
             foreach (Ability ability in sideDeckableAbilities)
             {
-                CardManager.New($"EmptyVessel{ability.ToString()}", "Empty Vessel", 0, 2)
+                CardManager.New(SideDecksPlugin.CardPrefix,
+                    $"EmptyVessel{ability.ToString()}", "Empty Vessel", 0, 2)
                     .SetSideDeck(CardTemple.Tech, ability == Ability.GainBattery ? 20 : ability == Ability.Sharp || ability == Ability.Sentry ? 10 : 5)
                     .SetPortrait(Resources.Load<Texture2D>("art/cards/part 3 portraits/portrait_emptyvessel"))
                     .SetPixelPortrait(TextureHelper.GetImageAsTexture("pixel_emptyvessel.png", typeof(CustomCards).Assembly))
@@ -198,7 +197,8 @@ namespace Infiniscryption.SideDecks.Patchers
                     .AddAbilities(ability);
             }
 
-            CardManager.New($"EmptyVesselSubmerge", "Emptier Vessel", 0, 2)
+            CardManager.New(SideDecksPlugin.CardPrefix,
+                $"EmptyVesselSubmerge", "Emptier Vessel", 0, 2)
                 .SetPortrait(Resources.Load<Texture2D>("art/cards/part 3 portraits/portrait_emptyvessel"))
                 .SetPixelPortrait(TextureHelper.GetImageAsTexture("pixel_emptyvessel.png", typeof(CustomCards).Assembly))
                 .SetCost(energyCost: 1)

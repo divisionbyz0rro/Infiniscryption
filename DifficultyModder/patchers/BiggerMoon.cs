@@ -12,6 +12,7 @@ namespace Infiniscryption.Curses.Patchers
     public static class BiggerMoon
     {
         public const string MOON = "!GIANTCARD_MOON";
+        public const string PIRATESHIP = "!GIANTCARD_SHIP";
 
         public static AscensionChallenge ID {get; private set;}
 
@@ -20,8 +21,8 @@ namespace Infiniscryption.Curses.Patchers
             ID = ChallengeManager.Add
             (
                 CursePlugin.PluginGuid,
-                "Bigger Moon",
-                "The moon is bigger",
+                "Full Moon",
+                "Giant cards like the moon have more attack and health",
                 20,
                 AssetHelper.LoadTexture("challenge_bigger_moon"),
                 AssetHelper.LoadTexture("activated_challenge_bigger_moon")
@@ -34,6 +35,9 @@ namespace Infiniscryption.Curses.Patchers
                 {
                     cards.CardByName(MOON).baseAttack = 2;
                     cards.CardByName(MOON).baseHealth = 80;
+
+                    cards.CardByName(PIRATESHIP).baseAttack = 3;
+                    cards.CardByName(PIRATESHIP).baseHealth = 120;
                 }
 
                 return cards;

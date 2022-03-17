@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using InscryptionAPI.Card;
 using InscryptionAPI.Helpers;
+using Infiniscryption.Curses.Sequences;
 
 namespace Infiniscryption.Curses.Cards
 {
@@ -53,7 +54,7 @@ namespace Infiniscryption.Curses.Cards
             MegaSharkAppearance.Register();
             ID = SpecialTriggeredAbilityManager.Add(CursePlugin.PluginGuid, "Swallow Whole", typeof(Digester)).Id;
 
-            CardManager.New("Angler_Shark", "Mega Shark", 3, 5)
+            CardManager.New(CursePlugin.CardPrefix, AnglerBossHardOpponent.MEGA_SHARK, "Mega Shark", 3, 5)
                 .AddTraits(Trait.Uncuttable)
                 .SetPortrait(MegaSharkAppearance.SHARK_OPEN_PORTRAIT, MegaSharkAppearance.SHARK_OPEN_EMISSION)
                 .AddAbilities(Ability.Reach, Ability.WhackAMole)
