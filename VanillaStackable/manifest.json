@@ -2,9 +2,9 @@
     "name": "Make_Vanilla_Sigils_Stackable",
     "version_number": "1.1.0",
     "website_url": "https://github.com/divisionbyz0rro/Infiniscryption",
-    "description": "Makes many of the game's vanilla sigils stackable where they previously were not.",
+    "description": "Makes many of the game's vanilla sigils stackable where they previously were not. Updated for API 2.0+",
     "dependencies": [
         "BepInEx-BepInExPack_Inscryption-5.4.1701",
-        "API_dev-API-2.0.0"
+        "API_dev-API-2.0.1"
     ]
 }

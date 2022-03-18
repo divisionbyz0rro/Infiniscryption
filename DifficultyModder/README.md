@@ -2,13 +2,13 @@
 
 Now refactored for Kaycee's Mod: this mod adds a number of new Challenges and Assists that you can select from when starting a new run.
 
-If you're used the old version of this mod that adds an event to the map in Part 1, that functionality no longer exists.
+If you're used the old version of this mod that adds an event to the map in Part 1,that event no longer exists. This mod is now exclusive to Kaycee's Mod. If you wanted the old functionality, you'll have to install an old version of this mod.
 
 The following challenges are added:
 
 - **Haunted Past**: Deathcards will sometimes attack you in battle
 - **Chaotic Enemies**: Enemies will gain additional random sigils in battle
-- **Boss Revenge**: Each boss gains a third phase
+- **Boss Revenge**: Each boss gains a new, custom third phase.
 - **Bigger Moon**: The moon has more health and attack
 - **Two Turn Minimum**: You cannot deal lethal damage on the first turn
 - **Dangerous Deck**: After each boss battle, a stick of dynamite is added to your deck

@@ -1,12 +1,20 @@
 # P03 Kaycee's Mod
 
+**Check out this super spicy 720p trailer made in a free video editor**
+
+[![SUPER SPICY 720p TRAILER](https://img.youtube.com/vi/f68rs2rJ_jM/0.jpg)](https://www.youtube.com/watch?v=f68rs2rJ_jM)
+
 If you enjoyed the energy-based robotic gameplay of Inscryption Act 3 and wished it was available as part of Kaycee's Mod, then this is the mod for you.
 
 Installing this mod will give you the option to play against either Leshy or P03 when you start a new run. Selecting Leshy will give you the standard game you're used to, but selecting P03 will send you to the land of Botopia, where you will draft robotic cards, explore procedurally generated maps, fight off bounty hunters, and purchase upgrades with your hard-earned robobucks. And at the end of it all, P03 is waiting for you in an all-new boss fight.
 
 ## Feedback
 
+A handful of people have played this mod, but I expect the number of bugs discovered to grow pretty quickly now that it has been officially released!
+
 Please feel free to give me feedback on the Inscryption modding discord - @divisionbyzorro
+
+Or submit issues on GitHub: [Infiniscryption Issues List](https://github.com/divisionbyz0rro/Infiniscryption/issues)
 
 ## How does this mod work?
 
@@ -74,7 +82,7 @@ myCard.AddMetaCategories(WizardRegion);
 
 ## Modding encounters
 
-Unfortunately, custom encounters and regions are not currently supported by this mod.
+Unfortunately, custom encounters and regions are not currently supported by this mod. Perhaps sometime in the future.
 
 ## Credits
 

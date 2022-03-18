@@ -24,7 +24,7 @@ namespace Infiniscryption.Curses.Patchers
                 Resources.Load<Texture2D>("art/ui/ascension/ascensionicon_totems")
             ).challengeType;
 
-            harmony.PatchAll(typeof(ThreeCandles));
+            harmony.PatchAll(typeof(StartWithTribalTotems));
         }
 
         [HarmonyPatch(typeof(AscensionSaveData), "NewRun")]
@@ -34,7 +34,7 @@ namespace Infiniscryption.Curses.Patchers
             if (AscensionSaveData.Data.ChallengeIsActive(ID))
             {
                 __instance.currentRun.totemTops.Clear();
-                __instance.currentRun.totemTops.AddRange(GuidManager.GetValues<Tribe>());
+                __instance.currentRun.totemTops.AddRange(GuidManager.GetValues<Tribe>().Where(t => t != Tribe.None && t != Tribe.NUM_TRIBES));
             }
         }
     }

@@ -35,7 +35,6 @@ namespace Infiniscryption.Curses
             DeathcardHaunt.Register(harmony);
             ThreeCandles.Register(harmony);
             GoldenPeltStart.Register(harmony);
-            StarterDecks.Register(harmony);
             NoOneHitKills.Register(harmony);
             DrawDynamite.Register(harmony);
             StartWithTribalTotems.Register(harmony);

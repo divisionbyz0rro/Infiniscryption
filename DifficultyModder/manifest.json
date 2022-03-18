@@ -5,7 +5,7 @@
     "description": "New challenges and assists for Kaycee's Mod. Bigger bosses, bigger moons, and the occasional stick of dynamite in your deck.",
     "dependencies": [
         "BepInEx-BepInExPack_Inscryption-5.4.1701",
-        "API_dev-API-2.0.0",
+        "API_dev-API-2.0.1",
         "Infiniscryption-Spell_Card_Toolkit-2.0.0"
     ]
 }
