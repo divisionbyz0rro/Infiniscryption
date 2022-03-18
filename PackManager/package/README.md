@@ -135,6 +135,9 @@ A template (blank) pack art PNG is included in this package.
 <details>
 <summary>Changelog</summary>
 
+1.0.1
+- Like a dope, I managed to push a version of this mod that didn't have page scrolling activated. The mod can now handle more than 7 packs. Major facepalm.
+
 1.0
 - Initial version. 
 </details>

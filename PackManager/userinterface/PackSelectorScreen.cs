@@ -132,6 +132,20 @@ namespace Infiniscryption.PackManagement.UserInterface
                 PackIcons.Add(icon);
             }
 
+             var pageTuple = AscensionRunSetupScreenBase.BuildPaginators(iconContainer.transform);
+
+            AscensionMenuInteractable leftController = pageTuple.Item1;
+            AscensionMenuInteractable rightController = pageTuple.Item2;
+
+            Action<MainInputInteractable> leftClickAction = (MainInputInteractable i) => this.LeftButtonClicked(i);
+            Action<MainInputInteractable> rightClickAction = (MainInputInteractable i) => this.RightButtonClicked(i);
+
+            leftController.CursorSelectStarted = (Action<MainInputInteractable>)Delegate.Combine(leftController.CursorSelectStarted, leftClickAction);
+            rightController.CursorSelectStarted = (Action<MainInputInteractable>)Delegate.Combine(rightController.CursorSelectStarted, rightClickAction);
+
+            this.leftButton = leftController;
+            this.rightButton = rightController;
+
             // Save the instance
             Instance = this;
         }
@@ -160,7 +174,7 @@ namespace Infiniscryption.PackManagement.UserInterface
 
         public void ShowPage()
         {
-            int startIdx = this.cache.OrderedPacks.Count * scrollIndex;
+            int startIdx = this.PackIcons.Count * scrollIndex;
             int numToShow = Math.Min(this.PackIcons.Count, this.cache.OrderedPacks.Count - startIdx);
             this.ShowPacks(this.cache.OrderedPacks.GetRange(startIdx, numToShow));
         }
@@ -170,8 +184,8 @@ namespace Infiniscryption.PackManagement.UserInterface
             // Hide the left and right buttons if the number of available side deck cards is <= the number of card panels
             this.challengeHeaderDisplay.UpdateText();
 
-            // this.leftButton.gameObject.SetActive(this.PackIcons.Count < ScreenActivePacks.Count);
-            // this.rightButton.gameObject.SetActive(this.PackIcons.Count < ScreenActivePacks.Count);
+            this.leftButton.gameObject.SetActive(this.PackIcons.Count < this.cache.OrderedPacks.Count);
+            this.rightButton.gameObject.SetActive(this.PackIcons.Count < this.cache.OrderedPacks.Count);
         }
 
         public void ShowPacks(List<PackInfo> packsToDisplay)

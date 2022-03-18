@@ -505,6 +505,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 encounterName = REGION_DATA[regionId].encounters[color - 2];
             }
 
+             P03Plugin.Log.LogDebug($"Hi {encounterName}");
+
             // Use EncounterBlueprintHelper to get our custom representation of the encounter blueprint
             // and convert that to a blueprint the game understands
             return (new EncounterBlueprintHelper(AssetHelper.GetResourceString(encounterName, "dat"))).AsBlueprint();
