@@ -1,49 +1,35 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using APIPlugin;
 using DiskCardGame;
 using Infiniscryption.Core.Helpers;
+using InscryptionAPI.Card;
 using UnityEngine;
 
 namespace Infiniscryption.Spells.Sigils
 {
 	public class AttackBuff : AbilityBehaviour
 	{
-		public override Ability Ability => _ability;
-        private static Ability _ability;
-        
-        public static AbilityIdentifier Identifier 
-        { 
-            get
-            {
-                return AbilityIdentifier.GetAbilityIdentifier("zorro.infiniscryption.sigils.attackup", "Attack Up");
-            }
-        }
+		public override Ability Ability => AbilityID;
+        public static Ability AbilityID { get; private set; }
 
         public static void Register()
         {
-            AbilityInfo info = AbilityInfoUtils.CreateInfoWithDefaultSettings(
-                "Attack Up",
-                "Increases the target's attack for the rest of the battle."
-            );
+            AbilityInfo info = ScriptableObject.CreateInstance<AbilityInfo>();
+            info.rulebookName = "Attack Up";
+            info.rulebookDescription = "Increases the target's attack for the rest of the battle.";
             info.canStack = true;
+            info.powerLevel = 1;
+            info.opponentUsable = false;
             info.passive = false;
             info.metaCategories = new List<AbilityMetaCategory>() { AbilityMetaCategory.Part1Rulebook };
-            info.pixelIcon = Sprite.Create(
-                AssetHelper.LoadTexture("attack_up_pixel", FilterMode.Point),
-                new Rect(0f, 0f, 17f, 17f),
-                new Vector2(0.5f, 0.5f)
-            );
+            info.SetPixelAbilityIcon(AssetHelper.LoadTexture("attack_up_pixel"));
 
-            NewAbility ability = new NewAbility(
+            AttackBuff.AbilityID = AbilityManager.Add(
+                InfiniscryptionSpellsPlugin.OriginalPluginGuid,
                 info,
                 typeof(AttackBuff),
-                AssetHelper.LoadTexture("ability_attack_up"),
-                Identifier
-            );
-
-            AttackBuff._ability = ability.ability;
+                AssetHelper.LoadTexture("ability_attack_up")
+            ).Id;
         }
 
 		public override bool RespondsToSlotTargetedForAttack(CardSlot slot, PlayableCard attacker)

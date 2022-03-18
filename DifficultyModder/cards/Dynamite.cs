@@ -6,13 +6,10 @@ using DiskCardGame;
 using HarmonyLib;
 using System.Collections;
 using System.Collections.Generic;
-using System;
-using TMPro;
-using UnityEngine.UI;
-using Infiniscryption.Curses.Helpers;
 using Infiniscryption.Core.Helpers;
-using APIPlugin;
 using System.Linq;
+using InscryptionAPI.Card;
+using Infiniscryption.Curses.Sequences;
 
 namespace Infiniscryption.Curses.Cards
 {
@@ -20,64 +17,42 @@ namespace Infiniscryption.Curses.Cards
     {
         public const string EXPLOSION_SOUND = "card_explosion";
 
-        private static Ability _ability;
-        public override Ability Ability => _ability;
-
-        public static AbilityIdentifier Identifier 
-        { 
-            get
-            {
-                return AbilityIdentifier.GetAbilityIdentifier("zorro.infiniscryption.sigils.dynamite", "Booby Trap");
-            }
-        }
+		public override Ability Ability => AbilityID;
+        public static Ability AbilityID { get; private set; }
 
         // This has all of the logic to implement the Dynamite card that is added to the Prospector boss battle
         public static void RegisterCardAndAbilities(Harmony harmony)
         {
-            AbilityInfo info = AbilityInfoUtils.CreateInfoWithDefaultSettings(
-                "Booby Trap",
-                "If this is in your hand at the beginning of your turn, it explodes. If it is on the board at the beginning of your opponent's turn, it explodes. Either way, it explodes."
-            );
-            info.powerLevel = -2;
+            DynamiteAppearance.Register();
 
-            NewAbility ability = new NewAbility(
+            AbilityInfo info = ScriptableObject.CreateInstance<AbilityInfo>();
+            info.rulebookName = "Booby Trap";
+            info.rulebookDescription = "If this is in your hand at the end of your turn, it explodes. If it is on the board at the end of your opponent's turn, it explodes. Either way, it explodes.";
+            info.canStack = true;
+            info.powerLevel = -2;
+            info.opponentUsable = false;
+            info.passive = false;
+            info.metaCategories = new List<AbilityMetaCategory>() { AbilityMetaCategory.Part1Rulebook };
+
+            Dynamite.AbilityID = AbilityManager.Add(
+                CursePlugin.PluginGuid,
                 info,
                 typeof(Dynamite),
-                AssetHelper.LoadTexture("ability_dynamite"),
-                Identifier
-            );
+                AssetHelper.LoadTexture("ability_dynamite")
+            ).Id;
 
-            Dynamite._ability = ability.ability;
+            CardManager.New(CursePlugin.CardPrefix, ProspectorBossHardOpponent.DYNAMITE, "Dynamite", 0, 2)
+                .AddTraits(Trait.Terrain)
+                .SetPortrait(AssetHelper.LoadTexture("dynamite_portrait"), AssetHelper.LoadTexture("dynamite_emission"))
+                .AddAbilities(Dynamite.AbilityID)
+                .AddAppearances(DynamiteAppearance.ID)
+                .temple = CardTemple.Nature;
 
-            NewCard.Add(
-                "Prospector_Dynamite",
-                "Dynamite",
-                0, 2,
-                new List<CardMetaCategory>(),
-                CardComplexity.Advanced,
-                CardTemple.Nature,
-                "Ouch!",
-                traits: new List<Trait>() { Trait.Terrain },
-                defaultTex: AssetHelper.LoadTexture("dynamite_portrait"),
-                emissionTex: AssetHelper.LoadTexture("dynamite_emission"),
-                abilityIdsParam: new List<AbilityIdentifier>() { Dynamite.Identifier }
-            );
-
+            System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(Dynamite).TypeHandle);
             System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(DynamiteAppearance).TypeHandle);
 
             // Patch this class
             harmony.PatchAll(typeof(Dynamite));
-        }
-
-        // This patch makes the card have the right background
-        [HarmonyPatch(typeof(Card), "ApplyAppearanceBehaviours")]
-        [HarmonyPostfix]
-        public static void SpellBackground(ref Card __instance)
-        {
-            if (__instance.Info.Abilities.Contains(Dynamite._ability))
-            {
-                __instance.gameObject.AddComponent<DynamiteAppearance>().ApplyAppearance();
-            }
         }
 
         // We're going to cheat the upkeep triggers a bit.
@@ -85,35 +60,34 @@ namespace Infiniscryption.Curses.Cards
         // In hand, it responds to your upkeep.
         // The 'RespondsToUpkeep' is used by the game under normal circumstances, so it only says 'yes' on opponent's upkeep
 
-        [HarmonyPatch(typeof(TurnManager), "DoUpkeepPhase")]
+        [HarmonyPatch(typeof(TurnManager), "PlayerTurn")]
         [HarmonyPostfix]
-        public static IEnumerator ExplodeOnUpkeep(IEnumerator sequenceEvent, bool playerUpkeep)
+        public static IEnumerator ExplodeAtEndOfTurn(IEnumerator sequenceEvent)
         {
-            while (sequenceEvent.MoveNext())
-                yield return sequenceEvent.Current;
+            yield return sequenceEvent;
 
             // Check for dynamite cards in hand and do it if necessary
-            if (PlayerHand.Instance != null && playerUpkeep)
+            if (PlayerHand.Instance != null)
             {
                 List<PlayableCard> cardsToExplode = PlayerHand.Instance.CardsInHand
-                                                    .Where(c => c.Info.Abilities.Any(a => (int)a == (int)Dynamite._ability))
+                                                    .Where(c => c.Info.Abilities.Any(a => a == Dynamite.AbilityID))
                                                     .ToList();
 
-                object[] upkeepVars = new object[] { playerUpkeep };
+                object[] upkeepVars = new object[] { true };
 
                 foreach (PlayableCard card in cardsToExplode)
-                    yield return card.TriggerHandler.OnTrigger(Trigger.Upkeep, upkeepVars);
+                    yield return card.TriggerHandler.OnTrigger(Trigger.TurnEnd, upkeepVars);
             }
         }
 
-        public override bool RespondsToUpkeep(bool playerUpkeep)
+        public override bool RespondsToTurnEnd(bool playerTurnEnd)
         {
-            return (playerUpkeep && this.Card.InHand) || (!playerUpkeep && this.Card.OnBoard);
+            return playerTurnEnd;
         }
 
-        public override IEnumerator OnUpkeep(bool playerUpkeep)
+        public override IEnumerator OnTurnEnd(bool playerTurnEnd)
         {
-            if (playerUpkeep)
+            if (playerTurnEnd)
             {
                 // Only do this if the card is in the player's hand
                 if (this.Card.InHand)
@@ -149,13 +123,8 @@ namespace Infiniscryption.Curses.Cards
                     yield return new WaitForSeconds(0.5f);
 
                     ViewManager.Instance.SwitchToView(View.Hand);
-
-                }
-            }
-            else
-            {
-                // Only do this if the card is on board still
-                if (this.Card.OnBoard)
+                } 
+                else 
                 {
                     // Focus on the card
                     ViewManager.Instance.SwitchToView(View.BoardCentered);

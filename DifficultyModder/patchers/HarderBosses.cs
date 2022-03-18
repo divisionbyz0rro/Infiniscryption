@@ -9,33 +9,33 @@ using System.Collections.Generic;
 using System;
 using TMPro;
 using UnityEngine.UI;
-using Infiniscryption.Curses.Helpers;
 using Infiniscryption.Core.Helpers;
 using Infiniscryption.Curses.Cards;
 using Infiniscryption.Curses.Sequences;
 using System.Linq;
+using InscryptionAPI.Ascension;
 
 namespace Infiniscryption.Curses.Patchers
 {
-    public class HarderBosses : CurseBase
+    public static class HarderBosses
     {
-        public override string Description => $"Each of the bosses has another phase that you must fight through.";
-        public override string Title => "The Boss' Revenge";
+        public static AscensionChallenge ID {get; private set;}
 
-        Texture2D _iconTexture = AssetHelper.LoadTexture("harder_bosses_icon");
-        public override Texture2D IconTexture => _iconTexture;
-
-        public HarderBosses(string id, GetActiveDelegate getActive, SetActiveDelegate setActive) : base(id, getActive, setActive) {}
-
-        public override void Reset()
+        public static void Register(Harmony harmony)
         {
-            // We don't have to do anything during a run.
-            // So this stays empty
-        }
+            ID = ChallengeManager.Add
+            (
+                CursePlugin.PluginGuid,
+                "Boss Revenge",
+                "Each boss has an additional phase",
+                10,
+                AssetHelper.LoadTexture("challenge_boss_revenge"),
+                AssetHelper.LoadTexture("ascensionicon_activated_bossrevenge")
+            ).challengeType;
 
-        public static void RegisterCustomCards(Harmony harmony)
-        {
-            // Prospector custom cards
+            harmony.PatchAll(typeof(HarderBosses));
+
+            // Custom cards
             Dynamite.RegisterCardAndAbilities(harmony);
             Digester.RegisterCardAndAbilities(harmony);
             Bitten.RegisterCardAndAbilities(harmony);
@@ -46,6 +46,7 @@ namespace Infiniscryption.Curses.Patchers
         internal static IEnumerator ShowExtraBossCandle(Part1BossOpponent opponent, string dialogueEvent)
         {
             ViewManager.Instance.Controller.LockState = ViewLockState.Locked;
+            ChallengeActivationUI.TryShowActivation(ID);
             ViewManager.Instance.SwitchToView(View.BossSkull);
             yield return new WaitForSeconds(0.25f);
             yield return TextDisplayer.Instance.PlayDialogueEvent(dialogueEvent, TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
@@ -167,7 +168,7 @@ namespace Infiniscryption.Curses.Patchers
             });
 
             DialogueHelper.AddOrModifySimpleDialogEvent("ProspectorWolfSpawn", new string[] {
-                "That thar wolf looks mighty curious about that [c:bR]empty lane[c:]",
+                "That fella looks mighty curious about that [c:bR]empty lane[c:]",
             });
 
             // This is also a good time to load audio
@@ -177,7 +178,7 @@ namespace Infiniscryption.Curses.Patchers
                 AssetHelper.LoadAudioClip(Digester.GULP_SOUND, group: "SFX");
             } catch (Exception e)
             {
-                InfiniscryptionCursePlugin.Log.LogError(e);
+                CursePlugin.Log.LogError(e);
             }
         }
 
@@ -193,7 +194,7 @@ namespace Infiniscryption.Curses.Patchers
         [HarmonyPrefix]
         public static bool ReplaceSequencers(string specialBattleId, ref TurnManager __instance)
         {
-            if (CurseManager.IsActive<HarderBosses>())
+            if (AscensionSaveData.Data.ChallengeIsActive(ID))
             {
                 if (specialBattleId == BossBattleSequencer.GetSequencerIdForBoss(Opponent.Type.ProspectorBoss))
                 {
@@ -227,7 +228,7 @@ namespace Infiniscryption.Curses.Patchers
         [HarmonyPrefix]
         public static bool ReplaceOpponent(EncounterData encounterData, ref Opponent __result)
         {
-            if (!CurseManager.IsActive<HarderBosses>())
+            if (!AscensionSaveData.Data.ChallengeIsActive(ID))
                 return true;
 
             if (!SUPPORTED_OPPONENTS.Contains(encounterData.opponentType))

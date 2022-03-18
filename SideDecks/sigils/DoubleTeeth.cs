@@ -1,42 +1,38 @@
-using BepInEx;
-using BepInEx.Logging;
-using BepInEx.Configuration;
 using UnityEngine;
 using DiskCardGame;
 using HarmonyLib;
 using System.Collections;
 using System.Collections.Generic;
-using System;
 using Infiniscryption.Core.Helpers;
-using APIPlugin;
+using InscryptionAPI.Card;
 
 namespace Infiniscryption.SideDecks.Sigils
 {
     public class DoubleTeeth : AbilityBehaviour
     {
-        public override Ability Ability => _ability;
-        internal static Ability _ability;
-        internal static AbilityIdentifier Identifier;
+		public override Ability Ability => AbilityID;
+        public static Ability AbilityID { get; private set; }
 
         // This ability...does nothing? That's right!
 
         public static void Register(Harmony harmony)
         {
-            AbilityInfo info = AbilityInfoUtils.CreateInfoWithDefaultSettings(
-                "Painful Entrance",
-                "This creature will take two of your teeth when it comes into play."
-            );
+            AbilityInfo info = ScriptableObject.CreateInstance<AbilityInfo>();
+            info.rulebookName = "Painful Entrance";
+            info.rulebookDescription = "[creature] will deal two damage to the player when it enters play.";
+            info.canStack = true;
+            info.powerLevel = 2;
+            info.opponentUsable = false;
+            info.passive = false;
+            info.metaCategories = new List<AbilityMetaCategory>() { AbilityMetaCategory.Part1Rulebook };
+            info.SetPixelAbilityIcon(AssetHelper.LoadTexture("pixelability_doubleteeth"));
 
-            Identifier = AbilityIdentifier.GetAbilityIdentifier("zorro.infiniscryption.sigils.doubleteeth", "DoubleTeeth");
-
-            NewAbility ability = new NewAbility(
+            DoubleTeeth.AbilityID = AbilityManager.Add(
+                SideDecksPlugin.PluginGuid,
                 info,
                 typeof(DoubleTeeth),
-                AssetHelper.LoadTexture("ability_doubleteeth"),
-                Identifier
-            );
-
-            DoubleTeeth._ability = ability.ability;
+                AssetHelper.LoadTexture("ability_doubleteeth")
+            ).Id;
 
             harmony.PatchAll(typeof(DoubleTeeth));
         }

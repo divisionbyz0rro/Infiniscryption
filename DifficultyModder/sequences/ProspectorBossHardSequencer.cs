@@ -1,7 +1,4 @@
 using DiskCardGame;
-using APIPlugin;
-using Infiniscryption.Core.Helpers;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Collections;
@@ -27,8 +24,8 @@ namespace Infiniscryption.Curses.Sequences
             yield return TextDisplayer.Instance.PlayDialogueEvent("CatchDynamite", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
             ViewManager.Instance.SwitchToView(View.Hand);
 
-            PlayableCard dynamite = CardSpawner.SpawnPlayableCard(CardLoader.GetCardByName("Prospector_Dynamite"));
-            yield return PlayerHand.Instance.AddCardToHand(dynamite);
+            PlayableCard dynamite = CardSpawner.SpawnPlayableCard(CardLoader.GetCardByName(ProspectorBossHardOpponent.DYNAMITE));
+            yield return PlayerHand.Instance.AddCardToHand(dynamite, Vector3.zero, 0f);
             PlayerHand.Instance.OnCardInspected(dynamite);
             PlayerHand.Instance.InspectingLocked = true;
 

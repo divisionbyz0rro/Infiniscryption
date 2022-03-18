@@ -10,34 +10,44 @@ using System;
 using System.Linq;
 using TMPro;
 using UnityEngine.UI;
-using Infiniscryption.Curses.Helpers;
-using Infiniscryption.Curses.Sequences;
 using Infiniscryption.Core.Helpers;
+using InscryptionAPI.Ascension;
 
 namespace Infiniscryption.Curses.Patchers
 {
-    public class RandomSigils : CurseBase
+    public static class RandomSigils
     {
         private static Ability[] EXCLUDED_SIGILS = new Ability[]
         {
             Ability.TriStrike,
             Ability.SplitStrike,
-            Ability.AllStrike
+            Ability.AllStrike,
+            Ability.DoubleStrike,
+            Ability.CellDrawRandomCardOnDeath
         };
 
-        public override string Description => "Opposing creatures will gain random abilities";
+        public static AscensionChallenge ID {get; private set;}
 
-        public override string Title => "Chaos";
-
-        Texture2D _iconTexture = AssetHelper.LoadTexture("random_ability_icon");
-
-        public RandomSigils(string id, GetActiveDelegate getActive, SetActiveDelegate setActive) : base(id, getActive, setActive) { }
-
-        public override Texture2D IconTexture => _iconTexture;
-
-        public override void Reset()
+        public static void Register(Harmony harmony)
         {
-            // We do nothing here
+            ID = ChallengeManager.Add
+            (
+                CursePlugin.PluginGuid,
+                "Chaotic Enemies",
+                "Opposing creatures gain random abilities",
+                15,
+                AssetHelper.LoadTexture("challenge_random_sigils")
+            ).challengeType;
+
+            harmony.PatchAll(typeof(RandomSigils));
+        }
+
+        [HarmonyPatch(typeof(Part1Opponent), "ShowDifficultyChallengeUIIfTurnIsHarder")]
+        [HarmonyPrefix]
+        public static void ActivateRandomSigilsAlert(ref Part1Opponent __instance)
+        {
+            if (AscensionSaveData.Data.ChallengeIsActive(ID))
+                ChallengeActivationUI.Instance.ShowActivation(ID);
         }
 
         [HarmonyPatch(typeof(EncounterBuilder), "BuildOpponentTurnPlan")]
@@ -45,7 +55,7 @@ namespace Infiniscryption.Curses.Patchers
         public static void AddSigilsToCards(ref List<List<CardInfo>> __result)
         {
             int seed = SaveManager.SaveFile.GetCurrentRandomSeed() + 10;
-            if (CurseManager.IsActive<RandomSigils>())
+            if (AscensionSaveData.Data.ChallengeIsActive(ID))
             {
                 foreach (List<CardInfo> turn in __result)
                 {
@@ -68,8 +78,13 @@ namespace Infiniscryption.Curses.Patchers
 
                         CardInfo card = turn[i] = turn[i].Clone() as CardInfo;
 
-                        List<Ability> possibles = AbilitiesUtil.GetAbilities(false, true, 1, 10, SaveManager.SaveFile.IsPart1 ? AbilityMetaCategory.Part1Modular : AbilityMetaCategory.Part3Modular);                        
-                        possibles = possibles.Where(ab => !card.Abilities.Contains(ab) && !EXCLUDED_SIGILS.Contains(ab)).ToList();
+                        List<Ability> possibles = AbilitiesUtil.AllData
+                            .Where(ab => ab.PositiveEffect &&
+                                         ab.opponentUsable &&
+                                         !card.Abilities.Contains(ab.ability) &&
+                                         !EXCLUDED_SIGILS.Contains(ab.ability))
+                            .Select(ab => ab.ability)
+                            .ToList();
 
                         if (possibles.Count == 0)
                             continue;

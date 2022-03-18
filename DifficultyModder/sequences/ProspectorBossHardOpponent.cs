@@ -1,7 +1,4 @@
 using DiskCardGame;
-using APIPlugin;
-using Infiniscryption.Core.Helpers;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Collections;
@@ -12,6 +9,8 @@ namespace Infiniscryption.Curses.Sequences
 {
     public class ProspectorBossHardOpponent : ProspectorBossOpponent
     {
+        public static readonly string DYNAMITE = $"{CursePlugin.CardPrefix}_Prospector_Dynamite";
+
         public override int StartingLives => 3;
 
         // The harder version lights an extra candle
@@ -22,7 +21,7 @@ namespace Infiniscryption.Curses.Sequences
         }
 
         // The harder version has an extra phase
-        protected override IEnumerator StartNewPhaseSequence()
+        public override IEnumerator StartNewPhaseSequence()
         {
             if (this.NumLives >= 2)
             {
@@ -55,6 +54,13 @@ namespace Infiniscryption.Curses.Sequences
             {
                 CardInfo bigBoulder = CardLoader.GetCardByName("Boulder");
                 bigBoulder.Mods.Add(new CardModificationInfo(Ability.Reach));
+
+                if (RunState.CurrentRegionTier == 0)
+                    bigBoulder.Mods.Add(new CardModificationInfo(0, -2));
+
+                if (RunState.CurrentRegionTier == 2)
+                    bigBoulder.Mods.Add(new CardModificationInfo(0, 2));
+
                 yield return BoardManager.Instance.CreateCardInSlot(bigBoulder, slot);
                 yield return new WaitForSeconds(0.15f);
             }

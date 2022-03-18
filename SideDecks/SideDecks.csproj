@@ -21,11 +21,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />
+    <ProjectReference Include="..\PackManager\PackManager.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="API" Private="false">
-      <HintPath>..\lib\API.dll</HintPath>
+      <HintPath>..\lib\InscryptionAPI.dll</HintPath>
     </Reference>
     <Reference Include="HealthForAnts" Private="false">
       <HintPath>..\lib\HealthForAnts.dll</HintPath>
@@ -61,6 +62,8 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="xcopy /Y $(ProjectDir)\..\lib\*.dll $(TargetDir)" />
+    <Exec Command="xcopy /Y $(ProjectDir)\..\lib\*.dll $(TargetDir)" />
     <Exec Command="$(PkgILRepack)\tools\ILRepack /out:$(ProjectDir)\Compiled\Infiniscryption.SideDecks.dll $(TargetPath) $(ProjectDir)../Core/Compiled/Infiniscryption.Core.dll /lib:$(TargetDir)" />
     <Exec Command="xcopy /Y $(ProjectDir)\Compiled\Infiniscryption.SideDecks.dll &quot;C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins&quot;" />
     <!--

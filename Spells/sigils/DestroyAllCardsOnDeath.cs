@@ -1,60 +1,41 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using APIPlugin;
 using DiskCardGame;
 using Infiniscryption.Core.Helpers;
-using Infiniscryption.Spells;
+using InscryptionAPI.Card;
 using UnityEngine;
 
 namespace Infiniscryption.Spells.Sigils
 {
-	// Token: 0x02000324 RID: 804
 	public class DestroyAllCardsOnDeath : AbilityBehaviour
 	{
-		// Token: 0x17000268 RID: 616
-		// (get) Token: 0x06001358 RID: 4952 RVA: 0x000438A9 File Offset: 0x00041AA9
-		public override Ability Ability => _ability;
-        private static Ability _ability;
-        
-        public static AbilityIdentifier Identifier 
-        { 
-            get
-            {
-                return AbilityIdentifier.GetAbilityIdentifier("zorro.infiniscryption.sigils.cataclysm", "Cataclysm");
-            }
-        }
+		public override Ability Ability => AbilityID;
+        public static Ability AbilityID { get; private set; }
 
         public static void Register()
         {
-            AbilityInfo info = AbilityInfoUtils.CreateInfoWithDefaultSettings(
-                "Cataclysm",
-                "Destroys every other creature on board when this card dies."
-            );
+            AbilityInfo info = ScriptableObject.CreateInstance<AbilityInfo>();
+            info.rulebookName = "Cataclysm";
+            info.rulebookDescription = "Destroys every other creature on board when this card dies.";
+            info.canStack = false;
             info.powerLevel = 6;
-            info.pixelIcon = Sprite.Create(
-                AssetHelper.LoadTexture("nuke_pixel", FilterMode.Point),
-                new Rect(0f, 0f, 17f, 17f),
-                new Vector2(0.5f, 0.5f)
-            );
+            info.passive = false;
+            info.metaCategories = new List<AbilityMetaCategory>() { AbilityMetaCategory.Part1Rulebook };
+            info.SetPixelAbilityIcon(AssetHelper.LoadTexture("nuke_pixel"));
 
-            NewAbility ability = new NewAbility(
+            DestroyAllCardsOnDeath.AbilityID = AbilityManager.Add(
+                InfiniscryptionSpellsPlugin.OriginalPluginGuid,
                 info,
                 typeof(DestroyAllCardsOnDeath),
-                AssetHelper.LoadTexture("ability_nuke"),
-                Identifier
-            );
-
-            DestroyAllCardsOnDeath._ability = ability.ability;
+                AssetHelper.LoadTexture("ability_nuke")
+            ).Id;
         }
 
-		// Token: 0x0600135B RID: 4955 RVA: 0x0000F57E File Offset: 0x0000D77E
 		public override bool RespondsToDie(bool wasSacrifice, PlayableCard killer)
 		{
 			return true;
 		}
 
-		// Token: 0x0600135C RID: 4956 RVA: 0x000438AD File Offset: 0x00041AAD
 		public override IEnumerator OnDie(bool wasSacrifice, PlayableCard killer)
 		{
 			yield return base.PreSuccessfulTriggerSequence();

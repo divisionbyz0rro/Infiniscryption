@@ -25,6 +25,9 @@ This mod simply makes a number of vanilla sigils stackable where they previously
 <details>
 <summary>Changelog</summary>
 
+1.1.0
+- Updated for API 2.0
+
 1.0.0
 - Initial version: forked from the original StackableSigils mod.
 </details>

@@ -2,25 +2,22 @@
 
 Are you tired of those boring old squirrels? Have I got the thing for you...
 
-This mod comes with six different starter decks to select from:
+This mod comes with seven different side decks to select from:
 - **Squirrels:** Now with the ability to block fliers!
 - **Bees:** You don't even need to find the bee totem anymore - but they do have Brittle now.
 - **Ants:** Want some help making those ants a little better? These 1/Ant helpers will buff your little ant army for free.
 - **Squids:** These squishy and slippery things have no bones, but are really hard to pin down.
 - **Puppies:** Adorable. Energetic. They move from place to place and dig up a fresh bone for you every turn.
 - **Goats:** They generate twice the blood when they die, but they knock out two of your teeth for the trouble.
+- **Amalgam Eggs:** Did you know that the Amalgam was hatched from an egg? These eggs somehow belong to every tribe in the game at once and as such will always gain the ability from your totem.
 
 There's also a hook to allow you or others to add more sidedeck cards to the pool; see below.
 
-## Kaycee's Mod is imminent...
-
-Because Kaycee's Mod (the free expansion for Inscryption) is imminent, no more development will be done on any of my mods until that expansion hits. I will fix breaking bugs, however.
-
 ## Requirements
 
-As with most mods, you need [BepInEx](https://inscryption.thunderstore.io/package/BepInEx/BepInExPack_Inscryption/) installed. 
-
-You will also need the [API](https://inscryption.thunderstore.io/package/API_dev/API/) installed, and the super helpful [Health for Ants](https://inscryption.thunderstore.io/package/JulianMods/HealthForAnts/) mod as well.
+- [BepInEx](https://inscryption.thunderstore.io/package/BepInEx/BepInExPack_Inscryption/)
+- [API](https://inscryption.thunderstore.io/package/API_dev/API/)
+- [HealthForAnts](https://inscryption.thunderstore.io/package/JulianMods/HealthForAnts/)
 
 ## Installation
 
@@ -28,37 +25,42 @@ The zip file should be structured in the same way as your Inscryption root direc
 
 ## I want to develop a new starter deck card and use it here. How do I do that?
 
-You need to add a specific trait to your card. There of course isn't a trait for 'sidedeck' card, so we have to make one up. C# is weird; traits are enumerated, but you're allowed to cast any integer to an enum and it won't complain. In this case, the specific trait number you need is '5103'.
+You need to add the "side deck" metacategory to your card. You can also control how many challenge points the player will lose by choosing your side deck card by setting the "SideDeckValue" extended property to the appropriate number of points (by default, the player will not lose any points by choosing a side deck card, but if your card is better than a squirrel, the player should probably get some points taken off of their challenge rating if they choose it).
 
-Why 5103? SIDE. 5103. Do you see it? They look...somewhat similar. And hopefully now that you've seen it, you'll remember it in the future.
+```c#
+public static readonly CardMetaCategory SIDE_DECK_CATEGORY = GuidManager.GetEnumValue<CardMetaCategory>("zorro.inscryption.infiniscryption.sidedecks", "SideDeck");
 
-Just add '(Trait)5103' to your card, and it will get picked up by this mod and be a valid sidedeck card.
-
-Example code:
-
-```
-NewCard.Add(
-    "Sample_Card_ID",
-    "Dummy Card",
-    0, 1,
-    new List<CardMetaCategory>() { },
-    CardComplexity.Vanilla,
-    CardTemple.Nature,
-    "This is an example of a sidedeck card",
-    defaultTex: myTexture,
-    traits: new List<Trait>() { (Trait)5103 }
-);
+// sometime later...
+CardInfo myCard = ...;
+myCard.AddMetaCategories(SIDE_DECK_CATEGORY);
+myCard.SetExtendedPropert("SideDeckValue", 5);
 ```
 
-**Note:** If there are more than 12 possible side deckcards in the pool, 12 will be selected at random for you to choose from when you encounter the sidedeck node at the start of the game.
+If you are using JSON Loader:
 
-## Someone added a sidedeck card in a modpack I downloaded and I don't want that. What do it do?
-Open the BepInEx config file for this mod (zorro.inscryption.infiniscryption.sidedecks.cfg) and set 'PullFromCardPool' to false. It will then only give you the cards added specifically in this mod.
+```json
+{
+    "name": "MyCard",
+    "metaCategories": ["zorro.inscryption.infiniscryption.sidedecks.SideDeck"],
+    "extensionProperties": {
+        "SideDeckValue": "5"
+    }
+}
+```
+
+## I created a side deck card using a previous version of this mod that used a specific trait number. What now?
+
+Don't worry. That is still supported - for now. However, compatibility for this will be removed at some point in the future. You need to transition away from using that specific trait and over to using this new card metacategory as soon as possible.
 
 ## Changelog 
 
 <details>
 <summary>Changelog</summary>
+
+2.0
+- Added compatibility with Kaycee's Mod
+- Added the Amalgam Egg
+- Switched from traits to metacategories
 
 1.2
 - Changed the name of the ant sidedeck creature

@@ -1,6 +1,3 @@
-using BepInEx;
-using BepInEx.Logging;
-using BepInEx.Configuration;
 using UnityEngine;
 using DiskCardGame;
 using HarmonyLib;
@@ -8,9 +5,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using Infiniscryption.Core.Helpers;
-using APIPlugin;
 using System.Linq;
 using Infiniscryption.Spells.Sigils;
+using InscryptionAPI.Card;
 
 namespace Infiniscryption.Spells.Patchers
 {
@@ -18,6 +15,7 @@ namespace Infiniscryption.Spells.Patchers
     {
         public class SpellBackgroundAppearance : CardAppearanceBehaviour
         {
+            public static CardAppearanceBehaviour.Appearance ID = CardAppearanceBehaviourManager.Add(InfiniscryptionSpellsPlugin.OriginalPluginGuid, "SpellBackground", typeof(SpellBackgroundAppearance)).Id;
             private static Texture _emptySpell = AssetHelper.LoadTexture("card_empty_spell");
             public override void ApplyAppearance()
             {
@@ -27,6 +25,7 @@ namespace Infiniscryption.Spells.Patchers
 
         public class RareSpellBackgroundAppearance : CardAppearanceBehaviour
         {
+            public static CardAppearanceBehaviour.Appearance ID = CardAppearanceBehaviourManager.Add(InfiniscryptionSpellsPlugin.OriginalPluginGuid, "RareSpellBackground", typeof(RareSpellBackgroundAppearance)).Id;
             private static Texture _emptySpell = AssetHelper.LoadTexture("card_empty_spell_rare");
             public override void ApplyAppearance()
             {
@@ -36,12 +35,12 @@ namespace Infiniscryption.Spells.Patchers
 
         public static bool IsGlobalSpell(this CardInfo card)
         {
-            return card.SpecialAbilities.Any(ab => (int)ab == (int)GlobalSpellAbility.Instance.id.id);
+            return card.SpecialAbilities.Any(ab => ab == GlobalSpellAbility.ID);
         }
 
         public static bool IsTargetedSpell(this CardInfo card)
         {
-            return card.SpecialAbilities.Any(ab => (int)ab == (int)TargetedSpellAbility.Instance.id.id);
+            return card.SpecialAbilities.Any(ab => ab == TargetedSpellAbility.ID);
         }
 
         public static List<CardSlot> GetAffectedSlots(this CardSlot slot, PlayableCard card)
@@ -118,59 +117,7 @@ namespace Infiniscryption.Spells.Patchers
 
         public static bool IsSpell(this CardInfo card)
         {
-            return card.SpecialAbilities.Any(ab => (int)ab == (int)GlobalSpellAbility.Instance.id.id ||
-                                                   (int)ab == (int)TargetedSpellAbility.Instance.id.id);
-        }
-
-        // This patch makes the card back have nostats despite having a staticon
-        [HarmonyPatch(typeof(Card), "ApplyAppearanceBehaviours")]
-        [HarmonyPostfix]
-        public static void SpellBackground(ref Card __instance)
-        {
-            if (__instance.Info.IsSpell())
-            {
-                if (__instance.Info.metaCategories.Any(cat => cat == CardMetaCategory.Rare))
-                    __instance.gameObject.AddComponent<RareSpellBackgroundAppearance>().ApplyAppearance();
-                else
-                    __instance.gameObject.AddComponent<SpellBackgroundAppearance>().ApplyAppearance();
-            }
-        }
-
-        // This patch takes care of making sure that the staticon appears
-        private static void PatchGlobals()
-        {
-            Traverse trav = Traverse.Create<ScriptableObjectLoader<CardInfo>>();
-            List<CardInfo> allCards = trav.Field("allData").GetValue<List<CardInfo>>();
-            foreach (CardInfo card in allCards)
-            {
-                if (card.IsGlobalSpell())
-                {
-                    // This has the global spell ability.
-                    // Let's check its icon info
-                    Traverse cardTrav = Traverse.Create(card);
-                    cardTrav.Field("specialStatIcon").SetValue(GlobalSpellAbility._icon);
-                } else if (card.IsTargetedSpell())
-                {
-                    // This has the global spell ability.
-                    // Let's check its icon info
-                    Traverse cardTrav = Traverse.Create(card);
-                    cardTrav.Field("specialStatIcon").SetValue(TargetedSpellAbility._icon);
-                }
-            }
-        }
-
-        [HarmonyPatch(typeof(LoadingScreenManager), "LoadGameData")]
-        [HarmonyPostfix]
-        public static void AttachStatIconsToGlobalSpells()
-        {
-            PatchGlobals();
-        }
-
-        [HarmonyPatch(typeof(ChapterSelectMenu), "OnChapterConfirmed")]
-        [HarmonyPostfix]
-        public static void AttachStatIconsToGlobalSpellsOnChapter()
-        {
-            PatchGlobals();
+            return card.SpecialAbilities.Any(ab => ab == GlobalSpellAbility.ID || ab == TargetedSpellAbility.ID);
         }
 
         // First: we don't need room on board
@@ -243,10 +190,6 @@ namespace Infiniscryption.Spells.Patchers
             }
 
             // The rest of this comes from the original code in PlayerHand.SelectSlotForCard
-            // For public stuff, 'this' becomes PlayerHand.Instance
-            // For private stuff, use a Traverse
-            Traverse playerHandTraverse = Traverse.Create(PlayerHand.Instance);
-
             PlayerHand.Instance.CardsInHand.ForEach(delegate(PlayableCard x)
 			{
 				x.SetEnabled(false);
@@ -265,7 +208,7 @@ namespace Infiniscryption.Spells.Patchers
 
 			BoardManager.Instance.CancelledSacrifice = false;
 
-			playerHandTraverse.Field("choosingSlotCard").SetValue(card);
+			PlayerHand.Instance.choosingSlotCard = card;
 
 			if (card != null && card.Anim != null)
 				card.Anim.SetSelectedToPlay(true);
@@ -382,8 +325,7 @@ namespace Infiniscryption.Spells.Patchers
                         foreach (CardSlot targetSlot in BoardManager.Instance.LastSelectedSlot.GetAffectedSlots(card))
                         {
                             object[] targetArgs = new object[] { targetSlot, card };
-                            if (card.TriggerHandler.RespondsToTrigger(Trigger.SlotTargetedForAttack, targetArgs))
-                                yield return card.TriggerHandler.OnTrigger(Trigger.SlotTargetedForAttack, targetArgs);
+                            yield return card.TriggerHandler.OnTrigger(Trigger.SlotTargetedForAttack, targetArgs);
                         }
                     }
 
@@ -397,10 +339,7 @@ namespace Infiniscryption.Spells.Patchers
                     yield return new WaitUntil(() => GlobalTriggerHandler.Instance.StackSize == 0);
 
                     if (TurnManager.Instance.IsPlayerTurn)
-                    {
-                        Traverse boardTraverse = Traverse.Create(BoardManager.Instance);
-                        boardTraverse.Field("playerCardsPlayedThisRound").GetValue<List<CardInfo>>().Add(card.Info);
-                    }
+                        BoardManager.Instance.playerCardsPlayedThisRound.Add(card.Info);
 
                     InteractionCursor.Instance.ClearForcedCursorType();
                     yield return new WaitForSeconds(0.6f);
@@ -411,7 +350,7 @@ namespace Infiniscryption.Spells.Patchers
 			if (!cardWasPlayed)
 				BoardManager.Instance.ShowCardNearBoard(card, false);
 			
-            playerHandTraverse.Field("choosingSlotCard").SetValue(null);
+            PlayerHand.Instance.choosingSlotCard = null;
 
 			if (card != null && card.Anim != null)
 				card.Anim.SetSelectedToPlay(false);

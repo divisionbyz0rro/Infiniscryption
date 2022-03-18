@@ -21,11 +21,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />
+    <ProjectReference Include="..\Spells\Spells.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="API" Private="false">
-      <HintPath>..\lib\API.dll</HintPath>
+      <HintPath>..\lib\InscryptionAPI.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp" Private="false">
       <HintPath>..\lib\Assembly-CSharp.dll</HintPath>
@@ -58,6 +59,8 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="xcopy /Y $(ProjectDir)\..\lib\*.dll $(TargetDir)" />
+    <Exec Command="xcopy /Y $(ProjectDir)\..\lib\*.dll $(TargetDir)" />
     <Exec Command="$(PkgILRepack)\tools\ILRepack /out:$(ProjectDir)\Compiled\Infiniscryption.Curses.dll $(TargetPath) $(ProjectDir)../Core/Compiled/Infiniscryption.Core.dll /lib:$(TargetDir)" />
     <Exec Command="xcopy /Y $(ProjectDir)\Compiled\Infiniscryption.Curses.dll &quot;C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins&quot;" />
     <!--

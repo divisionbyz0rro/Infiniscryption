@@ -6,21 +6,18 @@ using DiskCardGame;
 using HarmonyLib;
 using System.Collections;
 using System.Collections.Generic;
-using System;
-using TMPro;
-using UnityEngine.UI;
-using Infiniscryption.Curses.Helpers;
-using Infiniscryption.Core.Helpers;
-using APIPlugin;
 using System.Linq;
+using InscryptionAPI.Card;
+using InscryptionAPI.Helpers;
+using Infiniscryption.Curses.Sequences;
 
 namespace Infiniscryption.Curses.Cards
 {
     public class Digester : SpecialCardBehaviour
     {
-        public const string GULP_SOUND = "gulp";
+        public static SpecialTriggeredAbility ID { get; private set; }
 
-        public const int BITTEN = 8173;
+        public const string GULP_SOUND = "gulp";
 
         public override int Priority => int.MinValue; // We have to fire last
 
@@ -51,44 +48,18 @@ namespace Infiniscryption.Curses.Cards
             }
         }
 
-        public static SpecialAbilityIdentifier Identifier 
-        { 
-            get
-            {
-                return SpecialAbilityIdentifier.GetID("zorro.infiniscryption.sigils.digest", "Swallow Whole");
-            }
-        }
-
         // This has all of the logic to implement the Shark card that is added to the Angler
         public static void RegisterCardAndAbilities(Harmony harmony)
         {
-            // AbilityInfo info = AbilityInfoUtils.CreateInfoWithDefaultSettings(
-            //     "Swallow Whole",
-            //     "This card swallows cards that it attacks or is attacked by. Swallowed cards are slowly digested until they die. The effects are permanent, but killing this card will rescue the digested creature."
-            // );
-            // info.powerLevel = 7;
+            MegaSharkAppearance.Register();
+            ID = SpecialTriggeredAbilityManager.Add(CursePlugin.PluginGuid, "Swallow Whole", typeof(Digester)).Id;
 
-            StatIconInfo info = new StatIconInfo();
-            info.appliesToAttack = false;
-            info.appliesToHealth = false;
-            info.metaCategories = new List<AbilityMetaCategory>() { AbilityMetaCategory.None };
-
-            NewSpecialAbility ability = new NewSpecialAbility(typeof(Digester), Identifier, info);
-
-            NewCard.Add(
-                "Angler_Shark",
-                "Mega Shark",
-                3, 5,
-                new List<CardMetaCategory>(),
-                CardComplexity.Advanced,
-                CardTemple.Nature,
-                "That looks scary",
-                traits: new List<Trait>() { Trait.Uncuttable }, // Because fuck you, that's why
-                defaultTex: MegaSharkAppearance.SHARK_OPEN_PORTRAIT,
-                emissionTex: MegaSharkAppearance.SHARK_OPEN_EMISSION,
-                abilities: new List<Ability>() { Ability.Reach, Ability.WhackAMole },
-                specialAbilitiesIdsParam: new List<SpecialAbilityIdentifier>() { Digester.Identifier }
-            );
+            CardManager.New(CursePlugin.CardPrefix, AnglerBossHardOpponent.MEGA_SHARK, "Mega Shark", 3, 5)
+                .AddTraits(Trait.Uncuttable)
+                .SetPortrait(MegaSharkAppearance.SHARK_OPEN_PORTRAIT, MegaSharkAppearance.SHARK_OPEN_EMISSION)
+                .AddAbilities(Ability.Reach, Ability.WhackAMole)
+                .AddAppearances(MegaSharkAppearance.ID)
+                .AddSpecialAbilities(Digester.ID);
 
             System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(Digester).TypeHandle);
             System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(Bitten).TypeHandle);
@@ -96,8 +67,7 @@ namespace Infiniscryption.Curses.Cards
             System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(MegaSharkAppearance).TypeHandle);
 
             // Add another emission
-            NewCard.emissions.Add(MegaSharkAppearance.SHARK_CLOSED_PORTRAIT_SPRITE.name, MegaSharkAppearance.SHARK_CLOSED_EMISSION_SPRITE);
-            NewCard.emissions.Add(MegaSharkAppearance.SHARK_OPEN_PORTRAIT_SPRITE.name, MegaSharkAppearance.SHARK_OPEN_EMISSION_SPRITE);
+            TextureHelper.RegisterEmissionForSprite(MegaSharkAppearance.SHARK_CLOSED_PORTRAIT_SPRITE, MegaSharkAppearance.SHARK_CLOSED_EMISSION_SPRITE);
 
             // Patch this class
             harmony.PatchAll(typeof(Digester));
@@ -227,9 +197,9 @@ namespace Infiniscryption.Curses.Cards
             // Otherwise, add -1/-1 to the card
             // But we only add the bite mark to cards in the main deck
             bool isMainDeckCard = RunState.Run.playerDeck.Cards.Any(c => c.name == this.StomachContents.name);
-            if (!this.StomachContents.HasAbility(Bitten._ability) && isMainDeckCard)
+            if (!this.StomachContents.HasAbility(Bitten.AbilityID) && isMainDeckCard)
             {
-                CardModificationInfo info = new CardModificationInfo(Bitten._ability);
+                CardModificationInfo info = new CardModificationInfo(Bitten.AbilityID);
                 AddModToCard(this.StomachContents, info);
             } else {
                 AddModToCard(this.StomachContents, new CardModificationInfo(-1, -1));
@@ -281,7 +251,7 @@ namespace Infiniscryption.Curses.Cards
         public override IEnumerator OnUpkeep(bool playerUpkeep)
         {
             yield return Digest();
-            InfiniscryptionCursePlugin.Log.LogInfo("Upkeep complete");
+            CursePlugin.Log.LogInfo("Upkeep complete");
         }
 
         public override bool RespondsToSlotTargetedForAttack(CardSlot slot, PlayableCard attacker)
@@ -358,7 +328,7 @@ namespace Infiniscryption.Curses.Cards
                 ViewManager.Instance.SwitchToView(View.Hand);
 
                 PlayableCard spawnedCard = CardSpawner.SpawnPlayableCard(digestedCard);
-                yield return PlayerHand.Instance.AddCardToHand(spawnedCard);
+                yield return PlayerHand.Instance.AddCardToHand(spawnedCard, Vector3.zero, 0f);
                 PlayerHand.Instance.OnCardInspected(spawnedCard);
                 PlayerHand.Instance.InspectingLocked = true;
 

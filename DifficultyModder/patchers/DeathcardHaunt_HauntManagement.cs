@@ -9,15 +9,14 @@ using System.Collections.Generic;
 using System;
 using TMPro;
 using UnityEngine.UI;
-using Infiniscryption.Curses.Helpers;
-using Infiniscryption.Curses.Sequences;
 using Infiniscryption.Core.Helpers;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using InscryptionAPI.Saves;
 
 namespace Infiniscryption.Curses.Patchers
 {
-    public partial class DeathcardHaunt : CurseBase
+    public static partial class DeathcardHaunt
     {
         // This part manages the haunt level
 
@@ -30,7 +29,7 @@ namespace Infiniscryption.Curses.Patchers
                 // Your haunt level is the base haunt level (which increases by winning, gets reset to 0 by losing, and 
                 // decreases whenever you kill an opposing deathcard) plus a whopping 3 if you have killed the survivors,
                 // plus 1 for even 'minor starting bones' in your boons and 2 for every 'starting bones' in your boons.
-                return RunStateHelper.GetInt("Curse.BaseHauntLevel")
+                return ModdedSaveManager.RunState.GetValueAsInt(CursePlugin.PluginGuid, "Curse.BaseHauntLevel")
                 + (RunState.Run.survivorsDead ? 3 : 0)
                 + (RunState.Run.playerDeck.Boons.FindAll(boon => boon.type == BoonData.Type.MinorStartingBones).Count)
                 + (RunState.Run.playerDeck.Boons.FindAll(boon => boon.type == BoonData.Type.StartingBones).Count * 2);
@@ -39,16 +38,16 @@ namespace Infiniscryption.Curses.Patchers
 
         public static void ResetHaunt(int value=0)
         {
-            InfiniscryptionCursePlugin.Log.LogInfo($"Resetting haunt to {value}");
-            RunStateHelper.SetValue("Curse.BaseHauntLevel", value.ToString());
+            CursePlugin.Log.LogInfo($"Resetting haunt to {value}");
+            ModdedSaveManager.RunState.SetValue(CursePlugin.PluginGuid, "Curse.BaseHauntLevel", value);
         }
 
         public static void IncreaseHaunt(int by=1)
         {
             // Make sure the haunt level 
-            int newHauntLevel = Mathf.Clamp(RunStateHelper.GetInt("Curse.BaseHauntLevel") + by, 0, MAX_HAUNT_LEVEL);
-            InfiniscryptionCursePlugin.Log.LogInfo($"Updated haunt by {by} to {newHauntLevel}");
-            RunStateHelper.SetValue("Curse.BaseHauntLevel", newHauntLevel.ToString());
+            int newHauntLevel = Mathf.Clamp(ModdedSaveManager.RunState.GetValueAsInt(CursePlugin.PluginGuid, "Curse.BaseHauntLevel") + by, 0, MAX_HAUNT_LEVEL);
+            CursePlugin.Log.LogInfo($"Updated haunt by {by} to {newHauntLevel}");
+            ModdedSaveManager.RunState.SetValue(CursePlugin.PluginGuid, "Curse.BaseHauntLevel", newHauntLevel.ToString());
         }
 
         private static List<GameObject> _orbitingFace = null;
@@ -58,7 +57,7 @@ namespace Infiniscryption.Curses.Patchers
 
         private static void BuildOrbiters(AnimatedGameMapMarker marker)
         {
-            InfiniscryptionCursePlugin.Log.LogInfo("Adding rotating sprite");
+            CursePlugin.Log.LogInfo("Adding rotating sprite");
 
             _orbitingFace = new List<GameObject>();
 
@@ -94,7 +93,7 @@ namespace Infiniscryption.Curses.Patchers
         [HarmonyPostfix]
         public static void AttachAnimationToPlayerMarker(ref PlayerMarker __instance)
         {
-            if (CurseManager.IsActive<DeathcardHaunt>())
+            if (AscensionSaveData.Data.ChallengeIsActive(ID))
             {
                 // We need to create an animated sprite game object and lay it underneath the player's feet
                 if (_orbitingFace == null)
@@ -122,7 +121,13 @@ namespace Infiniscryption.Curses.Patchers
             }
 
             int hauntLevel = HauntLevel;
-            InfiniscryptionCursePlugin.Log.LogInfo($"Setting orbit for haunt level {hauntLevel}");
+            CursePlugin.Log.LogInfo($"Setting orbit for haunt level {hauntLevel}");
+
+            if (!_orbitingFace[2].activeSelf && hauntLevel >= 8 ||
+                !_orbitingFace[1].activeSelf && hauntLevel >= 5 ||
+                !_orbitingFace[0].activeSelf && hauntLevel >= 2)
+                ChallengeActivationUI.TryShowActivation(ID);
+                
             _orbitingFace[2].SetActive(hauntLevel >= 8);
             _orbitingFace[1].SetActive(hauntLevel >= 5);
             _orbitingFace[0].SetActive(hauntLevel >= 2);
@@ -132,10 +137,10 @@ namespace Infiniscryption.Curses.Patchers
         [HarmonyPostfix]
         public static void SetActiveOrbiters(ref AnimatedGameMapMarker __instance)
         {
-            InfiniscryptionCursePlugin.Log.LogInfo("Showing map marker");
-            if (CurseManager.IsActive<DeathcardHaunt>() && __instance is PlayerMarker)
+            CursePlugin.Log.LogInfo("Showing map marker");
+            if (AscensionSaveData.Data.ChallengeIsActive(ID) && __instance is PlayerMarker)
             {
-                InfiniscryptionCursePlugin.Log.LogInfo("Is player marker");
+                CursePlugin.Log.LogInfo("Is player marker");
                 if (_orbitingFace != null)
                 {
                     SyncOrbiters(__instance);
@@ -149,8 +154,8 @@ namespace Infiniscryption.Curses.Patchers
 
         private static bool HasExplainedHaunt
         {
-            get { return SaveGameHelper.GetBool("Curses.HauntExplanation"); }
-            set { SaveGameHelper.SetValue("Curses.HauntExplanation", value.ToString()); }
+            get { return ModdedSaveManager.SaveData.GetValueAsBoolean(CursePlugin.PluginGuid, "Curses.HauntExplanation"); }
+            set { ModdedSaveManager.SaveData.SetValue(CursePlugin.PluginGuid, "Curses.HauntExplanation", value); }
         }
 
         [HarmonyPatch(typeof(DialogueDataUtil), "ReadDialogueData")]
@@ -174,7 +179,7 @@ namespace Infiniscryption.Curses.Patchers
             while (sequenceResult.MoveNext())
                 yield return sequenceResult.Current;
 
-            if (CurseManager.IsActive<DeathcardHaunt>() && !HasExplainedHaunt && HauntLevel >= 2)
+            if (AscensionSaveData.Data.ChallengeIsActive(ID) && !HasExplainedHaunt && HauntLevel >= 2)
             {
                 yield return TextDisplayer.Instance.PlayDialogueEvent("HauntedExplanation", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
                 HasExplainedHaunt = true;

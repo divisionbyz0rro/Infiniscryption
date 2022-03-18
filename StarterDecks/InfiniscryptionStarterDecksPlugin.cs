@@ -18,9 +18,9 @@ namespace Infiniscryption.StarterDecks
     public class InfiniscryptionStarterDecksPlugin : BaseUnityPlugin
     {
 
-        private const string PluginGuid = "zorro.inscryption.infiniscryption.starterdecks";
-		private const string PluginName = "Infiniscryption Starter Decks";
-		private const string PluginVersion = "1.0.2";
+        public const string PluginGuid = "zorro.inscryption.infiniscryption.starterdecks";
+		public const string PluginName = "Infiniscryption Starter Decks";
+		public const string PluginVersion = "1.0.2";
 
         private bool Active
         {

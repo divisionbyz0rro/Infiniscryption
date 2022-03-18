@@ -9,28 +9,31 @@ using System.Collections.Generic;
 using System;
 using TMPro;
 using UnityEngine.UI;
-using Infiniscryption.Curses.Helpers;
 using Infiniscryption.Curses.Sequences;
 using Infiniscryption.Core.Helpers;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using InscryptionAPI.Ascension;
 
 namespace Infiniscryption.Curses.Patchers
 {
-    public partial class DeathcardHaunt : CurseBase
+    public static partial class DeathcardHaunt
     {
-        public DeathcardHaunt(string id, GetActiveDelegate getActive, SetActiveDelegate setActive) : base(id, getActive, setActive) { }
+        public static AscensionChallenge ID {get; private set;}
 
-        public override string Description => "You will be haunted by those who came before you and their essences will oppose you in battle. Your haunt level will increase the more you win.";
-
-        public override string Title => "Haunted Pasts";
-
-        private Texture2D _iconTexture = AssetHelper.LoadTexture("deathcard_icon");
-        public override Texture2D IconTexture => _iconTexture;
-
-        public override void Reset()
+        public static void Register(Harmony harmony)
         {
-            // We don't need to do anything because the only meaningful variable is stored as a runstate variable.
+            ID = ChallengeManager.Add
+            (
+                CursePlugin.PluginGuid,
+                "Haunted Past",
+                "Deathcards will sometimes attack you in battle",
+                5,
+                AssetHelper.LoadTexture("challenge_deathcards"),
+                AssetHelper.LoadTexture("ascensionicon_activated_deathcards")
+            ).challengeType;
+
+            harmony.PatchAll(typeof(DeathcardHaunt));
         }
 
         private const string DEATHCARD_INTRO_CLIP = "wind_blowing_loop";
@@ -41,7 +44,7 @@ namespace Infiniscryption.Curses.Patchers
                 return false; // You can't get it at haunt level 1. You gotta get to 2 to start.
 
             float randomValue = SeededRandom.Value(SaveManager.SaveFile.GetCurrentRandomSeed());
-            return (randomValue < (float)HauntLevel / (float)MAX_HAUNT_LEVEL) && CurseManager.IsActive<DeathcardHaunt>();
+            return (randomValue < (float)HauntLevel / (float)MAX_HAUNT_LEVEL) && AscensionSaveData.Data.ChallengeIsActive(ID);
         }
 
         // This handles haunt level management at the cleanup phase of a fight.
@@ -51,7 +54,7 @@ namespace Infiniscryption.Curses.Patchers
         public static void ResetPlayerHauntLevelWhenBattleLost(ref TurnManager __instance)
         {
             bool playerWon = __instance.Opponent.NumLives <= 0 || __instance.Opponent.Surrendered; // Can't use __instance.PlayerWon because it hasn't been set yet
-            InfiniscryptionCursePlugin.Log.LogInfo($"Battle over. Player Won = {playerWon}");
+            CursePlugin.Log.LogInfo($"Battle over. Player Won = {playerWon}");
             if (playerWon)
             {
                 if (_sawDeathcard)
@@ -70,12 +73,12 @@ namespace Infiniscryption.Curses.Patchers
             // Always clear the audio state
             if (_pausedState != null)
             {
-                InfiniscryptionCursePlugin.Log.LogInfo($"Resuming audio");
+                CursePlugin.Log.LogInfo($"Resuming audio");
                 AudioController.Instance.StopAllLoops();
                 AudioHelper.ResumeAllLoops(_pausedState);
                 _pausedState = null;
             } else {
-                InfiniscryptionCursePlugin.Log.LogInfo($"No audio info to resume");
+                CursePlugin.Log.LogInfo($"No audio info to resume");
             }
 
             _sawDeathcard = false;
@@ -99,20 +102,20 @@ namespace Infiniscryption.Curses.Patchers
         [HarmonyPostfix]
         public static void AddDeathcardToEncounter(ref EncounterData __result, CardBattleNodeData nodeData)
         {
-            if (!CurseManager.IsActive<DeathcardHaunt>())
+            if (!AscensionSaveData.Data.ChallengeIsActive(ID))
                 return;
 
             // We don't do this to boss battles
             if (nodeData is BossBattleNodeData)
                 return;
 
-            InfiniscryptionCursePlugin.Log.LogInfo("Checking to see if we should add a deathcard...");
+            CursePlugin.Log.LogInfo("Checking to see if we should add a deathcard...");
 
             // And let's check the haunt
             if (!RollForDeathcard())
                 return;
 
-            InfiniscryptionCursePlugin.Log.LogInfo("Adding a deathcard...");
+            CursePlugin.Log.LogInfo("Adding a deathcard...");
 
             // Let's make sure the deathcard shows up in the first four turns of the game
             // But not on the very first turn
@@ -154,7 +157,7 @@ namespace Infiniscryption.Curses.Patchers
             SetHauntedCardSlot(deathcard, weakestIndex);
 
             // And we're done! The weakest card in the ideal turn now has a deathcard insted.
-            InfiniscryptionCursePlugin.Log.LogInfo($"Added a deathcard in turn {idealTurn} in slot {weakestIndex}");
+            CursePlugin.Log.LogInfo($"Added a deathcard in turn {idealTurn} in slot {weakestIndex}");
         }
 
         [HarmonyPatch(typeof(Opponent), "CanOfferSurrender")]
@@ -210,7 +213,7 @@ namespace Infiniscryption.Curses.Patchers
                 AssetHelper.LoadAudioClip(DEATHCARD_INTRO_CLIP);
             } catch (Exception e)
             {
-                InfiniscryptionCursePlugin.Log.LogError(e);
+                CursePlugin.Log.LogError(e);
             }
         }
 
@@ -224,7 +227,7 @@ namespace Infiniscryption.Curses.Patchers
         [HarmonyPostfix]
         public static IEnumerator PlayDeathcardIntro(IEnumerator sequenceEvent, CardInfo cardInfo, CardSlot slot)
         {
-            InfiniscryptionCursePlugin.Log.LogInfo("In QueueCard");
+            CursePlugin.Log.LogInfo("In QueueCard");
 
             sequenceEvent.MoveNext();
             yield return sequenceEvent.Current;
@@ -236,12 +239,14 @@ namespace Infiniscryption.Curses.Patchers
             {
                 _sawDeathcard = true;
 
-                InfiniscryptionCursePlugin.Log.LogInfo("Playing animation");
+                CursePlugin.Log.LogInfo("Playing animation");
                 View oldView = ViewManager.Instance.CurrentView;
                 ViewManager.Instance.SwitchToView(View.P03Face);
 
                 _pausedState = AudioHelper.PauseAllLoops();
                 AudioController.Instance.SetLoopAndPlay(DEATHCARD_INTRO_CLIP);
+
+                ChallengeActivationUI.TryShowActivation(ID);
 
                 yield return TextDisplayer.Instance.PlayDialogueEvent("DeathcardArrives", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, new string[] {
                     cardInfo.DisplayedNameLocalized
@@ -270,12 +275,12 @@ namespace Infiniscryption.Curses.Patchers
             
             if (_pausedState != null)
             {   
-                InfiniscryptionCursePlugin.Log.LogInfo($"Resuming audio");
+                CursePlugin.Log.LogInfo($"Resuming audio");
                 AudioController.Instance.StopAllLoops();
                 AudioHelper.ResumeAllLoops(_pausedState);
                 _pausedState = null;
             } else {
-                InfiniscryptionCursePlugin.Log.LogInfo($"No audio info to resume");
+                CursePlugin.Log.LogInfo($"No audio info to resume");
             }
 
             IncreaseHaunt(-1); // Killing a deathcard decreases the haunt
@@ -285,7 +290,7 @@ namespace Infiniscryption.Curses.Patchers
         [HarmonyPostfix]
         public static IEnumerator DeathcardWonSequence(IEnumerator sequenceResult)
         {
-            if (_deathcardOnBoard == null || !CurseManager.IsActive<DeathcardHaunt>())
+            if (_deathcardOnBoard == null || !AscensionSaveData.Data.ChallengeIsActive(ID))
             {
                 while(sequenceResult.MoveNext())
                     yield return sequenceResult.Current;

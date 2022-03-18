@@ -1,7 +1,4 @@
 using DiskCardGame;
-using APIPlugin;
-using Infiniscryption.Core.Helpers;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Collections;
@@ -12,9 +9,9 @@ namespace Infiniscryption.Curses.Sequences
 {
     public class AnglerBossHardOpponent : AnglerBossOpponent
     {
-        public override int StartingLives => 3;
+        public static readonly string MEGA_SHARK = $"{CursePlugin.CardPrefix}_Angler_Shark";
 
-        public const int NUMBER_OF_SHARKS = 2;
+        public override int StartingLives => 3;
 
         // The harder version lights an extra candle
         public override IEnumerator IntroSequence(EncounterData encounter)
@@ -24,7 +21,7 @@ namespace Infiniscryption.Curses.Sequences
         }
 
         // The harder version has an extra phase
-        protected override IEnumerator StartNewPhaseSequence()
+        public override IEnumerator StartNewPhaseSequence()
         {
             if (this.NumLives >= 2)
             {
@@ -49,10 +46,18 @@ namespace Infiniscryption.Curses.Sequences
             this.ReplaceAndAppendTurnPlan(new List<List<CardInfo>>()); // There are no cards in the plan!
 
             List<CardSlot> slots = BoardManager.Instance.OpponentSlotsCopy;
-            for (int i = 0; i < NUMBER_OF_SHARKS; i++)
+            int numberOfSharks = 2;
+            if (SaveFile.IsAscension && AscensionSaveData.Data.currentRun.regionTier == 0)
+                numberOfSharks = 1;
+            for (int i = 0; i < numberOfSharks; i++)
             {
                 int slotNum = i == 0 ? 1 : i == 1 ? 3 : i == 2 ? 2 : 0;
-                yield return BoardManager.Instance.CreateCardInSlot(CardLoader.GetCardByName("Angler_Shark"), slots[slotNum]);
+                CardInfo shark = CardLoader.GetCardByName(MEGA_SHARK);
+
+                if (SaveFile.IsAscension && AscensionSaveData.Data.currentRun.regionTier == 2)
+                    shark.mods.Add(new CardModificationInfo(1, 1));
+
+                yield return BoardManager.Instance.CreateCardInSlot(shark, slots[slotNum]);
                 yield return new WaitForSeconds(0.15f);
             }
 

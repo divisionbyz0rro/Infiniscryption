@@ -10,18 +10,21 @@ using System;
 using Infiniscryption.Core.Helpers;
 using Infiniscryption.Spells.Sigils;
 using Infiniscryption.Spells.Patchers;
+using InscryptionAPI.Card;
 
 namespace Infiniscryption.Spells
 {
     [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
     [BepInDependency("cyantist.inscryption.api")]
-    [BepInDependency("zorro.inscryption.infiniscryption.stackablesigils")]
     public class InfiniscryptionSpellsPlugin : BaseUnityPlugin
     {
 
-        private const string PluginGuid = "zorro.inscryption.infiniscryption.spells";
-		private const string PluginName = "Infiniscryption Spells";
-		private const string PluginVersion = "1.0";
+        internal const string OriginalPluginGuid = "zorro.infiniscryption.sigils"; // This was the ID in previous versions
+
+        internal const string PluginGuid = "zorro.inscryption.infiniscryption.spells";
+		internal const string PluginName = "Infiniscryption Spells";
+		internal const string PluginVersion = "1.0";
+        internal const string CardPrefix = "ZSPL";
 
         internal static ManualLogSource Log;
 
@@ -56,6 +59,21 @@ namespace Infiniscryption.Spells
             {
                 SpellCards.RegisterCustomCards(harmony);
             }
+
+            // This makes sure that all cards with the spell ability are properly given all of the various
+            // components of a spell
+            CardManager.ModifyCardList += delegate(List<CardInfo> cards)
+            {
+                foreach (CardInfo card in cards)
+                {
+                    if (card.IsTargetedSpell())
+                        card.SetTargetedSpell();
+
+                    if (card.IsGlobalSpell())
+                        card.SetGlobalSpell();
+                }
+                return cards;
+            };
 
             Logger.LogInfo($"Plugin {PluginName} is loaded!");
         }

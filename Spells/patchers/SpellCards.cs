@@ -1,15 +1,10 @@
-using BepInEx;
-using BepInEx.Logging;
-using BepInEx.Configuration;
-using UnityEngine;
 using DiskCardGame;
 using HarmonyLib;
-using System.Collections;
 using System.Collections.Generic;
-using System;
-using Infiniscryption.Core.Helpers;
-using APIPlugin;
+using InscryptionAPI.Card;
 using Infiniscryption.Spells.Sigils;
+using UnityEngine;
+using Infiniscryption.Core.Helpers;
 
 namespace Infiniscryption.Spells.Patchers
 {
@@ -17,149 +12,105 @@ namespace Infiniscryption.Spells.Patchers
     {
         internal static void RegisterCustomCards(Harmony harmony)
         {
-            // Create the Kettle
-            NewCard.Add(
-                "Spell_Kettle_of_Avarice",
-                "Kettle of Avarice",
-                0, 0,
-                new List<CardMetaCategory>() { CardMetaCategory.ChoiceNode, CardMetaCategory.TraderOffer },
-                CardComplexity.Advanced,
-                CardTemple.Wizard,
-                "It allows you to draw two more cards",
-                bloodCost: 1,
-                hideAttackAndHealth: true,
-                defaultTex: AssetHelper.LoadTexture("kettle_of_avarice"),
-                specialStatIcon: GlobalSpellAbility.Instance.statIconInfo.iconType,
-                specialAbilitiesIdsParam: new List<SpecialAbilityIdentifier>() { GlobalSpellAbility.Instance.id },
-                abilityIdsParam: new List<AbilityIdentifier>() { DrawTwoCards.Identifier }
-            );
 
-            NewCard.Add(
-                "Spell_Anger_of_the_Gods",
-                "Anger of the Gods",
-                0, 0,
-                new List<CardMetaCategory>() { CardMetaCategory.ChoiceNode, CardMetaCategory.TraderOffer, CardMetaCategory.Rare },
-                CardComplexity.Advanced,
-                CardTemple.Nature,
-                "For when nothing else will do the trick",
-                bloodCost: 2,
-                hideAttackAndHealth: true,
-                defaultTex: AssetHelper.LoadTexture("anger_of_all"),
-                specialStatIcon: GlobalSpellAbility.Instance.statIconInfo.iconType,
-                specialAbilitiesIdsParam: new List<SpecialAbilityIdentifier>() { GlobalSpellAbility.Instance.id },
-                abilityIdsParam: new List<AbilityIdentifier>() { DestroyAllCardsOnDeath.Identifier }
-            );
+            CardManager.New(InfiniscryptionSpellsPlugin.CardPrefix,
+                    "Spell_Kettle_of_Avarice", 
+                    "Kettle of Avarice", 
+                    0, 0, // attack/health
+                    "It allows you to draw two more cards")
+                .SetDefaultPart1Card()
+                .SetPortrait(AssetHelper.LoadTexture("kettle_of_avarice"))
+                .SetGlobalSpell()
+                .SetCost(bloodCost: 1)
+                .AddAbilities(DrawTwoCards.AbilityID);
 
-            NewCard.Add(
-                "Spell_Lightning",
-                "Lightning",
-                0, 0,
-                new List<CardMetaCategory>() { CardMetaCategory.ChoiceNode, CardMetaCategory.TraderOffer },
-                CardComplexity.Advanced,
-                CardTemple.Tech,
-                "A perfectly serviceable amount of damage",
-                bloodCost: 1,
-                hideAttackAndHealth: true,
-                defaultTex: AssetHelper.LoadTexture("lightning_bolt"),
-                specialStatIcon: TargetedSpellAbility.Instance.statIconInfo.iconType,
-                specialAbilitiesIdsParam: new List<SpecialAbilityIdentifier>() { TargetedSpellAbility.Instance.id },
-                abilityIdsParam: new List<AbilityIdentifier>() { DirectDamage.Identifier, DirectDamage.Identifier }
-            );
+            CardManager.New(InfiniscryptionSpellsPlugin.CardPrefix,
+                    "Spell_Anger_of_the_Gods", 
+                    "Anger of the Gods", 
+                    0, 0, // attack/health
+                    "For when nothing else will do the trick")
+                .SetDefaultPart1Card()
+                .SetPortrait(AssetHelper.LoadTexture("anger_of_all"))
+                .SetGlobalSpell()
+                .SetRare()
+                .SetCost(bloodCost: 2)
+                .AddAbilities(DestroyAllCardsOnDeath.AbilityID);
 
-            NewCard.Add(
-                "Spell_Backpack",
-                "Trip to the Store",
-                0, 0,
-                new List<CardMetaCategory>() { CardMetaCategory.ChoiceNode, CardMetaCategory.TraderOffer, CardMetaCategory.Rare },
-                CardComplexity.Advanced,
-                CardTemple.Nature,
-                "Send one of your creatures on a trip to the store. Who knows what they will come back with",
-                bloodCost: 2,
-                hideAttackAndHealth: true,
-                defaultTex: AssetHelper.LoadTexture("backpack"),
-                specialStatIcon: GlobalSpellAbility.Instance.statIconInfo.iconType,
-                specialAbilitiesIdsParam: new List<SpecialAbilityIdentifier>() { GlobalSpellAbility.Instance.id },
-                abilities: new List<Ability>() { Ability.RandomConsumable }
-            );
+            CardManager.New(InfiniscryptionSpellsPlugin.CardPrefix,
+                    "Spell_Lightning", 
+                    "Lightning", 
+                    0, 0, // attack/health
+                    "A perfectly serviceable amount of damage")
+                .SetDefaultPart1Card()
+                .SetPortrait(AssetHelper.LoadTexture("lightning_bolt"))
+                .SetTargetedSpell()
+                .SetCost(bloodCost: 1)
+                .AddAbilities(DirectDamage.AbilityID, DirectDamage.AbilityID);
 
-            NewCard.Add(
-                "Spell_Rot_Healing",
-                "Rot Healing",
-                0, 0,
-                new List<CardMetaCategory>() { CardMetaCategory.ChoiceNode, CardMetaCategory.TraderOffer },
-                CardComplexity.Advanced,
-                CardTemple.Nature,
-                "Restores just a little bit of health",
-                bonesCost: 1,
-                hideAttackAndHealth: true,
-                defaultTex: AssetHelper.LoadTexture("plague_doctor"),
-                specialStatIcon: TargetedSpellAbility.Instance.statIconInfo.iconType,
-                specialAbilitiesIdsParam: new List<SpecialAbilityIdentifier>() { TargetedSpellAbility.Instance.id },
-                abilityIdsParam: new List<AbilityIdentifier>() { DirectHeal.Identifier, DirectHeal.Identifier }
-            );
+            CardManager.New(InfiniscryptionSpellsPlugin.CardPrefix,
+                    "Spell_Backpack", 
+                    "Trip to the Store", 
+                    0, 0, // attack/health
+                    "Send one of your creatures on a trip to the store. Who knows what they will come back with")
+                .SetDefaultPart1Card()
+                .SetPortrait(AssetHelper.LoadTexture("backpack"))
+                .SetGlobalSpell()
+                .SetCost(bloodCost: 2)
+                .AddAbilities(Ability.RandomConsumable);
 
-            NewCard.Add(
-                "Spell_Dammed_up",
-                "Dammed Up",
-                0, 0,
-                new List<CardMetaCategory>() { CardMetaCategory.ChoiceNode, CardMetaCategory.TraderOffer },
-                CardComplexity.Advanced,
-                CardTemple.Nature,
-                "So many dams...",
-                bloodCost: 1,
-                hideAttackAndHealth: true,
-                defaultTex: AssetHelper.LoadTexture("dammed_up"),
-                specialStatIcon: TargetedSpellAbility.Instance.statIconInfo.iconType,
-                specialAbilitiesIdsParam: new List<SpecialAbilityIdentifier>() { TargetedSpellAbility.Instance.id },
-                abilities: new List<Ability>() { Ability.AllStrike, Ability.CreateDams }
-            );
+            CardManager.New(InfiniscryptionSpellsPlugin.CardPrefix,
+                    "Spell_Rot_Healing", 
+                    "Rot Healing", 
+                    0, 0, // attack/health
+                    "Restores just a little bit of health")
+                .SetDefaultPart1Card()
+                .SetPortrait(AssetHelper.LoadTexture("plague_doctor"))
+                .SetTargetedSpell()
+                .SetCost(bonesCost: 1)
+                .AddAbilities(DirectHeal.AbilityID, DirectHeal.AbilityID);
 
-            NewCard.Add(
-                "Spell_Irritate",
-                "Irritate",
-                0, 0,
-                new List<CardMetaCategory>() { CardMetaCategory.ChoiceNode, CardMetaCategory.TraderOffer },
-                CardComplexity.Advanced,
-                CardTemple.Nature,
-                "This is what happens when you poke the bear...or wolf",
-                bonesCost: 2,
-                hideAttackAndHealth: true,
-                defaultTex: AssetHelper.LoadTexture("snarling_wolf"),
-                specialStatIcon: TargetedSpellAbility.Instance.statIconInfo.iconType,
-                specialAbilitiesIdsParam: new List<SpecialAbilityIdentifier>() { TargetedSpellAbility.Instance.id },
-                abilityIdsParam: new List<AbilityIdentifier>() { AttackBuff.Identifier, DirectDamage.Identifier }
-            );
+            CardManager.New(InfiniscryptionSpellsPlugin.CardPrefix,
+                    "Spell_Dammed_up", 
+                    "Dammed Up", 
+                    0, 0, // attack/health
+                    "So many dams...")
+                .SetDefaultPart1Card()
+                .SetPortrait(AssetHelper.LoadTexture("dammed_up"))
+                .SetTargetedSpell()
+                .SetCost(bloodCost: 1)
+                .AddAbilities(Ability.AllStrike, Ability.CreateDams);
 
-            NewCard.Add(
-                "Spell_Compost",
-                "Compost",
-                0, 0,
-                new List<CardMetaCategory>() { CardMetaCategory.ChoiceNode, CardMetaCategory.TraderOffer },
-                CardComplexity.Advanced,
-                CardTemple.Nature,
-                "Time to recycle those old bones",
-                bonesCost: 3,
-                hideAttackAndHealth: true,
-                defaultTex: AssetHelper.LoadTexture("compost"),
-                specialStatIcon: GlobalSpellAbility.Instance.statIconInfo.iconType,
-                specialAbilitiesIdsParam: new List<SpecialAbilityIdentifier>() { GlobalSpellAbility.Instance.id },
-                abilityIdsParam: new List<AbilityIdentifier>() { DrawTwoCards.Identifier }
-            );
+            CardManager.New(InfiniscryptionSpellsPlugin.CardPrefix,
+                    "Spell_Irritate", 
+                    "Irritate", 
+                    0, 0, // attack/health
+                    "This is what happens when you poke the bear...or wolf")
+                .SetDefaultPart1Card()
+                .SetPortrait(AssetHelper.LoadTexture("snarling_wolf"))
+                .SetTargetedSpell()
+                .SetCost(bonesCost: 2)
+                .AddAbilities(AttackBuff.AbilityID, DirectDamage.AbilityID);
 
-            NewCard.Add(
-                "Spell_Fetch",
-                "Go Fetch",
-                0, 0,
-                new List<CardMetaCategory>() { CardMetaCategory.ChoiceNode, CardMetaCategory.TraderOffer },
-                CardComplexity.Advanced,
-                CardTemple.Nature,
-                "Good doggy",
-                hideAttackAndHealth: true,
-                defaultTex: AssetHelper.LoadTexture("wolf_fetch"),
-                specialStatIcon: GlobalSpellAbility.Instance.statIconInfo.iconType,
-                specialAbilitiesIdsParam: new List<SpecialAbilityIdentifier>() { GlobalSpellAbility.Instance.id },
-                abilities: new List<Ability>() { Ability.QuadrupleBones }
-            );
+            CardManager.New(InfiniscryptionSpellsPlugin.CardPrefix,
+                    "Spell_Compost", 
+                    "Compost", 
+                    0, 0, // attack/health
+                    "Time to recycle those old bones")
+                .SetDefaultPart1Card()
+                .SetPortrait(AssetHelper.LoadTexture("compost"))
+                .SetGlobalSpell()
+                .SetCost(bonesCost: 5)
+                .AddAbilities(DrawTwoCards.AbilityID);
+
+            CardManager.New(InfiniscryptionSpellsPlugin.CardPrefix,
+                    "Spell_Fetch", 
+                    "Go Fetch", 
+                    0, 0, // attack/health
+                    "Good doggy")
+                .SetDefaultPart1Card()
+                .SetPortrait(AssetHelper.LoadTexture("wolf_fetch"))
+                .SetGlobalSpell()
+                .AddAbilities(Ability.QuadrupleBones);
         }
     }
 }

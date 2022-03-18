@@ -1,58 +1,36 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using APIPlugin;
 using DiskCardGame;
 using Infiniscryption.Core.Helpers;
+using InscryptionAPI.Card;
 using UnityEngine;
 
 namespace Infiniscryption.Spells.Sigils
 {
-	// Token: 0x02000324 RID: 804
 	public class Fishhook : AbilityBehaviour
 	{
-		// Token: 0x17000268 RID: 616
-		// (get) Token: 0x06001358 RID: 4952 RVA: 0x000438A9 File Offset: 0x00041AA9
-		public override Ability Ability => _ability;
-        private static Ability _ability;
-        
-        public static AbilityIdentifier Identifier 
-        { 
-            get
-            {
-                return AbilityIdentifier.GetAbilityIdentifier("zorro.infiniscryption.sigils.fishhook", "Gain Control");
-            }
-        }
+		public override Ability Ability => AbilityID;
+        public static Ability AbilityID { get; private set; }
 
         public static void Register()
         {
-            AbilityInfo info = AbilityInfoUtils.CreateInfoWithDefaultSettings(
-                "Gain Control",
-                "Gains control of the targeted creature."
-            );
+            AbilityInfo info = ScriptableObject.CreateInstance<AbilityInfo>();
+            info.rulebookName = "Gain Control";
+            info.rulebookDescription = "Gains control of the targeted creature.";
             info.powerLevel = 8;
             info.canStack = false;            
             info.passive = false;
             info.metaCategories = new List<AbilityMetaCategory>() { AbilityMetaCategory.Part1Rulebook };
-            info.pixelIcon = Sprite.Create(
-                AssetHelper.LoadTexture("fishhook_pixel", FilterMode.Point),
-                new Rect(0f, 0f, 17f, 17f),
-                new Vector2(0.5f, 0.5f)
-            );
+            info.SetPixelAbilityIcon(AssetHelper.LoadTexture("fishhook_pixel"));
 
-            NewAbility ability = new NewAbility(
+            Fishhook.AbilityID = AbilityManager.Add(
+                InfiniscryptionSpellsPlugin.OriginalPluginGuid,
                 info,
                 typeof(Fishhook),
-                AssetHelper.LoadTexture("ability_fishhook"),
-                Identifier
-            );
-
-            Fishhook._ability = ability.ability;
+                AssetHelper.LoadTexture("ability_fishhook")
+            ).Id;
         }
 
-        
-
-		// Token: 0x0600135B RID: 4955 RVA: 0x0000F57E File Offset: 0x0000D77E
 		public override bool RespondsToSlotTargetedForAttack(CardSlot slot, PlayableCard attacker)
 		{
 			if (slot.Card == null)
@@ -67,7 +45,6 @@ namespace Infiniscryption.Spells.Sigils
             return true;
 		}
 
-		// Token: 0x0600135C RID: 4956 RVA: 0x000438AD File Offset: 0x00041AAD
 		public override IEnumerator OnSlotTargetedForAttack(CardSlot slot, PlayableCard attacker)
 		{
 			if (slot.Card == null)

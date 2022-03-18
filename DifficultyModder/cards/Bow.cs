@@ -1,18 +1,11 @@
-using BepInEx;
-using BepInEx.Logging;
-using BepInEx.Configuration;
-using UnityEngine;
 using DiskCardGame;
 using HarmonyLib;
-using System.Collections;
 using System.Collections.Generic;
-using System;
-using TMPro;
-using UnityEngine.UI;
-using Infiniscryption.Curses.Helpers;
 using Infiniscryption.Core.Helpers;
-using APIPlugin;
-using System.Linq;
+using InscryptionAPI.Guid;
+using Infiniscryption.Spells.Sigils;
+using InscryptionAPI.Card;
+using Infiniscryption.Curses.Sequences;
 
 namespace Infiniscryption.Curses.Cards
 {
@@ -20,61 +13,20 @@ namespace Infiniscryption.Curses.Cards
     {
         public static void RegisterCardAndAbilities(Harmony harmony)
         {
-            // AbilityInfo info = AbilityInfoUtils.CreateInfoWithDefaultSettings(
-            //     "Swallow Whole",
-            //     "This card swallows cards that it attacks or is attacked by. Swallowed cards are slowly digested until they die. The effects are permanent, but killing this card will rescue the digested creature."
-            // );
-            // info.powerLevel = 7;
+            CardManager.New(CursePlugin.CardPrefix, TrapperTraderBossHardOpponent.BOW_CARD, "Bow and Arrow", 0, 0)
+                .SetTargetedSpell()
+                .SetPortrait(AssetHelper.LoadTexture("portrait_bow"))
+                .AddAbilities(DirectDamage.AbilityID, DirectDamage.AbilityID);
 
-            SpecialAbilityIdentifier spellID = SpecialAbilityIdentifier.GetID("zorro.infiniscryption.sigils.targetedspell", "Spell (Targeted)");
-            AbilityIdentifier damageID = AbilityIdentifier.GetAbilityIdentifier("zorro.infiniscryption.sigils.directdamage", "Direct Damage");
-            AbilityIdentifier fishhookID = AbilityIdentifier.GetAbilityIdentifier("zorro.infiniscryption.sigils.fishhook", "Gain Control");
+            CardManager.New(CursePlugin.CardPrefix, TrapperTraderBossHardOpponent.CAPTURE_CARD, "Capture", 0, 0)
+                .SetTargetedSpell()
+                .SetPortrait(AssetHelper.LoadTexture("portrait_capture"))
+                .AddAbilities(Fishhook.AbilityID);
 
-            NewCard.Add(
-                "Trapper_Bow",
-                "Bow and Arrow",
-                0, 0,
-                new List<CardMetaCategory>() {  },
-                CardComplexity.Advanced,
-                CardTemple.Nature,
-                "How am I supposed to win with this?",
-                bloodCost: 0,
-                hideAttackAndHealth: true,
-                defaultTex: AssetHelper.LoadTexture("portrait_bow"),
-                specialAbilitiesIdsParam: new List<SpecialAbilityIdentifier>() { spellID },
-                abilityIdsParam: new List<AbilityIdentifier>() { damageID, damageID }
-            );
-
-            NewCard.Add(
-                "Trapper_Capture",
-                "Capture",
-                0, 0,
-                new List<CardMetaCategory>() {  },
-                CardComplexity.Advanced,
-                CardTemple.Nature,
-                "How am I supposed to win with this?",
-                bloodCost: 0,
-                hideAttackAndHealth: true,
-                defaultTex: AssetHelper.LoadTexture("portrait_capture"),
-                specialAbilitiesIdsParam: new List<SpecialAbilityIdentifier>() { spellID },
-                abilityIdsParam: new List<AbilityIdentifier>() { fishhookID }
-            );
-
-            NewCard.Add(
-                "Trapper_Spike_Trap",
-                "Spike Trap",
-                0, 2,
-                new List<CardMetaCategory>() {  },
-                CardComplexity.Advanced,
-                CardTemple.Nature,
-                "How am I supposed to win with this?",
-                bloodCost: 0,
-                hideAttackAndHealth: false,
-                traits: new List<Trait>() { Trait.Terrain },
-                appearanceBehaviour: new List<CardAppearanceBehaviour.Appearance>() { CardAppearanceBehaviour.Appearance.TerrainBackground, CardAppearanceBehaviour.Appearance.TerrainLayout },
-                defaultTex: AssetHelper.LoadTexture("portrait_spike_trap"),
-                abilities: new List<Ability>() { Ability.Sharp, Ability.DebuffEnemy }
-            );
+            CardManager.New(CursePlugin.CardPrefix, TrapperTraderBossHardOpponent.SPIKE_TRAP_CARD, "Spike Trap", 0, 2)
+                .SetPortrait(AssetHelper.LoadTexture("portrait_spike_trap"))
+                .SetTerrain()
+                .AddAbilities(Ability.Sharp, Ability.DebuffEnemy);
         }
     }
 }

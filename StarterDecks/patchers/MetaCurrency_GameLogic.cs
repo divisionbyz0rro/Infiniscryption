@@ -1,15 +1,4 @@
-using BepInEx;
-using BepInEx.Logging;
-using BepInEx.Configuration;
-using UnityEngine;
-using DiskCardGame;
-using HarmonyLib;
-using System.Collections;
-using System.Collections.Generic;
-using System;
-using Infiniscryption.Core.Helpers;
-using Infiniscryption.StarterDecks;
-using Infiniscryption.StarterDecks.Helpers;
+using InscryptionAPI.Saves;
 
 namespace Infiniscryption.StarterDecks.Patchers
 {
@@ -21,14 +10,8 @@ namespace Infiniscryption.StarterDecks.Patchers
 
         public static int ExcessTeeth
         {
-            get { return SaveGameHelper.GetInt("MetaCurrency.Teeth", 0); }
-            set { SaveGameHelper.SetValue("MetaCurrency.Teeth", value.ToString()); }
-        }
-
-        public static int Quills
-        {
-            get { return SaveGameHelper.GetInt("MetaCurrency.Quills", 0); }
-            set { SaveGameHelper.SetValue("MetaCurrency.Quills", value.ToString()); }
+            get { return ModdedSaveManager.SaveData.GetValueAsInt(InfiniscryptionStarterDecksPlugin.PluginGuid, "MetaCurrency.Teeth"); }
+            set { ModdedSaveManager.SaveData.SetValue(InfiniscryptionStarterDecksPlugin.PluginGuid, "MetaCurrency.Teeth", value.ToString()); }
         }
     }
 }

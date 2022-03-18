@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System;
 using TMPro;
 using UnityEngine.UI;
-using Infiniscryption.Curses.Helpers;
 using Infiniscryption.Curses.Sequences;
 using Infiniscryption.Core.Helpers;
 using System.Linq;
@@ -17,7 +16,7 @@ using System.Runtime.CompilerServices;
 
 namespace Infiniscryption.Curses.Patchers
 {
-    public partial class DeathcardHaunt : CurseBase
+    public static partial class DeathcardHaunt
     {
         // This part of the class manages the creation of deathcards
 
@@ -110,10 +109,10 @@ namespace Infiniscryption.Curses.Patchers
         [HarmonyPostfix]
         public static void AttachDeathListener(CardInfo info, ref PlayableCard __instance)
         {
-            InfiniscryptionCursePlugin.Log.LogInfo($"In Opponent.CreateCard {info.name}");
+            CursePlugin.Log.LogInfo($"In Opponent.CreateCard {info.name}");
             if (GetHauntedCardFlag(info))
             {
-                InfiniscryptionCursePlugin.Log.LogInfo("Adding ghostdieshandler");
+                CursePlugin.Log.LogInfo("Adding ghostdieshandler");
                 TalkWhenGhostDiesHandler handler = __instance.gameObject.AddComponent<TalkWhenGhostDiesHandler>();
                 AddReceiver(__instance.TriggerHandler, handler);
             }

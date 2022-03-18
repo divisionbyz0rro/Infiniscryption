@@ -1,11 +1,4 @@
 using DiskCardGame;
-using APIPlugin;
-using Infiniscryption.Core.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Collections;
-using UnityEngine;
 
 namespace Infiniscryption.Curses.Sequences
 {
