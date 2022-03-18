@@ -92,3 +92,16 @@ The pixel/GBC card arts used in the starer decks screen are taken from the [Act 
 
 - [BepInEx](https://inscryption.thunderstore.io/package/BepInEx/BepInExPack_Inscryption/)
 - [API](https://inscryption.thunderstore.io/package/API_dev/API/)
+
+## Changelog 
+
+<details>
+<summary>Changelog</summary>
+
+1.0.1
+- Properly created soft dependency on Pack Manager mod
+- Properly handle what happens when you have no starter decks unlocked.
+
+1.0
+- Initial version.
+</details>

@@ -10,6 +10,7 @@ using Infiniscryption.P03KayceeRun.Cards;
 using InscryptionAPI.Card;
 using Infiniscryption.PackManagement;
 using System.Collections;
+using System.Runtime.CompilerServices;
 
 namespace Infiniscryption.P03KayceeRun.Patchers
 {
@@ -35,6 +36,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         public const string PROGRAMMER = "P03KCM_PROGRAMMER";
         public const string ARTIST = "P03KCM_ARTIST";
         public const string FIREWALL = "P03KCM_FIREWALL";
+
+        private static List<string> PackCardNames = new();
 
         private readonly static List<CardMetaCategory> GBC_RARE_PLAYABLES = new() { CardMetaCategory.GBCPack, CardMetaCategory.GBCPlayable, CardMetaCategory.Rare, CardMetaCategory.ChoiceNode };
 
@@ -91,6 +94,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 card.decals = new() { AssetHelper.LoadTexture(decalTextureKey) };
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         private static void WriteP03PackInner(List<string> cardNames)
         {
             // Start by creating the pack:
@@ -112,16 +116,17 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             };
         }
 
-        internal static void WriteP03Pack(List<string> cardNames)
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        internal static void WriteP03Pack()
         {
             try
             {
-                WriteP03PackInner(cardNames);
+                WriteP03PackInner(PackCardNames);
             } 
             catch (Exception ex)
             {
-                P03Plugin.Log.LogError("Failed to write the pack information. This probably means that the pack plugin doesn't exist; if that's the case, you can ignore this error.");
-                P03Plugin.Log.LogError(ex);
+                P03Plugin.Log.LogInfo("Failed to write the pack information. This probably means that the pack plugin doesn't exist; if that's the case, you can ignore this error.");
+                P03Plugin.Log.LogInfo(ex);
             }
         }
 
@@ -139,7 +144,6 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             RareDiscCardAppearance.Register();
 
             // Load the custom cards from the CSV database
-            List<string> cardNames = new();
             string database = AssetHelper.GetResourceString("card_database", "csv");
             string[] lines = database.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (string line in lines.Skip(1))
@@ -149,10 +153,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 UpdateExistingCard(cols[0], cols[1], cols[2], cols[3], cols[4], cols[6]);
 
                 if (cols[5] == "Y")
-                    cardNames.Add(cols[0]);
+                    PackCardNames.Add(cols[0]);
             }
-
-            WriteP03Pack(cardNames);
 
             CardManager.BaseGameCards.CardByName("PlasmaGunner")
                 .AddAppearances(ForceRevolverAppearance.ID);

@@ -247,6 +247,9 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 __instance.deck = new DeckInfo();
                 __instance.deck.Cards.Clear();
 
+                if (AscensionSaveData.Data.currentStarterDeck.Equals("Vanilla"))
+                    AscensionSaveData.Data.currentStarterDeck = StarterDecks.DEFAULT_STARTER_DECK;
+
                 StarterDeckInfo deckInfo = StarterDecksUtil.GetInfo(AscensionSaveData.Data.currentStarterDeck);
 
                 List<CardInfo> starterDeckCards = deckInfo.cards.Select(i => CardLoader.GetCardByName(i.name)).ToList();
