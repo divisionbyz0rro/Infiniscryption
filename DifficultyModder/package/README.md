@@ -33,6 +33,10 @@ The zip file should be structured in the same way as your Inscryption root direc
 <details>
 <summary>Changelog</summary>
 
+1.0.2
+- Game no longer softlocks when a match ends with you holding Dynamite and you didn't overkill by more than 2.
+- The sharkbite appearance should not apply to all copies of the same card anymore.
+
 1.0.1
 - Game no longer softlocks when trying to summon a deathcard inside of Kaycee's Mod.
 

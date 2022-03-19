@@ -98,6 +98,12 @@ The pixel/GBC card arts used in the starer decks screen are taken from the [Act 
 <details>
 <summary>Changelog</summary>
 
+1.0.3
+- Fixed defect where sometimes the RNG would generate a map that didn't have enough room to hold all possible nodes.
+
+1.0.2
+- Fixed defect where the game's internal data files were not loading correctly after being checked into and out of GIT.
+
 1.0.1
 - Properly created soft dependency on Pack Manager mod
 - Properly handle what happens when you have no starter decks unlocked.
