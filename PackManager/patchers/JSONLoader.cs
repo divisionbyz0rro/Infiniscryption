@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using BepInEx;
 using DiskCardGame;
+using Infiniscryption.Core.Helpers;
 
 namespace Infiniscryption.PackManagement.Patchers
 {
@@ -15,7 +16,7 @@ namespace Infiniscryption.PackManagement.Patchers
                 try
                 {
                     string json = File.ReadAllText(fileName);
-                    PackInfoJSON pack = SaveManager.FromJSON<PackInfoJSON>(json);
+                    PackInfoJSON pack = JSONParser.FromJson<PackInfoJSON>(json);
                     pack.Convert();
                 }
                 catch (Exception ex)

@@ -749,11 +749,19 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             // Add two hidden currency nodes
             P03Plugin.Log.LogInfo($"Adding hidden currency nodes");
             for (int i = 0; i < 2; i++)
-                retval.GetRandomPointOfInterest().upgrade = HoloMapSpecialNode.NodeDataType.GainCurrency;
+            {
+                HoloMapBlueprint tbp2 = retval.GetRandomPointOfInterest();
+                if (tbp2 != null)
+                    tbp2.upgrade = HoloMapSpecialNode.NodeDataType.GainCurrency;
+            }
 
             // Add one of each of the default upgrades for each completed zone
             foreach (int cRegion in CompletedRegions)
-                retval.GetRandomPointOfInterest().upgrade = REGION_DATA[cRegion].defaultReward;
+            {
+                HoloMapBlueprint tbp2 = retval.GetRandomPointOfInterest();
+                if (tbp2 != null)
+                    tbp2.upgrade = REGION_DATA[cRegion].defaultReward;
+            }
 
             LogBlueprint(bpBlueprint);
 

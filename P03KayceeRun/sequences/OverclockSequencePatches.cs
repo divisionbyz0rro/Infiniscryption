@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using DiskCardGame;
 using HarmonyLib;
@@ -12,6 +13,16 @@ namespace Infiniscryption.P03KayceeRun.Sequences
     public static class OverclockSequencePatches
     {
         private static bool ChangeOverclockAbility = false;
+
+        [HarmonyPatch(typeof(OverclockCardSequencer), nameof(OverclockCardSequencer.GetValidCards))]
+        [HarmonyPostfix]
+        public static void CannotDoubleSkeleclock(ref List<CardInfo> __result)
+        {
+            if (SaveFile.IsAscension)
+            {
+                __result.RemoveAll(ci => ci.HasAbility(NewPermaDeath.AbilityID));
+            }
+        }
 
         [HarmonyPatch(typeof(DeckInfo), nameof(DeckInfo.ModifyCard))]
         [HarmonyPrefix]

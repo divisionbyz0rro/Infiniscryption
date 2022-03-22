@@ -23,12 +23,16 @@ namespace Infiniscryption.P03KayceeRun.Cards
         {
 			foreach (string key in GameObjectPaths)
             {
-                GameObject component = this.gameObject.transform.Find(key).gameObject;
-                MeshRenderer renderer = component.GetComponent<MeshRenderer>();
-                Material material = renderer.material;
-                material.globalIlluminationFlags = MaterialGlobalIlluminationFlags.None;
-                material.EnableKeyword("_EMISSION");
-                material.SetColor("_EmissionColor", EmissionColor * 0.5f);
+                Transform tComp = this.gameObject.transform.Find(key);
+                if (tComp != null && tComp.gameObject != null)
+                {
+                    GameObject component = tComp.gameObject;
+                    MeshRenderer renderer = component.GetComponent<MeshRenderer>();
+                    Material material = renderer.material;
+                    material.globalIlluminationFlags = MaterialGlobalIlluminationFlags.None;
+                    material.EnableKeyword("_EMISSION");
+                    material.SetColor("_EmissionColor", EmissionColor * 0.5f);
+                }
             }
         }
 

@@ -11,7 +11,8 @@ namespace Infiniscryption.SideDecks
 {
     [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
     [BepInDependency("cyantist.inscryption.api")]
-    [BepInDependency("julianperge.inscryption.cards.healthForAnts")]
+    [BepInDependency("julianperge.inscryption.specialAbilities.healthForAnts")]
+    [BepInDependency("extraVoid.inscryption.LifeCost")]
     public class SideDecksPlugin : BaseUnityPlugin
     {
 

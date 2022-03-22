@@ -36,7 +36,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 if (regionCards.Count > 0)
                 {
                     CardInfo newCard = regionCards[SeededRandom.Range(0, regionCards.Count, randomSeed++)];
-                    __result.Add(new CardChoice() { CardInfo = CustomCards.ModifyCardForAscension(newCard) });
+                    //__result.Add(new CardChoice() { CardInfo = CustomCards.ModifyCardForAscension(newCard) });
+                    __result.Add(new CardChoice() { CardInfo = CardLoader.Clone(newCard) });
                     regionCards.Remove(newCard);
                     regionAndNeutralCards.Remove(newCard);
                 }
@@ -47,7 +48,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                     if (regionCards.Count > 0)
                     {
                         CardInfo newCard = regionCards[SeededRandom.Range(0, regionCards.Count, randomSeed++)];
-                        __result.Add(new CardChoice() { CardInfo = CustomCards.ModifyCardForAscension(newCard) });
+                        //__result.Add(new CardChoice() { CardInfo = CustomCards.ModifyCardForAscension(newCard) });
+                        __result.Add(new CardChoice() { CardInfo = CardLoader.Clone(newCard) });
                         regionAndNeutralCards.Remove(newCard);
                     }
                 }
@@ -55,7 +57,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 while (__result.Count < 3)
                 {
                     CardInfo newCard = regionAndNeutralCards[SeededRandom.Range(0, regionAndNeutralCards.Count, randomSeed++)];
-                    __result.Add(new CardChoice() { CardInfo = CustomCards.ModifyCardForAscension(newCard) });
+                    //__result.Add(new CardChoice() { CardInfo = CustomCards.ModifyCardForAscension(newCard) });
+                    __result.Add(new CardChoice() { CardInfo = CardLoader.Clone(newCard) });
                     regionAndNeutralCards.Remove(newCard);
                 }
 

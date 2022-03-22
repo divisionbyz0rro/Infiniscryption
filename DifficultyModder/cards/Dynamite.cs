@@ -92,6 +92,10 @@ namespace Infiniscryption.Curses.Cards
                 // Only do this if the card is in the player's hand
                 if (this.Card.InHand)
                 {                    
+                    // Only explode if the player hasn't already won
+                    if (LifeManager.Instance.DamageUntilPlayerWin <= 0)
+                        yield break;
+
                     // Focus on the card
                     ViewManager.Instance.SwitchToView(View.Hand);
                     PlayerHand.Instance.OnCardInspected(this.Card);

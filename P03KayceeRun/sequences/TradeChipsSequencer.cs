@@ -314,7 +314,8 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 
 			int numberOfCards = token.name == CustomCards.RARE_DRAFT_TOKEN ? NUM_RARE_CARDS : NUM_CARDS;
 			int randomSeed = P03AscensionSaveData.RandomSeed + 100 * randomSeedSegment++;
-            List<CardInfo> result = CardLoader.GetDistinctCardsFromPool(randomSeed, numberOfCards, cards).Select(CustomCards.ModifyCardForAscension).ToList();
+            //List<CardInfo> result = CardLoader.GetDistinctCardsFromPool(randomSeed, numberOfCards, cards).Select(CustomCards.ModifyCardForAscension).ToList();
+			List<CardInfo> result = CardLoader.GetDistinctCardsFromPool(randomSeed, numberOfCards, cards).ToList();
 
 			if (token.name == CustomCards.UNC_TOKEN) // The uncommon token adds a random ability to the card
 			{

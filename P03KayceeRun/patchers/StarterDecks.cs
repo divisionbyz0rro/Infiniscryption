@@ -14,6 +14,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
     [HarmonyPatch]
     public static class StarterDecks
     {
+        public static string DEFAULT_STARTER_DECK { get; private set; }
+
         private static StarterDeckInfo CreateStarterDeckInfo(string title, string iconKey, string[] cards)
         {
             Texture2D icon = AssetHelper.LoadTexture(iconKey);
@@ -29,7 +31,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
         public static void RegisterStarterDecks()
         {
-            StarterDeckManager.Add(P03Plugin.PluginGuid, CreateStarterDeckInfo("Snipers", "starterdeck_icon_snipers", new string[] {"Sniper", "BustedPrinter", "SentryBot" }));
+            DEFAULT_STARTER_DECK = StarterDeckManager.Add(P03Plugin.PluginGuid, CreateStarterDeckInfo("Snipers", "starterdeck_icon_snipers", new string[] {"Sniper", "BustedPrinter", "SentryBot" })).Info.name;
             StarterDeckManager.Add(P03Plugin.PluginGuid, CreateStarterDeckInfo("Random", "starterdeck_icon_random", new string[] {"Amoebot", "GiftBot", "GiftBot" }));
             StarterDeckManager.Add(P03Plugin.PluginGuid, CreateStarterDeckInfo("Shield", "starterdeck_icon_shield", new string[] {"GemShielder", "Shieldbot", "LatcherShield" }));
             StarterDeckManager.Add(P03Plugin.PluginGuid, CreateStarterDeckInfo("Energy", "starterdeck_icon_energy", new string[] {"CloserBot", "BatteryBot", "BatteryBot" }));

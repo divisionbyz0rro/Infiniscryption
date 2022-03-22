@@ -1,6 +1,6 @@
 {
     "name": "Pack_Management_API",
-    "version_number": "1.0.0",
+    "version_number": "1.0.4",
     "website_url": "https://github.com/divisionbyz0rro/Infiniscryption",
     "description": "Organizes the card mods you have installed into packs that can be toggled on and off with each run through Kaycee's Mod.",
     "dependencies": [

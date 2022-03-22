@@ -56,7 +56,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         public static bool IsP03Run
         {
             get 
-            { 
+            {
                 if (SceneLoader.ActiveSceneName.ToLowerInvariant().Contains("part3"))
                     return true;
 
@@ -66,7 +66,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 if (SceneLoader.ActiveSceneName.ToLowerInvariant().Contains("part1"))
                     return false;
 
-                if (AscensionSaveData.Data.currentRun != null && AscensionSaveData.Data.currentRun.playerLives > 0)
+                if (AscensionSaveData.Data != null && AscensionSaveData.Data.currentRun != null && AscensionSaveData.Data.currentRun.playerLives > 0)
                     return ModdedSaveManager.SaveData.GetValueAsBoolean(P03Plugin.PluginGuid, "IsP03Run");
 
                 return false;
@@ -189,6 +189,9 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         {
             if (IsP03Run)
             {
+                if (AscensionSaveData.Data.currentStarterDeck.Equals("Vanilla"))
+                    AscensionSaveData.Data.currentStarterDeck = StarterDecks.DEFAULT_STARTER_DECK;
+
                 Part3SaveData data = new Part3SaveData();
                 data.Initialize();
                 SaveManager.SaveFile.part3Data = data;
@@ -249,19 +252,21 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
                 StarterDeckInfo deckInfo = StarterDecksUtil.GetInfo(AscensionSaveData.Data.currentStarterDeck);
 
-                List<CardInfo> starterDeckCards = deckInfo.cards.Select(i => CardLoader.GetCardByName(i.name)).ToList();
+                List<CardInfo> starterDeckCards = deckInfo.cards.Select(i => CardLoader.GetCardByName(i.name)).ToList();           
+
+                foreach(CardInfo info in starterDeckCards)
+                    //__instance.deck.AddCard(CustomCards.ModifyCardForAscension(info));
+                    __instance.deck.AddCard(info);
+
                 if (AscensionSaveData.Data.ChallengeIsActive(AscensionChallenge.WeakStarterDeck))
                 {
-                    foreach(CardInfo info in starterDeckCards)
+                    foreach(CardInfo info in __instance.deck.Cards)
                     {
                         if (info.mods == null)
                             info.mods = new();
                         info.mods.Add(new(Ability.BuffEnemy));
                     }
                 }
-
-                foreach(CardInfo info in starterDeckCards)
-                    __instance.deck.AddCard(CustomCards.ModifyCardForAscension(info));
                 
                 __instance.deck.AddCard(CardLoader.GetCardByName(CustomCards.DRAFT_TOKEN));
                 __instance.deck.AddCard(CardLoader.GetCardByName(CustomCards.DRAFT_TOKEN));

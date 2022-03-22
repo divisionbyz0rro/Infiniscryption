@@ -18,6 +18,8 @@ namespace Infiniscryption.Curses.Cards
 
         public override void ApplyAppearance()
         {
+            Card.Info.temporaryDecals = new();
+
             Card.RenderInfo.baseTextureOverride = _sharkBiteBackground;
 
             if (Card.Info.TempDecals.Any(t => t.name == _sharkBiteDecal.name))
@@ -28,7 +30,7 @@ namespace Infiniscryption.Curses.Cards
 
         public static void Register()
         {
-            CardAppearanceBehaviourManager.Add(CursePlugin.PluginGuid, "BittenByShark", typeof(BittenCardAppearance));
+            ID = CardAppearanceBehaviourManager.Add(CursePlugin.PluginGuid, "BittenByShark", typeof(BittenCardAppearance)).Id;
         }
     }
 }

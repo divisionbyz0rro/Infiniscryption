@@ -57,6 +57,10 @@ Don't worry. That is still supported - for now. However, compatibility for this 
 <details>
 <summary>Changelog</summary>
 
+2.0.1
+- Fixed defect where the side decks mod was activating P03 side decks while not in Ascension mode
+- Set dependency on the proper version of the LifeCost mod
+
 2.0
 - Added compatibility with Kaycee's Mod
 - Added the Amalgam Egg

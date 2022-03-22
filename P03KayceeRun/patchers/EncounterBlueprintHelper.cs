@@ -47,20 +47,21 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
         public EncounterBlueprintHelper(string stringVal)
         {
-            string[] bpArray = stringVal.Split('\n', '\r');
-            this.name = bpArray[0].Split(':')[1].Trim();
-            this.maxDifficulty = int.Parse(bpArray[1].Split(':')[1].Trim());
-            this.minDifficulty = int.Parse(bpArray[2].Split(':')[1].Trim());
-            this.powerLevel = int.Parse(bpArray[3].Split(':')[1].Trim());
-            this.powerLevelString = bpArray[4].Split(':')[1].Trim();
-            this.oldPreviewDifficulty = int.Parse(bpArray[5].Split(':')[1].Trim());
-            this.regionSpecific = bool.Parse(bpArray[6].Split(':')[1].Trim());
-            this.dominantTribes = AsSplitArray(bpArray[7].Split(':')[1].Trim());
-            this.redundantAbilities = AsSplitArray(bpArray[8].Split(':')[1].Trim());
-            this.unlockedCardPrerequisites = AsSplitArray(bpArray[9].Split(':')[1].Trim());
-            this.randomReplacementCards = AsSplitArray(bpArray[10].Split(':')[1].Trim());
-            this.overclockBlueprint = AsOverclock(bpArray[11].Replace("overclockBlueprint: ", ""));
-            this.turnPlan = bpArray.Skip(12).Select(s => String.IsNullOrEmpty(s) ? new List<string>() : s.Split(',').ToList()).ToList();
+            string[] bpArray = stringVal.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            P03Plugin.Log.LogDebug($"Split length {bpArray.Length}");
+            this.name = bpArray[0].Split(':')[1].Trim(); 
+            this.maxDifficulty = int.Parse(bpArray[1].Split(':')[1].Trim()); 
+            this.minDifficulty = int.Parse(bpArray[2].Split(':')[1].Trim()); 
+            this.powerLevel = int.Parse(bpArray[3].Split(':')[1].Trim()); 
+            this.powerLevelString = bpArray[4].Split(':')[1].Trim(); 
+            this.oldPreviewDifficulty = int.Parse(bpArray[5].Split(':')[1].Trim()); 
+            this.regionSpecific = bool.Parse(bpArray[6].Split(':')[1].Trim()); 
+            this.dominantTribes = AsSplitArray(bpArray[7].Split(':')[1].Trim()); 
+            this.redundantAbilities = AsSplitArray(bpArray[8].Split(':')[1].Trim()); 
+            this.unlockedCardPrerequisites = AsSplitArray(bpArray[9].Split(':')[1].Trim()); 
+            this.randomReplacementCards = AsSplitArray(bpArray[10].Split(':')[1].Trim()); 
+            this.overclockBlueprint = AsOverclock(bpArray[11].Replace("overclockBlueprint: ", "")); 
+            this.turnPlan = bpArray.Skip(12).Select(s => String.IsNullOrEmpty(s) ? new List<string>() : s.Split(',').ToList()).ToList(); 
         }
 
         private static List<List<int>> AsOverclock(string ocString)

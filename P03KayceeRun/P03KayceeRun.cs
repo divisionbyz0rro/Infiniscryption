@@ -1,4 +1,5 @@
 ﻿using BepInEx;
+using BepInEx.Bootstrap;
 using BepInEx.Logging;
 using HarmonyLib;
 using Infiniscryption.P03KayceeRun.Patchers;
@@ -34,6 +35,12 @@ namespace Infiniscryption.P03KayceeRun
             Initialized = true;
 
             Logger.LogInfo($"Plugin {PluginName} is loaded!");
+        }
+
+        private void Start()
+        {
+            if (Chainloader.PluginInfos.ContainsKey("zorro.inscryption.infiniscryption.packmanager"))
+                CustomCards.WriteP03Pack();
         }
     }
 }
