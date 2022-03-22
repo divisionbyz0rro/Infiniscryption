@@ -97,7 +97,7 @@ namespace Infiniscryption.SideDecks.Patchers
                 .AddTribes(Tribe.Insect);
 
 
-            SpecialStatIcon antHealth = GuidManager.GetEnumValue<SpecialStatIcon>("julianperge.inscryption.cards.healthForAnts", "Ants (Health)");
+            SpecialStatIcon antHealth = GuidManager.GetEnumValue<SpecialStatIcon>("julianperge.inscryption.specialAbilities.healthForAnts", "Ants (Health)");
 
             CardManager.New(SideDecksPlugin.CardPrefix,
                     "AntDrone",
@@ -156,7 +156,8 @@ namespace Infiniscryption.SideDecks.Patchers
                 .SetSideDeck(CardTemple.Nature, 10)
                 .SetPortrait(AssetHelper.LoadTexture("portrait_goat_double"))
                 .SetPixelPortrait(AssetHelper.LoadTexture("pixelportrait_one_eyed_goat"))
-                .AddAbilities(DoubleTeeth.AbilityID, DoubleBlood.AbilityID)
+                .AddAbilities(DoubleBlood.AbilityID)
+                .SetExtendedProperty("LifeMoneyCost", 2)
                 .AddTribes(Tribe.Hooved)
                 .temple = CardTemple.Nature;
 

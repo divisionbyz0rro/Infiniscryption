@@ -29,6 +29,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
         [HarmonyPatch(typeof(AscensionMenuScreens), "TransitionToGame")]
         [HarmonyPrefix]
+        [HarmonyBefore("zorro.inscryption.infiniscryption.packmanager")]
         public static void InitializeP03SaveData(ref AscensionMenuScreens __instance, bool newRun)
         {
             if (newRun)
@@ -45,6 +46,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                     P03AscensionSaveData.IsP03Run = false;
                 }
             }
+            if (P03AscensionSaveData.IsP03Run)
+                ScreenManagement.ScreenState = CardTemple.Tech;
         }
 
         [HarmonyPatch(typeof(MenuController), "LoadGameFromMenu")]
@@ -53,6 +56,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         {
 			if (!newGameGBC && SaveFile.IsAscension && P03AscensionSaveData.IsP03Run)
 			{
+
                 SaveManager.LoadFromFile();
 				LoadingScreenManager.LoadScene("Part3_Cabin");
                 SaveManager.savingDisabled = false;

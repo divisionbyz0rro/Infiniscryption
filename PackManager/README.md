@@ -40,6 +40,22 @@ The zip file should be structured in the same way as your Inscryption root direc
 ## Make sure all of your cards use the same mod prefix
 This cannot be stressed enough. This mod relies on the mod prefix to sort out which cards belong to which pack, so it is your responsibility to make sure that you've selected a mod prefix for your cards and that all your cards use it.
 
+## Pack Metacategories
+
+Packs can be belong to any number of "metacategories" which define which scribe they are valid for. As of the time this was written, this will only matter if the player also has my P03 in Kaycee's Mod mod installed. Otherwise, every run through the game will be a Leshy run and only care about Leshy packs.
+
+The metacategories are:
+
+```
+public enum PackInfo.PackMetacategory
+{
+    LeshyPack = 0,
+    P03Pack = 1,
+    GrimoraPack = 2,
+    MagnificusPack = 3
+}
+```
+
 ## JSON Loader Cards
 If you use [JSON Loader](https://inscryption.thunderstore.io/package/MADH95Mods/JSONCardLoader/) to build your cards, it's really easy to add a pack definition to your mod. Here's what you need to do:
 
@@ -53,7 +69,7 @@ If you use [JSON Loader](https://inscryption.thunderstore.io/package/MADH95Mods/
 	"Description": "This card pack is full of cards that will blow your mind.",
 	"ModPrefix": "boom",
 	"PackArt": "Artwork/boom_pack.png",
-    "ValidFor": ["Nature"]
+    "ValidFor": ["LeshyPack"]
 }
 ```
 
@@ -61,7 +77,7 @@ If you use [JSON Loader](https://inscryption.thunderstore.io/package/MADH95Mods/
 You can also create a card pack using this API directly. All you need to do is ask the PackManager to create a PackInfo object for the mod prefix associated with your cards.
 
 ```c#
-using Infiniscryption.PackManager;
+using Infiniscryption.PackManagement;
 
 public static void CreatePack()
 {
@@ -69,22 +85,17 @@ public static void CreatePack()
     incrediPack.Title = "Incredible Card Expansion";
     incrediPack.SetTexture(TextureHelper.GetImageAsTexture("Artwork/boom_pack.png");
     incrediPack.Description = "This card pack is full of cards that will blow your mind.";
-    incrediPack.ValidFor.Add(CardTemple.Nature);
+    incrediPack.ValidFor.Add(PackInfo.PackMetacategory.LeshyPack);
 }
 ```
 
 It is strongly recommended however that you do *not* create a hard dependency between your card pack and this API. Instead, you can create a soft dependency using the following pattern:
 
 ```c#
-public static void TryCreatePack()
+private void Start() // Do this in your Plugin.cs file
 {
-    try
-    {
+    if (Chainloader.PluginInfos.ContainsKey("zorro.inscryption.infiniscryption.packmanager"))
         CreatePack()
-    } catch (Exception ex)
-    {
-        Plugin.Log.LogInfo("Could not create pack. Pack Manager API is not installed");
-    }
 }
 ```
 
@@ -113,16 +124,10 @@ private static void RegisterMetacategoriesInner()
     PackManager.AddProtectedMetacategory(SideDeckManager.SIDE_DECK);
 }
 
-private static void RegisterMetacategories()
+private void Start() // Do this in your Plugin.cs file
 {
-    try
-    {
+    if (Chainloader.PluginInfos.ContainsKey("zorro.inscryption.infiniscryption.packmanager"))
         RegisterMetacategoriesInner();
-    }
-    catch (Exception)
-    {
-        SideDecksPlugin.Log.LogInfo($"Error registering pack manager exception - pack manager plugin not loaded. This is not a problem.");
-    }
 }
 ```
 
@@ -134,6 +139,15 @@ A template (blank) pack art PNG is included in this package.
 
 <details>
 <summary>Changelog</summary>
+
+1.0.4
+- Changed the internal JSON parser to resolve some defects.
+
+1.0.3
+- Found one more goof in the README and fixed it. 
+
+1.0.2
+- Fixed the README. I had a bad example for the JLPK and that wasted a of people's time. My bad.
 
 1.0.1
 - Like a dope, I managed to push a version of this mod that didn't have page scrolling activated. The mod can now handle more than 7 packs. Major facepalm.

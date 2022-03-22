@@ -50,12 +50,29 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             );
         }
 
-        public static CardInfo ModifyCardForAscension(CardInfo info)
+        [HarmonyPatch(typeof(CardLoader), nameof(CardLoader.Clone))]
+        [HarmonyPostfix]
+        private static void ModifyCardForAscension(ref CardInfo __result)
         {
-            if (info.name.ToLowerInvariant().StartsWith("sentinel") || info.name == "TechMoxTriple")
-                info.mods.Add(new() { gemify = true });
+            if (P03AscensionSaveData.IsP03Run || ScreenManagement.ScreenState == CardTemple.Tech)
+            {
+                if (__result.name.ToLowerInvariant().StartsWith("sentinel") || __result.name == "TechMoxTriple")
+                    __result.mods.Add(new() { gemify = true });
 
-            return info;
+                else if (__result.name.ToLowerInvariant().Equals("automaton"))
+                    __result.energyCost = 2;
+
+                else if (__result.name.ToLowerInvariant().Equals("thickbot"))
+                    __result.baseHealth = 6;
+
+                else if (__result.name.ToLowerInvariant().Equals("energyconduit"))
+                {
+                    __result.baseAttack = 0;
+                    __result.abilities = new () { NewConduitEnergy.AbilityID };
+                    __result.appearanceBehaviour = new(__result.appearanceBehaviour);
+                    __result.appearanceBehaviour.Add(EnergyConduitAppearnace.ID);
+                }
+            }
         }
 
         private static void UpdateExistingCard(string name, string textureKey, string pixelTextureKey, string regionCode, string decalTextureKey, string colorPortraitKey)
@@ -142,6 +159,8 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             Artist.Register();
             Programmer.Register();
             RareDiscCardAppearance.Register();
+            EnergyConduitAppearnace.Register();
+            NewConduitEnergy.Register();
 
             // Load the custom cards from the CSV database
             string database = AssetHelper.GetResourceString("card_database", "csv");

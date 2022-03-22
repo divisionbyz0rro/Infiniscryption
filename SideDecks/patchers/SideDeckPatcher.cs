@@ -139,7 +139,7 @@ namespace Infiniscryption.SideDecks.Patchers
         [HarmonyPostfix]
         private static void AddSideDeckAbilitiesWithMesh(ref Part3SaveData __instance)
         {
-            if (SaveFile.IsAscension && AscensionSaveData.Data.currentRun != null)
+            if (SaveFile.IsAscension)
             {
                 CardInfo info = CardManager.AllCardsCopy.CardByName(SelectedSideDeck);
                 foreach(Ability ab in info.Abilities)
@@ -156,21 +156,24 @@ namespace Infiniscryption.SideDecks.Patchers
         [HarmonyPostfix]
         private static void AddSideDeckAbilitiesWithoutMesh(CardInfo info)
         {
-            if (info != null)
+            if (SaveFile.IsAscension)
             {
-                CardInfo sideDeckCard = CardManager.AllCardsCopy.CardByName(SelectedSideDeck);
-                foreach(Ability ab in sideDeckCard.Abilities)
+                if (info != null)
                 {
-                    if (info.HasAbility(ab))
-                        continue;
-
-                    AbilityInfo abInfo = AbilitiesUtil.GetInfo(ab);
-
-                    if (abInfo.mesh3D == null)
+                    CardInfo sideDeckCard = CardManager.AllCardsCopy.CardByName(SelectedSideDeck);
+                    foreach(Ability ab in sideDeckCard.Abilities)
                     {
-                        CardModificationInfo abMod = new(ab);
-                        abMod.sideDeckMod = true;
-                        info.mods.Add(abMod);
+                        if (info.HasAbility(ab))
+                            continue;
+
+                        AbilityInfo abInfo = AbilitiesUtil.GetInfo(ab);
+
+                        if (abInfo.mesh3D == null)
+                        {
+                            CardModificationInfo abMod = new(ab);
+                            abMod.sideDeckMod = true;
+                            info.mods.Add(abMod);
+                        }
                     }
                 }
             }

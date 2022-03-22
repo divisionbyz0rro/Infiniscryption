@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using DiskCardGame;
 using HarmonyLib;
 using Infiniscryption.Core.Helpers;
@@ -34,6 +35,13 @@ namespace Infiniscryption.Curses.Patchers
             {
                 AscensionSaveData.Data.currentRun.playerDeck.AddCard(CardLoader.GetCardByName(ProspectorBossHardOpponent.DYNAMITE));
             }
+        }
+
+        [HarmonyPatch(typeof(CardRemoveSequencer), nameof(CardRemoveSequencer.GetValidCards))]
+        [HarmonyPostfix]
+        private static void DontAllowSacrificeDynamite(ref List<CardInfo> __result)
+        {
+            __result.RemoveAll(ci => ci.HasAbility(Dynamite.AbilityID));
         }
     }
 }

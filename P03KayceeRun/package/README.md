@@ -97,6 +97,21 @@ The pixel/GBC card arts used in the starer decks screen are taken from the [Act 
 
 <details>
 <summary>Changelog</summary>
+1.0.6
+- Fixed defect where activating chapter select would corrupt your entire save file unrecoverably. Let's take a moment of silence for all of the save files that were lost over the past few days...
+
+1.0.5
+- Okay, *really* fixed the P03 starter deck/Leshy starter deck issue...I hope. I really hope.
+- Prevent cards from being Skeleclocked more than once.
+- Removed GainBattery from Build-A-Card
+- Rebalanced the Energy Conduit, Thick Droid, and Automaton
+- Fixed a defect with the rare card appearance and Leshy runs
+- Build-A-Card now randomly selects a set of abilities for you to choose from
+- Updated dependency to API 2.02
+
+1.0.4
+- Fixed it so that P03 no longer puts his starter decks over Leshy's when you have no starter decks unlocked and play a Leshy run.
+- Fixed an incompatibility with the Pack Manager mod that caused the 'A Random Card Is Played' option in the Canvas boss fight to softlock the game. 
 
 1.0.3
 - Fixed defect where sometimes the RNG would generate a map that didn't have enough room to hold all possible nodes.
