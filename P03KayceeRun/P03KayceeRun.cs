@@ -1,8 +1,10 @@
-﻿using BepInEx;
+﻿using System.Runtime.CompilerServices;
+using BepInEx;
 using BepInEx.Bootstrap;
 using BepInEx.Logging;
 using HarmonyLib;
 using Infiniscryption.P03KayceeRun.Patchers;
+using UnityEngine.SceneManagement;
 
 namespace Infiniscryption.P03KayceeRun
 {
@@ -32,9 +34,23 @@ namespace Infiniscryption.P03KayceeRun
             AscensionChallengeManagement.UpdateP03Challenges();
             BossManagement.RegisterBosses();
 
+            SceneManager.sceneLoaded += this.OnSceneLoaded;
+
             Initialized = true;
 
             Logger.LogInfo($"Plugin {PluginName} is loaded!");
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private void FixDeckEditor()
+        {
+            Traverse.Create((Chainloader.PluginInfos["inscryption_deckeditor"].Instance as DeckEditor)).Field("save").SetValue(SaveManager.SaveFile);
+        }
+
+        public void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            if (Chainloader.PluginInfos.ContainsKey("inscryption_deckeditor"))
+                FixDeckEditor();
         }
 
         private void Start()

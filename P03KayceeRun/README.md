@@ -49,7 +49,7 @@ Some events play the same in this mod as they did the first time you played thro
 - **Items**: You can buy an item like you would in Act 1. However, you can only get one item from each shop.
 - **Overclock**: This is significantly different. As before, the overclocked card gets +1 attack. However, when an overclocked card dies, it is not just removed from your deck. It is replaced with an Exeskeleton with the same set of abilities as the original card. So if you overclock a Sniper and it dies, you will get an Exeskeleton with the Sniper sigil.
 - **Recycle**: Instead of getting robobucks back for your recycled card, you get a draft token. Normal cards get you a standard Token, with all of the card's abilities imprinted on the token. Those abilities will transfer to the card you draft with it. Rare cards get you a Rare token, which can be exchanged for another rare card.
-- **Transformer**: Currently, this behaves as normal.
+- **Transformer**: You now select two cards instead of one, and the transformation causes one card to transform into the other.
 
 ### Challenges
 
@@ -88,6 +88,17 @@ Unfortunately, custom encounters and regions are not currently supported by this
 
 The pixel/GBC card arts used in the starer decks screen are taken from the [Act II Recreated](https://inscryption.thunderstore.io/package/Sire/RecreatedAct2Cards/) Mod, with art by SyntaxEvasion.
 
+Art for the following cards were made by Makako
+- Mrs. Bomb
+- Plasma Jimmy
+- Steel Mice
+- Gamblo Bot
+- Thick Droid
+- Steam Bot
+
+Art for the following cards were made by Nevernamed
+- Curve Hopper
+
 ## Requirements
 
 - [BepInEx](https://inscryption.thunderstore.io/package/BepInEx/BepInExPack_Inscryption/)
@@ -97,6 +108,17 @@ The pixel/GBC card arts used in the starer decks screen are taken from the [Act 
 
 <details>
 <summary>Changelog</summary>
+
+1.0.8
+- Registered all of the custom metacategories created by this mod with the Pack Management mod to improve compatibility with cards that are missing 
+- Fixed an issue where sometimes the trading sequence would activate multiple times at once
+- Replaced the Transformer event
+- You start with a Wiseclock instead of a Shield Generator now
+- Replaced some of the temporary card portraits with kickass new art by Makako and Nevernamed
+- Used some serious hacks to make the Deck Editor mod compatible with this mod
+
+1.0.7
+- Patch 1.0.5 broke Build-A-Card. This should fix it.
 
 1.0.6
 - Fixed defect where activating chapter select would corrupt your entire save file unrecoverably. Let's take a moment of silence for all of the save files that were lost over the past few days...

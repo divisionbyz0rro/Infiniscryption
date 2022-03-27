@@ -38,5 +38,18 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                 __result = __result.Distinct().Randomize().Take(8).ToList();
             }        
         }
+
+        [HarmonyPatch(typeof(AbilityScreenButton), nameof(AbilityScreenButton.OnAddPressed))]
+        [HarmonyPrefix]
+        private static bool OnAddPressedFix(ref AbilityScreenButton __instance)
+        {
+            if (__instance.Ability == Ability.None)
+            {
+                __instance.SetIconShown(true);
+                Traverse.Create(__instance).Property("Ability").SetValue(__instance.abilityChoices[0]);
+            }
+            __instance.OnLeftOrRightPressed(false);
+            return false;
+        }
     }
 }

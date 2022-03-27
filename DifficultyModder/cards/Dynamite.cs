@@ -10,6 +10,7 @@ using Infiniscryption.Core.Helpers;
 using System.Linq;
 using InscryptionAPI.Card;
 using Infiniscryption.Curses.Sequences;
+using InscryptionAPI.Triggers;
 
 namespace Infiniscryption.Curses.Cards
 {
@@ -60,24 +61,70 @@ namespace Infiniscryption.Curses.Cards
         // In hand, it responds to your upkeep.
         // The 'RespondsToUpkeep' is used by the game under normal circumstances, so it only says 'yes' on opponent's upkeep
 
-        [HarmonyPatch(typeof(TurnManager), "PlayerTurn")]
-        [HarmonyPostfix]
-        public static IEnumerator ExplodeAtEndOfTurn(IEnumerator sequenceEvent)
+        // [HarmonyPatch(typeof(TurnManager), "PlayerTurn")]
+        // [HarmonyPostfix]
+        // public static IEnumerator ExplodeAtEndOfTurn(IEnumerator sequenceEvent)
+        // {
+        //     yield return sequenceEvent;
+
+        //     // Check for dynamite cards in hand and do it if necessary
+        //     if (PlayerHand.Instance != null)
+        //     {
+        //         List<PlayableCard> cardsToExplode = PlayerHand.Instance.CardsInHand
+        //                                             .Where(c => c.Info.Abilities.Any(a => a == Dynamite.AbilityID))
+        //                                             .ToList();
+
+        //         object[] upkeepVars = new object[] { true };
+
+        //         foreach (PlayableCard card in cardsToExplode)
+        //             yield return card.TriggerHandler.OnTrigger(Trigger.TurnEnd, upkeepVars);
+        //     }
+        // }
+
+        [CustomTriggerResponder(CustomTrigger.OnTurnEndInHand)]
+        public bool RespondsToTurnEndInHand(bool playerTurnEnd)
         {
-            yield return sequenceEvent;
+            return playerTurnEnd;
+        }
 
-            // Check for dynamite cards in hand and do it if necessary
-            if (PlayerHand.Instance != null)
-            {
-                List<PlayableCard> cardsToExplode = PlayerHand.Instance.CardsInHand
-                                                    .Where(c => c.Info.Abilities.Any(a => a == Dynamite.AbilityID))
-                                                    .ToList();
+        [CustomTriggerCoroutine(CustomTrigger.OnTurnEndInHand)]
+        public IEnumerator OnTurnEndInHand(bool playerTurnEnd)
+        {
+            // Only explode if the player hasn't already won
+            if (LifeManager.Instance.DamageUntilPlayerWin <= 0)
+                yield break;
 
-                object[] upkeepVars = new object[] { true };
+            // Focus on the card
+            ViewManager.Instance.SwitchToView(View.Hand);
+            PlayerHand.Instance.OnCardInspected(this.Card);
+            PlayerHand.Instance.InspectingLocked = true;
 
-                foreach (PlayableCard card in cardsToExplode)
-                    yield return card.TriggerHandler.OnTrigger(Trigger.TurnEnd, upkeepVars);
-            }
+            // Shake the card
+            this.Card.Anim.SetShaking(true);
+            yield return new WaitForSeconds(0.75f);
+
+            // Kill the card
+            this.Card.Anim.PlaySacrificeParticles();
+            yield return new WaitForSeconds(0.2f);
+
+            // Make the explosion sound
+            AudioController.Instance.PlaySound3D(EXPLOSION_SOUND, MixerGroup.CardVoiceSFX, this.Card.transform.position, 1f, 0f, null, null, null, null, false);
+            this.Card.Anim.PlayTransformAnimation();
+            yield return new WaitForSeconds(0.44f);
+
+            this.Card.Anim.StopAllCoroutines();
+            PlayerHand.Instance.RemoveCardFromHand(this.Card);
+            GameObject.Destroy(this.Card.gameObject);
+
+            yield return new WaitForSeconds(0.8f);
+
+            PlayerHand.Instance.InspectingLocked = false;
+            
+            // Show the damage
+            yield return LifeManager.Instance.ShowDamageSequence(2, 2, true, 0f, null, 0f);
+            yield return new WaitForSeconds(0.5f);
+
+            ViewManager.Instance.SwitchToView(View.Hand);
         }
 
         public override bool RespondsToTurnEnd(bool playerTurnEnd)
@@ -89,75 +136,33 @@ namespace Infiniscryption.Curses.Cards
         {
             if (playerTurnEnd)
             {
-                // Only do this if the card is in the player's hand
-                if (this.Card.InHand)
-                {                    
-                    // Only explode if the player hasn't already won
-                    if (LifeManager.Instance.DamageUntilPlayerWin <= 0)
-                        yield break;
+                // Focus on the card
+                ViewManager.Instance.SwitchToView(View.BoardCentered);
 
-                    // Focus on the card
-                    ViewManager.Instance.SwitchToView(View.Hand);
-                    PlayerHand.Instance.OnCardInspected(this.Card);
-                    PlayerHand.Instance.InspectingLocked = true;
+                // Shake the card
+                this.Card.Anim.SetShaking(true);
+                yield return new WaitForSeconds(0.6f);
 
-                    // Shake the card
-                    this.Card.Anim.SetShaking(true);
-                    yield return new WaitForSeconds(0.75f);
+                // Make the explosion sound
+                AudioController.Instance.PlaySound3D(EXPLOSION_SOUND, MixerGroup.CardVoiceSFX, this.Card.transform.position, 1f, 0f, null, null, new AudioParams.Randomization(true), null, false);
+                this.Card.Anim.PlayTransformAnimation();
+                yield return new WaitForSeconds(0.4f);
 
-                    // Kill the card
-                    this.Card.Anim.PlaySacrificeParticles();
-                    yield return new WaitForSeconds(0.2f);
-
-                    // Make the explosion sound
-                    AudioController.Instance.PlaySound3D(EXPLOSION_SOUND, MixerGroup.CardVoiceSFX, this.Card.transform.position, 1f, 0f, null, null, null, null, false);
-                    this.Card.Anim.PlayTransformAnimation();
-                    yield return new WaitForSeconds(0.44f);
-
-                    this.Card.Anim.StopAllCoroutines();
-                    PlayerHand.Instance.RemoveCardFromHand(this.Card);
-                    GameObject.Destroy(this.Card.gameObject);
-
-                    yield return new WaitForSeconds(0.8f);
-
-                    PlayerHand.Instance.InspectingLocked = false;
-                    
-                    // Show the damage
-                    yield return LifeManager.Instance.ShowDamageSequence(2, 2, true, 0f, null, 0f);
-                    yield return new WaitForSeconds(0.5f);
-
-                    ViewManager.Instance.SwitchToView(View.Hand);
-                } 
-                else 
+                // Kill the adjacent cards
+                if (this.Card.Slot != null)
                 {
-                    // Focus on the card
-                    ViewManager.Instance.SwitchToView(View.BoardCentered);
+                    List<CardSlot> slots = BoardManager.Instance.PlayerSlotsCopy
+                                            .AddItem(this.Card.Slot.opposingSlot)
+                                            .ToList();
 
-                    // Shake the card
-                    this.Card.Anim.SetShaking(true);
-                    yield return new WaitForSeconds(0.6f);
-
-                    // Make the explosion sound
-                    AudioController.Instance.PlaySound3D(EXPLOSION_SOUND, MixerGroup.CardVoiceSFX, this.Card.transform.position, 1f, 0f, null, null, new AudioParams.Randomization(true), null, false);
-                    this.Card.Anim.PlayTransformAnimation();
-                    yield return new WaitForSeconds(0.4f);
-
-                    // Kill the adjacent cards
-                    if (this.Card.Slot != null)
-                    {
-                        List<CardSlot> slots = BoardManager.Instance.PlayerSlotsCopy
-                                               .AddItem(this.Card.Slot.opposingSlot)
-                                               .ToList();
-
-                        foreach (CardSlot slot in slots.Where(s => s != null && s.Card != null))
-                            yield return slot.Card.TakeDamage(2, this.Card);
-                    }
-                    
-                    // Show the damage
-                    yield return this.Card.Die(true, null, true);
-
-                    GameObject.Destroy(this.Card.gameObject, 0.5f);
+                    foreach (CardSlot slot in slots.Where(s => s != null && s.Card != null))
+                        yield return slot.Card.TakeDamage(2, this.Card);
                 }
+                
+                // Show the damage
+                yield return this.Card.Die(true, null, true);
+
+                GameObject.Destroy(this.Card.gameObject, 0.5f);
             }
 
             yield break;

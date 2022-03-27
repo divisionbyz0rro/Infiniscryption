@@ -22,6 +22,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
         public static readonly StoryEvent DEFEATED_P03 = (StoryEvent)GuidManager.GetEnumValue<StoryEvent>(P03Plugin.PluginGuid, "DefeatedP03");    
         public static readonly StoryEvent ONLY_ONE_BOSS_LIFE = (StoryEvent)GuidManager.GetEnumValue<StoryEvent>(P03Plugin.PluginGuid, "P03AscensionOneBossLife");    
         public static readonly StoryEvent OVERCLOCK_CHANGES = (StoryEvent)GuidManager.GetEnumValue<StoryEvent>(P03Plugin.PluginGuid, "P03AscensionOverclock");   
+        public static readonly StoryEvent TRANSFORMER_CHANGES = (StoryEvent)GuidManager.GetEnumValue<StoryEvent>(P03Plugin.PluginGuid, "P03AscensionTransformer");   
         public static readonly StoryEvent HAS_DEFEATED_P03 = (StoryEvent)GuidManager.GetEnumValue<StoryEvent>(P03Plugin.PluginGuid, "HasDefeatedP03");   
 
         public const string GAME_OVER = "GameOverZone";
@@ -32,6 +33,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             GOLLY_NFT,
             ONLY_ONE_BOSS_LIFE,
             OVERCLOCK_CHANGES,
+            TRANSFORMER_CHANGES,
             HAS_DEFEATED_P03
         };
 
@@ -63,7 +65,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             { HoloMapNode.NodeDataType.AddCardAbility, 0f },
             { HoloMapNode.NodeDataType.BuildACard, 1f },
             { UnlockAscensionItemNodeData.UnlockItemsAscension, 0.6f },
-            { HoloMapNode.NodeDataType.CreateTransformer, -3f },
+            { HoloMapNode.NodeDataType.CreateTransformer, -1f },
             { HoloMapNode.NodeDataType.OverclockCard, -1f },
             { AscensionRecycleCardNodeData.AscensionRecycleCard, -2f }
         };

@@ -131,6 +131,13 @@ namespace Infiniscryption.P03KayceeRun.Patchers
 
                 return cards;
             };
+
+            // Also tell the pack manager about our metacategories
+            PackManager.TempleMetacategories[CardTemple.Tech].Add(NeutralRegion);
+            PackManager.TempleMetacategories[CardTemple.Tech].Add(WizardRegion);
+            PackManager.TempleMetacategories[CardTemple.Tech].Add(UndeadRegion);
+            PackManager.TempleMetacategories[CardTemple.Tech].Add(TechRegion);
+            PackManager.TempleMetacategories[CardTemple.Tech].Add(NatureRegion);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]

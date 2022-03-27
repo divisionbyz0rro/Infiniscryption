@@ -290,7 +290,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
                     __instance.items.Add("Battery");
 
                 if (NumberOfItems >= 2)
-                    __instance.items.Add("ShieldGenerator");
+                    __instance.items.Add("PocketWatch");
 
                 if (NumberOfItems >= 3 && !AscensionSaveData.Data.ChallengeIsActive(AscensionChallenge.NoHook))
                     __instance.items.Add("BombRemote");

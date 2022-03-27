@@ -17,6 +17,8 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 
         public static TradeChipsSequencer Instance { get; private set; }
 
+		private static bool activating = false;
+
         public TradeChipsSequencer()
         {
             Traverse handlerTraverse = Traverse.Create(SpecialNodeHandler.Instance);
@@ -43,6 +45,11 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 
 		public IEnumerator TradeTokens(NodeData nodeData)
 		{
+			if (activating) // hacky workaround for the duplicate trade defect
+				yield break;
+
+			activating = true;
+
             P03Plugin.Log.LogInfo("Starting trade sequencer");
 			ViewManager.Instance.SwitchToView(View.Default, false, true);
 			yield return new WaitForSeconds(0.5f); // TODO: Write some snarky P03 dialogue about trading here
@@ -120,6 +127,8 @@ namespace Infiniscryption.P03KayceeRun.Sequences
 
 			TableRuleBook.Instance.SetOnBoard(false);
 			ViewManager.Instance.SwitchToView(View.Default, false, false);
+
+			activating = false;
 
 			if (GameFlowManager.Instance != null)
 			{

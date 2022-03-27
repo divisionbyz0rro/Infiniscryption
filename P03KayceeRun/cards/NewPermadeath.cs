@@ -64,15 +64,6 @@ namespace Infiniscryption.P03KayceeRun.Cards
 
 			CardInfo card = deck.Cards.Find((CardInfo x) => x.HasAbility(NewPermaDeath.AbilityID) && x.name == base.Card.Info.name);
 			deck.RemoveCard(card);
-			bool flag = !base.HasLearned;
-			if (flag)
-			{
-				CustomCoroutine.WaitThenExecute(2f, delegate
-				{
-					Singleton<VideoCameraRig>.Instance.PlayCameraAnim("refocus_medium");
-					Singleton<VideoCameraRig>.Instance.VOPlayer.PlayVoiceOver("God damn it.", "vo_goddamnit");
-				}, false);
-			}
 			yield return base.LearnAbility(0.5f);
 			yield break;
 		}

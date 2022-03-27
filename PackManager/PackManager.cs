@@ -66,10 +66,10 @@ namespace Infiniscryption.PackManagement
 
             // Temple metacategories
             TempleMetacategories = new Dictionary<CardTemple, List<CardMetaCategory>>();
-            TempleMetacategories.Add(CardTemple.Nature, new() { CardMetaCategory.ChoiceNode, CardMetaCategory.TraderOffer });
-            TempleMetacategories.Add(CardTemple.Tech, new() { CardMetaCategory.ChoiceNode, CardMetaCategory.Part3Random });
-            TempleMetacategories.Add(CardTemple.Wizard, new() { CardMetaCategory.ChoiceNode });
-            TempleMetacategories.Add(CardTemple.Undead, new() { CardMetaCategory.ChoiceNode });
+            TempleMetacategories.Add(CardTemple.Nature, new() { CardMetaCategory.ChoiceNode, CardMetaCategory.TraderOffer, CardMetaCategory.Rare });
+            TempleMetacategories.Add(CardTemple.Tech, new() { CardMetaCategory.ChoiceNode, CardMetaCategory.Part3Random, CardMetaCategory.Rare });
+            TempleMetacategories.Add(CardTemple.Wizard, new() { CardMetaCategory.ChoiceNode, CardMetaCategory.Rare });
+            TempleMetacategories.Add(CardTemple.Undead, new() { CardMetaCategory.ChoiceNode, CardMetaCategory.Rare });
         }
 
         public static Dictionary<CardTemple, List<CardMetaCategory>> TempleMetacategories;

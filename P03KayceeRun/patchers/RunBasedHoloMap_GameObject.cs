@@ -167,7 +167,7 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             SpecialNodePrefabs.AddReplace(HoloMapSpecialNode.NodeDataType.CardChoice, () => GetGameObject("StartingIslandJunction", "Nodes/CardChoiceNode3D"));
             SpecialNodePrefabs.AddReplace(HoloMapSpecialNode.NodeDataType.AddCardAbility, () => GetGameObject("Shop", "Nodes/ShopNode3D_AddAbility"));
             SpecialNodePrefabs.AddReplace(HoloMapSpecialNode.NodeDataType.OverclockCard, () => GetGameObject("Shop", "Nodes/ShopNode3D_Overclock"));
-            SpecialNodePrefabs.AddReplace(HoloMapSpecialNode.NodeDataType.CreateTransformer, () => GetGameObject("Shop", "Nodes/ShopNode3D_Transformer"));
+            SpecialNodePrefabs.AddReplace(HoloMapSpecialNode.NodeDataType.CreateTransformer, () => GetTransformerNode());
             SpecialNodePrefabs.AddReplace(HoloMapSpecialNode.NodeDataType.AttachGem, () => GetGameObject("Shop", "Nodes/ShopNode3D_AttachGem"));
             SpecialNodePrefabs.AddReplace(HoloMapSpecialNode.NodeDataType.RecycleCard, () => GetGameObject("NeutralWestMain_1", "Nodes/RecycleCardNode3D"));
             SpecialNodePrefabs.AddReplace(HoloMapSpecialNode.NodeDataType.BuildACard, () => GetGameObject("Shop", "Nodes/ShopNode3D_BuildACard"));
@@ -274,6 +274,21 @@ namespace Infiniscryption.P03KayceeRun.Patchers
             // Turn this into a trade node
             HoloMapSpecialNode nodeData = retval.GetComponentInChildren<HoloMapSpecialNode>();
             nodeData.nodeType = AscensionRecycleCardNodeData.AscensionRecycleCard;
+            nodeData.repeatable = false;
+
+            retval.SetActive(false);
+
+            return retval;
+        }
+
+        private static GameObject GetTransformerNode()
+        {
+            GameObject baseObject = GetGameObject("Shop", "Nodes/ShopNode3D_Transformer");
+            GameObject retval = GameObject.Instantiate(baseObject);
+
+            // Turn this into a trade node
+            HoloMapSpecialNode nodeData = retval.GetComponentInChildren<HoloMapSpecialNode>();
+            nodeData.nodeType = AscensionTransformerCardNodeData.AscensionTransformCard;
             nodeData.repeatable = false;
 
             retval.SetActive(false);

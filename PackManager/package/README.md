@@ -140,6 +140,9 @@ A template (blank) pack art PNG is included in this package.
 <details>
 <summary>Changelog</summary>
 
+1.0.5
+- The Rare metacategory was mistakenly being skipped when filtering the list of valid cards for each pack.
+
 1.0.4
 - Changed the internal JSON parser to resolve some defects.
 
