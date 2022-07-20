@@ -30,16 +30,29 @@ namespace Infiniscryption.Curses.Patchers
 
         public static void Register(Harmony harmony)
         {
-            ID = ChallengeManager.Add
+            var fc = ChallengeManager.Add
             (
                 CursePlugin.PluginGuid,
                 "Chaotic Enemies",
                 "Opposing creatures gain random abilities",
                 15,
-                AssetHelper.LoadTexture("challenge_random_sigils")
-            ).challengeType;
+                AssetHelper.LoadTexture("challenge_random_sigils"),
+                ChallengeManager.DEFAULT_ACTIVATED_SPRITE,
+                stackable:true
+            );
+
+            fc.SetFlags("P03");
+            ID = fc.Challenge.challengeType;
 
             harmony.PatchAll(typeof(RandomSigils));
+        }
+
+        [HarmonyPatch(typeof(TurnManager), nameof(TurnManager.SetupPhase))]
+        [HarmonyPrefix]
+        private static void AlwaysInstantiateConduitManager()
+        {
+            if (ConduitCircuitManager.Instance == null)
+                BoardManager.Instance.gameObject.AddComponent<ConduitCircuitManager>();
         }
 
         [HarmonyPatch(typeof(Part1Opponent), "ShowDifficultyChallengeUIIfTurnIsHarder")]
@@ -76,23 +89,30 @@ namespace Infiniscryption.Curses.Patchers
                         if (turn[i].HasTrait(Trait.Giant))
                             continue;
 
+                        CardModificationInfo mod = new();
+                        mod.fromCardMerge = SaveManager.SaveFile.IsPart1;
+                        mod.abilities = new();
+
                         CardInfo card = turn[i] = turn[i].Clone() as CardInfo;
 
-                        List<Ability> possibles = AbilitiesUtil.AllData
-                            .Where(ab => ab.PositiveEffect &&
-                                         ab.opponentUsable &&
-                                         !card.Abilities.Contains(ab.ability) &&
-                                         !EXCLUDED_SIGILS.Contains(ab.ability))
-                            .Select(ab => ab.ability)
-                            .ToList();
+                        for (int fu = 0; fu < AscensionSaveData.Data.GetNumChallengesOfTypeActive(ID); fu++)
+                        {
 
-                        if (possibles.Count == 0)
-                            continue;
+                            List<Ability> possibles = AbilitiesUtil.AllData
+                                .Where(ab => ab.PositiveEffect &&
+                                                ab.opponentUsable &&
+                                                !card.Abilities.Contains(ab.ability) &&
+                                                !EXCLUDED_SIGILS.Contains(ab.ability))
+                                .Select(ab => ab.ability)
+                                .ToList();
 
-                        CardModificationInfo mod = new CardModificationInfo(possibles[SeededRandom.Range(0, possibles.Count, seed)]);
-                        mod.fromCardMerge = true;
+                            if (possibles.Count == 0)
+                                continue;
 
-                        seed += 1;
+                            mod.abilities.Add(possibles[SeededRandom.Range(0, possibles.Count, seed)]);
+                            seed += 1;
+
+                        }
                         card.Mods.Add(mod);
                     }
                 }

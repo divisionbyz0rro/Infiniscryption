@@ -157,7 +157,7 @@ namespace Infiniscryption.SideDecks.Patchers
                 .SetPortrait(AssetHelper.LoadTexture("portrait_goat_double"))
                 .SetPixelPortrait(AssetHelper.LoadTexture("pixelportrait_one_eyed_goat"))
                 .AddAbilities(DoubleBlood.AbilityID)
-                .SetExtendedProperty("LifeMoneyCost", 2)
+                .SetExtendedProperty("LifeCost", 2)
                 .AddTribes(Tribe.Hooved)
                 .temple = CardTemple.Nature;
 

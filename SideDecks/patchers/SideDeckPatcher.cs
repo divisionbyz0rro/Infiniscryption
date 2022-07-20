@@ -11,6 +11,7 @@ using InscryptionAPI.Card;
 using System.Linq;
 using InscryptionAPI.Guid;
 using Infiniscryption.Core.Helpers;
+using BepInEx.Bootstrap;
 
 namespace Infiniscryption.SideDecks.Patchers
 {
@@ -45,6 +46,9 @@ namespace Infiniscryption.SideDecks.Patchers
         { 
             get
             {
+                if (!Chainloader.PluginInfos.ContainsKey("zorro.inscryption.infiniscryption.p03kayceerun"))
+                    return CardTemple.Nature;
+
                 string value = ModdedSaveManager.SaveData.GetValue("zorro.inscryption.infiniscryption.p03kayceerun", "ScreenState");
                 if (string.IsNullOrEmpty(value))
                     return CardTemple.Nature;

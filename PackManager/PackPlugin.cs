@@ -19,9 +19,28 @@ namespace Infiniscryption.PackManagement
 
         internal static ManualLogSource Log;
 
+        internal static PackPlugin Instance;
+
+        internal bool ToggleEncounters
+        {
+            get
+            {
+                return Config.Bind("EncounterManagement", "ToggleEncounters", true, new BepInEx.Configuration.ConfigDescription("If true, toggling off a card pack will also remove all encounters from the encounter pool that use cards in that pack.")).Value;
+            }
+        }
+
+        internal bool RemoveDefaultEncounters
+        {
+            get
+            {
+                return Config.Bind("EncounterManagement", "RemoveDefaultEncounters", false, new BepInEx.Configuration.ConfigDescription("If true, toggling off the 'default' card pack will remove default encounters from the pool.")).Value;
+            }
+        }
+
         private void Awake()
         {
             Log = base.Logger;
+            Instance = this;
 
             Harmony harmony = new Harmony(PluginGuid);
             harmony.PatchAll();

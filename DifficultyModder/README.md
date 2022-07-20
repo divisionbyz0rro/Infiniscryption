@@ -28,10 +28,44 @@ As with most mods, you need [BepInEx](https://inscryption.thunderstore.io/packag
 
 The zip file should be structured in the same way as your Inscryption root directory. Just drop the 'BepInEx' folder into your Inscryption directory and you're golden.
 
+## A Personal Message from DivisionByZ0rro (7/19/2022)
+
+It's been a while since you've heard from me. Life changes quickly. I got a bad case of Covid, I had family members get seriously injured, and was just generally unavailable for a while. 
+
+Working on this and other Inscryption mods has been an amazing collaborative journey over the past months. Ever since I completed Inscryption for the first time in the fall of 2021, I spent all of my spare time (and then some) working on modding this game and being a part of an incredible community. But unfortunately, things change, and I cannot keep this up moving forward. I simply don't have the same amount of spare time that I used to, and it's time for me to move on.
+
+I have nothing but gratitude for everyone who supported me and helped me accomplish what I have been able to accomplish. I know I'm leaving work unfinished, but I know that would be true no matter when I called it quits.
+
+If anybody wants to continue any of my work, I hereby grant unrestricted permission for anyone to fork any of projects and make it their own moving forward. This work was always a passion project for the community, and I would be honored if anyone on the community wanted to continue that work. Please feel free to copy anything I've done and use it for yourself.
+
+Thanks for everything,
+/0
+
 ## Changelog
 
 <details>
 <summary>Changelog</summary>
+
+1.0.9
+- A personal message from DivisionByZ0rro
+
+1.0.8
+- Improved compatibility with P03 in Kaycee's Mod. 
+
+1.0.7
+- Made a couple of the challenges compatible with P03 in Kaycee's Mod
+- Small tweak to the deathcard name pool
+- Compatibility for API 2.4+
+
+1.0.6
+- Whoopsie. Accidentally left a debug flag in that made deathcards always spawn. 
+
+1.0.5
+- Whoops. Included fix to make CellTriStrike not lock the game.
+
+1.0.4
+- Chaotic Enemies can now be applied twice. You're welcome.
+- Deathcards are now randomly generated using a slightly modified version of the Act 3 Bounty Hunter generator instead of from the player's deathcard pool.
 
 1.0.3
 - You can no longer sacrifice Dynamite at the altar

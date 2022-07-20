@@ -52,10 +52,39 @@ If you are using JSON Loader:
 
 Don't worry. That is still supported - for now. However, compatibility for this will be removed at some point in the future. You need to transition away from using that specific trait and over to using this new card metacategory as soon as possible.
 
+## A Personal Message from DivisionByZ0rro (7/18/2022)
+
+It's been a while since you've heard from me. Life changes quickly. I got a bad case of Covid, I had family members get seriously injured, and was just generally unavailable for a while. 
+
+Working on this and other Inscryption mods has been an amazing collaborative journey over the past months. Ever since I completed Inscryption for the first time in the fall of 2021, I spent all of my spare time (and then some) working on modding this game and being a part of an incredible community. But unfortunately, things change, and I cannot keep this up moving forward. I simply don't have the same amount of spare time that I used to, and it's time for me to move on.
+
+I have nothing but gratitude for everyone who supported me and helped me accomplish what I have been able to accomplish. I know I'm leaving work unfinished, but I know that would be true no matter when I called it quits.
+
+If anybody wants to continue any of my work, I hereby grant unrestricted permission for anyone to fork any of projects and make it their own moving forward. This work was always a passion project for the community, and I would be honored if anyone on the community wanted to continue that work. Please feel free to copy anything I've done and use it for yourself.
+
+Thanks for everything,
+/0
+
 ## Changelog 
 
 <details>
 <summary>Changelog</summary>
+
+2.1.4
+- A final message from DivisionByZ0rro
+
+2.1.3
+- Compatibility patch for new version of API
+
+2.1.2
+- Properly handle the case where the P03 in Kaycee's Mod plugin is installed while the game is in P03 mode.
+
+2.1.1
+- The side deck node now only appears on maps 2 and 3.
+
+2.1
+- The goat is not broken anymore
+- The side deck node now only appears on the map if you activate it via a green challenge
 
 2.0.1
 - Fixed defect where the side decks mod was activating P03 side decks while not in Ascension mode

@@ -2,6 +2,7 @@ using DiskCardGame;
 using HarmonyLib;
 using Infiniscryption.Core.Helpers;
 using InscryptionAPI.Ascension;
+using InscryptionAPI.Saves;
 
 namespace Infiniscryption.Curses.Patchers
 {
@@ -17,8 +18,9 @@ namespace Infiniscryption.Curses.Patchers
                 "Two Turn Minimum",
                 "You cannot deal lethal damage on the first turn.",
                 10,
-                AssetHelper.LoadTexture("challenge_no_ohk")
-            ).challengeType;
+                AssetHelper.LoadTexture("challenge_no_ohk"),
+                ChallengeManager.DEFAULT_ACTIVATED_SPRITE
+            ).Challenge.challengeType;
 
             harmony.PatchAll(typeof(NoOneHitKills));
         }

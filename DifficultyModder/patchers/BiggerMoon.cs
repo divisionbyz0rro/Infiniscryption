@@ -26,7 +26,7 @@ namespace Infiniscryption.Curses.Patchers
                 20,
                 AssetHelper.LoadTexture("challenge_bigger_moon"),
                 AssetHelper.LoadTexture("activated_challenge_bigger_moon")
-            ).challengeType;
+            ).Challenge.challengeType;
 
             
             CardManager.ModifyCardList += delegate (List<CardInfo> cards)

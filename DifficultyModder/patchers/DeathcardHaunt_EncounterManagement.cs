@@ -28,10 +28,10 @@ namespace Infiniscryption.Curses.Patchers
                 CursePlugin.PluginGuid,
                 "Haunted Past",
                 "Deathcards will sometimes attack you in battle",
-                5,
+                15,
                 AssetHelper.LoadTexture("challenge_deathcards"),
                 AssetHelper.LoadTexture("ascensionicon_activated_deathcards")
-            ).challengeType;
+            ).Challenge.challengeType;
 
             harmony.PatchAll(typeof(DeathcardHaunt));
         }
@@ -57,13 +57,8 @@ namespace Infiniscryption.Curses.Patchers
             CursePlugin.Log.LogInfo($"Battle over. Player Won = {playerWon}");
             if (playerWon)
             {
-                if (_sawDeathcard)
-                {
-                    // Winning a battle against a deathcard decreases the haunt by 2
-                    IncreaseHaunt(-2);
-                } else {
+                if (!_sawDeathcard)
                     IncreaseHaunt();
-                }
             }
             else // Losing a battle resets the haunt
             {

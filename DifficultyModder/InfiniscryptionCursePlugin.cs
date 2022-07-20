@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System;
 using Infiniscryption.Curses.Patchers;
 using Infiniscryption.Core.Helpers;
+using InscryptionAPI.Saves;
 
 namespace Infiniscryption.Curses
 {
@@ -41,8 +42,11 @@ namespace Infiniscryption.Curses
             BiggerMoon.Register(harmony);
             BoonsAssist.Register(harmony);
 
+            harmony.PatchAll(typeof(CursePlugin));
+
             Logger.LogInfo($"Plugin {PluginName} is loaded!");
         }
     }
 }
+
 

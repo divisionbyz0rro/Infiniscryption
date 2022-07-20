@@ -31,7 +31,7 @@ namespace Infiniscryption.Curses.Patchers
                 10,
                 AssetHelper.LoadTexture("challenge_boss_revenge"),
                 AssetHelper.LoadTexture("ascensionicon_activated_bossrevenge")
-            ).challengeType;
+            ).Challenge.challengeType;
 
             harmony.PatchAll(typeof(HarderBosses));
 

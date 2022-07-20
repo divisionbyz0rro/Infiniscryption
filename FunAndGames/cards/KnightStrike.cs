@@ -1,10 +1,9 @@
 using InscryptionAPI.Card;
 using DiskCardGame;
-using Infiniscryption.FunAndGames;
-using HarmonyLib;
 using System.Collections.Generic;
 using UnityEngine;
 using Infiniscryption.Core.Helpers;
+using InscryptionAPI.Triggers;
 
 namespace Infiniscryption.FunAndGames.Cards
 {
@@ -15,17 +14,18 @@ namespace Infiniscryption.FunAndGames.Cards
 
         public override bool RespondsToGetOpposingSlots() => true;
 
+        public override bool RemoveDefaultAttackSlot() => true;
+
         public override List<CardSlot> GetOpposingSlots(List<CardSlot> originalSlots, List<CardSlot> otherAddedSlots)
         {
             List<CardSlot> opposingSlots = this.Card.OpponentCard ? BoardManager.Instance.PlayerSlotsCopy : BoardManager.Instance.OpponentSlotsCopy;
 
             if (this.Card.Slot.Index + 2 >= opposingSlots.Count)
-                return new List<CardSlot>() { opposingSlots[this.Card.Slot.Index - 2] };
+                return new() { opposingSlots[this.Card.Slot.Index - 2] };
             else
-                return new List<CardSlot>() { opposingSlots[this.Card.Slot.Index + 2] };
+                return new() { opposingSlots[this.Card.Slot.Index + 2] };
         }
 
-        public override bool RemoveDefaultAttackSlot() => true;
 
         internal static void Register()
         {

@@ -10,6 +10,7 @@ using Infiniscryption.Core.Helpers;
 using System.Linq;
 using InscryptionAPI.Card;
 using Infiniscryption.Curses.Sequences;
+using InscryptionAPI.Triggers;
 
 namespace Infiniscryption.Curses.Cards
 {
@@ -89,9 +90,8 @@ namespace Infiniscryption.Curses.Cards
         {
             if (playerTurnEnd)
             {
-                // Only do this if the card is in the player's hand
                 if (this.Card.InHand)
-                {                    
+                {
                     // Only explode if the player hasn't already won
                     if (LifeManager.Instance.DamageUntilPlayerWin <= 0)
                         yield break;
@@ -127,9 +127,10 @@ namespace Infiniscryption.Curses.Cards
                     yield return new WaitForSeconds(0.5f);
 
                     ViewManager.Instance.SwitchToView(View.Hand);
-                } 
-                else 
+                }
+                else
                 {
+
                     // Focus on the card
                     ViewManager.Instance.SwitchToView(View.BoardCentered);
 
@@ -146,8 +147,8 @@ namespace Infiniscryption.Curses.Cards
                     if (this.Card.Slot != null)
                     {
                         List<CardSlot> slots = BoardManager.Instance.PlayerSlotsCopy
-                                               .AddItem(this.Card.Slot.opposingSlot)
-                                               .ToList();
+                                                .AddItem(this.Card.Slot.opposingSlot)
+                                                .ToList();
 
                         foreach (CardSlot slot in slots.Where(s => s != null && s.Card != null))
                             yield return slot.Card.TakeDamage(2, this.Card);

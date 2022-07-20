@@ -9,18 +9,23 @@ using Infiniscryption.SideDecks.Patchers;
 using System.Linq;
 using InscryptionAPI.Encounters;
 using InscryptionAPI.Helpers;
+using InscryptionAPI.Ascension;
+using Infiniscryption.Core.Helpers;
 
 namespace Infiniscryption.SideDecks.Sequences
 {
     public class SideDeckSelectionSequencer : CardChoicesSequencer, ICustomNodeSequence
 	{        
+        public static AscensionChallenge ChallengeID { get; private set; }
+
         public class SideDeckSelectionNode : CustomNodeData
         {
             public override void Initialize()
             {
                 this.AddGenerationPrerequisite(() => !AscensionSaveData.Data.ChallengeIsActive(AscensionChallenge.SubmergeSquirrels));
                 this.GenerationPrerequisiteConditions.Add(new NodeData.PreviousNodesContent(typeof(SideDeckSelectionNode), false));
-                this.AddGenerationPrerequisite(() => RunState.Run.regionTier > 0);
+                this.AddGenerationPrerequisite(() => RunState.Run.regionTier == 1 || RunState.Run.regionTier == 2);
+                this.AddGenerationPrerequisite(() => AscensionSaveData.Data.ChallengeIsActive(ChallengeID));
             }
         }
 
@@ -33,8 +38,18 @@ namespace Infiniscryption.SideDecks.Sequences
                     TextureHelper.GetImageAsTexture("animated_sidedeck_3.png", typeof(SideDeckSelectionSequencer).Assembly),
                     TextureHelper.GetImageAsTexture("animated_sidedeck_4.png", typeof(SideDeckSelectionSequencer).Assembly)
                 },
-                NodeManager.NodePosition.SpecialEventRandom
+                NodeManager.NodePosition.MapStart
             );
+
+            ChallengeID = ChallengeManager.Add
+            (
+                SideDecksPlugin.PluginGuid,
+                "Side Deck Second Chance",
+                "You are given the option to change your side deck on maps two and three",
+                -10,
+                AssetHelper.LoadTexture("assist_side_deck_toggle"),
+                ChallengeManager.HAPPY_ACTIVATED_SPRITE
+            ).Challenge.challengeType;
         }
 
         private static Traverse _parentContainer;
@@ -67,6 +82,8 @@ namespace Infiniscryption.SideDecks.Sequences
 			yield return new WaitForSeconds(0.15f);
 
             SideDecksPlugin.Log.LogInfo($"Leshy is ready to give us side deck options");
+
+            ChallengeActivationUI.Instance.ShowActivation(ChallengeID);
 
 			yield return TextDisplayer.Instance.PlayDialogueEvent("SideDeckIntro", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
 
