@@ -61,11 +61,14 @@ namespace Infiniscryption.Curses.Patchers
         public static CardInfo GetRandomDeathcard()
         {
             // Build the base card
-            int seed = SaveManager.SaveFile.GetCurrentRandomSeed();
-            List<CardModificationInfo> modList = SaveManager.SaveFile.deathCardMods.Where(
-                mod => mod.attackAdjustment < 10 && mod.healthAdjustment < 10
-            ).ToList(); // Try to prevent some of the really nasty deathcards from one-shotting you
-            CardModificationInfo mod = modList[SeededRandom.Range(0, modList.Count, seed)];
+            // int seed = SaveManager.SaveFile.GetCurrentRandomSeed();
+            // List<CardModificationInfo> modList = SaveManager.SaveFile.deathCardMods.Where(
+            //     mod => mod.attackAdjustment < 10 && mod.healthAdjustment < 10
+            // )
+            // .ToList(); // Try to prevent some of the really nasty deathcards from one-shotting you
+            // CardModificationInfo mod = modList[SeededRandom.Range(0, modList.Count, seed)];
+
+            CardModificationInfo mod = DeathcardGenerator.GenerateMod(HauntLevel);
             CardInfo deathcard = CardLoader.CreateDeathCard(mod);
             SetHauntedCardFlag(deathcard);
 

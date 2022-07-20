@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Infiniscryption.Core.Helpers;
 using System.Linq;
+using InscryptionAPI.Triggers;
 
 namespace Infiniscryption.FunAndGames.Cards
 {
@@ -16,11 +17,13 @@ namespace Infiniscryption.FunAndGames.Cards
 
         public override bool RespondsToGetOpposingSlots() => true;
 
+        public override bool RemoveDefaultAttackSlot() => this.Card.Slot.opposingSlot.Card != null;
+
         public override List<CardSlot> GetOpposingSlots(List<CardSlot> originalSlots, List<CardSlot> otherAddedSlots)
         {
-            // If the slot across from the pawn is empty, attack it
+            // If the slot across from the pawn is empty, do nothing!
             if (this.Card.Slot.opposingSlot.Card == null)
-                return new() { this.Card.Slot.opposingSlot };
+                return new();
 
             // Otherwise, attack the weaker of the two adjacent slots
             // but only if they DO have a card
@@ -37,8 +40,6 @@ namespace Infiniscryption.FunAndGames.Cards
 
             return new() { adjacentSlots[1] };
         }
-
-        public override bool RemoveDefaultAttackSlot() => true;
 
         internal static void Register()
         {

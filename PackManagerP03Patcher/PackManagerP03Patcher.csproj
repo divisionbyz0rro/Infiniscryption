@@ -1,0 +1,57 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Infiniscryption.PackManagerP03Patcher</AssemblyName>
+    <Description>Infinite Inscryption - Pack Manager - P03 Patcher</Description>
+    <Version>1.0.0</Version>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>9.0</LangVersion>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" GeneratePathProperty="true" IncludeAssets="none"/>
+    <PackageReference Include="BepInEx.Core" Version="5.*" GeneratePathProperty="true" IncludeAssets="none"/>
+    <PackageReference Include="BepInEx.PluginInfoProps" Version="1.*" GeneratePathProperty="true" IncludeAssets="none"/>
+    <PackageReference Include="ILRepack" Version="2.0.18" GeneratePathProperty="true" IncludeAssets="none"/>
+    <PackageReference Include="UnityEngine.Modules" Version="2019.4.24" IncludeAssets="compile" GeneratePathProperty="true"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PackManager\PackManager.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="API" Private="false">
+      <HintPath>..\lib\InscryptionAPI.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp" Private="false">
+      <HintPath>..\lib\Assembly-CSharp.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Compiled\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="$(ProjectDir)\*.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="$(ProjectDir)\assets\*.png" />
+    <EmbeddedResource Include="$(ProjectDir)\assets\*.wav" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="xcopy /Y $(ProjectDir)\..\lib\*.dll $(TargetDir)" />
+    <Exec Command="xcopy /Y $(ProjectDir)\..\lib\*.dll $(TargetDir)" />
+    <Exec Command="xcopy /Y $(TargetPath) &quot;C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins&quot;" />
+  </Target>
+</Project>

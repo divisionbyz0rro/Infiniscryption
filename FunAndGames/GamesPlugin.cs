@@ -34,6 +34,7 @@ namespace Infiniscryption.FunAndGames
             PawnStrike.Register();
             PawnAppearance.Register();
             RenderOnSlotChanges.Register();
+            SquirrelFriend.Register();
             CustomCards.RegisterCards();
 
             Logger.LogInfo($"Plugin {PluginName} is loaded!");

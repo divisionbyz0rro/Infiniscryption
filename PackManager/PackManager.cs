@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using BepInEx.Bootstrap;
 using DiskCardGame;
 using HarmonyLib;
 using Infiniscryption.Core.Helpers;
@@ -22,7 +23,9 @@ namespace Infiniscryption.PackManagement
             AbilityMetaCategory.Part1Rulebook,
             AbilityMetaCategory.Part3Rulebook,
             AbilityMetaCategory.GrimoraRulebook,
-            AbilityMetaCategory.MagnificusRulebook
+            AbilityMetaCategory.MagnificusRulebook,
+            AbilityMetaCategory.Part3Modular,
+            AbilityMetaCategory.BountyHunter
         };
 
         public static void AddProtectedMetacategory(CardMetaCategory category) => protectedMetacategories.Add(category);
@@ -113,6 +116,9 @@ namespace Infiniscryption.PackManagement
         { 
             get
             {
+                if (!Chainloader.PluginInfos.ContainsKey("zorro.inscryption.infiniscryption.p03kayceerun"))
+                    return CardTemple.Nature;
+
                 string value = ModdedSaveManager.SaveData.GetValue("zorro.inscryption.infiniscryption.p03kayceerun", "ScreenState");
                 if (string.IsNullOrEmpty(value))
                     return CardTemple.Nature;
@@ -253,13 +259,19 @@ namespace Infiniscryption.PackManagement
 
         private static bool EncounterValid(EncounterBlueprintData data)
         {
+            if (!PackPlugin.Instance.ToggleEncounters)
+                return true;
+
             foreach (CardInfo c in data.turns.SelectMany(l => l).Select(cb => cb.card)
                                    .Concat(data.turns.SelectMany(l => l).Select(cb => cb.replacement))
                                    .Concat(data.randomReplacementCards)
                                    .Where(ci => ci != null))
             {
                 if (!ActiveCards.Contains(c.name))
-                    return false;
+                {
+                    if (PackPlugin.Instance.RemoveDefaultEncounters || !c.IsBaseGameCard())
+                        return false;
+                }
             }
             return true;
         }

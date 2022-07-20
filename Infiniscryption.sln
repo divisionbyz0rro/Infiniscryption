@@ -15,11 +15,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spells", "Spells\Spells.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VanillaStackable", "VanillaStackable\VanillaStackable.csproj", "{36399D2F-4E01-4179-B42D-F87899DF500E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "P03KayceeRun", "P03KayceeRun\P03KayceeRun.csproj", "{7D801F11-7BA5-44EF-954F-81EE8092EBA1}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackManager", "PackManager\PackManager.csproj", "{99498EE7-6FC1-4926-B306-F28E985E524A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunAndGames", "FunAndGames\FunAndGames.csproj", "{DE8480A3-045D-4319-B029-B06ABB8B8DA5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackManagerP03Patcher", "PackManagerP03Patcher\PackManagerP03Patcher.csproj", "{A9EEB7F4-D915-44D0-B5CE-52BF5B174BCE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -74,5 +74,9 @@ Global
 		{DE8480A3-045D-4319-B029-B06ABB8B8DA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DE8480A3-045D-4319-B029-B06ABB8B8DA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DE8480A3-045D-4319-B029-B06ABB8B8DA5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A9EEB7F4-D915-44D0-B5CE-52BF5B174BCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9EEB7F4-D915-44D0-B5CE-52BF5B174BCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9EEB7F4-D915-44D0-B5CE-52BF5B174BCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A9EEB7F4-D915-44D0-B5CE-52BF5B174BCE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

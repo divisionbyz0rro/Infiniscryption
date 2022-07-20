@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Infiniscryption.Core.Helpers;
+using InscryptionAPI.Triggers;
 
 namespace Infiniscryption.FunAndGames.Cards
 {
@@ -12,19 +13,14 @@ namespace Infiniscryption.FunAndGames.Cards
         public static Ability ID { get; private set; }
         public override Ability Ability => ID;
 
-        public override bool ProvidesPassiveAttackBuff => true;
-        public override bool ProvidesPassiveHealthBuff => true;
-
-        public override int[] GetPassiveAttackBuffs()
+        public override int GetPassiveAttackBuff(PlayableCard target)
         {
-            List<CardSlot> slots = this.Card.OpponentCard ? BoardManager.Instance.opponentSlots : BoardManager.Instance.playerSlots;
-            return slots.Select(s => s.Card != null && s.Card.Info.IsOfTribe(Tribe.Squirrel) ? 1 : 0).ToArray();
+            return target.OpponentCard == this.Card.OpponentCard && target.Info.IsOfTribe(Tribe.Squirrel) ? 1 : 0;
         }
 
-        public override int[] GetPassiveHealthBuffs()
+        public override int GetPassiveHealthBuff(PlayableCard target)
         {
-            List<CardSlot> slots = this.Card.OpponentCard ? BoardManager.Instance.opponentSlots : BoardManager.Instance.playerSlots;
-            return slots.Select(s => s.Card != null && s.Card.Info.IsOfTribe(Tribe.Squirrel) ? 2 : 0).ToArray();
+            return GetPassiveAttackBuff(target) * 2;
         }
 
         internal static void Register()

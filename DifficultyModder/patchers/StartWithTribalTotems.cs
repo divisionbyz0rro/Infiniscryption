@@ -21,8 +21,9 @@ namespace Infiniscryption.Curses.Patchers
                 "Totem Collector",
                 "You start with all tribal totem tops",
                 -15,
-                Resources.Load<Texture2D>("art/ui/ascension/ascensionicon_totems")
-            ).challengeType;
+                Resources.Load<Texture2D>("art/ui/ascension/ascensionicon_totems"),
+                ChallengeManager.HAPPY_ACTIVATED_SPRITE
+            ).Challenge.challengeType;
 
             harmony.PatchAll(typeof(StartWithTribalTotems));
         }

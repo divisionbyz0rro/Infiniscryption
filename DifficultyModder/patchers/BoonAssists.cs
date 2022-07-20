@@ -22,7 +22,7 @@ namespace Infiniscryption.Curses.Patchers
                 AssetHelper.LoadTexture("assist_bones_boon"),
                 AssetHelper.LoadTexture("activated_assist_bones_boon"),
                 stackable: true
-            ).challengeType;
+            ).Challenge.challengeType;
 
             harmony.PatchAll(typeof(BoonsAssist));
         }

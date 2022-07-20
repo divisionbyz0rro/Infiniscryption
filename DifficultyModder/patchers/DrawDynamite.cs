@@ -22,7 +22,7 @@ namespace Infiniscryption.Curses.Patchers
                 5,
                 AssetHelper.LoadTexture("challenge_dynamite"),
                 AssetHelper.LoadTexture("activated_challenge_dynamite")
-            ).challengeType;
+            ).Challenge.challengeType;
 
             harmony.PatchAll(typeof(DrawDynamite));
         }

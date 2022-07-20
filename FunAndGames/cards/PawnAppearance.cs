@@ -33,7 +33,9 @@ namespace Infiniscryption.FunAndGames.Cards
 
                 GamesPlugin.Log.LogDebug($"Applying targeted pawn appearance");
 
-                if (slots.Count == 0)
+                if (slots == null)
+                    pCard.renderInfo.portraitOverride = MIDDLE_PORTRAIT;
+                else if (slots.Count == 0)
                     pCard.renderInfo.portraitOverride = NONE_PORTRAIT;
                 else if (slots[0] == pCard.Slot.opposingSlot)
                     pCard.renderInfo.portraitOverride = MIDDLE_PORTRAIT;

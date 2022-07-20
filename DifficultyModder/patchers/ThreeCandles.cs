@@ -13,14 +13,18 @@ namespace Infiniscryption.Curses.Patchers
 
         public static void Register(Harmony harmony)
         {
-            ID = ChallengeManager.Add
+            var fc = ChallengeManager.Add
             (
                 CursePlugin.PluginGuid,
                 "Extra Candle",
                 "You are given an extra life",
                 -30,
-                AssetHelper.LoadTexture("assist_three_candles")
-            ).challengeType;
+                AssetHelper.LoadTexture("assist_three_candles"),
+                ChallengeManager.HAPPY_ACTIVATED_SPRITE
+            );
+            
+            fc.SetFlags("P03");
+            ID = fc.Challenge.challengeType;
 
             harmony.PatchAll(typeof(ThreeCandles));
         }
