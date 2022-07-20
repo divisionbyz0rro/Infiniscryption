@@ -1,16 +1,15 @@
 # Infiniscryption
-A rogue-lite mod project for Inscryption
+The home for all of DivisionByZ0rro's Inscryption mods (other than the P03 In Kaycee's Mod run)
 
-# What is Infiniscryption?
-This mod aims to transform the first act of Inscryption into a run-based experience, with all of the bells and whistles you would come to expect. I'm specifically going to be referencing Hades a lot in terms of design decisions and features.
+## A Personal Message from DivisionByZ0rro (7/19/2022)
 
-My goal is to, wherever possible, make the game compatible with other mods, *especially* those that add additional cards.
+It's been a while since you've heard from me. Life changes quickly. I got a bad case of Covid, I had family members get seriously injured, and was just generally unavailable for a while. 
 
-## Core
-Right now, this doesn't really do much to the game. It simply provides helpers to the other mods in the project. The most important is 
+Working on this and other Inscryption mods has been an amazing collaborative journey over the past months. Ever since I completed Inscryption for the first time in the fall of 2021, I spent all of my spare time (and then some) working on modding this game and being a part of an incredible community. But unfortunately, things change, and I cannot keep this up moving forward. I simply don't have the same amount of spare time that I used to, and it's time for me to move on.
 
-## Starter Decks
-The starting deck for the player character is now different. Rather than being given the same starter deck every time, the player will be dealt an empty deck and then be given the option to select their starting deck in the very first event on the map. You can upgrade those decks using teeth you save at the end of a run.
+I have nothing but gratitude for everyone who supported me and helped me accomplish what I have been able to accomplish. I know I'm leaving work unfinished, but I know that would be true no matter when I called it quits.
 
-## Curses
-The goal of the next mod will be to build a series of difficulty modifiers to improve the overall experience of playing the game multiple times, then give an interface for players to toggle those modifiers on and off.
+If anybody wants to continue any of my work, I hereby grant unrestricted permission for anyone to fork any of projects and make it their own moving forward. This work was always a passion project for the community, and I would be honored if anyone on the community wanted to continue that work. Please feel free to copy anything I've done and use it for yourself.
+
+Thanks for everything,
+/0
