@@ -59,6 +59,9 @@ namespace Infiniscryption.SideDecks.Patchers
 
             // Modify the squirrel
             CardManager.BaseGameCards.CardByName("Squirrel").SetSideDeck(CardTemple.Nature, 0);
+            CardManager.BaseGameCards.CardByName("Skeleton").SetSideDeck(CardTemple.Undead, 0);
+            CardManager.BaseGameCards.CardByName("EmptyVessel").SetSideDeck(CardTemple.Tech, 0);
+            CardManager.BaseGameCards.CardByName("LeapBot").SetSideDeck(CardTemple.Tech, 0);
             CardManager.BaseGameCards.CardByName("AquaSquirrel").SetPixelPortrait(AssetHelper.LoadTexture("pixelportrait_aquasquirrel"));
             CardManager.BaseGameCards.CardByName("PeltHare").SetPixelPortrait(AssetHelper.LoadTexture("pixelportrait_pelthare"));
             CardManager.BaseGameCards.CardByName("PeltWolf").SetPixelPortrait(AssetHelper.LoadTexture("pixelportrait_peltwolf"));
@@ -196,6 +199,15 @@ namespace Infiniscryption.SideDecks.Patchers
                     .SetPixelPortrait(TextureHelper.GetImageAsTexture("pixel_emptyvessel.png", typeof(CustomCards).Assembly))
                     .SetCost(energyCost: 1)
                     .AddAbilities(ability);
+
+                if (ability != Ability.Reach)
+                    CardManager.New(SideDecksPlugin.CardPrefix,
+                        $"LeapBot{ability.ToString()}", "L33pB0t", 0, 2)
+                        .SetSideDeck(CardTemple.Tech, ability == Ability.GainBattery ? 20 : ability == Ability.Sharp || ability == Ability.Sentry ? 10 : 5)
+                        .SetPortrait(Resources.Load<Texture2D>("art/cards/part 3 portraits/portrait_leapbot"))
+                        .SetPixelPortrait(Resources.Load<Texture2D>("art/gbc/cards/pixelportraits/pixelportrait_leapingbot"))
+                        .SetCost(energyCost: 1)
+                        .AddAbilities(Ability.Reach, ability);
             }
 
             CardManager.New(SideDecksPlugin.CardPrefix,

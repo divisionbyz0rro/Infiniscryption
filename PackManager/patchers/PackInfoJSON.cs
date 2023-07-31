@@ -17,12 +17,15 @@ namespace Infiniscryption.PackManagement.Patchers
 
         public string[] ValidFor;
 
+        public bool SplitPackByCardTemple;
+
         public void Convert()
         {
             PackInfo info = PackManager.GetPackInfo(this.ModPrefix);
             info.Title = Title;
             info.Description = Description;
             info.SetTexture(TextureHelper.GetImageAsTexture(PackArt));
+            info.SplitPackByCardTemple = SplitPackByCardTemple;
             
             if (this.ValidFor != null && this.ValidFor.Length > 0)
             {

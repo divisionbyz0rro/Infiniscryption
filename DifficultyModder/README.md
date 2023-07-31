@@ -1,8 +1,6 @@
 # Curses!
 
-Now refactored for Kaycee's Mod: this mod adds a number of new Challenges and Assists that you can select from when starting a new run.
-
-If you're used the old version of this mod that adds an event to the map in Part 1,that event no longer exists. This mod is now exclusive to Kaycee's Mod. If you wanted the old functionality, you'll have to install an old version of this mod.
+This mod adds a number of new Challenges and Assists that you can select from when starting a new run.
 
 The following challenges are added:
 
@@ -20,31 +18,31 @@ The following assists are added:
 - **Totem Collector**: You start with all tribal totem tops
 - **Minor Boon of the Bone Lord**: You start the game with a Minor Boon of the Bone Lord
 
-## Requirements
-
-As with most mods, you need [BepInEx](https://inscryption.thunderstore.io/package/BepInEx/BepInExPack_Inscryption/) installed. You also need the [API](https://inscryption.thunderstore.io/package/API_dev/API/)
-
 ## Installation
 
 The zip file should be structured in the same way as your Inscryption root directory. Just drop the 'BepInEx' folder into your Inscryption directory and you're golden.
-
-## A Personal Message from DivisionByZ0rro (7/19/2022)
-
-It's been a while since you've heard from me. Life changes quickly. I got a bad case of Covid, I had family members get seriously injured, and was just generally unavailable for a while. 
-
-Working on this and other Inscryption mods has been an amazing collaborative journey over the past months. Ever since I completed Inscryption for the first time in the fall of 2021, I spent all of my spare time (and then some) working on modding this game and being a part of an incredible community. But unfortunately, things change, and I cannot keep this up moving forward. I simply don't have the same amount of spare time that I used to, and it's time for me to move on.
-
-I have nothing but gratitude for everyone who supported me and helped me accomplish what I have been able to accomplish. I know I'm leaving work unfinished, but I know that would be true no matter when I called it quits.
-
-If anybody wants to continue any of my work, I hereby grant unrestricted permission for anyone to fork any of projects and make it their own moving forward. This work was always a passion project for the community, and I would be honored if anyone on the community wanted to continue that work. Please feel free to copy anything I've done and use it for yourself.
-
-Thanks for everything,
-/0
 
 ## Changelog
 
 <details>
 <summary>Changelog</summary>
+
+1.1.2
+- Added 7 achievements using the Achievement API (currently in beta). The beta nature of that API means that there may be some unexpected bugs.
+
+1.1.1
+- The Prospector's dynamite boulders are slightly weaker
+- Fixed a defect where in some cases the Rare Pelt start assist was broken
+
+1.1
+- I'm back. Deal with it.
+- Updated to latest version of API.
+- Updated dependencies to use the version of Spells maintained by WhistleWind.
+- The tribal totems challenge explicitly now only supports base game tribes.
+- Starting with a rare pelt will now force the opening trade node to appear even if you have been a coward.
+- Added additional dialogue for when deathcards appear.
+- The spooky wind that plays when deathcards appear now properly goes away when they do.
+- There are generally fewer bugs. I hope.
 
 1.0.9
 - A personal message from DivisionByZ0rro

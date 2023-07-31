@@ -10,10 +10,11 @@ using System;
 using TMPro;
 using UnityEngine.UI;
 using Infiniscryption.Curses.Sequences;
-using Infiniscryption.Core.Helpers;
+using InscryptionAPI.Helpers;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using InscryptionAPI.Ascension;
+using Infiniscryption.Curses.Helpers;
 
 namespace Infiniscryption.Curses.Patchers
 {
@@ -29,17 +30,79 @@ namespace Infiniscryption.Curses.Patchers
                 "Haunted Past",
                 "Deathcards will sometimes attack you in battle",
                 15,
-                AssetHelper.LoadTexture("challenge_deathcards"),
-                AssetHelper.LoadTexture("ascensionicon_activated_deathcards")
+                TextureHelper.GetImageAsTexture("challenge_deathcards.png", typeof(DeathcardHaunt).Assembly),
+                TextureHelper.GetImageAsTexture("ascensionicon_activated_deathcards.png", typeof(DeathcardHaunt).Assembly)
             ).Challenge.challengeType;
 
             harmony.PatchAll(typeof(DeathcardHaunt));
+
+            // Here, we replace dialogue from Leshy based on the starter decks plugin being installed
+            // And add new dialogue
+            DialogueHelper.GenerateVeryLargeDialogue("DeathcardArrives",
+                new string[] {
+                    "you feel a chill in the air",
+                    "the hair stands up on the back of your neck",
+                    "[c:bR][v:0][c:] has arrived"
+                },
+                new string[] {
+                    "you suddenly feel weak",
+                    "your teeth start to chatter",
+                    "[c:bR][v:0][c:] is coming"
+                },
+                new string[] {
+                    "you can't explain how",
+                    "but you can feel the presence of [c:bR][v:0][c:]"
+                },
+                new string[] {
+                    "it finally happened: [c:bR][v:0][c:] is here"
+                }
+            );
+
+            DialogueHelper.GenerateVeryLargeDialogue("DeathcardZoom",
+                new string[] {
+                    "[c:O]\"I have been looking for you\"[c:] says the apparition",
+                    "[c:O]\"And now you must die!\"[c:]"
+                },
+                new string[] {
+                    "the apparition has nothing to say",
+                    "but you sense that it is here for you"
+                },
+                new string[] {
+                    "[c:O]\"you made a mistake coming here\"[c:] it growls",
+                    "[c:O]\"let me show you the way home\"[c:]"
+                },
+                new string[] {
+                    "the apparition seems lonely",
+                    "it wants you to join it in the afterlife"
+                }
+            );
+
+            DialogueHelper.GenerateVeryLargeDialogue("DeathcardDies", new string[] {
+                "the apparition fades into the wind",
+                "you can't shake the feeling there are [c:O]more[c:] out there waiting"
+            });
+
+            DialogueHelper.GenerateVeryLargeDialogue("DeathcardWins", new string[] {
+                "[c:bR][v:0][c:] shivers with delight as your candle is extinguished",
+            });
+
+            DialogueHelper.GenerateLargeDialogue("HauntedExplanation", 
+                "do you see the [c:O]apparition[c:] encircling you?",
+                "you have become [c:O]haunted[c:] by [c:O]those who have come before[c:]",
+                "the more you [c:O]win in battle[c:] the angrier they become",
+                "and they may [c:O]oppose you in battle[c:] in the future"
+            );
         }
 
-        private const string DEATHCARD_INTRO_CLIP = "wind_blowing_loop";
+        internal const string DEATHCARD_INTRO_CLIP = "wind_blowing_loop";
+        private const float FADE_IN_DURATION = 1f;
+        private const float FADE_OUT_DURATION = 1f;
 
         public static bool RollForDeathcard()
         {
+            if (CursePlugin.Instance.DebugCode.ToLowerInvariant().Contains("deathcard"))
+                return true;
+
             if (HauntLevel <= 1)
                 return false; // You can't get it at haunt level 1. You gotta get to 2 to start.
 
@@ -66,14 +129,14 @@ namespace Infiniscryption.Curses.Patchers
             }
 
             // Always clear the audio state
-            if (_pausedState != null)
+            if (_oldLoopName != null)
             {
-                CursePlugin.Log.LogInfo($"Resuming audio");
-                AudioController.Instance.StopAllLoops();
-                AudioHelper.ResumeAllLoops(_pausedState);
-                _pausedState = null;
+                CursePlugin.Log.LogDebug($"DEATHCARDAUDIO: End of battle. Immediately setting old loop {_oldLoopName} back in");
+                AudioController.Instance.SetLoopAndPlay(_oldLoopName);
+                AudioController.Instance.SetLoopVolumeImmediate(_oldVolume);
+                _oldLoopName = null;
             } else {
-                CursePlugin.Log.LogInfo($"No audio info to resume");
+                CursePlugin.Log.LogDebug($"DEATHCARDAUDIO: End of battle. No audio to resume.");
             }
 
             _sawDeathcard = false;
@@ -163,60 +226,14 @@ namespace Infiniscryption.Curses.Patchers
                 __result = false;
         }
 
-        [HarmonyPatch(typeof(DialogueDataUtil), "ReadDialogueData")]
-        [HarmonyPostfix]
-        public static void DeathcardDialogue()
-        {
-            // Here, we replace dialogue from Leshy based on the starter decks plugin being installed
-            // And add new dialogue
-            DialogueHelper.AddOrModifySimpleDialogEvent("DeathcardArrives", new string[] {
-                "you feel a chill in the air",
-                "the hair stands up on the back of your neck",
-                "[c:bR][v:0][c:] has arrived"
-            });
-
-            DialogueHelper.AddOrModifySimpleDialogEvent("DeathcardZoom", new string[] {
-                "[c:O]\"I have been looking for you\"[c:] says the apparition",
-                "[c:O]\"And now you must die!\"[c:]"
-            }, new string[][]{
-                new string[] {
-                    "the apparition has nothing to say",
-                    "but you sense that it is here for you"
-                },
-                new string[] {
-                    "[c:O]\"you made a mistake coming here\"[c:] it growls",
-                    "[c:O]\"let me show you the way home\"[c:]"
-                },
-                new string[] {
-                    "the apparition seems lonely",
-                    "it wants you to come join it in the afterlife"
-                }
-            });
-
-            DialogueHelper.AddOrModifySimpleDialogEvent("DeathcardDies", new string[] {
-                "the apparition fades into the wind",
-                "you can't shake the feeling there are [c:O]more[c:] out there waiting"
-            });
-
-            DialogueHelper.AddOrModifySimpleDialogEvent("DeathcardWins", new string[] {
-                "[c:bR][v:0][c:] shivers with delight as your candle is extinguished",
-            });
-
-            // This is also a good time to load audio
-            try
-            {
-                AssetHelper.LoadAudioClip(DEATHCARD_INTRO_CLIP);
-            } catch (Exception e)
-            {
-                CursePlugin.Log.LogError(e);
-            }
-        }
 
         private static CardInfo _deathcardOnBoard = null;
 
         private static bool _sawDeathcard = false;
 
-        private static List<AudioHelper.AudioState> _pausedState = null;
+        //private static List<AudioHelper.AudioState> _pausedState = null;
+        private static string _oldLoopName = null;
+        private static float _oldVolume = 0f;
         
         [HarmonyPatch(typeof(Opponent), "QueueCard")]
         [HarmonyPostfix]
@@ -238,8 +255,10 @@ namespace Infiniscryption.Curses.Patchers
                 View oldView = ViewManager.Instance.CurrentView;
                 ViewManager.Instance.SwitchToView(View.P03Face);
 
-                _pausedState = AudioHelper.PauseAllLoops();
-                AudioController.Instance.SetLoopAndPlay(DEATHCARD_INTRO_CLIP);
+                _oldLoopName = AudioController.Instance.loopSources[0].clip.name;
+                _oldVolume = AudioController.Instance.loopSources[0].volume;
+                AudioController.Instance.CrossFadeLoop(DEATHCARD_INTRO_CLIP, FADE_IN_DURATION);
+                CursePlugin.Log.LogDebug($"DEATHCARDAUDIO: Cross-faded audio loop");
 
                 ChallengeActivationUI.TryShowActivation(ID);
 
@@ -268,13 +287,13 @@ namespace Infiniscryption.Curses.Patchers
         {
             yield return TextDisplayer.Instance.PlayDialogueEvent("DeathcardDies", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait, null, null);
             
-            if (_pausedState != null)
+            if (_oldLoopName != null)
             {   
-                CursePlugin.Log.LogInfo($"Resuming audio");
-                AudioController.Instance.StopAllLoops();
-                AudioHelper.ResumeAllLoops(_pausedState);
-                _pausedState = null;
+                CursePlugin.Log.LogDebug($"DEATHCARDAUDIO: Deathcard died. Resuming background audio");
+                AudioController.Instance.CrossFadeLoop(_oldLoopName, FADE_OUT_DURATION, _oldVolume);
+                _oldLoopName = null;
             } else {
+                CursePlugin.Log.LogDebug($"DEATHCARDAUDIO: Deathcard died. No audio to resume.");
                 CursePlugin.Log.LogInfo($"No audio info to resume");
             }
 

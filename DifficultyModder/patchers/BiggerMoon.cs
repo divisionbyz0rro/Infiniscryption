@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using DiskCardGame;
 using HarmonyLib;
-using Infiniscryption.Core.Helpers;
+using InscryptionAPI.Helpers;
 using Infiniscryption.Curses.Cards;
 using InscryptionAPI.Ascension;
 using InscryptionAPI.Card;
@@ -24,8 +24,8 @@ namespace Infiniscryption.Curses.Patchers
                 "Full Moon",
                 "Giant cards like the moon have more attack and health",
                 20,
-                AssetHelper.LoadTexture("challenge_bigger_moon"),
-                AssetHelper.LoadTexture("activated_challenge_bigger_moon")
+                TextureHelper.GetImageAsTexture("challenge_bigger_moon.png", typeof(BiggerMoon).Assembly),
+                TextureHelper.GetImageAsTexture("activated_challenge_bigger_moon.png", typeof(BiggerMoon).Assembly)
             ).Challenge.challengeType;
 
             

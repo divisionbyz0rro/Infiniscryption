@@ -35,7 +35,7 @@ namespace Infiniscryption.Curses.Patchers
             if (AscensionSaveData.Data.ChallengeIsActive(ID))
             {
                 __instance.currentRun.totemTops.Clear();
-                __instance.currentRun.totemTops.AddRange(GuidManager.GetValues<Tribe>().Where(t => t != Tribe.None && t != Tribe.NUM_TRIBES));
+                __instance.currentRun.totemTops.AddRange(GuidManager.GetValues<Tribe>().Where(t => t != Tribe.None && (int)t < (int)Tribe.NUM_TRIBES));
             }
         }
     }

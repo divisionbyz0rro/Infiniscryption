@@ -12,16 +12,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" GeneratePathProperty="true" IncludeAssets="none"/>
-    <PackageReference Include="BepInEx.Core" Version="5.*" GeneratePathProperty="true" IncludeAssets="none"/>
-    <PackageReference Include="BepInEx.PluginInfoProps" Version="1.*" GeneratePathProperty="true" IncludeAssets="none"/>
-    <PackageReference Include="ILRepack" Version="2.0.18" GeneratePathProperty="true" IncludeAssets="none"/>
+      <PackageReference Include="BepInEx.Analyzers" Version="1.0.8">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="BepInEx.Core" Version="5.4.19" />
+      <PackageReference Include="HarmonyX" Version="2.9.0" />
     <PackageReference Include="UnityEngine.Modules" Version="2019.4.24" IncludeAssets="compile" GeneratePathProperty="true"/>
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Core\Core.csproj" />
-    <ProjectReference Include="..\Spells\Spells.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -30,6 +27,9 @@
     </Reference>
     <Reference Include="Assembly-CSharp" Private="false">
       <HintPath>..\lib\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Infiniscryption.Spells" Private="false">
+      <HintPath>..\lib\Infiniscryption.Spells.dll</HintPath>
     </Reference>
     <Reference Include="Sirenix.Serialization" Private="false">
       <HintPath>..\lib\Sirenix.Serialization.dll</HintPath>
@@ -43,6 +43,10 @@
     <Reference Include="UnityEngine.UI" Private="false">
       <HintPath>..\lib\UnityEngine.UI.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Achievements\Achievements.csproj" />
   </ItemGroup>
   
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
@@ -61,13 +65,15 @@
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="xcopy /Y $(ProjectDir)\..\lib\*.dll $(TargetDir)" />
     <Exec Command="xcopy /Y $(ProjectDir)\..\lib\*.dll $(TargetDir)" />
-    <Exec Command="$(PkgILRepack)\tools\ILRepack /out:$(ProjectDir)\Compiled\Infiniscryption.Curses.dll $(TargetPath) $(ProjectDir)../Core/Compiled/Infiniscryption.Core.dll /lib:$(TargetDir)" />
-    <Exec Command="xcopy /Y $(ProjectDir)\Compiled\Infiniscryption.Curses.dll &quot;C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins&quot;" />
+    <!--<Exec Command="$(PkgILRepack)\tools\ILRepack /out:$(ProjectDir)\Compiled\Infiniscryption.Curses.dll $(TargetPath) $(ProjectDir)../Core/Compiled/Infiniscryption.Core.dll /lib:$(TargetDir)" />-->
+    <Exec Command="xcopy /Y $(TargetPath) &quot;C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins&quot;" />
+    <Exec Command="xcopy /Y $(ProjectDir)\assets\*.wav &quot;C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins\wavs&quot;" />
     <!--
     <Exec Command="xcopy /Y $(ProjectDir)\assets\*.png &quot;C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins\Infiniscryption\assets&quot;" />
     <Exec Command="xcopy /Y $(ProjectDir)\assets\*.wav &quot;C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins\Infiniscryption\assets&quot;" />
     -->
-    <Exec Command="xcopy /Y $(ProjectDir)\Compiled\Infiniscryption.Curses.dll $(ProjectDir)\package" />
+    <Exec Command="xcopy /Y $(TargetPath) $(ProjectDir)\package" />
+    <Exec Command="xcopy /Y $(ProjectDir)\assets\*.wav $(ProjectDir)\package\plugins\wavs" />
     <!--
     <Exec Command="xcopy /Y $(ProjectDir)\assets\*.png $(ProjectDir)\package\BepInEx\plugins\Infiniscryption\assets" />
     <Exec Command="xcopy /Y $(ProjectDir)\assets\*.wav $(ProjectDir)\package\BepInEx\plugins\Infiniscryption\assets" />

@@ -6,11 +6,11 @@ using DiskCardGame;
 using HarmonyLib;
 using System.Collections;
 using System.Collections.Generic;
-using Infiniscryption.Core.Helpers;
+using InscryptionAPI.Helpers;
 using System.Linq;
 using InscryptionAPI.Card;
 using Infiniscryption.Curses.Sequences;
-using InscryptionAPI.Triggers;
+using Infiniscryption.Curses.Patchers;
 
 namespace Infiniscryption.Curses.Cards
 {
@@ -20,6 +20,8 @@ namespace Infiniscryption.Curses.Cards
 
 		public override Ability Ability => AbilityID;
         public static Ability AbilityID { get; private set; }
+
+        private bool _blewUp = false;
 
         // This has all of the logic to implement the Dynamite card that is added to the Prospector boss battle
         public static void RegisterCardAndAbilities(Harmony harmony)
@@ -39,12 +41,12 @@ namespace Infiniscryption.Curses.Cards
                 CursePlugin.PluginGuid,
                 info,
                 typeof(Dynamite),
-                AssetHelper.LoadTexture("ability_dynamite")
+                TextureHelper.GetImageAsTexture("ability_dynamite.png", typeof(Dynamite).Assembly)
             ).Id;
 
             CardManager.New(CursePlugin.CardPrefix, ProspectorBossHardOpponent.DYNAMITE, "Dynamite", 0, 2)
                 .AddTraits(Trait.Terrain)
-                .SetPortrait(AssetHelper.LoadTexture("dynamite_portrait"), AssetHelper.LoadTexture("dynamite_emission"))
+                .SetPortrait(TextureHelper.GetImageAsTexture("dynamite_portrait.png", typeof(Dynamite).Assembly), TextureHelper.GetImageAsTexture("dynamite_emission.png", typeof(Dynamite).Assembly))
                 .AddAbilities(Dynamite.AbilityID)
                 .AddAppearances(DynamiteAppearance.ID)
                 .temple = CardTemple.Nature;
@@ -81,6 +83,16 @@ namespace Infiniscryption.Curses.Cards
             }
         }
 
+        public override bool RespondsToDie(bool wasSacrifice, PlayableCard killer) => true;
+
+        public override IEnumerator OnDie(bool wasSacrifice, PlayableCard killer)
+        {
+            if (!_blewUp)
+                AchievementManager.Unlock(CursedAchievements.HOT_POTATO);
+
+            yield break;
+        }
+
         public override bool RespondsToTurnEnd(bool playerTurnEnd)
         {
             return playerTurnEnd;
@@ -90,6 +102,7 @@ namespace Infiniscryption.Curses.Cards
         {
             if (playerTurnEnd)
             {
+                _blewUp = true;
                 if (this.Card.InHand)
                 {
                     // Only explode if the player hasn't already won

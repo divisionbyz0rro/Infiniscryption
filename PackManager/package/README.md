@@ -20,8 +20,6 @@ Packs are discovered by looking at the entire card pool and seeing what cards be
 
 This mod comes with pack definitions and custom art for the following mods:
 
-- [Gareth's Mod](https://inscryption.thunderstore.io/package/Gareth48/GarethMod/)
-- [Eri Card Expansion](https://inscryption.thunderstore.io/package/Eri/Eri_Card_Expansion/)
 - [Ara Card Expansion](https://inscryption.thunderstore.io/package/Arackulele/AraCardExpansion/)
 - [Hallownest Expansion](https://inscryption.thunderstore.io/package/BlindTheBoundDemon/HallownestExpansion/)
 
@@ -42,7 +40,7 @@ This cannot be stressed enough. This mod relies on the mod prefix to sort out wh
 
 ## Pack Metacategories
 
-Packs can be belong to any number of "metacategories" which define which scribe they are valid for. As of the time this was written, this will only matter if the player also has my P03 in Kaycee's Mod mod installed. Otherwise, every run through the game will be a Leshy run and only care about Leshy packs.
+Packs can be belong to any number of "metacategories" which define which scribe they are valid for. 
 
 The metacategories are:
 
@@ -112,7 +110,13 @@ You can put the following placeholders into the description of your pack to help
 
 ## Pack validity
 
-Each pack has a completely optional "ValidFor" property, which is a list of CardTemples. This is meant to allow you to indicate which zones/biomes the card pack is valid for. By default, the game only has a single zone available in Kaycee's Mod. That zone is Leshy's Cabin, which is the Nature zone. However, other mods, such as the "P03 for Kaycee's Mod" mod, may add other playable zones. The pack definition includes the idea of "ValidFor" in order to provide some amount of future-proofing.
+Each pack has a completely optional "ValidFor" property, which is a list of CardTemples. This is meant to allow you to indicate which zones/biomes the card pack is valid for. By default, the game only has a single zone available in Kaycee's Mod. That zone is Leshy's Cabin, which is the Nature zone. However, other mods, such as "P03 for Kaycee's Mod" or "Grimora Mod", may add other playable zones. The pack definition includes the idea of "ValidFor" in order to provide some amount of future-proofing.
+
+## Split Pack By Card Temple
+
+Because cards can only belong to a single temple, the Pack Manager automatically sets the card temple for all cards in any given pack to match the type of KCM run that has been started (assuming that pack is set to be valid for that run type). Most of the time this will be a Leshy run, so all cards will automatically be given the Nature temple. However, if you are starting a Grimora run, all cards in the pack will be given the Undead temple; if you are starting a P03 run, they will be given the Tech temple, etc. In the end, the original temple of the card no longer matters - only the metacategory of the pack itself matters.
+
+But what if you want the temples to matter? In other words, you want to define a single pack but still use the original card templates as filter criteria. Cards with the Wizard temple would only apply to Magnificus, cards with the Tech temple would only apply to P03, etc. To do this, you simply need to set the `SplitPackByCardTemple` property to `true` on the `PackInfo` object. This will apply an additional filter to your pack such that only the cards with the appropriate temple will be counted.
 
 ## What if there's a special CardMetaCategory that I *really* need to not be removed by the Pack Manager?
 
@@ -135,23 +139,29 @@ private void Start() // Do this in your Plugin.cs file
 
 A template (blank) pack art PNG is included in this package.
 
-## A Personal Message from DivisionByZ0rro (7/18/2022)
-
-It's been a while since you've heard from me. Life changes quickly. I got a bad case of Covid, I had family members get seriously injured, and was just generally unavailable for a while. 
-
-Working on this and other Inscryption mods has been an amazing collaborative journey over the past months. Ever since I completed Inscryption for the first time in the fall of 2021, I spent all of my spare time (and then some) working on modding this game and being a part of an incredible community. But unfortunately, things change, and I cannot keep this up moving forward. I simply don't have the same amount of spare time that I used to, and it's time for me to move on.
-
-I have nothing but gratitude for everyone who supported me and helped me accomplish what I have been able to accomplish. I know I'm leaving work unfinished, but I know that would be true no matter when I called it quits.
-
-If anybody wants to continue any of my work, I hereby grant unrestricted permission for anyone to fork any of projects and make it their own moving forward. This work was always a passion project for the community, and I would be honored if anyone on the community wanted to continue that work. Please feel free to copy anything I've done and use it for yourself.
-
-Thanks for everything,
-/0
-
 ## Changelog 
 
 <details>
 <summary>Changelog</summary>
+
+1.1.4
+- Restored the Eri's mod pack definition by popular request.
+
+1.1.3
+- Fixed a defect where all packs were splitting by screen type instead of just autogenerated packs
+- The ability filter now properly accounts for cards that are not selectable but do appear as ice cubes or evolutions for cards which are.
+
+1.1.2
+- Autogenerated packs are now valid for all screen types (Leshy, P03, Grimora, and Magnificus) and are split by card temple.
+
+1.1.1
+- Fixed the guid I was using to look up Magnificus Mod. Hopefully this fixes compatibility with Magnificus Mod.
+- Added the Grimora Choice Node custom metacategory to the Undead Temple lookup. Hopefully this fixes compatibility with Grimora Mod.
+
+1.1.0
+- Pack manager is now aware of the screen state variables set by P03 Mod, Grimora Mod, and Magnificus Mod.
+- Added the "Split Pack By Card Temple" feature to a pack definition.
+- Removed Gareth and Eri's mod pack definition (Gareth's mod now supports this directly and Eri's is defunct)
 
 1.0.8
 - A personal message from DivisionByZ0rro

@@ -3,7 +3,7 @@ using BepInEx.Logging;
 using BepInEx.Configuration;
 using UnityEngine;
 using DiskCardGame;
-using Infiniscryption.Core.Helpers;
+using InscryptionAPI.Helpers;
 using System.Linq;
 using InscryptionAPI.Card;
 
@@ -15,9 +15,9 @@ namespace Infiniscryption.Curses.Cards
 
         private static Texture _emptyNoStats = Resources.Load<Texture>("art/cards/card_empty_nostats");
 
-        private static Texture2D _sharkBaseDecal = AssetHelper.LoadTexture("shark_no_mouth");
-        private static Texture2D _sharkMouthOpenDecal = AssetHelper.LoadTexture("shark_mouth_open");
-        private static Texture2D _sharkMouthClosedDecal = AssetHelper.LoadTexture("shark_mouth_closed");
+        private static Texture2D _sharkBaseDecal = TextureHelper.GetImageAsTexture("shark_no_mouth.png", typeof(MegaSharkAppearance).Assembly);
+        private static Texture2D _sharkMouthOpenDecal = TextureHelper.GetImageAsTexture("shark_mouth_open.png", typeof(MegaSharkAppearance).Assembly);
+        private static Texture2D _sharkMouthClosedDecal = TextureHelper.GetImageAsTexture("shark_mouth_closed.png", typeof(MegaSharkAppearance).Assembly);
 
         public static Texture2D SHARK_OPEN_PORTRAIT { get; private set; }
         public static Texture2D SHARK_CLOSED_PORTRAIT { get; private set; }
@@ -31,10 +31,10 @@ namespace Infiniscryption.Curses.Cards
 
         static MegaSharkAppearance()
         {
-            SHARK_OPEN_PORTRAIT = AssetHelper.LoadTexture("empty_shark_open");
-            SHARK_CLOSED_PORTRAIT = AssetHelper.LoadTexture("empty_shark_closed");
-            SHARK_OPEN_EMISSION = AssetHelper.LoadTexture("shark_open_emission");
-            SHARK_CLOSED_EMISSION = AssetHelper.LoadTexture("shark_closed_emission");
+            SHARK_OPEN_PORTRAIT = TextureHelper.GetImageAsTexture("empty_shark_open.png", typeof(MegaSharkAppearance).Assembly);
+            SHARK_CLOSED_PORTRAIT = TextureHelper.GetImageAsTexture("empty_shark_closed.png", typeof(MegaSharkAppearance).Assembly);
+            SHARK_OPEN_EMISSION = TextureHelper.GetImageAsTexture("shark_open_emission.png", typeof(MegaSharkAppearance).Assembly);
+            SHARK_CLOSED_EMISSION = TextureHelper.GetImageAsTexture("shark_closed_emission.png", typeof(MegaSharkAppearance).Assembly);
 
             SHARK_OPEN_PORTRAIT_SPRITE = Sprite.Create(MegaSharkAppearance.SHARK_OPEN_PORTRAIT, new Rect(0.0f, 0.0f, 114.0f, 94.0f), new Vector2(0.5f, 0.5f));
             SHARK_CLOSED_PORTRAIT_SPRITE = Sprite.Create(MegaSharkAppearance.SHARK_CLOSED_PORTRAIT, new Rect(0.0f, 0.0f, 114.0f, 94.0f), new Vector2(0.5f, 0.5f));

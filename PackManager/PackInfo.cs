@@ -99,6 +99,8 @@ namespace Infiniscryption.PackManagement
 
         public string ModPrefix { get; private set; }
 
+        public bool SplitPackByCardTemple { get; set; } = false;
+
         public bool IsLeftoversPack { get; private set; }
 
         public bool IsBaseGameCardPack => DefaultPackTemple.HasValue;

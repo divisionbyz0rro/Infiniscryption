@@ -11,7 +11,7 @@ This mod comes with seven different side decks to select from:
 - **Goats:** They generate twice the blood when they die, but they knock out two of your teeth for the trouble.
 - **Amalgam Eggs:** Did you know that the Amalgam was hatched from an egg? These eggs somehow belong to every tribe in the game at once and as such will always gain the ability from your totem.
 
-There's also a hook to allow you or others to add more sidedeck cards to the pool; see below.
+There's also support to allow you or others to add more sidedeck cards to the pool; see below.
 
 ## Requirements
 
@@ -33,7 +33,7 @@ public static readonly CardMetaCategory SIDE_DECK_CATEGORY = GuidManager.GetEnum
 // sometime later...
 CardInfo myCard = ...;
 myCard.AddMetaCategories(SIDE_DECK_CATEGORY);
-myCard.SetExtendedPropert("SideDeckValue", 5);
+myCard.SetExtendedProperty("SideDeckValue", 5);
 ```
 
 If you are using JSON Loader:
@@ -41,7 +41,7 @@ If you are using JSON Loader:
 ```json
 {
     "name": "MyCard",
-    "metaCategories": ["zorro.inscryption.infiniscryption.sidedecks.SideDeck"],
+    "metaCategories": [ "zorro.inscryption.infiniscryption.sidedecks.SideDeck" ],
     "extensionProperties": {
         "SideDeckValue": "5"
     }
@@ -52,23 +52,65 @@ If you are using JSON Loader:
 
 Don't worry. That is still supported - for now. However, compatibility for this will be removed at some point in the future. You need to transition away from using that specific trait and over to using this new card metacategory as soon as possible.
 
-## A Personal Message from DivisionByZ0rro (7/18/2022)
+## I'm a modder and I want to know which side deck card was selected, but I don't want to enforce a dependency on this mod
 
-It's been a while since you've heard from me. Life changes quickly. I got a bad case of Covid, I had family members get seriously injured, and was just generally unavailable for a while. 
+The selected side deck card is stored in the modded save file. The best way to reference this value is by creating a static property like so:
 
-Working on this and other Inscryption mods has been an amazing collaborative journey over the past months. Ever since I completed Inscryption for the first time in the fall of 2021, I spent all of my spare time (and then some) working on modding this game and being a part of an incredible community. But unfortunately, things change, and I cannot keep this up moving forward. I simply don't have the same amount of spare time that I used to, and it's time for me to move on.
+```c#
+using InscryptionAPI.Saves;
 
-I have nothing but gratitude for everyone who supported me and helped me accomplish what I have been able to accomplish. I know I'm leaving work unfinished, but I know that would be true no matter when I called it quits.
+public static string SelectedSideDeck
+{
+    get 
+    { 
+        string sideDeck = ModdedSaveManager.SaveData.GetValue("zorro.inscryption.infiniscryption.sidedecks", "SideDeck.SelectedDeck");
+        if (String.IsNullOrEmpty(sideDeck))
+            return "Squirrel"; // or whatever other default is appropriate for your use case
 
-If anybody wants to continue any of my work, I hereby grant unrestricted permission for anyone to fork any of projects and make it their own moving forward. This work was always a passion project for the community, and I would be honored if anyone on the community wanted to continue that work. Please feel free to copy anything I've done and use it for yourself.
+        return sideDeck; 
+    }
+}
 
-Thanks for everything,
-/0
+```
+
+## How does this interact with other mods?
+
+**Leshy Run (default KCM experience)**: Whichever side deck card you select will replace the deck of Squirrels.
+
+**Grimora Mod**: Behaves the same as a standard Leshy run. The side deck pile will be replaced with whatever side deck card you select.
+
+**P03 in Kaycee's Mod**: You will still have a side deck of empty vessels - no matter what. Only the abilities on the selected side deck card matter. The abilities on the side deck card you choose will be added to the empty vessels.
+
+**Magnificus Mod**: This mod is currently not completely supported by the Side Deck Selector mod. By this I mean that the user interface supports Magnificus, but there are no in-game patches to make the selected side deck card actually work. So you can add side deck cards for Magnificus, and you can select them, and the mod will record the selected card, but nothing will actually change during the run as of right now.
+
+## I built a challenge that affects the side deck, but this mod is overriding it. Help!
+
+Good news! You can now connect to an event in the `SideDeckManager` to override the list of available side deck cards. This event requires two parameters. The first parameter, a `CardTemple`, is an indicator as to which region the side deck is in (for example, `CardTemple.Tech` refers to P03 Mod, `CardTemple.Undead` refers to Grimora Mod, etc). The second parameter, a `List<string>`, is the current set of side deck cards. Modify them as necessary!
+
+```c#
+using Infiniscryption.SideDecks.Patchers;
+
+SideDeckManager.ModifyValidSideDeckCards += delegate(CardTemple temple, List<string> sideDeckCards)
+{
+    if (temple == CardTemple.Undead && AscensionSaveData.Data.ChallengeIsActive(AscensionChallenge.SubmergeSquirrels))
+    {
+        sideDeckCards.Clear(); // CAREFUL: If you want to completely replace the list, you must modify it in-place by clearing it
+        sideDeckCards.Add("MyMod_GoofySkeleton");
+    }
+};
+```
 
 ## Changelog 
 
 <details>
 <summary>Changelog</summary>
+
+2.1.5
+- I'm back. Deal with it.
+- Made the documentation better.
+- Added ability for mods to modify the side deck list; the primary use case here is to enable different types of challenges.
+- Both Grimora Mod and P03 Mod should now be fully supported. Magnificus Mod will require more work/collaboration.
+- KNOWN ISSUE: The side deck modification node (enabled by an optional green challenge) for Leshy runs is still using the deprecated method for adding new nodes to the map.
 
 2.1.4
 - A final message from DivisionByZ0rro

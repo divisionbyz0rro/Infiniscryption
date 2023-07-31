@@ -2,7 +2,7 @@ using DiskCardGame;
 using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
-using Infiniscryption.Core.Helpers;
+using InscryptionAPI.Helpers;
 using InscryptionAPI.Ascension;
 
 namespace Infiniscryption.Curses.Patchers
@@ -19,11 +19,11 @@ namespace Infiniscryption.Curses.Patchers
                 "Extra Candle",
                 "You are given an extra life",
                 -30,
-                AssetHelper.LoadTexture("assist_three_candles"),
+                TextureHelper.GetImageAsTexture("assist_three_candles.png", typeof(DrawDynamite).Assembly),
                 ChallengeManager.HAPPY_ACTIVATED_SPRITE
             );
             
-            fc.SetFlags("P03");
+            //fc.SetFlags("P03"); this isn't really compatible anymore with the new lives system i think
             ID = fc.Challenge.challengeType;
 
             harmony.PatchAll(typeof(ThreeCandles));

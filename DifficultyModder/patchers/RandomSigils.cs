@@ -10,7 +10,7 @@ using System;
 using System.Linq;
 using TMPro;
 using UnityEngine.UI;
-using Infiniscryption.Core.Helpers;
+using InscryptionAPI.Helpers;
 using InscryptionAPI.Ascension;
 
 namespace Infiniscryption.Curses.Patchers
@@ -36,7 +36,7 @@ namespace Infiniscryption.Curses.Patchers
                 "Chaotic Enemies",
                 "Opposing creatures gain random abilities",
                 15,
-                AssetHelper.LoadTexture("challenge_random_sigils"),
+                TextureHelper.GetImageAsTexture("challenge_random_sigils.png", typeof(RandomSigils).Assembly),
                 ChallengeManager.DEFAULT_ACTIVATED_SPRITE,
                 stackable:true
             );
@@ -107,9 +107,13 @@ namespace Infiniscryption.Curses.Patchers
                                 .ToList();
 
                             if (possibles.Count == 0)
+                            {
+                                CursePlugin.Log.LogDebug($"Could not add any ability to {card.name}");
                                 continue;
+                            }
 
                             mod.abilities.Add(possibles[SeededRandom.Range(0, possibles.Count, seed)]);
+                            CursePlugin.Log.LogDebug($"Adding {mod.abilities.Last()} to {card.name}");
                             seed += 1;
 
                         }

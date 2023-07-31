@@ -1,0 +1,10 @@
+{
+    "name": "Achievements",
+    "version_number": "0.1.1",
+    "website_url": "https://github.com/divisionbyz0rro/Infiniscryption",
+    "description": "An API for adding achievements. Includes an achievement browser and a happy little popup whenever you unlock one.",
+    "dependencies": [
+        "BepInEx-BepInExPack_Inscryption-5.4.1701",
+        "API_dev-API-2.14.3"
+    ]
+}

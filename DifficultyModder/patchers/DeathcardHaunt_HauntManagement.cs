@@ -9,7 +9,8 @@ using System.Collections.Generic;
 using System;
 using TMPro;
 using UnityEngine.UI;
-using Infiniscryption.Core.Helpers;
+using Infiniscryption.Curses.Components;
+using InscryptionAPI.Helpers;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using InscryptionAPI.Saves;
@@ -71,7 +72,7 @@ namespace Infiniscryption.Curses.Patchers
                 
                 // Add a sprite renderer
                 SpriteRenderer spriteRenderer = orbitingFace.AddComponent<SpriteRenderer>();
-                Texture2D dct = AssetHelper.LoadTexture("orbit_icon");
+                Texture2D dct = TextureHelper.GetImageAsTexture("orbit_icon.png", typeof(DeathcardHaunt).Assembly);
                 spriteRenderer.sprite = Sprite.Create(dct, new Rect(0f, 0f, dct.width, dct.height), new Vector2(0.5f, 0.5f));
 
                 Orbiter orbitController = orbitingFace.AddComponent<Orbiter>();
@@ -131,6 +132,9 @@ namespace Infiniscryption.Curses.Patchers
             _orbitingFace[2].SetActive(hauntLevel >= 8);
             _orbitingFace[1].SetActive(hauntLevel >= 5);
             _orbitingFace[0].SetActive(hauntLevel >= 2);
+
+            if (hauntLevel >= 8)
+                AchievementManager.Unlock(CursedAchievements.TRIPLE_HAUNT);
         }
 
         [HarmonyPatch(typeof(AnimatedGameMapMarker), "Show")]
@@ -156,20 +160,6 @@ namespace Infiniscryption.Curses.Patchers
         {
             get { return ModdedSaveManager.SaveData.GetValueAsBoolean(CursePlugin.PluginGuid, "Curses.HauntExplanation"); }
             set { ModdedSaveManager.SaveData.SetValue(CursePlugin.PluginGuid, "Curses.HauntExplanation", value); }
-        }
-
-        [HarmonyPatch(typeof(DialogueDataUtil), "ReadDialogueData")]
-        [HarmonyPostfix]
-        public static void HauntDialogue()
-        {
-            // Here, we replace dialogue from Leshy based on the starter decks plugin being installed
-            // And add new dialogue
-            DialogueHelper.AddOrModifySimpleDialogEvent("HauntedExplanation", new string[] {
-                "do you see the [c:O]apparition[c:] encircling you?",
-                "you have become [c:O]haunted[c:] by [c:O]those who have come before[c:]",
-                "the more you [c:O]win in battle[c:] the angrier they become",
-                "and they may [c:O]oppose you in battle[c:] in the future"
-            });
         }
 
         [HarmonyPatch(typeof(GameMap), "ShowMapSequence")]
