@@ -2,7 +2,7 @@ using DiskCardGame;
 using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
-using Infiniscryption.Core.Helpers;
+using InscryptionAPI.Helpers;
 using InscryptionAPI.Ascension;
 
 namespace Infiniscryption.Curses.Patchers
@@ -19,8 +19,8 @@ namespace Infiniscryption.Curses.Patchers
                 "Minor Boon of the Bone Lord",
                 "Start the game with a Minor Boon of the Bone Lord",
                 -5,
-                AssetHelper.LoadTexture("assist_bones_boon"),
-                AssetHelper.LoadTexture("activated_assist_bones_boon"),
+                TextureHelper.GetImageAsTexture("assist_bones_boon.png", typeof(BoonsAssist).Assembly),
+                TextureHelper.GetImageAsTexture("activated_assist_bones_boon.png", typeof(BoonsAssist).Assembly),
                 stackable: true
             ).Challenge.challengeType;
 

@@ -1,12 +1,12 @@
 {
     "name": "Side_Deck_Selector",
-    "version_number": "2.1.4",
+    "version_number": "2.1.5",
     "website_url": "https://github.com/divisionbyz0rro/Infiniscryption",
     "description": "Tired of squirrels? We have just the thing.",
     "dependencies": [
         "BepInEx-BepInExPack_Inscryption-5.4.1701",
-        "API_dev-API-2.4.0",
+        "API_dev-API-2.14.3",
         "JulianMods-HealthForAnts-1.0.2",
-        "Void_Slime-Life_Cost_API-2.2.1"
+        "Void_Slime-Life_Cost_API-2.3.0"
     ]
 }

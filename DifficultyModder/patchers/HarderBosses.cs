@@ -9,11 +9,13 @@ using System.Collections.Generic;
 using System;
 using TMPro;
 using UnityEngine.UI;
-using Infiniscryption.Core.Helpers;
+using InscryptionAPI.Dialogue;
+using InscryptionAPI.Helpers;
 using Infiniscryption.Curses.Cards;
 using Infiniscryption.Curses.Sequences;
 using System.Linq;
 using InscryptionAPI.Ascension;
+using Infiniscryption.Curses.Helpers;
 
 namespace Infiniscryption.Curses.Patchers
 {
@@ -29,8 +31,8 @@ namespace Infiniscryption.Curses.Patchers
                 "Boss Revenge",
                 "Each boss has an additional phase",
                 10,
-                AssetHelper.LoadTexture("challenge_boss_revenge"),
-                AssetHelper.LoadTexture("ascensionicon_activated_bossrevenge")
+                TextureHelper.GetImageAsTexture("challenge_boss_revenge.png", typeof(HarderBosses).Assembly),
+                TextureHelper.GetImageAsTexture("ascensionicon_activated_bossrevenge.png", typeof(HarderBosses).Assembly)
             ).Challenge.challengeType;
 
             harmony.PatchAll(typeof(HarderBosses));
@@ -40,6 +42,74 @@ namespace Infiniscryption.Curses.Patchers
             Digester.RegisterCardAndAbilities(harmony);
             Bitten.RegisterCardAndAbilities(harmony);
             Bow.RegisterCardAndAbilities(harmony);
+
+            // Dialogue
+            // Here, we replace dialogue from Leshy based on the starter decks plugin being installed
+            // And add new dialogue
+            DialogueHelper.GenerateDialogue(
+                "ProspectorExtraCandle",
+                "Let's play longer this time!", 
+                "A lil' more fun never hurt nobody!", 
+                "I got a little somethin' special for ya!", 
+                "Heeeeeeee-haaw! Let's keep the fun goin'!"
+            );
+
+            DialogueHelper.GenerateDialogue(
+                "AnglerExtraCandle",
+                "You want more fish?",
+                "We get extra fish.",
+                "Many fish this time."
+            );
+
+            DialogueHelper.GenerateDialogue(
+                "TrapperTraderExtraCandle",
+                "I'm afraid our encounter today will take a little more time",
+                "It looks like you and I have extra business to attend to"
+            );
+
+            DialogueHelper.GenerateDialogue("CardIsSleep", "He swalled it whole..");
+            DialogueHelper.GenerateDialogue("CardAtePoison", "Eating that was a bad idea..");
+            DialogueHelper.GenerateDialogue("CardAteSharp", "That's a little uncomfortable..");
+            DialogueHelper.GenerateDialogue("DigestedCardDeadForever", "Your [c:bR][v:0][c:] has been fully digested. You will never see it again.");
+            DialogueHelper.GenerateDialogue("DigestingCard", "Your [c:bR][v:0][c:] is being slowly digested. It has [c:bR][v:1][c:] health left.");
+
+            DialogueHelper.GenerateLargeDialogue(
+                "TrapperTraderPhaseThree",
+                "I have yet another trade to propose",
+                "This time, let us trade our whole decks"
+            );
+
+            DialogueHelper.GenerateDialogue(
+                "HungryAgain",
+                "He's hungry again",
+                "Time for more morsels",
+                "Back on the hunt"
+            );
+
+            DialogueHelper.GenerateDialogue(
+                "CatchDynamite",
+                "Think fast!",
+                "Catch!",
+                "Heads up!"
+            );
+
+            DialogueHelper.GenerateLargeDialogue(
+                "ProspectorPhaseThree",
+                "You're a dad-gum pain in my backside!",
+                "Let's see you get past this!"
+            );
+
+            DialogueHelper.GenerateDialogue(
+                "AnglerPhaseThree",
+                "Fish not big enough. Get bigger fish.",
+                "Little fish bad. Big fish better.",
+                "Need better fish."
+            );
+
+            DialogueHelper.GenerateDialogue(
+                "ProspectorWolfSpawn",
+                "That fella looks mighty curious about that [c:bR]empty lane[c:]"
+            );
         }
 
         // Helper for opponents
@@ -55,131 +125,6 @@ namespace Infiniscryption.Curses.Patchers
             yield return new WaitForSeconds(3.5f);
             ViewManager.Instance.SwitchToView(View.Default);
             ViewManager.Instance.Controller.LockState = ViewLockState.Unlocked;
-        }
-
-        [HarmonyPatch(typeof(DialogueDataUtil), "ReadDialogueData")]
-        [HarmonyPostfix]
-        public static void BossDialogue()
-        {
-            // Here, we replace dialogue from Leshy based on the starter decks plugin being installed
-            // And add new dialogue
-            DialogueHelper.AddOrModifySimpleDialogEvent("ProspectorExtraCandle", new string[] {
-                "Let's play longer this time!"
-            }, new string[][] {
-                new string[] {
-                    "A lil' more fun never hurt nobody!"
-                },
-                new string[] {
-                    "I got a little somethin' special for ya!"
-                },
-                new string[] {
-                    "Heeeeeeee-haaw! Let's keep the fun goin'!"
-                }
-            });
-
-            DialogueHelper.AddOrModifySimpleDialogEvent("AnglerExtraCandle", new string[] {
-                "You want more fish?"
-            }, new string[][] {
-                new string[] {
-                    "We get extra fish."
-                },
-                new string[] {
-                    "Many fish this time."
-                }
-            });
-
-            DialogueHelper.AddOrModifySimpleDialogEvent("TrapperTraderExtraCandle", new string[] {
-                "I'm afraid our encounter today will take a little more time"
-            }, new string[][] {
-                new string[] {
-                    "It looks like you and I have extra business to attend to"
-                }
-            });
-
-            DialogueHelper.AddOrModifySimpleDialogEvent("CardIsSleep", new string[] {
-                "He swalled it whole..."
-            });
-
-            DialogueHelper.AddOrModifySimpleDialogEvent("CardAtePoison", new string[] {
-                "Eating that was a bad idea..."
-            });
-
-            DialogueHelper.AddOrModifySimpleDialogEvent("CardAteSharp", new string[] {
-                "That's a little uncomfortable..."
-            });
-
-            DialogueHelper.AddOrModifySimpleDialogEvent("DigestedCardDeadForever", new string[] {
-                "Your [c:bR][v:0][c:] has been fully digested. You will never see it again."
-            });
-
-            DialogueHelper.AddOrModifySimpleDialogEvent("DigestingCard", new string[] {
-                "Your [c:bR][v:0][c:] is being slowly digested. It has [c:bR][v:1][c:] health left."
-            });
-
-            DialogueHelper.AddOrModifySimpleDialogEvent("TrapperTraderPhaseThree", new string[] {
-                "I have yet another trade to propose",
-                "This time, let us trade our whole decks"
-            });
-
-            DialogueHelper.AddOrModifySimpleDialogEvent("HungryAgain", new string[] {
-                "He's hungry again"
-            }, new string[][] {
-                new string[] {
-                    "Time for more morsels"
-                },
-                new string[] {
-                    "Back on the hunt"
-                }
-            });
-
-            DialogueHelper.AddOrModifySimpleDialogEvent("CatchDynamite", new string[] {
-                "Think fast!"
-            }, new string[][] {
-                new string[] {
-                    "Catch!"
-                },
-                new string[] {
-                    "Heads up!"
-                }
-            });
-
-            DialogueHelper.AddOrModifySimpleDialogEvent("ProspectorPhaseThree", new string[] {
-                "You're a dad-gum pain in my backside!",
-                "Let's see you get past this!"
-            }, new string[][] {
-                new string[] {
-                    "HEE-HEE-HEE-HAAAAWWW!",
-                    "I'm gonna sit a spell over here"
-                },
-                new string[] {
-                    "How in tarnation are you doing this to me?"
-                }
-            });
-
-            DialogueHelper.AddOrModifySimpleDialogEvent("AnglerPhaseThree", new string[] {
-                "Fish not big enough. Get bigger fish.",
-            }, new string[][] {
-                new string[] {
-                    "Little fish bad. Big fish better."
-                },
-                new string[] {
-                    "Need better fish."
-                }
-            });
-
-            DialogueHelper.AddOrModifySimpleDialogEvent("ProspectorWolfSpawn", new string[] {
-                "That fella looks mighty curious about that [c:bR]empty lane[c:]",
-            });
-
-            // This is also a good time to load audio
-            try
-            {
-                AssetHelper.LoadAudioClip(Dynamite.EXPLOSION_SOUND, group: "SFX");
-                AssetHelper.LoadAudioClip(Digester.GULP_SOUND, group: "SFX");
-            } catch (Exception e)
-            {
-                CursePlugin.Log.LogError(e);
-            }
         }
 
         private static void AddBossSequencer<T>(TurnManager manager) where T : SpecialBattleSequencer

@@ -3,7 +3,6 @@ using System.IO;
 using System.Text;
 using BepInEx;
 using DiskCardGame;
-using Infiniscryption.Core.Helpers;
 
 namespace Infiniscryption.PackManagement.Patchers
 {

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using DiskCardGame;
 using HarmonyLib;
-using Infiniscryption.Core.Helpers;
+using InscryptionAPI.Helpers;
 using Infiniscryption.Curses.Cards;
 using Infiniscryption.Curses.Sequences;
 using InscryptionAPI.Ascension;
@@ -20,8 +20,8 @@ namespace Infiniscryption.Curses.Patchers
                 "Exploding Cards",
                 "Dynamite is added to your deck after every boss battle",
                 5,
-                AssetHelper.LoadTexture("challenge_dynamite"),
-                AssetHelper.LoadTexture("activated_challenge_dynamite")
+                TextureHelper.GetImageAsTexture("challenge_dynamite.png", typeof(DrawDynamite).Assembly),
+                TextureHelper.GetImageAsTexture("activated_challenge_dynamite.png", typeof(DrawDynamite).Assembly)
             ).Challenge.challengeType;
 
             harmony.PatchAll(typeof(DrawDynamite));

@@ -12,6 +12,7 @@ using System.Linq;
 using InscryptionAPI.Guid;
 using Infiniscryption.Core.Helpers;
 using BepInEx.Bootstrap;
+using UnityEngine.SceneManagement;
 
 namespace Infiniscryption.SideDecks.Patchers
 {
@@ -19,6 +20,11 @@ namespace Infiniscryption.SideDecks.Patchers
     {
         public static Trait BACKWARDS_COMPATIBLE_SIDE_DECK_MARKER = (Trait)5103;
         public static CardMetaCategory SIDE_DECK = GuidManager.GetEnumValue<CardMetaCategory>(SideDecksPlugin.PluginGuid, "SideDeck");
+
+        /// <summary>
+        /// Hook into this event to modify which cards are valid side deck selections based on context.
+        /// </summary>
+        public static event Action<CardTemple, List<string>> ModifyValidSideDeckCards;
         
         public static string SelectedSideDeck
         {
@@ -30,7 +36,7 @@ namespace Infiniscryption.SideDecks.Patchers
 
                 return sideDeck; 
             }
-            set { ModdedSaveManager.SaveData.SetValue(SideDecksPlugin.PluginGuid, "SideDeck.SelectedDeck", value.ToString()); }
+            internal set { ModdedSaveManager.SaveData.SetValue(SideDecksPlugin.PluginGuid, "SideDeck.SelectedDeck", value.ToString()); }
         }
 
         public static int SelectedSideDeckCost
@@ -42,82 +48,115 @@ namespace Infiniscryption.SideDecks.Patchers
             }
         }
 
-        public static CardTemple ScreenState 
+        // Mod compatibility
+        private const string GRIMORA_MOD = "arackulele.inscryption.grimoramod";
+        private const string P03_MOD = "zorro.inscryption.infiniscryption.p03kayceerun";
+        private const string MAGNIFICUS_MOD = "silenceman.inscryption.magnificusmod";
+
+        private static readonly  AscensionChallenge LEEPBOT_SIDEDECK = GuidManager.GetEnumValue<AscensionChallenge>("zorro.inscryption.infiniscryption.p03kayceerun", "LeepbotSidedeck");
+
+        internal static Dictionary<string, string> AcceptedScreenStates = new ()
+        {
+            { P03_MOD, P03_MOD },
+            { GRIMORA_MOD, GRIMORA_MOD }, 
+            { MAGNIFICUS_MOD, $"{MAGNIFICUS_MOD}starterdecks" }
+        };
+
+        internal static CardTemple ScreenState 
         { 
             get
             {
-                if (!Chainloader.PluginInfos.ContainsKey("zorro.inscryption.infiniscryption.p03kayceerun"))
-                    return CardTemple.Nature;
+                Scene activeScene = SceneManager.GetActiveScene();
+                if (activeScene != null && !string.IsNullOrEmpty(activeScene.name))
+                {
+                    string sceneName = activeScene.name.ToLowerInvariant();
+                    if (sceneName.Contains("magnificus"))
+                        return CardTemple.Wizard;
+                    if (sceneName.Contains("part3"))
+                        return CardTemple.Tech;
+                    if (sceneName.Contains("grimora"))
+                        return CardTemple.Undead;
+                    if (sceneName.Contains("part1"))
+                        return CardTemple.Nature;
+                }
+                
+                foreach (string guid in AcceptedScreenStates.Keys)
+                {
+                    if (!Chainloader.PluginInfos.ContainsKey(guid))
+                        continue;
 
-                string value = ModdedSaveManager.SaveData.GetValue("zorro.inscryption.infiniscryption.p03kayceerun", "ScreenState");
-                if (string.IsNullOrEmpty(value))
-                    return CardTemple.Nature;
+                    string value = ModdedSaveManager.SaveData.GetValue(AcceptedScreenStates[guid], "ScreenState");
+                    if (string.IsNullOrEmpty(value))
+                        continue;
 
-                return (CardTemple)Enum.Parse(typeof(CardTemple), value);
+                    return (CardTemple)Enum.Parse(typeof(CardTemple), value);
+                }
+                
+                return CardTemple.Nature;
             }
         }
 
         public const int SIDE_DECK_SIZE = 10;
 
-        public enum SideDecks
-        {
-            Squirrel = 0,
-            INF_Bee_Drone = 1,
-            INF_Ant_Worker = 2,
-            INF_Puppy = 3,
-            INF_Spare_Tentacle = 4,
-            INF_One_Eyed_Goat = 5
-        }
-
         public static List<string> GetAllValidSideDeckCards()
         {
-            if (!AscensionSaveData.Data.ChallengeIsActive(AscensionChallenge.SubmergeSquirrels))
-            {
-                if (SceneLoader.ActiveSceneName.ToLowerInvariant().Contains("part1") || ScreenState == CardTemple.Nature)
-                {
-                    SideDecksPlugin.Log.LogInfo($"Getting cards: Screenstate {ScreenState}, IsPart1 {SceneLoader.ActiveSceneName.ToLowerInvariant().Contains("part1")}");
-                    return CardManager.AllCardsCopy.Where(card => card.metaCategories.Contains(SIDE_DECK) && card.temple == CardTemple.Nature)
+            List<string> allSideDeckCards = CardManager.AllCardsCopy
+                                               .Where(card => card.metaCategories.Contains(SIDE_DECK) 
+                                                              && card.temple == ScreenState)
                                                .Select(card => card.name).ToList();
-                }
-                else if (SaveManager.saveFile.IsPart3 || ScreenState == CardTemple.Tech)
-                {
-                    return CardManager.AllCardsCopy.Where(card => card.metaCategories.Contains(SIDE_DECK) && card.temple == CardTemple.Tech)
-                                               .Select(card => card.name).ToList();
-                }
-                else if (SaveManager.saveFile.IsGrimora || ScreenState == CardTemple.Undead)
-                {
-                    return new() { "Skeleton" };
-                }
-            }
-            else
+
+            if (AscensionSaveData.Data.ChallengeIsActive(AscensionChallenge.SubmergeSquirrels))
             {
-                if (SceneLoader.ActiveSceneName.ToLowerInvariant().Contains("part1") || ScreenState == CardTemple.Nature)
-                {
-                    return new() { "AquaSquirrel" };
-                }
-                else if (SaveManager.saveFile.IsPart3 || ScreenState == CardTemple.Tech)
-                {
-                    return new() { SideDecksPlugin.CardPrefix + "_EmptyVesselSubmerge" };
-                }
-                else if (SaveManager.saveFile.IsGrimora || ScreenState == CardTemple.Undead)
-                {
-                    return new() { "Skeleton" };
-                }
+                if (ScreenState == CardTemple.Nature)
+                    allSideDeckCards = new () { "AquaSquirrel" };
+                else if (ScreenState == CardTemple.Tech)
+                    allSideDeckCards = new () { SideDecksPlugin.CardPrefix + "_EmptyVesselSubmerge" };
             }
-            SideDecksPlugin.Log.LogInfo($"Fallback: giving only a squirrel. Screenstate {ScreenState}, IsPart1 {SaveManager.saveFile.IsPart1}");
-            return new() { "Squirrel" };
+
+            if (ScreenState == CardTemple.Tech)
+            {
+                if (AscensionSaveData.Data.ChallengeIsActive(LEEPBOT_SIDEDECK))
+                    allSideDeckCards.RemoveAll(s => s.Contains("EmptyVessel"));
+                else
+                    allSideDeckCards.RemoveAll(s => s.Contains("LeapBot"));
+            }
+
+
+            ModifyValidSideDeckCards?.Invoke(ScreenState, allSideDeckCards);
+            
+            return allSideDeckCards;
         }
 
         [HarmonyPatch(typeof(Part1CardDrawPiles), "SideDeckData", MethodType.Getter)]
         [HarmonyPrefix]
         public static bool ReplaceSideDeck(ref List<CardInfo> __result)
         {
-            __result = new List<CardInfo>();
-            string selectedDeck = SelectedSideDeck;
-            for (int i = 0; i < SIDE_DECK_SIZE; i++)
-                __result.Add(CardLoader.GetCardByName(selectedDeck));
+            if (SaveFile.IsAscension)
+            {
+                __result = new List<CardInfo>();
+                string selectedDeck = SelectedSideDeck;
+                for (int i = 0; i < SIDE_DECK_SIZE; i++)
+                    __result.Add(CardLoader.GetCardByName(selectedDeck));
 
-            return false;
+                return false;
+            }
+            return true;
+        }
+
+        [HarmonyPatch(typeof(GrimoraCardDrawPiles), "SideDeckData", MethodType.Getter)]
+        [HarmonyPrefix]
+        public static bool ReplaceGrimoraSideDeck(ref List<CardInfo> __result)
+        {
+            if (SaveFile.IsAscension)
+            {
+                __result = new List<CardInfo>();
+                string selectedDeck = SelectedSideDeck;
+                for (int i = 0; i < SIDE_DECK_SIZE; i++)
+                    __result.Add(CardLoader.GetCardByName(selectedDeck));
+
+                return false;
+            }
+            return true;
         }
 
         [HarmonyPatch(typeof(AscensionSaveData), "GetActiveChallengePoints")]
@@ -141,6 +180,7 @@ namespace Infiniscryption.SideDecks.Patchers
 
         [HarmonyPatch(typeof(Part3SaveData), "Initialize")]
         [HarmonyPostfix]
+        [HarmonyPriority(Priority.VeryLow)]
         private static void AddSideDeckAbilitiesWithMesh(ref Part3SaveData __instance)
         {
             if (SaveFile.IsAscension)
@@ -158,25 +198,30 @@ namespace Infiniscryption.SideDecks.Patchers
 
         [HarmonyPatch(typeof(Part3CardDrawPiles), nameof(Part3CardDrawPiles.AddModsToVessel))]
         [HarmonyPostfix]
-        private static void AddSideDeckAbilitiesWithoutMesh(CardInfo info)
+        [HarmonyPriority(Priority.VeryLow)]
+        private static void EnsureAllModsOnVessel(CardInfo info)
         {
             if (SaveFile.IsAscension)
             {
                 if (info != null)
                 {
                     CardInfo sideDeckCard = CardManager.AllCardsCopy.CardByName(SelectedSideDeck);
-                    foreach(Ability ab in sideDeckCard.Abilities)
+
+                    string currentAbilityString = String.Join(", ", info.Abilities);
+                    string needsAbilityString = String.Join(", ", sideDeckCard.Abilities);
+                    SideDecksPlugin.Log.LogDebug($"Side deck card has {currentAbilityString} and needs {needsAbilityString}");
+                    foreach(var group in sideDeckCard.Abilities.GroupBy(a => a))
                     {
-                        if (info.HasAbility(ab))
-                            continue;
+                        int currentCount = info.Abilities.Where(a => a == group.Key).Count();
+                        int targetCount = group.Count();
 
-                        AbilityInfo abInfo = AbilitiesUtil.GetInfo(ab);
-
-                        if (abInfo.mesh3D == null)
+                        if (currentCount < targetCount)
                         {
-                            CardModificationInfo abMod = new(ab);
-                            abMod.sideDeckMod = true;
-                            info.mods.Add(abMod);
+                            CardModificationInfo mod = new();
+                            mod.sideDeckMod = true;
+                            mod.abilities = new();
+                            mod.abilities.AddRange(Enumerable.Repeat(group.Key, targetCount - currentCount));
+                            info.mods.Add(mod);
                         }
                     }
                 }

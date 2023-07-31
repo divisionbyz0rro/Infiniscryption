@@ -11,9 +11,11 @@ using InscryptionAPI.Encounters;
 using InscryptionAPI.Helpers;
 using InscryptionAPI.Ascension;
 using Infiniscryption.Core.Helpers;
+using InscryptionAPI.Nodes;
 
 namespace Infiniscryption.SideDecks.Sequences
 {
+    [HarmonyPatch]
     public class SideDeckSelectionSequencer : CardChoicesSequencer, ICustomNodeSequence
 	{        
         public static AscensionChallenge ChallengeID { get; private set; }
@@ -244,5 +246,14 @@ namespace Infiniscryption.SideDecks.Sequences
         private readonly Vector3 ROW_OFFSET = new Vector3(0f, 0f, -1.6f);
 
         private readonly Vector3 COL_OFFSET = new Vector3(1.6f, 0f, 0f);
+
+        [HarmonyPatch(typeof(AscensionUnlockSchedule), nameof(AscensionUnlockSchedule.ChallengeIsUnlockedForLevel))]
+        [HarmonyAfter(new string[] { "cyantist.inscryption.api" })]
+        [HarmonyPostfix]
+        public static void ValidP03Challenges(ref bool __result, AscensionChallenge challenge, int level)
+        {
+            if (challenge == ChallengeID)
+                __result = SideDeckManager.ScreenState == CardTemple.Nature;
+        }
     }
 }

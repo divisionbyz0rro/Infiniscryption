@@ -6,7 +6,7 @@ using System.Linq;
 using System;
 using GBC;
 using InscryptionAPI.Ascension;
-using Infiniscryption.Core.Helpers;
+using InscryptionAPI.Helpers;
 
 namespace Infiniscryption.PackManagement.UserInterface
 {
@@ -38,7 +38,7 @@ namespace Infiniscryption.PackManagement.UserInterface
             {
                 if (_coveredSprite == null)
                 {
-                    _coveredSprite = Sprite.Create(AssetHelper.LoadTexture("deselected"), new Rect(0f, 0f, 46f, 74f), new Vector2(0.5f, 0.5f));
+                    _coveredSprite = Sprite.Create(TextureHelper.GetImageAsTexture("deselected.png", typeof(PackSelectorScreen).Assembly), new Rect(0f, 0f, 46f, 74f), new Vector2(0.5f, 0.5f));
                     _coveredSprite.name = "CoveredSprite";
                 }
                 
@@ -53,7 +53,7 @@ namespace Infiniscryption.PackManagement.UserInterface
             {
                 if (_defaultPackSprite == null)
                 {
-                    _defaultPackSprite = Sprite.Create(AssetHelper.LoadTexture("default_window"), new Rect(0f, 0f, 46f, 74f), new Vector2(0.5f, 0.5f));
+                    _defaultPackSprite = Sprite.Create(TextureHelper.GetImageAsTexture("default_window.png", typeof(PackSelectorScreen).Assembly), new Rect(0f, 0f, 46f, 74f), new Vector2(0.5f, 0.5f));
                     _defaultPackSprite.name = "DefaultPackSprite";
                 }
                 

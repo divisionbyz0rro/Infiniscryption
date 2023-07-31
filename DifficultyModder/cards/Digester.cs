@@ -10,6 +10,7 @@ using System.Linq;
 using InscryptionAPI.Card;
 using InscryptionAPI.Helpers;
 using Infiniscryption.Curses.Sequences;
+using Infiniscryption.Curses.Patchers;
 
 namespace Infiniscryption.Curses.Cards
 {
@@ -185,12 +186,18 @@ namespace Infiniscryption.Curses.Cards
                     quitAfterTakeDamage = true;
                 }
 
-                yield return this.PlayableCard.TakeDamage(internalDamage, this.PlayableCard);
+                yield return this.PlayableCard.TakeDamage(internalDamage, null);
                 
                 if (quitAfterTakeDamage)
                 {
                     yield break;
                 }
+            }
+
+            // Sanity check. Apparently in some edge cases we can end up here.
+            if (this.PlayableCard == null || this.PlayableCard.Health <= 0 || this.PlayableCard.Dead || this.StomachContents == null)
+            {
+                yield break;
             }
 
             // If the card does not have the bite mark, add the bite mark.
@@ -326,6 +333,9 @@ namespace Infiniscryption.Curses.Cards
             {
                 // For an opponent card, we put it in the player's hand (with damage intact)
                 ViewManager.Instance.SwitchToView(View.Hand);
+
+                if (digestedCard.HasAbility(Bitten.AbilityID))
+                    AchievementManager.Unlock(CursedAchievements.SHARK_POP);
 
                 PlayableCard spawnedCard = CardSpawner.SpawnPlayableCard(digestedCard);
                 yield return PlayerHand.Instance.AddCardToHand(spawnedCard, Vector3.zero, 0f);

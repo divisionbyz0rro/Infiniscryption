@@ -1,7 +1,7 @@
 using DiskCardGame;
 using HarmonyLib;
 using System.Collections.Generic;
-using Infiniscryption.Core.Helpers;
+using InscryptionAPI.Helpers;
 using InscryptionAPI.Guid;
 using Infiniscryption.Spells.Sigils;
 using InscryptionAPI.Card;
@@ -15,17 +15,18 @@ namespace Infiniscryption.Curses.Cards
         {
             CardManager.New(CursePlugin.CardPrefix, TrapperTraderBossHardOpponent.BOW_CARD, "Bow and Arrow", 0, 0)
                 .SetTargetedSpell()
-                .SetPortrait(AssetHelper.LoadTexture("portrait_bow"))
+                .SetPortrait(TextureHelper.GetImageAsTexture("portrait_bow.png", typeof(Bow).Assembly))
                 .AddAbilities(DirectDamage.AbilityID, DirectDamage.AbilityID);
 
             CardManager.New(CursePlugin.CardPrefix, TrapperTraderBossHardOpponent.CAPTURE_CARD, "Capture", 0, 0)
                 .SetTargetedSpell()
-                .SetPortrait(AssetHelper.LoadTexture("portrait_capture"))
+                .SetPortrait(TextureHelper.GetImageAsTexture("portrait_capture.png", typeof(Bow).Assembly))
                 .AddAbilities(Fishhook.AbilityID);
 
             CardManager.New(CursePlugin.CardPrefix, TrapperTraderBossHardOpponent.SPIKE_TRAP_CARD, "Spike Trap", 0, 2)
-                .SetPortrait(AssetHelper.LoadTexture("portrait_spike_trap"))
-                .SetTerrain()
+                .SetPortrait(TextureHelper.GetImageAsTexture("portrait_spike_trap.png", typeof(Bow).Assembly))
+                .AddTraits(Trait.Terrain)
+                .AddAppearances(CardAppearanceBehaviour.Appearance.TerrainBackground, CardAppearanceBehaviour.Appearance.TerrainLayout)
                 .AddAbilities(Ability.Sharp, Ability.DebuffEnemy);
         }
     }

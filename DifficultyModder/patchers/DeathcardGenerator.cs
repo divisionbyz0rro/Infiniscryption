@@ -10,7 +10,7 @@ namespace Infiniscryption.Curses.Patchers
 		public static CardModificationInfo GenerateMod(int hauntLevel)
 		{
 			List<AbilityInfo> validAbilities = ScriptableObjectLoader<AbilityInfo>.AllData.FindAll((AbilityInfo x) => x.metaCategories.Contains(AbilityMetaCategory.Part1Modular) && x.opponentUsable);
-			int statPoints = 3 + hauntLevel;
+			int statPoints = 3 + hauntLevel + 2 * RunState.Run.regionTier;
 
 			CardModificationInfo cardModificationInfo = CardInfoGenerator.CreateRandomizedAbilitiesStatsMod(validAbilities, statPoints, 1, 2);
 			int seed = SaveManager.saveFile.GetCurrentRandomSeed()+110;

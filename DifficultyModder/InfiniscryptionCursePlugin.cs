@@ -8,7 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using Infiniscryption.Curses.Patchers;
-using Infiniscryption.Core.Helpers;
+using Infiniscryption.Curses.Helpers;
 using InscryptionAPI.Saves;
 
 namespace Infiniscryption.Curses
@@ -16,6 +16,7 @@ namespace Infiniscryption.Curses
     [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
     [BepInDependency("cyantist.inscryption.api")]
     [BepInDependency("zorro.inscryption.infiniscryption.spells")]
+    [BepInDependency("zorro.inscryption.infiniscryption.achievements")]
     public class CursePlugin : BaseUnityPlugin
     {
 
@@ -25,6 +26,16 @@ namespace Infiniscryption.Curses
         internal const string CardPrefix = "CURSES";
 
         internal static ManualLogSource Log;
+
+        internal static CursePlugin Instance;  
+
+        internal string DebugCode
+        {
+            get
+            {
+                return Config.Bind("CurseMod", "DebugCode", "nothing", new BepInEx.Configuration.ConfigDescription("A special code to use for debugging purposes only. Don't change this unless your name is DivisionByZorro or he told you how it works.")).Value;
+            }
+        }
 
         private void Awake()
         {
@@ -42,9 +53,14 @@ namespace Infiniscryption.Curses
             BiggerMoon.Register(harmony);
             BoonsAssist.Register(harmony);
 
+            CursedAchievements.Register();
+
+            harmony.PatchAll(typeof(AudioHelper));
             harmony.PatchAll(typeof(CursePlugin));
 
-            Logger.LogInfo($"Plugin {PluginName} is loaded!");
+            Instance = this;
+
+            Logger.LogInfo($"Plugin {PluginName} is loaded with debug code {DebugCode}");
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
-using Infiniscryption.Core.Helpers;
 using Infiniscryption.PackManagement.Patchers;
 using Infiniscryption.PackManagement.UserInterface;
 using InscryptionAPI.Ascension;

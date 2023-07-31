@@ -11,15 +11,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DifficultyMod", "Difficulty
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SideDecks", "SideDecks\SideDecks.csproj", "{E95D646C-71E8-4BCA-8501-3CAC54AD1E91}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spells", "Spells\Spells.csproj", "{A3E5DBDB-3FC8-46D8-9D11-AA6BEE48A19F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VanillaStackable", "VanillaStackable\VanillaStackable.csproj", "{36399D2F-4E01-4179-B42D-F87899DF500E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackManager", "PackManager\PackManager.csproj", "{99498EE7-6FC1-4926-B306-F28E985E524A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunAndGames", "FunAndGames\FunAndGames.csproj", "{DE8480A3-045D-4319-B029-B06ABB8B8DA5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackManagerP03Patcher", "PackManagerP03Patcher\PackManagerP03Patcher.csproj", "{A9EEB7F4-D915-44D0-B5CE-52BF5B174BCE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Terrain", "Terrain\Terrain.csproj", "{7A6EEE86-881A-49DE-B9F0-B70C5976B9E9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Achievements", "Achievements\Achievements.csproj", "{A02B5EFF-2E8F-431C-929D-477AC19A096C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -46,10 +46,6 @@ Global
 		{E95D646C-71E8-4BCA-8501-3CAC54AD1E91}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E95D646C-71E8-4BCA-8501-3CAC54AD1E91}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E95D646C-71E8-4BCA-8501-3CAC54AD1E91}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A3E5DBDB-3FC8-46D8-9D11-AA6BEE48A19F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A3E5DBDB-3FC8-46D8-9D11-AA6BEE48A19F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A3E5DBDB-3FC8-46D8-9D11-AA6BEE48A19F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A3E5DBDB-3FC8-46D8-9D11-AA6BEE48A19F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5A6B7EF5-0E80-4171-88A8-F60169611451}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5A6B7EF5-0E80-4171-88A8-F60169611451}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A6B7EF5-0E80-4171-88A8-F60169611451}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -74,9 +70,13 @@ Global
 		{DE8480A3-045D-4319-B029-B06ABB8B8DA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DE8480A3-045D-4319-B029-B06ABB8B8DA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DE8480A3-045D-4319-B029-B06ABB8B8DA5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A9EEB7F4-D915-44D0-B5CE-52BF5B174BCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A9EEB7F4-D915-44D0-B5CE-52BF5B174BCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A9EEB7F4-D915-44D0-B5CE-52BF5B174BCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A9EEB7F4-D915-44D0-B5CE-52BF5B174BCE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A6EEE86-881A-49DE-B9F0-B70C5976B9E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A6EEE86-881A-49DE-B9F0-B70C5976B9E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A6EEE86-881A-49DE-B9F0-B70C5976B9E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A6EEE86-881A-49DE-B9F0-B70C5976B9E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A02B5EFF-2E8F-431C-929D-477AC19A096C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A02B5EFF-2E8F-431C-929D-477AC19A096C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A02B5EFF-2E8F-431C-929D-477AC19A096C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A02B5EFF-2E8F-431C-929D-477AC19A096C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

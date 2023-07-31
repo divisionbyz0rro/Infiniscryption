@@ -2,7 +2,7 @@ using DiskCardGame;
 using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
-using Infiniscryption.Core.Helpers;
+using InscryptionAPI.Helpers;
 using InscryptionAPI.Ascension;
 using InscryptionAPI.Saves;
 using System;
@@ -29,6 +29,15 @@ namespace Infiniscryption.Curses.Patchers
         {
             get 
             {
+                try
+                {
+                    CardLoader.GetCardByName("P03KCM_Draft_Token_Rare");
+                }
+                catch 
+                {
+                    return false;
+                }
+
                 if (SceneLoader.ActiveSceneName.ToLowerInvariant().Contains("part3"))
                     return true;
 
@@ -53,7 +62,7 @@ namespace Infiniscryption.Curses.Patchers
                 "Golden Beginnings",
                 "Start the game with the ability to draft a rare card",
                 -10,
-                AssetHelper.LoadTexture("assist_golden_pelt"),
+                TextureHelper.GetImageAsTexture("assist_golden_pelt.png", typeof(GoldenPeltStart).Assembly),
                 ChallengeManager.HAPPY_ACTIVATED_SPRITE,
                 stackable: true
             );
@@ -89,7 +98,17 @@ namespace Infiniscryption.Curses.Patchers
                 for (int i = 0; i < AscensionSaveData.Data.GetNumChallengesOfTypeActive(ID); i++)
                     __instance.deck.AddCard(CardLoader.GetCardByName(rareDraftCard));
             }
-            
+        }
+
+        [HarmonyPatch(typeof(MapGenerator), nameof(MapGenerator.ForceFirstNodeTraderForAscension))]
+        [HarmonyPrefix]
+        private static bool LogicUpdateForPelts(int rowIndex, ref bool __result)
+        {
+            __result = SaveFile.IsAscension 
+                && rowIndex == 1 
+                && RunState.Run.regionTier == 0 
+                && AscensionSaveData.Data.currentRun.playerDeck.Cards.Any(ci => CardLoader.PeltNames.Contains(ci.name));
+            return false;
         }
     }
 }
