@@ -16,8 +16,8 @@ namespace Infiniscryption.Achievements
     public class AchievementsPlugin : BaseUnityPlugin
     {
 
-        internal const string PluginGuid = "zorro.inscryption.infiniscryption.achievements";
-		internal const string PluginName = "Achievements Plugin";
+        public const string PluginGuid = "zorro.inscryption.infiniscryption.achievements";
+		public const string PluginName = "Achievements Plugin";
 		internal const string PluginVersion = "1.0";
 
         internal static ManualLogSource Log;

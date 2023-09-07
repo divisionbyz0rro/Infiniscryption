@@ -177,7 +177,7 @@ namespace Infiniscryption.Achievements
 
         private void RightPageButtonClicked(MainInputInteractable button)
         {
-            int numberOfPages = Mathf.CeilToInt(ModdedAchievementManager.GroupById(this.ActiveGroup).Achievements.Count / this.Badges.Count);
+            int numberOfPages = Mathf.CeilToInt(((float)ModdedAchievementManager.GroupById(this.ActiveGroup).Achievements.Count) / ((float)this.Badges.Count));
             if (this.GroupPage < numberOfPages - 1)
             {
                 this.GroupPage += 1;

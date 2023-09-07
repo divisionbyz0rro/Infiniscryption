@@ -24,8 +24,8 @@ namespace Infiniscryption.Achievements
     {
         private static readonly AudioClip DefaultAudioClip = SoundManager.LoadAudioClip("achievement_default.wav");
 
-        private static readonly Rect ICON_RECT = new (0, 0, 22, 22);
-        private static readonly Vector2 ICON_PIVOT = new (0.5f, 0.5f);
+        private static readonly Rect ICON_RECT = new(0, 0, 22, 22);
+        private static readonly Vector2 ICON_PIVOT = new(0.5f, 0.5f);
 
         /// <summary>
         /// Enumerates the group of achievements
@@ -119,7 +119,7 @@ namespace Infiniscryption.Achievements
         private static List<AchievementGroupDefinition> AllAchievementGroups = new();
 
         // These are all of the audio clips we need to patch in
-        private static List<AudioClip> clipsToPatchIn = new () { DefaultAudioClip };
+        private static List<AudioClip> clipsToPatchIn = new() { DefaultAudioClip };
 
         static ModdedAchievementManager()
         {
@@ -159,7 +159,8 @@ namespace Infiniscryption.Achievements
 
             Sprite locked = lockedTexture == null ? GroupById(AchievementGroup.KayceesModAchievements).LockedSprite : Sprite.Create(lockedTexture, ICON_RECT, ICON_PIVOT);
 
-            AchievementGroupDefinition newGroup = new () {
+            AchievementGroupDefinition newGroup = new()
+            {
                 ID = id,
                 EnglishGroupName = name,
                 AudioCue = audioCue,
@@ -245,12 +246,13 @@ namespace Infiniscryption.Achievements
         internal static AchievementDefinition New(Achievement id, string achievementEnglishName, string achievementEnglishDescription, bool secret, AchievementGroup groupId, Texture2D icon)
         {
             if (AllAchievements.Any(agd => agd.ID == id))
-                throw new InvalidOperationException($"An achievement group with ID {id} already exists!");
+                throw new InvalidOperationException($"An achievement with ID {id} already exists!");
 
             if (icon != null && (icon.width != 22 || icon.height != 22))
                 throw new InvalidOperationException("Achievement icon texture must be 22x22 pixels");
 
-            AchievementDefinition def = new() {
+            AchievementDefinition def = new()
+            {
                 ID = id,
                 GroupID = groupId,
                 EnglishName = achievementEnglishName,
@@ -311,11 +313,12 @@ namespace Infiniscryption.Achievements
         [HarmonyPriority(Priority.VeryHigh)]
         private static bool Unlock(Achievement achievementID)
         {
-            bool isDefaultAchievement = GroupByAchievementId(achievementID).IsDefault;
+            var grp = GroupByAchievementId(achievementID);
+            bool isDefaultAchievement = grp != null && grp.IsDefault;
 
             // This is a patch to make sure we don't accidentally invoke the platform's achievement handler
             // for a custom achievement.
-            if (SaveManager.SaveFile.unlockedAchievements != null 
+            if (SaveManager.SaveFile.unlockedAchievements != null
                 && !SaveManager.SaveFile.unlockedAchievements.Contains(achievementID))
             {
                 SaveManager.SaveFile.unlockedAchievements.Add(achievementID);

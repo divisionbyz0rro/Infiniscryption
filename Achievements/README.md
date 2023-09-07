@@ -110,6 +110,19 @@ The Thunderstore icon for this mod (which appears nowhere else in the mod) came 
 <details>
 <summary>Changelog</summary>
 
+0.1.4
+- You ever publish something without properly checking the zip file first? Yeah. 
+- 0.1.4 actually does all the things 0.1.3 said it did.
+
+0.1.3
+- Improved error messages
+- Small code refactor to improve performance.
+- Small change to Unlock to be a bit more resilient to edge cases.
+
+0.1.2
+- Fixed defect in the achievements screen that was preventing paging from working correctly.
+- Made the `AchievementsPlugin.PluginGuid` field public.
+
 0.1.1
 - Fixed typo in the README.
 - Removed unhelpful errors getting written to the log file
