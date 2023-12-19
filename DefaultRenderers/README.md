@@ -10,7 +10,7 @@ The intent is for this mod to be an enabler for other mods. That's it.
 
 (Okay - it also adds an attack animation for Magnificus cards in every zone other than the Magnificus zone. It does this because otherwise the Magnificus cards would literally do nothing when they attacked, which is...lame.)
 
-This is an early version - and this is buggy! I've tested it a fair bit, but I'm still surprised by how oddly certain edge cases behave. I hope I've found them all, but I'm sure you'll find bugs. Please let me know.
+This is an early version - and this is buggy! I've tested it a fair bit, but I'm still surprised by how oddly certain edge cases behave. I hope I've found them all, but I'm sure you'll find bugs. Please let me know and I'll try to squish them.
 
 ## How it works
 
@@ -28,7 +28,7 @@ One way that out-of-temple cards can appear in each act is through the use of th
 
 ## How to use
 
-**I'm installing this because it sounds like fun!** You need to install this, start the game, then edit the config file to set the "RendererAlwaysActive" flag to True.
+**I'm installing this because it sounds like fun!** You need to install this, start the game, then edit the config file to set the "RendererAlwaysActive" flag to True. You then need a way for out-of-temple mods to appear in your game; the Pack Manger mod can help to some degree, but you need to set the `CrossOverAllPacks` config setting in that mod to `true` in order to get what you're looking for.
 
 **I've made a custom card that I want to render in its native form.** You need to make this mod a dependency for your mod. Then, add an extension property with the ID `"Renderer.OverrideTemple"` to your card, where the value of that property is the temple you want the card to render as. 
 
@@ -87,6 +87,6 @@ SceneManager.sceneLoaded += delegate(Scene scene, LoadSceneMode mode)
 <summary>Changelog</summary>
 
 0.1.0
-- Initial Version
+- Initial Version. Contains both features and bugs.
 
 </details>
