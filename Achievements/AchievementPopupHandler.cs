@@ -17,8 +17,10 @@ using UnityEngine.SceneManagement;
 namespace Infiniscryption.Achievements
 {
     [HarmonyPatch]
-    public class AchievementPopupHandler : Singleton<AchievementPopupHandler>
+    public class AchievementPopupHandler : ManagedBehaviour
     {
+        public static AchievementPopupHandler Instance { get; private set; }
+
         public const float POPUP_TIMER = 5f;
 
         private List<Achievement> showQueue = new();
@@ -47,14 +49,15 @@ namespace Infiniscryption.Achievements
             this.PopupBadge.ToastAchievement(id);
 
             this.gameObject.SetActive(true);
-            Tween.Value(-0.3f, 0.4f, (v) => this.PopupBadge.ViewportPosition.offset = new (0f, v), 0.2f, 0f);
+            Tween.Value(-0.3f, 0.4f, (v) => this.PopupBadge.ViewportPosition.offset = new(0f, v), 0.2f, 0f);
 
             AudioController.Instance.PlaySound2D(grp.AudioCue, volume: 0.75f);
 
             AchievementsPlugin.Log.LogDebug($"Scheduling achievement popup close for {id}");
-            CustomCoroutine.WaitThenExecute(POPUP_TIMER, delegate() {
+            CustomCoroutine.WaitThenExecute(POPUP_TIMER, delegate ()
+            {
                 AchievementsPlugin.Log.LogDebug($"Closing achievement popup for {id}");
-                Tween.Value(0.4f, -0.3f, (v) => this.PopupBadge.ViewportPosition.offset = new (0f, v), 0.2f, 0f, completeCallback: () => this.gameObject.SetActive(false));
+                Tween.Value(0.4f, -0.3f, (v) => this.PopupBadge.ViewportPosition.offset = new(0f, v), 0.2f, 0f, completeCallback: () => this.gameObject.SetActive(false));
                 if (this.showQueue.Count > 0)
                 {
                     Achievement next = this.showQueue[0];
@@ -73,7 +76,8 @@ namespace Infiniscryption.Achievements
                 GameObject cameraContainer = null;
                 Camera camera = null;
                 Vector3 scale = new(2f, 2f, 1f);
-                if (sceneName.Equals("Ascension_Configure", StringComparison.InvariantCultureIgnoreCase))
+                bool isAscensionConfigureScreen = sceneName.Equals("Ascension_Configure", StringComparison.InvariantCultureIgnoreCase);
+                if (isAscensionConfigureScreen)
                 {
                     cameraContainer = AscensionMenuScreens.Instance.gameObject;
                     camera = Camera.main;
@@ -87,11 +91,11 @@ namespace Infiniscryption.Achievements
 
                 AchievementBadge popup = AchievementBadge.Create(cameraContainer.transform, camera);
                 popup.gameObject.transform.localScale = scale;
-                popup.ViewportPosition.offset = new(0f, -0.3f);
+                popup.ViewportPosition.offset = new(0f, isAscensionConfigureScreen ? 0.3f : -0.3f);
                 AchievementPopupHandler handler = popup.gameObject.AddComponent<AchievementPopupHandler>();
                 handler.PopupBadge = popup;
 
-                AchievementPopupHandler.m_Instance = handler;
+                AchievementPopupHandler.Instance = handler;
                 popup.gameObject.SetActive(false);
             }
             catch (Exception ex)

@@ -61,7 +61,7 @@
     <Exec Command="xcopy /Y $(ProjectDir)\..\lib\*.dll $(TargetDir)" />
     <Exec Command="xcopy /Y $(ProjectDir)\..\lib\*.dll $(TargetDir)" />
     <Exec Command="$(PkgILRepack)\tools\ILRepack /out:$(ProjectDir)\Compiled\Infiniscryption.FunAndGames.dll $(TargetPath) $(ProjectDir)../Core/Compiled/Infiniscryption.Core.dll /lib:$(TargetDir)" />
-    <Exec Command="xcopy /Y $(ProjectDir)\Compiled\Infiniscryption.FunAndGames.dll &quot;C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins&quot;" />
+    <!-- <Exec Command="xcopy /Y $(ProjectDir)\Compiled\Infiniscryption.FunAndGames.dll &quot;C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins&quot;" />-->
     <!--
     <Exec Command="xcopy /Y $(ProjectDir)\assets\*.png &quot;C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins\Infiniscryption\assets&quot;" />
     <Exec Command="xcopy /Y $(ProjectDir)\assets\*.wav &quot;C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins\Infiniscryption\assets&quot;" />

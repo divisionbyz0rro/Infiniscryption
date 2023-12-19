@@ -20,7 +20,7 @@ namespace Infiniscryption.PackManagement
     public static class PackManager
     {
         private static List<CardMetaCategory> protectedMetacategories = new();
-        private static List<AbilityMetaCategory> protectedAbilityMetacategories = new () 
+        private static List<AbilityMetaCategory> protectedAbilityMetacategories = new()
         {
             AbilityMetaCategory.Part1Rulebook,
             AbilityMetaCategory.Part3Rulebook,
@@ -108,8 +108,8 @@ namespace Infiniscryption.PackManagement
         /// has five new custom metacategories for its special choice nodes, so it adds those here to the Tech temple.</remarks>
         public static Dictionary<CardTemple, List<CardMetaCategory>> TempleMetacategories;
 
-        internal static List<PackInfo> AllPacks;        
-        
+        internal static List<PackInfo> AllPacks;
+
         private static HashSet<string> ActiveCards = new();
 
         private static HashSet<Ability> ActiveAbilities = new();
@@ -176,15 +176,15 @@ namespace Infiniscryption.PackManagement
             return AllPacks.FirstOrDefault(pi => pi.IsLeftoversPack);
         }
 
-        internal static Dictionary<string, string> AcceptedScreenStates = new ()
+        internal static Dictionary<string, string> AcceptedScreenStates = new()
         {
             { P03_MOD, P03_MOD },
-            { GRIMORA_MOD, GRIMORA_MOD }, 
+            { GRIMORA_MOD, GRIMORA_MOD },
             { MAGNIFICUS_MOD, $"{MAGNIFICUS_MOD}starterdecks" }
         };
 
-        internal static CardTemple ScreenState 
-        { 
+        internal static CardTemple ScreenState
+        {
             get
             {
                 Scene activeScene = SceneManager.GetActiveScene();
@@ -200,7 +200,7 @@ namespace Infiniscryption.PackManagement
                     if (sceneName.Contains("part1"))
                         return CardTemple.Nature;
                 }
-                
+
                 foreach (string guid in AcceptedScreenStates.Keys)
                 {
                     if (!Chainloader.PluginInfos.ContainsKey(guid))
@@ -212,7 +212,7 @@ namespace Infiniscryption.PackManagement
 
                     return (CardTemple)Enum.Parse(typeof(CardTemple), value);
                 }
-                
+
                 return CardTemple.Nature;
             }
         }
@@ -223,7 +223,7 @@ namespace Infiniscryption.PackManagement
             {
                 if (string.IsNullOrEmpty(grp.Key))
                     continue;
-                    
+
                 if (grp.Count() > 5)
                     PackManager.GetEstablishedPackInfo(grp.Key);
             }
@@ -240,7 +240,8 @@ namespace Infiniscryption.PackManagement
                         return true;
 
                 return false;
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 PackPlugin.Log.LogError($"Error checking {info.name}");
                 PackPlugin.Log.LogError(ex);
@@ -254,7 +255,7 @@ namespace Infiniscryption.PackManagement
                 state = ScreenState;
 
             string packString = string.Join("|", packs.Select(pi => pi.Key));
-            string packKey = activeList ? $"AscensionData_ActivePackList" : $"{state.ToString()}_InactivePackList";
+            string packKey = activeList ? $"{state.ToString()}_ActivePackList" : $"{state.ToString()}_InactivePackList";
 
             ModdedSaveManager.SaveData.SetValue(PackPlugin.PluginGuid, packKey, packString);
         }
@@ -264,7 +265,7 @@ namespace Infiniscryption.PackManagement
             if (state == CardTemple.Nature)
                 state = ScreenState;
 
-            string packKey = activeList ? $"AscensionData_ActivePackList" : $"{state.ToString()}_InactivePackList";
+            string packKey = activeList ? $"{state.ToString()}_ActivePackList" : $"{state.ToString()}_InactivePackList";
             string packString = ModdedSaveManager.SaveData.GetValue(PackPlugin.PluginGuid, packKey);
 
             if (packString == default(string))
@@ -291,10 +292,10 @@ namespace Infiniscryption.PackManagement
             string activePackDebugString = String.Join(", ", activePacks.Select(ap => ap.Title));
             PackPlugin.Log.LogDebug($"Active packs are {activePackDebugString}");
 
-            ActiveCards = new ();
+            ActiveCards = new();
             ActiveAbilities = new();
 
-            foreach(PackInfo pack in activePacks)
+            foreach (PackInfo pack in activePacks)
             {
                 List<CardInfo> cardsInPack = pack.Cards.ToList();
                 PackPlugin.Log.LogDebug($"Evaluating pack {pack.Title} with {cardsInPack.Count}; split by temple {pack.SplitPackByCardTemple}. Temple is {ScreenState}");
@@ -309,6 +310,7 @@ namespace Infiniscryption.PackManagement
                 if (ActiveCards.Contains(card.name))
                 {
                     PackPlugin.Log.LogDebug($"{card.name} is in an active pack; setting temple to {ScreenState}");
+                    card.SetExtendedProperty("PackManager.OriginalTemple", card.temple);
                     card.temple = ScreenState;
                 }
                 else
@@ -320,17 +322,17 @@ namespace Infiniscryption.PackManagement
                 if (ActiveCards.Contains(card.name))
                 {
 
-                    foreach(Ability ab in card.Abilities)
+                    foreach (Ability ab in card.Abilities)
                         if (!ActiveAbilities.Contains(ab))
                             ActiveAbilities.Add(ab);
                     if (card.iceCubeParams != null && card.iceCubeParams.creatureWithin != null)
-                        foreach(Ability ab in card.iceCubeParams.creatureWithin.Abilities)
+                        foreach (Ability ab in card.iceCubeParams.creatureWithin.Abilities)
                             if (!ActiveAbilities.Contains(ab))
                                 ActiveAbilities.Add(ab);
                     if (card.evolveParams != null && card.evolveParams.evolution != null)
-                        foreach(Ability ab in card.evolveParams.evolution.Abilities)
+                        foreach (Ability ab in card.evolveParams.evolution.Abilities)
                             if (!ActiveAbilities.Contains(ab))
-                                ActiveAbilities.Add(ab);    
+                                ActiveAbilities.Add(ab);
                 }
             }
 
@@ -360,7 +362,7 @@ namespace Infiniscryption.PackManagement
 
             // If the ability doesn't appear on any of the cards, 
             // it shouldn't appear anywhere
-            foreach(var fab in abilities)
+            foreach (var fab in abilities)
             {
                 if (!ActiveAbilities.Contains(fab.Id))
                     fab.Info.metaCategories = new(fab.Info.metaCategories.Where(c => protectedAbilityMetacategories.Contains(c)));

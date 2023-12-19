@@ -17,8 +17,8 @@ namespace Infiniscryption.SideDecks
     {
 
         public const string PluginGuid = "zorro.inscryption.infiniscryption.sidedecks";
-		public const string PluginName = "Infiniscryption Side Decks";
-		public const string PluginVersion = "1.0";
+        public const string PluginName = "Infiniscryption Side Decks";
+        public const string PluginVersion = "1.0";
         public const string CardPrefix = "ZSDD";
 
         internal static ManualLogSource Log;
@@ -32,8 +32,10 @@ namespace Infiniscryption.SideDecks
             CustomCards.RegisterCustomCards(harmony);
             harmony.PatchAll(typeof(SideDeckManager));
 
-            harmony.PatchAll(typeof(SideDeckSelectorScreen));
-            AscensionScreenManager.RegisterScreen<SideDeckSelectorScreen>();
+            // For now, let's take away the side deck selector screen
+            // And try to use the TVF Labs Screen
+            //harmony.PatchAll(typeof(SideDeckSelectorScreen));
+            //AscensionScreenManager.RegisterScreen<SideDeckSelectorScreen>();
 
             SideDeckSelectionSequencer.Register();
 

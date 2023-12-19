@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>Infiniscryption.PackManager</AssemblyName>
-    <Description>Infinite Inscryption - Pack Manager</Description>
-    <Version>1.0.0</Version>
+    <AssemblyName>Infiniscryption.DefaultRenderers</AssemblyName>
+    <Description>Infinite Inscryption - Default Renderers</Description>
+    <Version>1.0.2</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>9.0</LangVersion>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
@@ -21,18 +21,18 @@
     <PackageReference Include="UnityEngine.Modules" Version="2019.4.24" IncludeAssets="compile" GeneratePathProperty="true"/>
   </ItemGroup>
 
-  <!--
+<!--
   <ItemGroup>
-    <ProjectReference Include="..\Core\Core.csproj" />
+    <ProjectReference Include="..\PackManager\PackManager.csproj" />
   </ItemGroup>
-  -->
+-->
 
   <ItemGroup>
     <Reference Include="API" Private="false">
       <HintPath>..\lib\InscryptionAPI.dll</HintPath>
     </Reference>
-    <Reference Include="HealthForAnts" Private="false">
-      <HintPath>..\lib\HealthForAnts.dll</HintPath>
+    <Reference Include="InscryptionCommunityPatch" Private="false">
+      <HintPath>..\lib\InscryptionCommunityPatch.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp" Private="false">
       <HintPath>..\lib\Assembly-CSharp.dll</HintPath>
@@ -67,8 +67,8 @@
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="xcopy /Y $(ProjectDir)\..\lib\*.dll $(TargetDir)" />
     <Exec Command="xcopy /Y $(ProjectDir)\..\lib\*.dll $(TargetDir)" />
-    <!--<Exec Command="$(PkgILRepack)\tools\ILRepack /out:$(ProjectDir)\Compiled\Infiniscryption.PackManager.dll $(TargetPath) $(ProjectDir)../Core/Compiled/Infiniscryption.Core.dll /lib:$(TargetDir)" />-->
-    <Exec Command="xcopy /Y $(TargetPath) &quot;C:\Users\divis\AppData\Roaming\r2modmanPlus-local\Inscryption\profiles\Infiniscryption Mods Dev\BepInEx\plugins\Infiniscryption-Pack_Management_API&quot;" />
+    <!--<Exec Command="$(PkgILRepack)\tools\ILRepack /out:$(ProjectDir)\Compiled\Infiniscryption.FunAndGames.dll $(TargetPath) $(ProjectDir)../Core/Compiled/Infiniscryption.Core.dll /lib:$(TargetDir)" />-->
+    <Exec Command="xcopy /Y $(TargetPath) &quot;C:\Users\divis\AppData\Roaming\r2modmanPlus-local\Inscryption\profiles\Infiniscryption Mods Dev\BepInEx\plugins\Unknown-Original Card Style&quot;" />
     <!--
     <Exec Command="xcopy /Y $(ProjectDir)\assets\*.png &quot;C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins\Infiniscryption\assets&quot;" />
     <Exec Command="xcopy /Y $(ProjectDir)\assets\*.wav &quot;C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins\Infiniscryption\assets&quot;" />
@@ -80,7 +80,6 @@
     -->
     <Exec Command="xcopy /Y $(ProjectDir)\README.md $(ProjectDir)\package" />
     <Exec Command="xcopy /Y $(ProjectDir)\icon.png $(ProjectDir)\package" />
-    <Exec Command="xcopy /Y $(ProjectDir)\assets\default.png $(ProjectDir)\package" />
     <Exec Command="xcopy /Y $(ProjectDir)\manifest.json $(ProjectDir)\package" />
   </Target>
 </Project>

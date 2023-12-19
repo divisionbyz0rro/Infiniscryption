@@ -1,14 +1,14 @@
-using System.Collections.Generic;
-using DiskCardGame;
-using HarmonyLib;
-using UnityEngine;
-using System.Linq;
 using System;
-using GBC;
-using InscryptionAPI.Ascension;
-using InscryptionAPI.Helpers;
-using InscryptionAPI.Guid;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using DiskCardGame;
+using GBC;
+using HarmonyLib;
+using InscryptionAPI.Ascension;
+using InscryptionAPI.Guid;
+using InscryptionAPI.Helpers;
+using UnityEngine;
 
 namespace Infiniscryption.Achievements
 {
@@ -71,17 +71,21 @@ namespace Infiniscryption.Achievements
             {
                 for (int c = 0; c < 2; c++)
                 {
-                    AchievementBadge badge = AchievementBadge.Create(iconContainer.transform, Camera.main, wide: false);
-                    badge.gameObject.transform.localScale = new (1f, 1f, 1f);
+                    AchievementBadge badge = AchievementBadge.Create(iconContainer.transform, Camera.main, rightAnchor: c == 0 ? .5f : 1f);
+                    badge.gameObject.transform.localScale = new(1f, 1f, 1f);
                     ViewportRelativePosition vrp = badge.GetComponent<ViewportRelativePosition>();
-                    vrp.viewportAnchor = new (0.11f + 0.5f * c, 0.78f - 0.175f * r);
-                    vrp.offset = new (0f, 0f);
+                    vrp.viewportAnchor = new(0.09f + 0.5f * c, 0.75f - 0.175f * r);
+                    vrp.offset = new(0f, 0f);
+
+                    float rAnchor = c == 0 ? 0.5f : 1.0f;
+
                     badge.gameObject.SetActive(false);
 
                     Badges.Add(badge);
                 }
             }
-            
+
+
             // I need some arrow buttons
             var pageTuple = AscensionRunSetupScreenBase.BuildPaginators(iconContainer.transform);
 
@@ -121,7 +125,7 @@ namespace Infiniscryption.Achievements
             this.pageNumbers.SetColor(GameColors.Instance.red);
             ViewportRelativePosition pnVrp = pageNumberObj.AddComponent<ViewportRelativePosition>();
             pnVrp.viewportCam = Camera.main;
-            pnVrp.viewportAnchor = new (0.725f, 0.105f);
+            pnVrp.viewportAnchor = new(0.725f, 0.105f);
             pnVrp.enabled = true;
             pageNumberObj.SetActive(true);
 
@@ -129,7 +133,7 @@ namespace Infiniscryption.Achievements
             this.continueButton.gameObject.SetActive(false);
             this.challengeHeaderDisplay.headerPointsLines.lines.ForEach(pt => pt.gameObject.SetActive(false));
             this.challengeFooterLines.lines.ForEach(pt => pt.gameObject.SetActive(false));
-            this.screenTitle.gameObject.transform.localPosition = new (0f, -0.17f, 0f);
+            this.screenTitle.gameObject.transform.localPosition = new(0f, -0.17f, 0f);
         }
 
         private void SyncComponents()
@@ -140,14 +144,14 @@ namespace Infiniscryption.Achievements
 
             var numPages = Mathf.CeilToInt(((float)grp.Achievements.Count()) / ((float)this.Badges.Count));
             this.pageNumbers.SetText($"{this.GroupPage + 1} / {numPages}");
-            
+
             int startIdx = this.Badges.Count * this.GroupPage;
             int numToShow = Math.Min(this.Badges.Count, grp.Achievements.Count - startIdx);
             var achs = grp.Achievements.GetRange(startIdx, numToShow);
 
             var achString = String.Join(", ", achs);
             AchievementsPlugin.Log.LogDebug($"Displaying achievements {achString}");
-            
+
             this.Badges.ForEach(b => b.gameObject.SetActive(false));
 
             for (int i = 0; i < achs.Count; i++)
@@ -168,28 +172,55 @@ namespace Infiniscryption.Achievements
 
         private void LeftPageButtonClicked(MainInputInteractable button)
         {
-            if (this.GroupPage > 0)
+            try
             {
-                this.GroupPage -= 1;
+                if (this.GroupPage > 0)
+                {
+                    this.GroupPage -= 1;
+                    this.SyncComponents();
+                }
+            }
+            catch
+            {
+                this.ActiveGroupIndex = 0;
+                this.GroupPage = 0;
                 this.SyncComponents();
             }
         }
 
         private void RightPageButtonClicked(MainInputInteractable button)
         {
-            int numberOfPages = Mathf.CeilToInt(ModdedAchievementManager.GroupById(this.ActiveGroup).Achievements.Count / this.Badges.Count);
-            if (this.GroupPage < numberOfPages - 1)
+            try
             {
-                this.GroupPage += 1;
+                int numberOfPages = Mathf.CeilToInt(((float)ModdedAchievementManager.GroupById(this.ActiveGroup).Achievements.Count) / ((float)this.Badges.Count));
+                if (this.GroupPage < numberOfPages - 1)
+                {
+                    this.GroupPage += 1;
+                    this.SyncComponents();
+                }
+            }
+            catch
+            {
+                this.ActiveGroupIndex = 0;
+                this.GroupPage = 0;
                 this.SyncComponents();
             }
         }
 
         public override void LeftButtonClicked(MainInputInteractable button)
         {
-            if (this.ActiveGroupIndex > 0)
+            try
             {
-                this.ActiveGroupIndex -= 1;
+                if (this.ActiveGroupIndex > 0)
+                {
+                    this.ActiveGroupIndex -= 1;
+                    this.GroupPage = 0;
+                    this.SyncComponents();
+                }
+            }
+            catch
+            {
+                this.ActiveGroupIndex = 0;
                 this.GroupPage = 0;
                 this.SyncComponents();
             }
@@ -197,9 +228,19 @@ namespace Infiniscryption.Achievements
 
         public override void RightButtonClicked(MainInputInteractable button)
         {
-            if (this.ActiveGroupIndex < this.AllGroups.Count - 1)
+            try
             {
-                this.ActiveGroupIndex += 1;
+                if (this.ActiveGroupIndex < this.AllGroups.Count - 1)
+                {
+                    this.ActiveGroupIndex += 1;
+                    this.GroupPage = 0;
+                    this.SyncComponents();
+                }
+            }
+            catch
+            {
+                this.ActiveGroupIndex = 0;
+                this.GroupPage = 0;
                 this.SyncComponents();
             }
         }
@@ -208,15 +249,20 @@ namespace Infiniscryption.Achievements
 
         public override void OnEnable()
         {
-            base.OnEnable();
+            Badges.ForEach(b => b.ReAlign());
 
             AllGroups.Clear();
-            AllGroups.AddRange(GuidManager.GetValues<ModdedAchievementManager.AchievementGroup>().Where(ag => ag != ModdedAchievementManager.AchievementGroup.StoryAchievements));
+            AllGroups.AddRange(GuidManager.GetValues<ModdedAchievementManager.AchievementGroup>().Where(
+                ag => ag != ModdedAchievementManager.AchievementGroup.StoryAchievements
+                      && ModdedAchievementManager.GroupById(ag) != null
+            ));
 
             this.ActiveGroupIndex = 0;
             this.GroupPage = 0;
             this.SyncComponents();
             this.SyncComponents();
+
+            base.OnEnable();
         }
 
         // Because we aren't setting ourselves up as a "run setup screen" the API's assumptions don't hold
@@ -247,7 +293,13 @@ namespace Infiniscryption.Achievements
             yield return new WaitForSeconds(0.05f);
 
             if (Instance != null && ScreenID == screen)
+            {
+                // I don't get it. Something isn't triggering correctly the
+                // first time the screen is activated, so what if I do it twice?
                 Instance.gameObject.SetActive(true);
+                Instance.gameObject.SetActive(false);
+                Instance.gameObject.SetActive(true);
+            }
 
             yield break;
         }
