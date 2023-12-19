@@ -65,7 +65,7 @@
     <Exec Command="xcopy /Y $(ProjectDir)\..\lib\*.dll $(TargetDir)" />
     <Exec Command="xcopy /Y $(ProjectDir)\..\lib\*.dll $(TargetDir)" />
     <Exec Command="$(PkgILRepack)\tools\ILRepack /out:$(ProjectDir)\Compiled\Infiniscryption.SideDecks.dll $(TargetPath) $(ProjectDir)../Core/Compiled/Infiniscryption.Core.dll /lib:$(TargetDir)" />
-    <Exec Command="xcopy /Y $(ProjectDir)\Compiled\Infiniscryption.SideDecks.dll &quot;C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins&quot;" />
+    <Exec Command="xcopy /Y $(ProjectDir)\Compiled\Infiniscryption.SideDecks.dll &quot;C:\Users\divis\AppData\Roaming\r2modmanPlus-local\Inscryption\profiles\Infiniscryption Mods Dev\BepInEx\plugins\Infiniscryption-Side_Deck_Selector&quot;" />
     <!--
     <Exec Command="xcopy /Y $(ProjectDir)\assets\*.png &quot;C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins\Infiniscryption\assets&quot;" />
     <Exec Command="xcopy /Y $(ProjectDir)\assets\*.wav &quot;C:\Program Files (x86)\Steam\steamapps\common\Inscryption\BepInEx\plugins\Infiniscryption\assets&quot;" />

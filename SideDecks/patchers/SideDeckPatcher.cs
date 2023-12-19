@@ -1,17 +1,17 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using BepInEx;
-using BepInEx.Logging;
+using BepInEx.Bootstrap;
 using BepInEx.Configuration;
-using UnityEngine;
+using BepInEx.Logging;
 using DiskCardGame;
 using HarmonyLib;
-using System.Collections.Generic;
-using System;
-using InscryptionAPI.Saves;
-using InscryptionAPI.Card;
-using System.Linq;
-using InscryptionAPI.Guid;
 using Infiniscryption.Core.Helpers;
-using BepInEx.Bootstrap;
+using InscryptionAPI.Card;
+using InscryptionAPI.Guid;
+using InscryptionAPI.Saves;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace Infiniscryption.SideDecks.Patchers
@@ -25,18 +25,18 @@ namespace Infiniscryption.SideDecks.Patchers
         /// Hook into this event to modify which cards are valid side deck selections based on context.
         /// </summary>
         public static event Action<CardTemple, List<string>> ModifyValidSideDeckCards;
-        
+
         public static string SelectedSideDeck
         {
-            get 
-            { 
-                string sideDeck = ModdedSaveManager.SaveData.GetValue(SideDecksPlugin.PluginGuid, "SideDeck.SelectedDeck");
+            get
+            {
+                string sideDeck = ModdedSaveManager.SaveData.GetValue(SideDecksPlugin.PluginGuid, $"SideDeck.{ScreenState}.SelectedDeck");
                 if (String.IsNullOrEmpty(sideDeck))
                     return "Squirrel";
 
-                return sideDeck; 
+                return sideDeck;
             }
-            internal set { ModdedSaveManager.SaveData.SetValue(SideDecksPlugin.PluginGuid, "SideDeck.SelectedDeck", value.ToString()); }
+            internal set { ModdedSaveManager.SaveData.SetValue(SideDecksPlugin.PluginGuid, $"SideDeck.{ScreenState}.SelectedDeck", value.ToString()); }
         }
 
         public static int SelectedSideDeckCost
@@ -53,17 +53,17 @@ namespace Infiniscryption.SideDecks.Patchers
         private const string P03_MOD = "zorro.inscryption.infiniscryption.p03kayceerun";
         private const string MAGNIFICUS_MOD = "silenceman.inscryption.magnificusmod";
 
-        private static readonly  AscensionChallenge LEEPBOT_SIDEDECK = GuidManager.GetEnumValue<AscensionChallenge>("zorro.inscryption.infiniscryption.p03kayceerun", "LeepbotSidedeck");
+        private static readonly AscensionChallenge LEEPBOT_SIDEDECK = GuidManager.GetEnumValue<AscensionChallenge>("zorro.inscryption.infiniscryption.p03kayceerun", "LeepbotSidedeck");
 
-        internal static Dictionary<string, string> AcceptedScreenStates = new ()
+        internal static Dictionary<string, string> AcceptedScreenStates = new()
         {
             { P03_MOD, P03_MOD },
-            { GRIMORA_MOD, GRIMORA_MOD }, 
+            { GRIMORA_MOD, GRIMORA_MOD },
             { MAGNIFICUS_MOD, $"{MAGNIFICUS_MOD}starterdecks" }
         };
 
-        internal static CardTemple ScreenState 
-        { 
+        internal static CardTemple ScreenState
+        {
             get
             {
                 Scene activeScene = SceneManager.GetActiveScene();
@@ -79,7 +79,7 @@ namespace Infiniscryption.SideDecks.Patchers
                     if (sceneName.Contains("part1"))
                         return CardTemple.Nature;
                 }
-                
+
                 foreach (string guid in AcceptedScreenStates.Keys)
                 {
                     if (!Chainloader.PluginInfos.ContainsKey(guid))
@@ -91,7 +91,7 @@ namespace Infiniscryption.SideDecks.Patchers
 
                     return (CardTemple)Enum.Parse(typeof(CardTemple), value);
                 }
-                
+
                 return CardTemple.Nature;
             }
         }
@@ -101,16 +101,16 @@ namespace Infiniscryption.SideDecks.Patchers
         public static List<string> GetAllValidSideDeckCards()
         {
             List<string> allSideDeckCards = CardManager.AllCardsCopy
-                                               .Where(card => card.metaCategories.Contains(SIDE_DECK) 
+                                               .Where(card => card.metaCategories.Contains(SIDE_DECK)
                                                               && card.temple == ScreenState)
                                                .Select(card => card.name).ToList();
 
             if (AscensionSaveData.Data.ChallengeIsActive(AscensionChallenge.SubmergeSquirrels))
             {
                 if (ScreenState == CardTemple.Nature)
-                    allSideDeckCards = new () { "AquaSquirrel" };
+                    allSideDeckCards = new() { "AquaSquirrel" };
                 else if (ScreenState == CardTemple.Tech)
-                    allSideDeckCards = new () { SideDecksPlugin.CardPrefix + "_EmptyVesselSubmerge" };
+                    allSideDeckCards = new() { SideDecksPlugin.CardPrefix + "_EmptyVesselSubmerge" };
             }
 
             if (ScreenState == CardTemple.Tech)
@@ -123,7 +123,7 @@ namespace Infiniscryption.SideDecks.Patchers
 
 
             ModifyValidSideDeckCards?.Invoke(ScreenState, allSideDeckCards);
-            
+
             return allSideDeckCards;
         }
 
@@ -172,7 +172,7 @@ namespace Infiniscryption.SideDecks.Patchers
         {
             // Here, we replace dialogue from Leshy based on the starter decks plugin being installed
             // And add new dialogue
-            DialogueHelper.AddOrModifySimpleDialogEvent("SideDeckIntro", new string []
+            DialogueHelper.AddOrModifySimpleDialogEvent("SideDeckIntro", new string[]
             {
                 "Here you may replace the creatures in your [c:bR]side deck[c:]"
             });
@@ -186,7 +186,7 @@ namespace Infiniscryption.SideDecks.Patchers
             if (SaveFile.IsAscension)
             {
                 CardInfo info = CardManager.AllCardsCopy.CardByName(SelectedSideDeck);
-                foreach(Ability ab in info.Abilities)
+                foreach (Ability ab in info.Abilities)
                 {
                     AbilityInfo abInfo = AbilitiesUtil.GetInfo(ab);
 
@@ -210,7 +210,7 @@ namespace Infiniscryption.SideDecks.Patchers
                     string currentAbilityString = String.Join(", ", info.Abilities);
                     string needsAbilityString = String.Join(", ", sideDeckCard.Abilities);
                     SideDecksPlugin.Log.LogDebug($"Side deck card has {currentAbilityString} and needs {needsAbilityString}");
-                    foreach(var group in sideDeckCard.Abilities.GroupBy(a => a))
+                    foreach (var group in sideDeckCard.Abilities.GroupBy(a => a))
                     {
                         int currentCount = info.Abilities.Where(a => a == group.Key).Count();
                         int targetCount = group.Count();

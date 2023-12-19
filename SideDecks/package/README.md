@@ -105,6 +105,9 @@ SideDeckManager.ModifyValidSideDeckCards += delegate(CardTemple temple, List<str
 <details>
 <summary>Changelog</summary>
 
+2.1.6
+- Fixed a small bug that causes the side deck cards to bleed across runs if you have a scrybe mod installed (P03, Grimora, Magnificus) and try to actively switch between runs of different scrybes.
+
 2.1.5
 - I'm back. Deal with it.
 - Made the documentation better.

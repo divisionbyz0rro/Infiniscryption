@@ -18,6 +18,8 @@ This mod will also try to remove encounters from each region that contain exclud
 
 Packs are discovered by looking at the entire card pool and seeing what cards belong to which prefix. Each card is grouped with its prefix, and assigned a Pack based on that prefix. The game will create a default pack art and attempt to create a default description for every pack of cards it discovers, but mod creators can build their own pack descriptions and pack arts as well.
 
+All of the cards that come with the base game are also assigned to their own packs. By default, these packs only appear in runs for that region, but you can make all packs appear in all regions using the "CrossOverAllPacks" setting in the configuration file.
+
 This mod comes with pack definitions and custom art for the following mods:
 
 - [Ara Card Expansion](https://inscryption.thunderstore.io/package/Arackulele/AraCardExpansion/)
@@ -143,6 +145,12 @@ A template (blank) pack art PNG is included in this package.
 
 <details>
 <summary>Changelog</summary>
+
+1.1.6
+- Added a new configuration option to allow all default card packs to be made available for all types of runs. I make no promises how well these cards will actually play, but the option is now there if you want to screw around with it. 
+
+1.1.5
+- Fixed a small bug that causes the pack list to desync if you have a scrybe mod installed (P03, Grimora, Magnificus) and try to actively switch between runs of different scrybes.
 
 1.1.4
 - Restored the Eri's mod pack definition by popular request.

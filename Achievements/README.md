@@ -110,6 +110,14 @@ The Thunderstore icon for this mod (which appears nowhere else in the mod) came 
 <details>
 <summary>Changelog</summary>
 
+0.2
+- Fixed a defect where the achievement screen was still trying to display achievements from disabled/uninstalled mods.
+
+0.1.5
+- Fixed defect with paged not resetting (and sometime erroring) when switching achievement groups.
+- Significantly improved the layout of the achievement screen to properly handle multiple resolutions.
+- Fixed a defect where the achievement popup alert in the Run Configuration scene was offscreen.
+
 0.1.4
 - You ever publish something without properly checking the zip file first? Yeah. 
 - 0.1.4 actually does all the things 0.1.3 said it did.

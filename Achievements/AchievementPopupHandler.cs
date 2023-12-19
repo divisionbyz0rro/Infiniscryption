@@ -76,7 +76,8 @@ namespace Infiniscryption.Achievements
                 GameObject cameraContainer = null;
                 Camera camera = null;
                 Vector3 scale = new(2f, 2f, 1f);
-                if (sceneName.Equals("Ascension_Configure", StringComparison.InvariantCultureIgnoreCase))
+                bool isAscensionConfigureScreen = sceneName.Equals("Ascension_Configure", StringComparison.InvariantCultureIgnoreCase);
+                if (isAscensionConfigureScreen)
                 {
                     cameraContainer = AscensionMenuScreens.Instance.gameObject;
                     camera = Camera.main;
@@ -90,7 +91,7 @@ namespace Infiniscryption.Achievements
 
                 AchievementBadge popup = AchievementBadge.Create(cameraContainer.transform, camera);
                 popup.gameObject.transform.localScale = scale;
-                popup.ViewportPosition.offset = new(0f, -0.3f);
+                popup.ViewportPosition.offset = new(0f, isAscensionConfigureScreen ? 0.3f : -0.3f);
                 AchievementPopupHandler handler = popup.gameObject.AddComponent<AchievementPopupHandler>();
                 handler.PopupBadge = popup;
 
