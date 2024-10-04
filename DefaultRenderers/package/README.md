@@ -86,6 +86,20 @@ SceneManager.sceneLoaded += delegate(Scene scene, LoadSceneMode mode)
 <details>
 <summary>Changelog</summary>
 
+0.1.3
+- 
+
+0.1.2
+- Fixed a bug caused by Disk Talking Cards in Act 3.
+- Fixed Wizard card attack animations not always resetting.
+- Gave the default Orange Wizard an attack animation...kind of. 
+- Fixed a defect with gravestone cards dying anywhere other than battle.
+
+0.1.1
+- As promised, there were bugs.
+  - A big one was the scene checker, which was causing cards to render incorrectly in scenes other than Leshy's cabin.
+  - Another issue had to do with the angler's fish hook breaking on all non Leshy cards
+
 0.1.0
 - Initial Version. Contains both features and bugs.
 

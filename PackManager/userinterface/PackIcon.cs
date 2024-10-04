@@ -5,17 +5,40 @@ using InscryptionAPI.Card;
 using System.Collections.Generic;
 using System.Linq;
 using GBC;
+using InscryptionAPI.Helpers;
+using InscryptionAPI.Ascension;
 
 namespace Infiniscryption.PackManagement.UserInterface
 {
     public class PackIcon : MainInputInteractable
     {
-        public void AssignPackInfo(PackInfo info, PackContentCache cache)
+        private static Dictionary<string, Sprite> _defaultPackSprites = new();
+        internal static Sprite GetDefaultPackSprite(Type type)
+        {
+            if (!_defaultPackSprites.ContainsKey(type.Name))
+            {
+                _defaultPackSprites[type.Name] = Sprite.Create(TextureHelper.GetImageAsTexture($"default_window_{type.Name}.png", typeof(PackPlugin).Assembly), new Rect(0f, 0f, 46f, 74f), new Vector2(0.5f, 0.5f));
+            }
+            return _defaultPackSprites[type.Name];
+        }
+
+        public void AssignPackInfo(PackInfoBase info, PackContentCache cache)
         {
             Info = info;
-            Selected = !PackManager.RetrievePackList(false).Contains(info);
+            Cache = cache;
+            List<PackInfoBase> activePacks = PackManager.RetrievePackList(info.GetType(), true);
+            Selected = activePacks.Contains(info);
+            if (!Selected)
+            {
+                Locked = false;
+            }
+            else
+            {
+                activePacks.Remove(info);
+                Locked = !info.SetOfPacksIsValid(activePacks, cache);
+            }
             CoveredRenderer.gameObject.SetActive(!Selected);
-            ActualCards = cache.GetCardsForPack(info);
+            LockedRenderer.gameObject.SetActive(Locked);
             if (info.PackArt != null)
             {
                 IconRenderer.gameObject.SetActive(true);
@@ -26,11 +49,11 @@ namespace Infiniscryption.PackManagement.UserInterface
             else
             {
                 IconRenderer.gameObject.SetActive(true);
-                IconRenderer.sprite = PackSelectorScreen.DefaultPackSprite;
+                IconRenderer.sprite = GetDefaultPackSprite(info.GetType());
                 Text.gameObject.SetActive(true);
                 Text.SetText(info.ModPrefix.Length > 6 ? info.ModPrefix.Substring(0, 6) : info.ModPrefix);
                 SampleCardRenderer.gameObject.SetActive(true);
-                SampleCardRenderer.sprite = IconCard.portraitTex;
+                SampleCardRenderer.sprite = Info.IconCard.portraitTex;
             }
         }
 
@@ -38,89 +61,54 @@ namespace Infiniscryption.PackManagement.UserInterface
 
         internal SpriteRenderer CoveredRenderer;
 
+        internal SpriteRenderer LockedRenderer;
+
         internal PixelText Text;
 
         internal SpriteRenderer SampleCardRenderer;
 
-        private List<string> ActualCards { get; set; }
-
-        private CardInfo IconCard
-        {
-            get
-            {
-                int maxPowerLevel = 0;
-                CardInfo maxCard = null;
-                foreach (CardInfo card in CardManager.AllCardsCopy.Where(ci => ActualCards.Contains(ci.name)))
-                {
-                    if (card.PowerLevel > maxPowerLevel)
-                    {
-                        maxPowerLevel = card.PowerLevel;
-                        maxCard = card;
-                    }
-                }
-                return maxCard;
-            }
-        }
+        private PackContentCache Cache { get; set; }
 
         public bool Selected { get; private set; }
 
-        public PackInfo Info { get; private set; }
+        public bool Locked { get; private set; }
 
-        private PackSelectorScreen ScreenParent => base.GetComponentInParent<PackSelectorScreen>();
+        public PackInfoBase Info { get; private set; }
+
+        private AscensionRunSetupScreenBase ScreenParent => base.GetComponentInParent<AscensionRunSetupScreenBase>();
 
         public override void OnCursorSelectEnd()
         {
             base.OnCursorSelectEnd();
 
-            List<PackInfo> activePacks = PackManager.RetrievePackList(true);
+            if (Locked)
+                return;
 
-            if (Selected && activePacks.Count == 1)
-                return; // You cannot unselect the last active pack
+            List<PackInfoBase> activePacks = PackManager.RetrievePackList(Info.GetType(), true);
 
-            List<PackInfo> inactivePacks = PackManager.RetrievePackList(false);
-            
             if (Selected)
             {
-                activePacks.Remove(this.Info);
-                inactivePacks.Add(this.Info);
+                while (activePacks.Contains(this.Info))
+                    activePacks.Remove(this.Info);
             }
             else
             {
                 activePacks.Add(this.Info);
-                inactivePacks.Remove(this.Info);
             }
 
-            PackManager.SavePackList(activePacks, true);
-            PackManager.SavePackList(inactivePacks, false);
+            PackManager.SavePackList(Info.GetType(), activePacks, true);
 
             Selected = !Selected;
             CoveredRenderer.gameObject.SetActive(!Selected);
+
+            IconSelectedCallback?.Invoke();
         }
 
-        private string RandomCardName() => CardManager.AllCardsCopy.CardByName(ActualCards[UnityEngine.Random.Range(0, ActualCards.Count)]).DisplayedNameLocalized;
-
-        private double AveragePowerLevel => CardManager.AllCardsCopy.Where(ci => ActualCards.Contains(ci.name)).Where(ci => ci != null).Select(ci => ci.PowerLevel).Average();
-
-        private string ReplaceRandom(string text)
-        {
-            while (true)
-            {
-                int pos = text.IndexOf("[randomcard]");
-                if (pos < 0)
-                    return text;
-                
-                text = text.Substring(0, pos) + RandomCardName() + text.Substring(pos + 12);
-            }
-        }
+        internal Action IconSelectedCallback = null;
 
         private string FormatString(string description)
         {
-            string repSring = description.Replace("[count]", ActualCards.Count.ToString())
-                                         .Replace("[name]", this.Info.Title)
-                                         .Replace("[powerlevel]", Math.Round(this.AveragePowerLevel, 2).ToString());
-
-            repSring = ReplaceRandom(repSring);
-            return Localization.Translate(repSring);
+            return Localization.Translate(this.Info.ReplaceMarkers(description, this.Cache));
         }
 
         public override void OnCursorEnter()

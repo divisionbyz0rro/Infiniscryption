@@ -38,6 +38,14 @@ namespace Infiniscryption.PackManagement
             }
         }
 
+        internal bool EncounterPackManagementBeta
+        {
+            get
+            {
+                return Config.Bind("EncounterManagement", "EncounterPackManagementBeta", true, new BepInEx.Configuration.ConfigDescription("If true, activates the beta version of the Encounter Pack screen")).Value;
+            }
+        }
+
         internal bool RemoveDefaultEncounters
         {
             get
@@ -64,7 +72,10 @@ namespace Infiniscryption.PackManagement
 
             JSONLoader.LoadFromJSON();
             CreatePacks.CreatePacksForOtherMods();
-            AscensionScreenManager.RegisterScreen<PackSelectorScreen>();
+            AscensionScreenManager.RegisterScreen<CardPackScreen>();
+
+            if (EncounterPackManagementBeta)
+                AscensionScreenManager.RegisterScreen<EncounterPackScreen>();
 
             if (CrossOverAllPacks)
             {

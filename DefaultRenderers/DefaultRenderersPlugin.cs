@@ -72,7 +72,10 @@ namespace Infiniscryption.DefaultRenderers
             {
                 DefaultCardRenderer.Instantiate();
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Log.LogWarning(ex);
+            }
         }
     }
 }

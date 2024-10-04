@@ -48,7 +48,6 @@ namespace Infiniscryption.DefaultRenderers
                 return GetDefaultPrefab(card);
             }
         }
-
         public override void ApplyAppearance()
         {
             if (Card.Anim is WizardCardAnimationController wcac && Card is PlayableCard pCard && pCard.OnBoard)
@@ -58,6 +57,7 @@ namespace Infiniscryption.DefaultRenderers
                     return;
 
                 Transform animationParent = pCard.transform.Find("CustomAnimationParent");
+
                 if (animationParent == null)
                 {
                     GameObject anim = new("CustomAnimationParent");
@@ -101,7 +101,7 @@ namespace Infiniscryption.DefaultRenderers
                 CustomCoroutine.WaitThenExecute(0.5f, () =>
                 {
                     __instance.WizardPortrait.gameObject.SetActive(false);
-                    Traverse.Create(__instance).Property("DoingAttackAnimation").SetValue(false);
+                    Traverse.Create(__instance).Field("<DoingAttackAnimation>k__BackingField").SetValue(false);
                 });
                 return false;
             }
@@ -173,8 +173,15 @@ namespace Infiniscryption.DefaultRenderers
             string animTrigger = "attack";
             if (!portrait.anim.parameters.Any(p => p.name.Equals("attack")))
                 animTrigger = "ability";
-            portrait.projectileDestination = target.transform.position + (Vector3.down * 30f);
-            portrait.anim.SetTrigger(animTrigger);
+            if (portrait.anim.parameters.Any(p => p.name.Equals(animTrigger)))
+            {
+                portrait.projectileDestination = target.transform.position + (Vector3.down * 30f);
+                portrait.anim.SetTrigger(animTrigger);
+            }
+            else
+            {
+                Tween.Rotate(portrait.transform, new Vector3(0f, -200f, 0f), Space.Self, 0.6f, 0f, completeCallback: () => portrait.transform.localEulerAngles = Vector3.zero);
+            }
             return;
         }
 

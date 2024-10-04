@@ -47,6 +47,13 @@ namespace Infiniscryption.Achievements
             foreach (Transform child in unlockOptionParent.transform)
                 buttons.Add(child);
 
+            // Check to see if the last button happens to already be the achievement screen!
+            if (buttons[buttons.Count - 1].gameObject.GetComponentInChildren<GBC.PixelText>().Text.Equals(Localization.Translate("- ACHIEVEMENTS -"), StringComparison.InvariantCultureIgnoreCase))
+            {
+                buttons[buttons.Count - 1].gameObject.GetComponentInChildren<AscensionMenuInteractable>().CursorSelectStarted = (mii) => AscensionMenuScreens.Instance.SwitchToScreen(ScreenID);
+                return Instance;
+            }
+
             // Duplicate it
             GameObject button = GameObject.Instantiate(buttons[buttons.Count - 1].gameObject, buttons[buttons.Count - 1].parent);
             button.transform.localPosition = new(button.transform.localPosition.x, button.transform.localPosition.y - 0.11f, button.transform.localPosition.z);

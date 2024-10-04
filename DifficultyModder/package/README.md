@@ -27,6 +27,13 @@ The zip file should be structured in the same way as your Inscryption root direc
 <details>
 <summary>Changelog</summary>
 
+1.1.4
+- Fixed a defect where Dynamite would softlock the game after an explosion. 
+
+1.1.3
+- Fixed a defect with the post-run achievements where achievements would not unlock if you were already at the max challenge level.
+- Updated how Dynamite interacts with the Mycologists.
+
 1.1.2
 - Added 7 achievements using the Achievement API (currently in beta). The beta nature of that API means that there may be some unexpected bugs.
 

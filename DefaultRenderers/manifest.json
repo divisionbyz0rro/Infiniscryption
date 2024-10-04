@@ -1,6 +1,6 @@
 {
     "name": "Original_Card_Rendering",
-    "version_number": "0.1.0",
+    "version_number": "0.1.2",
     "website_url": "https://github.com/divisionbyz0rro/Infiniscryption",
     "description": "Renders cards in the way they originally appeared, regardless of which act you are currently playing.",
     "dependencies": [

@@ -16,6 +16,23 @@ namespace Infiniscryption.PackManagement.Patchers
                 {
                     string json = File.ReadAllText(fileName);
                     PackInfoJSON pack = JSONParser.FromJson<PackInfoJSON>(json);
+                    pack.PackType = typeof(PackInfo);
+                    pack.Convert();
+                }
+                catch (Exception ex)
+                {
+                    PackPlugin.Log.LogError($"Error deserializing pack {fileName}: {ex.Message}");
+                    PackPlugin.Log.LogError(ex);
+                }
+            }
+
+            foreach (string fileName in Directory.EnumerateFiles(Paths.PluginPath, "*.jlenc", SearchOption.AllDirectories))
+            {
+                try
+                {
+                    string json = File.ReadAllText(fileName);
+                    PackInfoJSON pack = JSONParser.FromJson<PackInfoJSON>(json);
+                    pack.PackType = typeof(EncounterPackInfo);
                     pack.Convert();
                 }
                 catch (Exception ex)

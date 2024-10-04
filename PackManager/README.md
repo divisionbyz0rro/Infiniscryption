@@ -8,13 +8,19 @@ This mod uses the API's concept of a "mod prefix" on each card to identify which
 
 [![Screenshot of the Pack Management Screen](https://i.imgur.com/r1qaJop.png)](https://i.imgur.com/DaV9cEo.png)
 
+**Encounter pack management beta**: This version of the mod is the beta for "encounter packs," which organizes mod-added regions and encounters into packs in the same way that cards get organized into packs. This replaces the mod's default mechanism for activating and deactivating encounters (where encounters were turned off/on based on which card packs were turned off/on). By default, this beta is **on**; to turn it **off**, you need to edit the mod's config file and set the `EncounterPackManagementBeta` flag to `false`.
+
 ## What happens when a pack is "turned off?"
 
 When you deactivate a pack for a run through Kaycee's Mod, this mod will temporarily remove all metacategories from all cards in that pack. This will prevent the card from appearing in card choice nodes, trader nodes, rare card selection nodes, etc. However, other references to these cards (such as Evolve or Ice Cube) will remain.
 
-This mod will also try to remove encounters from each region that contain excluded cards. However, most card pack mods don't come with encounters, which means that a lot of pack combinations will result in not having any valid encounters. In this situation, the mod reverts to using the game's default encounters.
+## How does this mod handle encounters (battle blueprints)?
 
-## How are packs discovered?
+**If the encounter beta is turned on (default):** A second screen has been added to show encounters that have been added by mods you've installed. These mods are also organized into packs, just like the cards. Toggling off an encounter pack will remove all encounters in that pack from each region they would have otherwise appeared in. If this would leave the region with zero encounters, all base-game encounters are reinstated.
+
+**If the encounter beta is turned off:** This mod will try to remove encounters from each region that contain excluded cards. However, most card pack mods don't come with encounters, which means that a lot of pack combinations will result in not having any valid encounters. In this situation, the mod reverts to using the game's default encounters.
+
+## How are card packs discovered?
 
 Packs are discovered by looking at the entire card pool and seeing what cards belong to which prefix. Each card is grouped with its prefix, and assigned a Pack based on that prefix. The game will create a default pack art and attempt to create a default description for every pack of cards it discovers, but mod creators can build their own pack descriptions and pack arts as well.
 
@@ -24,6 +30,16 @@ This mod comes with pack definitions and custom art for the following mods:
 
 - [Ara Card Expansion](https://inscryption.thunderstore.io/package/Arackulele/AraCardExpansion/)
 - [Hallownest Expansion](https://inscryption.thunderstore.io/package/BlindTheBoundDemon/HallownestExpansion/)
+
+## How are encounter packs discovered?
+
+Regions and encounters are a little tricky. The API does not enforce any sort of naming convention, although it does track which mod created each region in the form of the mod guid (there is no such tracking for encounters).
+
+- This mod attempts to sort custom encounters into packs based on the mod prefix for the cards in those encounters. For example, if you install the Eri Card Encounter Expansion, this mod will detect that those encounters contain cards from Eri's Card Pack and will group those encounters together into a single pack. The mod will try to automatically create card art for the encounter pack by re-coloring the card art for the card pack that those cards came from.
+
+### Encounter support
+
+Encounter packs are currently only tested and known to support Leshy and P03. Grimora and Magnificus are not yet supported during the beta period.
 
 ## Requirements
 
@@ -81,7 +97,7 @@ using Infiniscryption.PackManagement;
 
 public static void CreatePack()
 {
-    PackInfo incrediPack = PackManager.GetPackInfo("boom");
+    PackInfo incrediPack = PackManager.GetPackInfo<PackInfo>("boom");
     incrediPack.Title = "Incredible Card Expansion";
     incrediPack.SetTexture(TextureHelper.GetImageAsTexture("Artwork/boom_pack.png");
     incrediPack.Description = "This card pack is full of cards that will blow your mind.";
@@ -137,66 +153,99 @@ private void Start() // Do this in your Plugin.cs file
 }
 ```
 
-## Creating Pack Art
+# How do I make encounter/region packs?
 
-A template (blank) pack art PNG is included in this package.
+The filtering mechanism for encounters/regions uses two different (and mutually exclusive) techniques. You can either use a common prefix for all of your encounters and regions, or use your mod's GUID as the identier.
 
-## Changelog 
+## Define your pack using a common prefix
 
-<details>
-<summary>Changelog</summary>
+If you define your pack using a card prefix key, all of your regions and encounters must start with the same prefix. In this example, the encounter prefix is `BOOM`:
 
-1.1.6
-- Added a new configuration option to allow all default card packs to be made available for all types of runs. I make no promises how well these cards will actually play, but the option is now there if you want to screw around with it. 
+```c#
+EncounterManager.New("BOOM_IncredibleEncounterOne", addToPool: true);
+```
 
-1.1.5
-- Fixed a small bug that causes the pack list to desync if you have a scrybe mod installed (P03, Grimora, Magnificus) and try to actively switch between runs of different scrybes.
+### Define the pack with JSON
 
-1.1.4
-- Restored the Eri's mod pack definition by popular request.
+As above, you can define your encounters using a JSON file with the extension `.jlenc`:
 
-1.1.3
-- Fixed a defect where all packs were splitting by screen type instead of just autogenerated packs
-- The ability filter now properly accounts for cards that are not selectable but do appear as ice cubes or evolutions for cards which are.
+```json
+{
+	"Title": "Incredible Encounters",
+	"Description": "This pack is full of encounters that will blow your mind.",
+	"ModPrefix": "boom",
+	"PackArt": "Artwork/boom_encounter_pack.png",
+    "ValidFor": ["LeshyPack"]
+}
+```
 
-1.1.2
-- Autogenerated packs are now valid for all screen types (Leshy, P03, Grimora, and Magnificus) and are split by card temple.
+### Define the pack using the API
 
-1.1.1
-- Fixed the guid I was using to look up Magnificus Mod. Hopefully this fixes compatibility with Magnificus Mod.
-- Added the Grimora Choice Node custom metacategory to the Undead Temple lookup. Hopefully this fixes compatibility with Grimora Mod.
+The API for encounter packs looks the same as it does for card packs; the class is just different:
 
-1.1.0
-- Pack manager is now aware of the screen state variables set by P03 Mod, Grimora Mod, and Magnificus Mod.
-- Added the "Split Pack By Card Temple" feature to a pack definition.
-- Removed Gareth and Eri's mod pack definition (Gareth's mod now supports this directly and Eri's is defunct)
+```c#
+using Infiniscryption.PackManagement;
 
-1.0.8
-- A personal message from DivisionByZ0rro
+public static void CreatePack()
+{
+    EncounterPackInfo incrediPack = PackManager.GetPackInfo<EncounterPackInfo>("boom");
+    incrediPack.Title = "Incredible Encounters";
+    incrediPack.SetTexture(TextureHelper.GetImageAsTexture("Artwork/boom_encounter_pack.png");
+    incrediPack.Description = "This pack is full of encounters that will blow your mind.";
+    incrediPack.ValidFor.Add(PackInfo.PackMetacategory.LeshyPack);
+}
+```
 
-1.0.7
-- Default encounters are no longer removed from the pool when the default card pack is turned off (configurable)
-- Encounter switching can be toggled off with a configuration option
-- Abilities are no longer removed from the Part 3 Modular or Part 3 Bounty Hunter pool if a card pack is removed
+## Use your Mod GUID as the pack identifier
 
-1.0.6
-- Properly handle the case where the P03 In Kaycee's Mod plugin is uninstalled while the game is in P03 mode.
+You can also define your encounter/region packs using your mod guid. If you do this, all regions/encounters defined in your mod will be included in the pack. This only works if your plugin loads after the Pack Manager plugin, which you can ensure by making the Pack Manager plugin a dependency of your plugin:
 
-1.0.5
-- The Rare metacategory was mistakenly being skipped when filtering the list of valid cards for each pack.
+```c#
 
-1.0.4
-- Changed the internal JSON parser to resolve some defects.
+[BepInPlugin("boom.inscryption.guid", "Incredble Mod", "1.6.9")]
+[BepInDependency("zorro.inscryption.infiniscryption.packmanager")]
+public class BoomPlugin : BaseUnityPlugin
+{
+    private void Awake()
+    {
+        // Add regions and encounters
+    }
+}
+```
 
-1.0.3
-- Found one more goof in the README and fixed it. 
+### Define the pack with JSON
 
-1.0.2
-- Fixed the README. I had a bad example for the JLPK and that wasted a of people's time. My bad.
+To use the mod guid as the identifier for your pack, just put your mod guid in the `ModPrefix` field and use a JSON file with the extension `.jlenc`:
 
-1.0.1
-- Like a dope, I managed to push a version of this mod that didn't have page scrolling activated. The mod can now handle more than 7 packs. Major facepalm.
+```json
+{
+	"Title": "Incredible Encounters",
+	"Description": "This pack is full of encounters that will blow your mind.",
+	"ModPrefix": "boom.inscryption.guid",
+	"PackArt": "Artwork/boom_encounter_pack.png",
+    "ValidFor": ["LeshyPack"]
+}
+```
 
-1.0
-- Initial version. 
-</details>
+### Using the API
+
+To use the mod guid as the identifier for your pack, just put your mod guid in the `ModPrefix` field. The API for encounter packs looks the same as it does for card packs; the class is just different:
+
+```c#
+using Infiniscryption.PackManagement;
+
+public static void CreatePack()
+{
+    EncounterPackInfo incrediPack = PackManager.GetPackInfo<EncounterPackInfo>("boom.inscryption.guid");
+    incrediPack.Title = "Incredible Encounters";
+    incrediPack.SetTexture(TextureHelper.GetImageAsTexture("Artwork/boom_encounter_pack.png");
+    incrediPack.Description = "This pack is full of encounters that will blow your mind.";
+    incrediPack.ValidFor.Add(PackInfo.PackMetacategory.LeshyPack);
+}
+```
+
+# Creating Pack Art
+
+Template (blank/empty) pack arts are included in this package.
+
+For encounter packs: if your mod also includes a card pack, and the prefix for your encounter pack is the same as the prefix for your card pack, this mod will automatically create pack art for your encounters pack based on the art for your card pack.

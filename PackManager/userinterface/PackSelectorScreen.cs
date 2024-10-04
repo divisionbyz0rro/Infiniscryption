@@ -10,14 +10,13 @@ using InscryptionAPI.Helpers;
 
 namespace Infiniscryption.PackManagement.UserInterface
 {
-    [AscensionScreenSort(AscensionScreenSort.Direction.RequiresStart)]
-    public class PackSelectorScreen : AscensionRunSetupScreenBase
+    public abstract class PackSelectorScreenBase<T> : AscensionRunSetupScreenBase where T : PackInfoBase
     {
         public override string headerText => "Choose Active Packs";
         public override bool showCardDisplayer => true;
         public override bool showCardPanel => false;
 
-        public static PackSelectorScreen Instance;
+        public static PackSelectorScreenBase<T> Instance;
 
         private static GameObject _textPseudoPrefab;
         private static GameObject TextPseudoPrefab
@@ -26,7 +25,7 @@ namespace Infiniscryption.PackManagement.UserInterface
             {
                 if (_textPseudoPrefab == null)
                     _textPseudoPrefab = AscensionMenuScreens.Instance.startScreen.transform.Find("Center/Subtitle/PixelTextLine_DIV").gameObject;
-                
+
                 return _textPseudoPrefab;
             }
         }
@@ -38,26 +37,26 @@ namespace Infiniscryption.PackManagement.UserInterface
             {
                 if (_coveredSprite == null)
                 {
-                    _coveredSprite = Sprite.Create(TextureHelper.GetImageAsTexture("deselected.png", typeof(PackSelectorScreen).Assembly), new Rect(0f, 0f, 46f, 74f), new Vector2(0.5f, 0.5f));
+                    _coveredSprite = Sprite.Create(TextureHelper.GetImageAsTexture("deselected.png", typeof(PackPlugin).Assembly), new Rect(0f, 0f, 46f, 74f), new Vector2(0.5f, 0.5f));
                     _coveredSprite.name = "CoveredSprite";
                 }
-                
+
                 return _coveredSprite;
             }
         }
 
-        private static Sprite _defaultPackSprite;
-        internal static Sprite DefaultPackSprite
+        private static Sprite _lockedSprite;
+        private static Sprite LockedSprite
         {
             get
             {
-                if (_defaultPackSprite == null)
+                if (_lockedSprite == null)
                 {
-                    _defaultPackSprite = Sprite.Create(TextureHelper.GetImageAsTexture("default_window.png", typeof(PackSelectorScreen).Assembly), new Rect(0f, 0f, 46f, 74f), new Vector2(0.5f, 0.5f));
-                    _defaultPackSprite.name = "DefaultPackSprite";
+                    _lockedSprite = Sprite.Create(TextureHelper.GetImageAsTexture("locked.png", typeof(PackPlugin).Assembly), new Rect(0f, 0f, 46f, 74f), new Vector2(0.5f, 0.5f));
+                    _lockedSprite.name = "LockedSprite";
                 }
-                
-                return _defaultPackSprite;
+
+                return _lockedSprite;
             }
         }
 
@@ -65,7 +64,7 @@ namespace Infiniscryption.PackManagement.UserInterface
 
         private static Vector2 BETWEEN_CARD_OFFSET = new Vector2(0.5f, 0f);
 
-        private static PackIcon GeneratePackIcon(Transform parent)
+        private PackIcon GeneratePackIcon(Transform parent)
         {
             GameObject obj = new GameObject("Pack");
             obj.transform.SetParent(parent);
@@ -76,7 +75,7 @@ namespace Infiniscryption.PackManagement.UserInterface
             pack.transform.SetParent(obj.transform);
             pack.layer = LayerMask.NameToLayer("GBCUI");
             retval.IconRenderer = pack.AddComponent<SpriteRenderer>();
-            retval.IconRenderer.sprite = DefaultPackSprite;
+            retval.IconRenderer.sprite = PackIcon.GetDefaultPackSprite(typeof(T));
             retval.IconRenderer.enabled = true;
             retval.IconRenderer.sortingOrder = 200;
 
@@ -105,8 +104,18 @@ namespace Infiniscryption.PackManagement.UserInterface
             retval.CoveredRenderer.enabled = true;
             retval.CoveredRenderer.sortingOrder = 250;
 
+            GameObject locked = new GameObject("Locked");
+            locked.transform.SetParent(obj.transform);
+            locked.layer = LayerMask.NameToLayer("GBCUI");
+            retval.LockedRenderer = locked.AddComponent<SpriteRenderer>();
+            retval.LockedRenderer.sprite = LockedSprite;
+            retval.LockedRenderer.enabled = true;
+            retval.LockedRenderer.sortingOrder = 250;
+
             BoxCollider2D collider = obj.AddComponent<BoxCollider2D>();
             collider.size = retval.IconRenderer.size;
+
+            retval.IconSelectedCallback = ShowPage;
 
             return retval;
         }
@@ -115,13 +124,22 @@ namespace Infiniscryption.PackManagement.UserInterface
 
         public override void InitializeScreen(GameObject partialScreen)
         {
+            // Anchor the top
+            GameObject textHeader = partialScreen.transform.Find("Header/Mid").gameObject;
+            AnchorToScreenEdge headerAnchor = textHeader.AddComponent<AnchorToScreenEdge>();
+            headerAnchor.anchorToBottom = false;
+            headerAnchor.anchorToMidpoint = false;
+            headerAnchor.anchorYOffset = .47f;
+            headerAnchor.worldAnchor = partialScreen.transform.Find("Header");
+
+
             // I need a row of packs with hovers
             GameObject iconContainer = new GameObject("GameIcons");
             iconContainer.transform.SetParent(partialScreen.transform);
             AnchorToScreenEdge anchor = iconContainer.AddComponent<AnchorToScreenEdge>();
             anchor.anchorToMidpoint = true;
             anchor.anchorToBottom = false;
-            anchor.anchorYOffset = -.25f;
+            anchor.anchorYOffset = -.42f;
             anchor.worldAnchor = partialScreen.transform.Find("Footer");
 
             PackIcons = new List<PackIcon>();
@@ -132,7 +150,7 @@ namespace Infiniscryption.PackManagement.UserInterface
                 PackIcons.Add(icon);
             }
 
-             var pageTuple = AscensionRunSetupScreenBase.BuildPaginators(iconContainer.transform);
+            var pageTuple = AscensionRunSetupScreenBase.BuildPaginators(iconContainer.transform);
 
             AscensionMenuInteractable leftController = pageTuple.Item1;
             AscensionMenuInteractable rightController = pageTuple.Item2;
@@ -176,7 +194,7 @@ namespace Infiniscryption.PackManagement.UserInterface
         {
             int startIdx = this.PackIcons.Count * scrollIndex;
             int numToShow = Math.Min(this.PackIcons.Count, this.cache.OrderedPacks.Count - startIdx);
-            this.ShowPacks(this.cache.OrderedPacks.GetRange(startIdx, numToShow));
+            this.ShowPacks(this.cache.OrderedPacks.GetRange(startIdx, numToShow).Cast<T>().ToList());
         }
 
         public void InitializeCardSelection()
@@ -188,7 +206,7 @@ namespace Infiniscryption.PackManagement.UserInterface
             this.rightButton.gameObject.SetActive(this.PackIcons.Count < this.cache.OrderedPacks.Count);
         }
 
-        public void ShowPacks(List<PackInfo> packsToDisplay)
+        public void ShowPacks(List<T> packsToDisplay)
         {
             foreach (PackIcon pack in this.PackIcons)
                 pack.gameObject.SetActive(false);
@@ -212,11 +230,20 @@ namespace Infiniscryption.PackManagement.UserInterface
         {
             base.OnEnable();
 
-            this.cache = new();
+            this.cache = new(typeof(T));
 
             // Reset active from inactive
-            List<PackInfo> inactivePacks = PackManager.RetrievePackList(false);
+            List<T> inactivePacks = PackManager.RetrievePackList<T>(false);
             PackManager.SavePackList(this.cache.OrderedPacks.Where(pi => !inactivePacks.Contains(pi)).ToList(), true);
+
+            if (this.cache.OrderedPacks.Count <= 1)
+            {
+                InteractionCursor.Instance.UpdateMainInput();
+                if (InteractionCursor.Instance.currentMainInputInteractable == this.continueButton)
+                    this.continueButton.CursorSelectStart();
+                if (InteractionCursor.Instance.currentMainInputInteractable == this.backButton)
+                    this.backButton.CursorSelectStart();
+            }
 
             scrollIndex = 0;
             InitializeCardSelection();

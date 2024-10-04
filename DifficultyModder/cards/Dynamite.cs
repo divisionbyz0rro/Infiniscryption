@@ -11,14 +11,17 @@ using System.Linq;
 using InscryptionAPI.Card;
 using Infiniscryption.Curses.Sequences;
 using Infiniscryption.Curses.Patchers;
+using GBC;
+using Infiniscryption.Curses.Helpers;
 
 namespace Infiniscryption.Curses.Cards
 {
+    [HarmonyPatch]
     public class Dynamite : AbilityBehaviour
     {
         public const string EXPLOSION_SOUND = "card_explosion";
 
-		public override Ability Ability => AbilityID;
+        public override Ability Ability => AbilityID;
         public static Ability AbilityID { get; private set; }
 
         private bool _blewUp = false;
@@ -36,6 +39,9 @@ namespace Infiniscryption.Curses.Cards
             info.opponentUsable = false;
             info.passive = false;
             info.metaCategories = new List<AbilityMetaCategory>() { AbilityMetaCategory.Part1Rulebook };
+
+            DialogueHelper.GenerateDialogue("MycologistsDynamite", "This is more difficult than anticipated...");
+            DialogueHelper.GenerateDialogue("MycologistsDynamiteSuccess", "We - We may have made things worse");
 
             Dynamite.AbilityID = AbilityManager.Add(
                 CursePlugin.PluginGuid,
@@ -98,6 +104,23 @@ namespace Infiniscryption.Curses.Cards
             return playerTurnEnd;
         }
 
+        private int _lastKnownDamage = 2;
+        public int Damage
+        {
+            get
+            {
+                try
+                {
+                    _lastKnownDamage = Card.Info.Mods.Any(m => m.fromDuplicateMerge) ? 4 : 2;
+                    return _lastKnownDamage;
+                }
+                catch
+                {
+                    return _lastKnownDamage;
+                }
+            }
+        }
+
         public override IEnumerator OnTurnEnd(bool playerTurnEnd)
         {
             if (playerTurnEnd)
@@ -125,7 +148,16 @@ namespace Infiniscryption.Curses.Cards
                     // Make the explosion sound
                     AudioController.Instance.PlaySound3D(EXPLOSION_SOUND, MixerGroup.CardVoiceSFX, this.Card.transform.position, 1f, 0f, null, null, null, null, false);
                     this.Card.Anim.PlayTransformAnimation();
-                    yield return new WaitForSeconds(0.44f);
+                    if (Damage == 4)
+                    {
+                        yield return new WaitForSeconds(0.05f);
+                        AudioController.Instance.PlaySound3D(EXPLOSION_SOUND, MixerGroup.CardVoiceSFX, this.Card.transform.position, 1f, 0f, null, null, null, null, false);
+                        yield return new WaitForSeconds(0.39f);
+                    }
+                    else
+                    {
+                        yield return new WaitForSeconds(0.44f);
+                    }
 
                     this.Card.Anim.StopAllCoroutines();
                     PlayerHand.Instance.RemoveCardFromHand(this.Card);
@@ -134,9 +166,9 @@ namespace Infiniscryption.Curses.Cards
                     yield return new WaitForSeconds(0.8f);
 
                     PlayerHand.Instance.InspectingLocked = false;
-                    
+
                     // Show the damage
-                    yield return LifeManager.Instance.ShowDamageSequence(2, 2, true, 0f, null, 0f);
+                    yield return LifeManager.Instance.ShowDamageSequence(Damage, Damage, true, 0f, null, 0f);
                     yield return new WaitForSeconds(0.5f);
 
                     ViewManager.Instance.SwitchToView(View.Hand);
@@ -154,7 +186,16 @@ namespace Infiniscryption.Curses.Cards
                     // Make the explosion sound
                     AudioController.Instance.PlaySound3D(EXPLOSION_SOUND, MixerGroup.CardVoiceSFX, this.Card.transform.position, 1f, 0f, null, null, new AudioParams.Randomization(true), null, false);
                     this.Card.Anim.PlayTransformAnimation();
-                    yield return new WaitForSeconds(0.4f);
+                    if (Damage == 4)
+                    {
+                        yield return new WaitForSeconds(0.05f);
+                        AudioController.Instance.PlaySound3D(EXPLOSION_SOUND, MixerGroup.CardVoiceSFX, this.Card.transform.position, 1f, 0f, null, null, null, null, false);
+                        yield return new WaitForSeconds(0.35f);
+                    }
+                    else
+                    {
+                        yield return new WaitForSeconds(0.4f);
+                    }
 
                     // Kill the adjacent cards
                     if (this.Card.Slot != null)
@@ -164,9 +205,9 @@ namespace Infiniscryption.Curses.Cards
                                                 .ToList();
 
                         foreach (CardSlot slot in slots.Where(s => s != null && s.Card != null))
-                            yield return slot.Card.TakeDamage(2, this.Card);
+                            yield return slot.Card.TakeDamage(Damage, this.Card);
                     }
-                    
+
                     // Show the damage
                     yield return this.Card.Die(true, null, true);
 
@@ -175,6 +216,51 @@ namespace Infiniscryption.Curses.Cards
             }
 
             yield break;
+        }
+
+        [HarmonyPatch(typeof(DuplicateMergeSequencer), nameof(DuplicateMergeSequencer.MergeCards))]
+        [HarmonyPrefix]
+        private static void ChangeNameOfMergedCard(CardInfo card1)
+        {
+            if (card1.name.Equals(ProspectorBossHardOpponent.DYNAMITE))
+            {
+                CardModificationInfo nameMod = new();
+                nameMod.nameReplacement = "Dynamite!?";
+                RunState.Run.playerDeck.ModifyCard(card1, nameMod);
+            }
+        }
+
+        [HarmonyPatch(typeof(DuplicateMergeSequencer), nameof(DuplicateMergeSequencer.CombinePair))]
+        [HarmonyPostfix]
+        private static IEnumerator DynamiteReaction(IEnumerator sequence, SelectableCardPair pair, DuplicateMergeSequencer __instance)
+        {
+            if (!pair.LeftCard.Info.name.Equals(ProspectorBossHardOpponent.DYNAMITE))
+            {
+                yield return sequence;
+                yield break;
+            }
+
+            bool done = false;
+            while (sequence.MoveNext())
+            {
+                if (sequence.Current is WaitForSeconds wfs && wfs.m_Seconds == 0.5f && !done)
+                {
+                    AudioController.Instance.PlaySound3D(EXPLOSION_SOUND, MixerGroup.CardVoiceSFX, __instance.largeMushroom.transform.position, 1f, 0f, null, null, new AudioParams.Randomization(true), null, false);
+                    yield return sequence.Current;
+                    yield return TextDisplayer.Instance.PlayDialogueEvent("MycologistsDynamite", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait);
+                    AudioController.Instance.PlaySound3D(EXPLOSION_SOUND, MixerGroup.CardVoiceSFX, __instance.largeMushroom.transform.position, 1f, 0f, null, null, new AudioParams.Randomization(true), null, false);
+
+                    done = true;
+                    continue;
+                }
+                if (sequence.Current is WaitForSeconds wfs2 && wfs2.m_Seconds == 0.15f && done)
+                {
+                    yield return sequence.Current;
+                    sequence.MoveNext();
+                    yield return TextDisplayer.Instance.PlayDialogueEvent("MycologistsDynamiteSuccess", TextDisplayer.MessageAdvanceMode.Input, TextDisplayer.EventIntersectMode.Wait);
+                }
+                yield return sequence.Current;
+            }
         }
     }
 }

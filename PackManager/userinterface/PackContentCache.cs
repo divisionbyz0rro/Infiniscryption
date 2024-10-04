@@ -20,29 +20,41 @@ namespace Infiniscryption.PackManagement.UserInterface
     /// </summary>
     public class PackContentCache
     {
-        public List<PackInfo> OrderedPacks { get; private set; }
+        public List<PackInfoBase> OrderedPacks { get; private set; }
 
         private Dictionary<string, List<string>> PackMapper;
+        private Dictionary<string, float> PowerLevelMapper;
 
-        public PackContentCache()
+        public PackContentCache(Type packType)
         {
-            this.OrderedPacks = PackManager.AllPacks.Where(pi => pi.IsBaseGameCardPack)
-                                             .Concat(PackManager.AllPacks.Where(pi => pi.IsStandardCardPack))
-                                             .Concat(PackManager.AllPacks.Where(pi => pi.IsLeftoversPack))
-                                             .Where(pi => pi.ValidFor.Contains(PackInfo.GetTempleDefaultMetacategory(PackManager.ScreenState)))
-                                             .ToList();
+            this.OrderedPacks = PackManager.AllPacks(packType)
+                                           .InScreenOrder()
+                                           .Where(pi => pi.ValidFor.Contains(PackInfo.GetTempleDefaultMetacategory(PackManager.ScreenState)))
+                                           .ToList();
 
             // This could be faster but I think this will be good enough
-            PackMapper = OrderedPacks.ToDictionary(pi => pi.Key, pi => new List<string>(pi.Cards.Where(ci => ci.CardIsValidForScreenState()).Select(ci => ci.name)));
+            PackMapper = OrderedPacks.ToDictionary(pi => pi.Key, pi => new List<string>(pi.ScreenFilteredContents));
+            PowerLevelMapper = OrderedPacks.ToDictionary(pi => pi.Key, pi => pi.PowerLevel);
 
             foreach (var item in PackMapper)
-                PackPlugin.Log.LogInfo($"Pack {item.Key} has {item.Value.Count} cards in it");
+            {
+                string contents = string.Join(", ", item.Value);
+                PackPlugin.Log.LogInfo($"Pack {item.Key} has {contents} in it");
+            }
 
             // And now we remove everything that doesn't have cards!
             OrderedPacks.RemoveAll(pi => PackMapper[pi.Key].Count == 0);
         }
 
-        public List<string> GetCardsForPack(PackInfo pack)
+        public float GetPowerLevel(PackInfoBase pack)
+        {
+            if (!PowerLevelMapper.ContainsKey(pack.Key))
+                throw new KeyNotFoundException($"I do not recognize pack {pack.Title}");
+
+            return PowerLevelMapper[pack.Key];
+        }
+
+        public List<string> GetContentsOfPack(PackInfoBase pack)
         {
             if (!PackMapper.ContainsKey(pack.Key))
                 throw new KeyNotFoundException($"I do not recognize pack {pack.Title}");

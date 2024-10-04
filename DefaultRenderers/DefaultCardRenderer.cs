@@ -10,6 +10,7 @@ using Pixelplacement;
 using InscryptionCommunityPatch.Card;
 using Unity.Cloud;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Infiniscryption.DefaultRenderers
 {
@@ -78,12 +79,11 @@ namespace Infiniscryption.DefaultRenderers
 
         private CardTemple? SaveFileOverride = null;
 
-        public static CardTemple? ActiveTemple = SaveManager.SaveFile == null ? null :
-                                      SaveManager.SaveFile.IsPart1 ? CardTemple.Nature :
-                                      SaveManager.SaveFile.IsPart3 ? CardTemple.Tech :
-                                      SaveManager.SaveFile.IsGrimora ? CardTemple.Undead :
-                                      SaveManager.SaveFile.IsMagnificus ? CardTemple.Wizard
-                                      : null;
+        public static CardTemple? ActiveTemple => SceneManager.GetActiveScene().name.ToLowerInvariant().Contains("part1") ? CardTemple.Nature :
+                                                 SceneManager.GetActiveScene().name.ToLowerInvariant().Contains("part3") ? CardTemple.Tech :
+                                                 SceneManager.GetActiveScene().name.ToLowerInvariant().Contains("grimora") ? CardTemple.Undead :
+                                                 SceneManager.GetActiveScene().name.ToLowerInvariant().Contains("magnificus") ? CardTemple.Wizard
+                                                 : null;
 
         private static DefaultCardRenderer m_instance = null;
         public static DefaultCardRenderer Instance
@@ -102,14 +102,21 @@ namespace Infiniscryption.DefaultRenderers
         {
             try
             {
+                DefaultRenderersPlugin.Log.LogInfo($"Trying to create default renderers plugin for {SceneManager.GetActiveScene().name.ToLowerInvariant()}");
                 if (ActiveTemple == null)
+                {
+                    DefaultRenderersPlugin.Log.LogInfo("Cannot create default renderers plugin for this scene because it's not a main game scene");
                     return;
+                }
 
                 if (m_instance != null)
                     return;
 
                 if (CardRenderCamera.Instance == null)
+                {
+                    DefaultRenderersPlugin.Log.LogInfo("Cannot create default renderers plugin for this scene because there is not a CardRenderCamera");
                     return;
+                }
             }
             catch
             {
@@ -243,7 +250,7 @@ namespace Infiniscryption.DefaultRenderers
         [HarmonyPriority(Priority.VeryHigh)]
         private static bool HackForGrimAnim(GravestoneCardAnimationController __instance, bool flipped)
         {
-            if (ActiveTemple == CardTemple.Tech)
+            if (ActiveTemple == CardTemple.Tech && (__instance.PlayableCard != null && __instance.PlayableCard.OnBoard))
             {
                 __instance.armAnim.transform.localEulerAngles = !flipped ? new Vector3(-270f, 90f, -90f) : new Vector3(-90f, 0f, 0f);
                 __instance.armAnim.transform.localPosition = !flipped ? new Vector3(0f, -0.1f, -0.1f) : new Vector3(0f, 0.24f, -0.1f);
@@ -283,7 +290,7 @@ namespace Infiniscryption.DefaultRenderers
 
                 // Kind of a funny hack...there's got to be a better way to fix this
                 // If I don't do this, the gravestone cards are upside down.
-                if (renderTemple == CardTemple.Undead && ActiveTemple == CardTemple.Tech)
+                if (renderTemple == CardTemple.Undead && ActiveTemple == CardTemple.Tech && playableCard.OnBoard)
                 {
                     GameObject newParent = new("Part3Parent");
                     newParent.transform.SetParent(card.transform);
@@ -412,7 +419,9 @@ namespace Infiniscryption.DefaultRenderers
 
             // Transfer all of the fields of the new selectable card to this guy
             SelectableCard newSelectableCard = gameObject.GetComponent<SelectableCard>();
+
             newSelectableCard.SetInfo(info);
+
             foreach (var fieldType in typeof(SelectableCard).GetFields(BindingFlags.NonPublic | BindingFlags.Instance))
             {
                 if (fieldType.FieldType == typeof(CardChoice))
@@ -428,6 +437,7 @@ namespace Infiniscryption.DefaultRenderers
             }
 
             GameObject.Destroy(newSelectableCard);
+
 
             // Now destroy all of the children game objects of this selectable card
             List<Transform> allMyChildren = new();
@@ -484,6 +494,9 @@ namespace Infiniscryption.DefaultRenderers
         [HarmonyPrefix]
         private static void SwapOutGutsHereTooFFS(Card __instance, CardInfo info)
         {
+            if (Instance == null)
+                return;
+
             SelectableCard card = __instance as SelectableCard;
             if (card == null || info == null)
                 return;
@@ -507,6 +520,9 @@ namespace Infiniscryption.DefaultRenderers
         [HarmonyPrefix]
         private static bool DifferentAnimationWhenChangingTempleOfCard(Card __instance, bool faceDown, bool immediate = false)
         {
+            if (Instance == null)
+                return true;
+
             SelectableCard card = __instance as SelectableCard;
             if (card == null || card.Info == null)
                 return true;
@@ -560,7 +576,7 @@ namespace Infiniscryption.DefaultRenderers
                 __instance.PlayGlitchOutAnimation();
                 return false;
             }
-            Tween.ShaderColor(__instance.PlayableCard.StatsLayer.Material, "_FadeColor", Color.black, 0.35f, 0f, Tween.EaseIn, Tween.LoopType.None, null, delegate ()
+            Tween.ShaderColor(__instance.Card.StatsLayer.Material, "_FadeColor", Color.black, 0.35f, 0f, Tween.EaseIn, Tween.LoopType.None, null, delegate ()
             {
                 __instance.Card.StatsLayer.Material = __instance.fadeMaterial;
                 Tween.ShaderColor(__instance.Card.StatsLayer.Material, "_Color", new Color(0f, 0f, 0f, 0f), 0.35f, 0f, Tween.EaseLinear, Tween.LoopType.None, null, null, true);
@@ -619,6 +635,42 @@ namespace Infiniscryption.DefaultRenderers
             Transform firstChild = card.transform.GetChild(0);
             Transform foundTransform = firstChild.Find(key);
             __result = foundTransform?.gameObject;
+        }
+
+        [HarmonyPatch(typeof(FishHookGrab), nameof(FishHookGrab.SetHookTargetSlot))]
+        [HarmonyPrefix]
+        private static bool FixHookAnimation(FishHookGrab __instance, CardSlot slot)
+        {
+            if (__instance.hookTargetCard != null)
+            {
+                if (__instance.hookTargetCard.Anim is PaperCardAnimationController pcac && pcac.fishHookMarker != null)
+                    pcac.SetMarkedForFishHook(false);
+            }
+            __instance.hookTargetSlot = slot;
+            __instance.hookTargetCard = null;
+            if (__instance.hookTargetSlot != null && __instance.hookTargetSlot.Card != null)
+            {
+                __instance.hookTargetCard = __instance.hookTargetSlot.Card;
+                if (__instance.hookTargetCard.Anim is PaperCardAnimationController pcac && pcac.fishHookMarker != null)
+                    pcac.SetMarkedForFishHook(true);
+            }
+            return false;
+        }
+
+        [HarmonyPatch(typeof(DiskTalkingCard), nameof(DiskTalkingCard.SetAbilityIconsShown))]
+        [HarmonyPrefix]
+        private static bool PreventNREsOnDiskCards(DiskTalkingCard __instance, bool shown)
+        {
+            if (__instance.CardCameraParent != null)
+            {
+                if (__instance.abilityIcons == __instance)
+                {
+                    __instance.abilityIcons = __instance.CardCameraParent.GetComponentInChildren<CardAbilityIcons>();
+                }
+
+                __instance.abilityIcons?.SetColorOfDefaultIcons(shown ? (__instance.Card.RenderInfo != null ? __instance.Card.RenderInfo.defaultAbilityColor : GameColors.Instance.blue) : __instance.fadedAbilitiesColor, false);
+            }
+            return false;
         }
     }
 }
